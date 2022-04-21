@@ -1,2 +1,2 @@
-# zowe-chatops
-Zowe Chat Ops
+# zowe-chat
+Zowe Chat
