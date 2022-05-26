@@ -12,10 +12,12 @@
 import {ILogLevel, ILogOption} from '../types';
 import winston = require('winston');
 import fs = require('fs');
+import path = require('path');
 
 class Logger {
     private static instance: Logger;
     private logger: winston.Logger;
+    private option: ILogOption;
 
     private constructor() {
         if (Logger.instance === undefined) {
@@ -29,44 +31,51 @@ class Logger {
             });
 
             // Get log option
-            const logOption: ILogOption = {
+            this.option = {
+                filePath: `${__dirname}/../log/common-bot.log`,
                 level: ILogLevel.INFO,
                 maximumSize: null,
                 maximumFiles: null,
             };
-            if (process.env.COMMONBOT_LOG_LEVEL !== undefined && process.env.COMMONBOT_LOG_LEVEL.trim() !== '') {
-                const logLevels: string[] = [ILogLevel.ERROR, ILogLevel.WARN, ILogLevel.INFO, ILogLevel.DEBUG, ILogLevel.VERBOSE, ILogLevel.SILLY];
-                if (logLevels.includes(process.env.COMMONBOT_LOG_LEVEL)) {
-                    logOption.level = <ILogLevel>process.env.COMMONBOT_LOG_LEVEL;
-                } else {
-                    console.error('Unsupported value specified in the variable COMMONBOT_LOG_LEVEL.');
-                }
-            }
-            if (process.env.COMMONBOT_LOG_MAX_SIZE !== undefined && process.env.COMMONBOT_LOG_MAX_SIZE.trim() !== '') {
-                logOption.maximumSize = process.env.COMMONBOT_LOG_MAX_SIZE;
-            }
-            if (process.env.COMMONBOT_LOG_MAX_FILES !== undefined && process.env.COMMONBOT_LOG_MAX_FILES.trim() !== '') {
-                logOption.maximumFiles = process.env.COMMONBOT_LOG_MAX_FILES;
-            }
 
-            // Get log file
-            let logFile = `${__dirname}/../logs/common-bot.log`;
-            if (process.env.COMMONBOT_LOG_FILE !== undefined) {
-                if (fs.existsSync(process.env.COMMONBOT_LOG_FILE)) {
-                    logFile = process.env.COMMONBOT_LOG_FILE;
-                } else {
-                    console.log(`The log File specified in the variable COMMONBOT_LOG_FILE does not exist!`);
+            // Process environment variables
+            try {
+                if (process.env.COMMONBOT_LOG_FILE_PATH !== undefined && process.env.COMMONBOT_LOG_FILE_PATH.trim() !== '') {
+                    this.option.filePath = process.env.COMMONBOT_LOG_FILE_PATH; // Set log file
                 }
+                // Create log file folder if not exist
+                const filePath = path.dirname(this.option.filePath);
+                if (fs.existsSync(filePath) === false) {
+                    fs.mkdirSync(filePath, {recursive: true});
+                }
+                if (process.env.COMMONBOT_LOG_LEVEL !== undefined && process.env.COMMONBOT_LOG_LEVEL.trim() !== '') {
+                    const logLevels: string[] = [ILogLevel.ERROR, ILogLevel.WARN, ILogLevel.INFO, ILogLevel.DEBUG, ILogLevel.VERBOSE, ILogLevel.SILLY];
+                    if (logLevels.includes(process.env.COMMONBOT_LOG_LEVEL)) {
+                        this.option.level = <ILogLevel>process.env.COMMONBOT_LOG_LEVEL;
+                    } else {
+                        console.error('Unsupported value specified in the variable COMMONBOT_LOG_LEVEL!');
+                    }
+                }
+                if (process.env.COMMONBOT_LOG_MAX_SIZE !== undefined && process.env.COMMONBOT_LOG_MAX_SIZE.trim() !== '') {
+                    this.option.maximumSize = process.env.COMMONBOT_LOG_MAX_SIZE;
+                }
+                if (process.env.COMMONBOT_LOG_MAX_FILES !== undefined && process.env.COMMONBOT_LOG_MAX_FILES.trim() !== '') {
+                    this.option.maximumFiles = process.env.COMMONBOT_LOG_MAX_FILES;
+                }
+            } catch (error) {
+                console.error(`Failed to process the environment variables for Common Bot Framework!`);
+                console.error(error.stack);
+                process.exit(1);
             }
 
             // Create logger instance
             this.logger = winston.createLogger( {
-                level: logOption.level, // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
+                level: this.option.level, // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
                 //   format: winston.format.combine(winston.format.timestamp(), winston.format.colorize(), winston.format.simple()),
                 transports: [new winston.transports.File({
-                    filename: logFile,
-                    maxsize: <number><unknown>logOption.maximumSize,
-                    maxFiles: <number><unknown>logOption.maximumFiles,
+                    filename: this.option.filePath,
+                    maxsize: <number><unknown>(this.option.maximumSize),
+                    maxFiles: <number><unknown>(this.option.maximumFiles),
                     format: combine(timestamp(), bnzFormat),
                     options: {flags: 'w'}}),
                 ],
@@ -89,6 +98,11 @@ class Logger {
         }
 
         return Logger.instance;
+    }
+
+    // Get log option
+    getOption(): ILogOption {
+        return this.option;
     }
 
     // Print start log

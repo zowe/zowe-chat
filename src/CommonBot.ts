@@ -8,7 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {IOption, IMessageMatcherFunction, IMessageHandlerFunction, IRouteHandlerFunction} from './types';
+import type {IBotOption, IMessageMatcherFunction, IMessageHandlerFunction, IRouteHandlerFunction, IMessage, IChatContextData} from './types';
 
 import Listener = require('./Listener');
 import logger = require('./utils/Logger');
@@ -21,13 +21,13 @@ import fs = require('fs');
 declare function require(moduleName: string): any;
 
 class CommonBot {
-    private option: IOption;
+    private option: IBotOption;
     private middleware: Middleware;
     private listeners: Listener[]; // MsteamsListener | SlackListener[] | MattermostListener[];
     private router: Router; // | MsteamsRouter | SlackRouter | MattermostRouter;
 
     // Constructor
-    constructor(option: IOption) {
+    constructor(option: IBotOption) {
         this.option = option;
         this.middleware = null;
         this.listeners = [];
@@ -35,12 +35,12 @@ class CommonBot {
     }
 
     // Get option
-    getOption(): IOption {
+    getOption(): IBotOption {
         return this.option;
     }
 
     // Set option
-    setOption(option: IOption): void {
+    setOption(option: IBotOption): void {
         this.option = option;
     }
 
@@ -139,6 +139,22 @@ class CommonBot {
     // Get router
     geRouter(): Router {
         return this.router;
+    }
+
+    // Send message to channel
+    async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
+        // Print start log
+        logger.start(this.send, this);
+
+        try {
+            await this.middleware.send(chatContextData, messages);
+        } catch (err) {
+            // Print exception stack
+            logger.error(logger.getErrorStack(new Error(err.name), err));
+        } finally {
+            // Print end log
+            logger.end(this.send, this);
+        }
     }
 }
 

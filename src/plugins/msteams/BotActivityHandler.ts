@@ -14,7 +14,6 @@ import type {IChatContextData, TaskModuleTaskInfo, IUser} from '../../types';
 import {TurnContext, TeamsActivityHandler, TeamsInfo, ChannelInfo, TaskModuleRequest, TaskModuleResponse, CardFactory} from 'botbuilder';
 
 import {IChattingType} from '../../types';
-import ChatContext = require('../../ChatContext');
 import logger = require('../../utils/Logger');
 import Util = require('../../utils/Util');
 import CommonBot = require('../../CommonBot');
@@ -106,7 +105,7 @@ class BotActivityHandler extends TeamsActivityHandler {
             //
             // Activity data for the conversation: personal
             //    {"_respondedRef":{"responded":false},"_turnState":{},"_onSendActivities":[],"_onUpdateActivity":[],"_onDeleteActivity":[],"_turnLocale":"turn.locale","bufferedReplyActivities":[],"_adapter":{"middleware":{"middleware":[null]},"settings":{"appId":"c52ee95f-973d-41fd-bb78-27c75a2b1be4","appPassword":"~2dLk-CJtB09a9E.8sE_.Tx.Scm.LB-6J4"},"credentials":{"refreshingToken":null,"appId":"c52ee95f-973d-41fd-bb78-27c75a2b1be4","_tenant":"botframework.com","_oAuthEndpoint":"https://login.microsoftonline.com/botframework.com","authenticationContext":{"_authority":{"_log":null,"_url":{"protocol":"https:","slashes":true,"auth":null,"host":"login.microsoftonline.com","port":null,"hostname":"login.microsoftonline.com","hash":null,"search":null,"query":null,"pathname":"/botframework.com","path":"/botframework.com","href":"https://login.microsoftonline.com/botframework.com"},"_validated":false,"_host":"login.microsoftonline.com","_tenant":"botframework.com","_authorizationEndpoint":null,"_tokenEndpoint":null,"_deviceCodeEndpoint":null,"_isAdfsAuthority":false,"aadApiVersion":"1.5"},"_oauth2client":null,"_correlationId":null,"_callContext":{"options":{}},"_cache":{"_entries":[]},"_tokenRequestWithUserCode":{}},"_oAuthScope":"https://api.botframework.com","tokenCacheKey":"c52ee95f-973d-41fd-bb78-27c75a2b1be4https://api.botframework.com-cache","appPassword":"~2dLk-CJtB09a9E.8sE_.Tx.Scm.LB-6J4"},"credentialsProvider":{"appId":"c52ee95f-973d-41fd-bb78-27c75a2b1be4","appPassword":"~2dLk-CJtB09a9E.8sE_.Tx.Scm.LB-6J4"},"isEmulatingOAuthCards":false,"authConfiguration":{"requiredEndorsements":[]}},"_activity":{"text":"help","textFormat":"plain","type":"message","timestamp":"2021-04-23T10:27:58.575Z","localTimestamp":"2021-04-23T10:27:58.575Z","id":"1619173678555","channelId":"msteams","serviceUrl":"https://smba.trafficmanager.net/apac/","from":{"id":"29:1f2lyw-FGvjq0sx4fIWrlyvcHLro1ZfGZq4fmu0l9cJcgvWHn-7D_JLomX8k7OXjPhY924xB8cVVlVMPNFonTmg","name":"Holly Xie","aadObjectId":"975bf953-08aa-4a92-82f9-3e7ee31bdf32"},"conversation":{"conversationType":"personal","tenantId":"d137f805-5cc7-4587-b61b-77989483a8a4","id":"a:1lX9QFPvasppDbDEEeoF23u21gVv462i7RNdeBieoWVLpLLprZiox7274yVMq-PkX3HQkzQBv6ZG8jNg6mIHLye1JWcA_RaQ46chX-Rk8JdyVXz_8Wzet4WlQV41T4azo"},"recipient":{"id":"28:c52ee95f-973d-41fd-bb78-27c75a2b1be4","name":"bnzInstallerBF"},"entities":[{"locale":"en-US","country":"US","platform":"Mac","timezone":"Asia/Shanghai","type":"clientInfo"}],"channelData":{"tenant":{"id":"d137f805-5cc7-4587-b61b-77989483a8a4"}},"locale":"en-US","localTimezone":"Asia/Shanghai","rawTimestamp":"2021-04-23T10:27:58.5755942Z","rawLocalTimestamp":"2021-04-23T18:27:58.5755942+08:00","callerId":"urn:botframework:azure"}}
-            const contextData: IChatContextData = {
+            const chatContextData: IChatContextData = {
                 'message': `${mentionedBotName} ${context.activity.text}`,
                 'bot': this.bot,
                 'chatToolContext': {
@@ -131,7 +130,7 @@ class BotActivityHandler extends TeamsActivityHandler {
                     'name': '',
                 },
             };
-            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(contextData, 2)}`);
+            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Only value field can be used to check where the message come from: mouse clicking or user input
             // Reference: https://blog.botframework.com/2019/07/02/using-adaptive-cards-with-the-microsoft-bot-framework/
@@ -276,7 +275,7 @@ class BotActivityHandler extends TeamsActivityHandler {
                 const router = <MsteamsRouter> this.bot.geRouter();
 
                 // Call route handler for mouse navigation
-                await router.getRoute().handler(new ChatContext(contextData));
+                await router.getRoute().handler(chatContextData);
             } else { // From user input
                 // Get listeners
                 const listeners = <MsteamsListener[]> this.bot.getListeners();
@@ -285,11 +284,11 @@ class BotActivityHandler extends TeamsActivityHandler {
                 for (const listener of listeners) {
                     const matchers = listener.getMessageMatcher().getMatchers();
                     for (const matcher of matchers) {
-                        const matched: boolean = matcher.matcher(contextData.message);
+                        const matched: boolean = matcher.matcher(chatContextData.message);
                         if (matched) {
                             // Call message handler to process message
                             for (const handler of matcher.handlers) {
-                                await handler(new ChatContext(contextData));
+                                await handler(chatContextData);
                             }
                         }
                     }
@@ -371,7 +370,7 @@ class BotActivityHandler extends TeamsActivityHandler {
         const chattingType = this.getChattingType(context.activity.conversation.conversationType);
         logger.debug(`chattingType: ${chattingType}`);
         // Create chat context data
-        const contextData: IChatContextData = {
+        const chatContextData: IChatContextData = {
             'message': '',
             'bot': this.bot,
             'chatToolContext': {
@@ -402,8 +401,7 @@ class BotActivityHandler extends TeamsActivityHandler {
         // Get router
         const router = <MsteamsRouter> this.bot.geRouter();
         // Call route handler for mouse navigation
-        const chatOpsTaskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo> await router.getRoute().handler(
-                new ChatContext(contextData));
+        const chatOpsTaskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo> await router.getRoute().handler(chatContextData);
 
         // The adaptive card doesn't adapt the theme mode of the MS Teams, and sometimes the display is not good
         // https://techcommunity.microsoft.com/t5/teams-developer/ms-teams-dark-mode-task-with-adaptive-card-wrong-colors/m-p/2837861#M4032
@@ -442,7 +440,7 @@ class BotActivityHandler extends TeamsActivityHandler {
         const chattingType = this.getChattingType(context.activity.conversation.conversationType);
         logger.debug(`chattingType: ${chattingType}`);
         // Create chat context data
-        const contextData: IChatContextData = {
+        const chatContextData: IChatContextData = {
             'message': '',
             'bot': this.bot,
             'chatToolContext': {
@@ -473,7 +471,7 @@ class BotActivityHandler extends TeamsActivityHandler {
         // Get router
         const router = <MsteamsRouter> this.bot.geRouter();
         // Call router handler for mouse navigation
-        const taskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo> await router.getRoute().handler(new ChatContext(contextData));
+        const taskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo> await router.getRoute().handler(chatContextData);
 
         logger.end(this.handleTeamsTaskModuleSubmit, this);
 

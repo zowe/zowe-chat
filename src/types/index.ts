@@ -11,7 +11,6 @@
 
 import type {Application} from 'express';
 import type {Receiver} from '@slack/bolt';
-import ChatContext from '../ChatContext';
 import CommonBot from '../CommonBot';
 
 export {TaskModuleTaskInfo, Attachment} from 'botbuilder';
@@ -67,29 +66,38 @@ export interface IMessage {
     mentions?: Record<string, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export interface IOption {
-    log: ILogOption,
-    botUserName: string,
-    messagingApp: Application,
+export interface IBotOption {
+    messagingApp: IMessagingApp,
     chatTool: IChatTool
 }
 
-export interface IChatTool {
-    type: IChatToolType,
-    option: IMattermostOption | ISlackOption | IMsteamsOption
-}
-
 export interface ILogOption {
+    filePath: string,
     level: ILogLevel,
     maximumSize: string,
     maximumFiles: string
+}
+
+export interface IAppOption extends IHttpEndpoint {
+    tlsKey: string,
+    tlsCert: string
 }
 
 export interface IHttpEndpoint {
     protocol: IProtocol,
     hostName: string,
     port: number,
-    basePath: string,
+    basePath: string
+}
+
+export interface IMessagingApp {
+    option: IAppOption,
+    app: Application
+}
+
+export interface IChatTool {
+    type: IChatToolType,
+    option: IMattermostOption | ISlackOption | IMsteamsOption
 }
 
 // # Mattermost Variable         Required  Description
@@ -115,12 +123,14 @@ export interface IMattermostOption {
     teamUrl: string,
     botUserName: string,
     botAccessToken: string,
-    integrationEndpoint: IHttpEndpoint,
+    // integrationEndpoint: IHttpEndpoint,
 }
 
 // Option to create Slack chatbot
 // Doc: https://slack.dev/bolt-js/reference#initialization-options
 export interface ISlackOption {
+    botUserName: string,
+
     // A string from your app’s configuration (under “Basic Information”) which verifies that incoming events are coming from Slack
     signingSecret: string,
 
@@ -210,9 +220,10 @@ export interface ISlackOption {
 // # BotId                       Yes       The ID of your MS Teams bot
 // # BotPassword                 Yes       The password of your MS Teams bot
 export interface IMsteamsOption {
+    botUserName: string,
     botId: string,
     botPassword: string,
-    messagingEndpoint: IHttpEndpoint,
+    // messagingEndpoint: IHttpEndpoint,
 }
 
 export interface IMessageMatcherFunction {
@@ -220,7 +231,7 @@ export interface IMessageMatcherFunction {
 }
 
 export interface IMessageHandlerFunction {
-    (context: ChatContext): Promise<void>
+    (chatContextData: IChatContextData): Promise<void>
 }
 
 export interface IMessageMatcher {
@@ -239,7 +250,7 @@ export interface IRoute {
 }
 
 export interface IRouteHandlerFunction {
-    (context: ChatContext): Promise<void | Record<string, any>> // eslint-disable-line @typescript-eslint/no-explicit-any
+    (chatContextData: IChatContextData): Promise<void | Record<string, any>> // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export interface IUser {
@@ -268,6 +279,17 @@ export interface IChannel {
     id: string,
     name: string,
     chattingType: IChattingType,
+}
+
+export const enum IConnectionStatus {
+    ALIVE = 'alive',
+    NOT_CONNECTED = 'not_connected',
+    CONNECTING = 'connecting',
+    RECONNECTING = 'reconnecting',
+    CLOSED = 'closed',
+    CLOSING = 'closing',
+    EXPIRED = 'expired',
+    ERROR = 'error',
 }
 
 

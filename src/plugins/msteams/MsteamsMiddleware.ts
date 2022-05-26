@@ -85,11 +85,9 @@ class MsteamsMiddleware extends Middleware {
             // Get bot option
             const option = this.bot.getOption();
 
-            // Get endpoint base path
-            const basePath = (<IMsteamsOption> option.chatTool.option).messagingEndpoint.basePath;
 
             // Listen for incoming requests
-            option.messagingApp.post(basePath, (req: Request, res: Response) => {
+            option.messagingApp.app.post(option.messagingApp.option.basePath, (req: Request, res: Response) => {
                 this.botFrameworkAdapter.processActivity(req, res, async (context) => {
                     // Process bot activity
                     await this.botActivityHandler.run(context);
@@ -105,12 +103,12 @@ class MsteamsMiddleware extends Middleware {
     }
 
     // Send message back to MS Teams channel
-    async send(contextData: IChatContextData, messages: IMessage[]): Promise<void> {
+    async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
         // Print start log
         logger.start(this.send, this);
 
         try {
-            logger.debug(`Chat context data sent to MS Teams: ${Util.dumpObject(contextData, 2)}`);
+            logger.debug(`Chat context data sent to MS Teams: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Get text and attachment part of the message to be sent
             let textMessage: string = '';
@@ -172,12 +170,12 @@ class MsteamsMiddleware extends Middleware {
 
             // Send message back to channel
             if (activity !== '') {
-                if (contextData.chatToolContext !== null && contextData.chatToolContext !== undefined
-                        && contextData.chatToolContext.context !== null && contextData.chatToolContext.context !== undefined) { // Conversation message
+                if (chatContextData.chatToolContext !== null && chatContextData.chatToolContext !== undefined
+                        && chatContextData.chatToolContext.context !== null && chatContextData.chatToolContext.context !== undefined) { // Conversation message
                     logger.info('Send conversation message ...');
 
                     // Get conversation reference
-                    const conversationReference = TurnContext.getConversationReference(contextData.chatToolContext.context.activity);
+                    const conversationReference = TurnContext.getConversationReference(chatContextData.chatToolContext.context.activity);
                     logger.debug(`conversationReference: ${JSON.stringify(conversationReference, null, 2)}`);
 
                     // Send message
@@ -196,14 +194,14 @@ class MsteamsMiddleware extends Middleware {
 
                     // Find channel
                     let channelInfo = null;
-                    if (contextData.channel.id === '' && contextData.channel.name !== '') {
-                        channelInfo = this.botActivityHandler.findChannelByName(contextData.channel.name);
+                    if (chatContextData.channel.id === '' && chatContextData.channel.name !== '') {
+                        channelInfo = this.botActivityHandler.findChannelByName(chatContextData.channel.name);
                     } else {
-                        channelInfo = this.botActivityHandler.findChannelById(contextData.channel.id);
+                        channelInfo = this.botActivityHandler.findChannelById(chatContextData.channel.id);
                     }
                     logger.info(`Target channel info: ${JSON.stringify(channelInfo, null, 2)}`);
                     if (channelInfo == null) {
-                        logger.error(`The specified MS Teams channel does not exist!\n${JSON.stringify(contextData.channel, null, 2)}`);
+                        logger.error(`The specified MS Teams channel does not exist!\n${JSON.stringify(chatContextData.channel, null, 2)}`);
                         return;
                     }
 

@@ -8,12 +8,11 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {IUser, IRouteHandlerFunction} from '../../types';
+import type {IUser, IRouteHandlerFunction, IChatContextData} from '../../types';
 import type {Request, Response} from 'express';
 import CommonBot = require('../../CommonBot');
 import Router = require('../../Router');
 import logger = require('../../utils/Logger');
-import ChatContext = require('../../ChatContext');
 import MattermostMiddleware = require('./MattermostMiddleware');
 class MattermostRouter extends Router {
     // Constructor
@@ -41,7 +40,7 @@ class MattermostRouter extends Router {
             const option = this.bot.getOption();
 
             // Set router
-            await option.messagingApp.post(this.router.path, this.processAction);
+            await option.messagingApp.app.post(this.router.path, this.processAction);
         } catch (err) {
             // Print exception stack
             logger.error(logger.getErrorStack(new Error(err.name), err));
@@ -87,7 +86,7 @@ class MattermostRouter extends Router {
             const channel = await middleware.getChannelById(payload.channel_id);
             logger.debug(`channel is ${JSON.stringify(channel)}`);
 
-            const chatContext = new ChatContext({
+            const chatContext: IChatContextData = {
                 'message': null,
                 'bot': <CommonBot> this.bot,
                 'chatToolContext': chatToolContext,
@@ -109,7 +108,7 @@ class MattermostRouter extends Router {
                     'name': '',
                 },
                 'chattingType': channel.chattingType,
-            });
+            };
             this.router.handler(chatContext);
         } catch (err) {
             // Print exception stack

@@ -38,7 +38,7 @@ class Middleware {
 
     // Send message back to channel
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async send(contextData: IChatContextData, messages: IMessage[]): Promise<void> {
+    async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
         // Print start log
         logger.start(this.send, this);
 

@@ -19,7 +19,6 @@ import logger = require('../../utils/Logger');
 import {App, LogLevel} from '@slack/bolt';
 import Util = require('../../utils/Util');
 import SlackListener = require('./SlackListener');
-import ChatContext = require('../../ChatContext');
 import SlackRouter = require('./SlackRouter');
 import Receiver = require('./Receiver');
 
@@ -42,14 +41,15 @@ class SlackMiddleware extends Middleware {
         }
 
         // Mapping ILogLevel to @slack/bolt LogLevel
+        const logOption = logger.getOption();
         let logLevel: LogLevel;
-        if (option.log.level == ILogLevel.DEBUG || option.log.level == ILogLevel.SILLY || option.log.level == ILogLevel.VERBOSE) {
+        if (logOption.level == ILogLevel.DEBUG || logOption.level == ILogLevel.SILLY || logOption.level == ILogLevel.VERBOSE) {
             logLevel = LogLevel.DEBUG;
-        } else if (option.log.level == ILogLevel.ERROR) {
+        } else if (logOption.level == ILogLevel.ERROR) {
             logLevel = LogLevel.ERROR;
-        } else if (option.log.level == ILogLevel.INFO) {
+        } else if (logOption.level == ILogLevel.INFO) {
             logLevel = LogLevel.INFO;
-        } else if (option.log.level == ILogLevel.WARN) {
+        } else if (logOption.level == ILogLevel.WARN) {
             logLevel = LogLevel.WARN;
         } else {
             // Should not happen, just for robustness.
@@ -68,8 +68,8 @@ class SlackMiddleware extends Middleware {
             logger.debug(`expressReceiverOptions: ${JSON.stringify(expressReceiverOptions)}`);
             const receiver = new Receiver(expressReceiverOptions);
             // Replace the default application with the provided one.
-            if (option.messagingApp !== null) {
-                receiver.setApp(option.messagingApp);
+            if (option.messagingApp.app !== null) {
+                receiver.setApp(option.messagingApp.app);
             }
             (<ISlackOption>option.chatTool.option).receiver = receiver;
         } else {
@@ -212,7 +212,7 @@ class SlackMiddleware extends Middleware {
                 }
             }
 
-            const contextData: IChatContextData = {
+            const chatContextData: IChatContextData = {
                 'message': message,
                 'bot': this.bot,
                 'chatToolContext': chatToolContext,
@@ -236,7 +236,7 @@ class SlackMiddleware extends Middleware {
                 },
             };
 
-            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(contextData, 2)}`);
+            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Get listeners
             const listeners = <SlackListener[]> this.bot.getListeners();
@@ -245,11 +245,11 @@ class SlackMiddleware extends Middleware {
             for (const listener of listeners) {
                 const matchers = listener.getMessageMatcher().getMatchers();
                 for (const matcher of matchers) {
-                    const matched: boolean = matcher.matcher(contextData.message);
+                    const matched: boolean = matcher.matcher(chatContextData.message);
                     if (matched) {
                     // Call message handler to process message
                         for (const handler of matcher.handlers) {
-                            await handler(new ChatContext(contextData));
+                            await handler(chatContextData);
                         }
                     }
                 }
@@ -312,7 +312,7 @@ class SlackMiddleware extends Middleware {
             }
 
             // Create chat context data
-            const contextData: IChatContextData = {
+            const chatContextData: IChatContextData = {
                 'message': '',
                 'bot': this.bot,
                 'chatToolContext': chatToolContext,
@@ -342,7 +342,7 @@ class SlackMiddleware extends Middleware {
             const router = <SlackRouter> this.bot.geRouter();
 
             // Call route handler for mouse navigation
-            await router.getRoute().handler(new ChatContext(contextData));
+            await router.getRoute().handler(chatContextData);
         } catch (err) {
             // Print exception stack
             logger.error(logger.getErrorStack(new Error(err.name), err));
@@ -401,7 +401,7 @@ class SlackMiddleware extends Middleware {
                 this.channels.set(channelId, channel);
             }
 
-            const contextData: IChatContextData = {
+            const chatContextData: IChatContextData = {
                 'message': '',
                 'bot': this.bot,
                 'chatToolContext': chatToolContext,
@@ -431,7 +431,7 @@ class SlackMiddleware extends Middleware {
             const router = <SlackRouter> this.bot.geRouter();
 
             // Call route handler for mouse navigation
-            await router.getRoute().handler(new ChatContext(contextData));
+            await router.getRoute().handler(chatContextData);
         } catch (err) {
         // Print exception stack
             logger.error(logger.getErrorStack(new Error(err.name), err));
@@ -442,7 +442,7 @@ class SlackMiddleware extends Middleware {
     }
 
     // Send message back to Slack channel
-    async send(contextData: IChatContextData, messages: IMessage[]): Promise<void> {
+    async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
         // Print start log
         logger.start(this.send, this);
 

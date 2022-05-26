@@ -15,7 +15,6 @@ import logger = require('../../utils/Logger');
 import MattermostClient = require('./MattermostClient');
 import Util = require('../../utils/Util');
 import MattermostListener = require('./MattermostListener');
-import ChatContext = require('../../ChatContext');
 import {IChatContextData, IMessage, IMessageType, IChatToolType, IMattermostOption, IUser, IChattingType, IChannel} from '../../types';
 
 class MattermostMiddleware extends Middleware {
@@ -58,7 +57,7 @@ class MattermostMiddleware extends Middleware {
             const mattermostOption = <IMattermostOption>(this.bot.getOption().chatTool.option);
             this.client = new MattermostClient(this, mattermostOption);
             if (mattermostOption.botAccessToken != null) {
-                await this.client.loginWithToken();
+                await this.client.connect();
             }
         } catch (err) {
             // Print exception stack
@@ -70,12 +69,12 @@ class MattermostMiddleware extends Middleware {
     }
 
     // Send message back to Mattermost channel
-    async send(contextData: IChatContextData, messages: IMessage[]): Promise<void> {
+    async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
         // Print start log
         logger.start(this.send, this);
 
         try {
-            logger.debug(`Chat tool data sent to Mattermost server: ${Util.dumpObject(contextData.chatToolContext, 2)}`);
+            logger.debug(`Chat tool data sent to Mattermost server: ${Util.dumpObject(chatContextData.chatToolContext, 2)}`);
 
             for (const msg of messages) {
                 // Process view to open dialog.
@@ -85,31 +84,31 @@ class MattermostMiddleware extends Middleware {
                 }
 
                 // Send message back to channel
-                if (contextData.chatToolContext !== null) { // Conversation message
+                if (chatContextData.chatToolContext !== null) { // Conversation message
                     logger.info('Send conversation message ...');
-                    this.client.postMessage(msg.message, contextData.channel.id, contextData.chatToolContext.rootId);
+                    this.client.sendMessage(msg.message, chatContextData.channel.id, chatContextData.chatToolContext.rootId);
                 } else {
                     // Proactive message
                     logger.info('Send proactive message ...');
 
                     // Find channel if channel id is not provided.
                     let channelId: string = null;
-                    if (contextData.channel.id === '' && contextData.channel.name !== '') { // channel name is provided.
-                        const channelInfo: IChannel = await this.client.getChannelByName(contextData.channel.name);
+                    if (chatContextData.channel.id === '' && chatContextData.channel.name !== '') { // channel name is provided.
+                        const channelInfo: IChannel = await this.client.getChannelByName(chatContextData.channel.name);
 
                         if (channelInfo === null) {
-                            logger.error(`The specified MatterMost channel does not exist!\n${JSON.stringify(contextData.channel, null, 2)}`);
+                            logger.error(`The specified MatterMost channel does not exist!\n${JSON.stringify(chatContextData.channel, null, 2)}`);
                             return;
                         }
                         logger.debug(`Target channel info: ${JSON.stringify(channelInfo, null, 2)}`);
                         channelId = channelInfo.id;
                     } else { // channel id is provided.
-                        channelId = contextData.channel.id;
+                        channelId = chatContextData.channel.id;
                     }
 
                     logger.debug(`Target channel id: ${channelId}`);
 
-                    this.client.postMessage(msg.message, channelId, '');
+                    this.client.sendMessage(msg.message, channelId, '');
                 }
             }
         } catch (err) {
@@ -180,7 +179,7 @@ class MattermostMiddleware extends Middleware {
             if (chattingType === IChattingType.PERSONAL && !receivedMessage.trim().startsWith('@')) {
                 receivedMessage = `@${this.botUser.name} ${receivedMessage}`;
             }
-            const contextData: IChatContextData = {
+            const chatContextData: IChatContextData = {
                 'message': receivedMessage,
                 'bot': this.bot,
                 'chatToolContext': {
@@ -205,7 +204,7 @@ class MattermostMiddleware extends Middleware {
                     'name': '',
                 },
             };
-            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(contextData, 2)}`);
+            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Get listeners
             const listeners = <[MattermostListener]> this.bot.getListeners();
@@ -214,11 +213,11 @@ class MattermostMiddleware extends Middleware {
             for (const listener of listeners) {
                 const matchers = listener.getMessageMatcher().getMatchers();
                 for (const matcher of matchers) {
-                    const matched: boolean = matcher.matcher(contextData.message);
+                    const matched: boolean = matcher.matcher(chatContextData.message);
                     if (matched) {
                         // Call message handler to process message
                         for (const handler of matcher.handlers) {
-                            await handler(new ChatContext(contextData));
+                            await handler(chatContextData);
                         }
                     }
                 }
