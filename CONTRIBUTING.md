@@ -37,11 +37,10 @@ Example for a squad contribution: `squad/GH1234/job-view-handler`.
 
 ## Code Guidelines
 
- TODO
- - use given config e.g. tsconfig.json, jest, gulp?
- - prettier? other formatters?
- - eslint or other linters?
- - logging
+* Indent code with 4 spaces.
+* Lint rules are enforced through the [build process](#build-process-guidelines).
+* Use the provided [tsconfig.json](./tsconfig.json) file.
+* TODO editor config files
 
  ### File Naming Guidelines
 
