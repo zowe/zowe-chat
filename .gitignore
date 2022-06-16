@@ -1,2 +1,2 @@
 node_modules/
-common-bot-framework/src/log/
+common-bot-framework/src/log/*.log
