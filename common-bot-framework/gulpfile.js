@@ -231,7 +231,7 @@ function buildTestCaseTask() {
 // Create package.json file
 async function createPackageJsonTask() {
     // Read package.json
-    const pkgJson = require('./package.json');
+    const pkgJson = require('../package.json');
 
     // Copy
     const result = {...pkgJson};
