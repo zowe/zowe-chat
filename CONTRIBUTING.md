@@ -4,13 +4,11 @@ This document is a living summary of conventions and best practices for developm
   - [Contact Us](#contact-us)
   - [General Guidelines](#general-guidelines)
   - [Branch Naming Guidelines](#branch-naming-guidelines)
-  - [File Naming Guidelines](#file-naming-guidelines)
   - [Code Guidelines](#code-guidelines)
-  - [Pull Requests](#pull-requests)
-  - [Testing Guidelines](#testing-guidelines)
+  - [Pull Request Guidelines](#pull-request-guidelines)
   - [Build Process Guidelines](#build-process-guidelines)
   - [Documentation Guidelines](#documentation-guidelines)
-  - [Planning guidelines](#Planning-guidelines)
+  - [Planning Guidelines](#planning-guidelines)
  
 ## Contact Us
 
@@ -37,11 +35,65 @@ Use the format `{contributor-tag}/{issue-tag}/{description}`, where:
 Example as an outside contributor: `CarsonCook/GH1234/job-view-handler`.
 Example for a squad contribution: `squad/GH1234/job-view-handler`.
 
-## File Naming Guidelines
-
 ## Code Guidelines
 
-## Commit Message Guidelines
+ TODO
+ - use given config e.g. tsconfig.json, jest, gulp?
+ - prettier? other formatters?
+ - eslint or other linters?
+ - logging
+
+ ### File Naming Guidelines
+
+ * Class names should match files names. E.g. class `SubmitJobs` would be found in a file `SubmitJobs.ts`.
+ * Interface names should match file names and should start with the capital letter `I`. E.g. interfacd `ISubmitJobsParms` would be found in `ISubmitJobsParms.ts`.
+ * Nested directories should be single lowercase words, named by feature. For example `security`, `message`, `config`.
+ * Keep the directory hierarchy shallow.
+
+ ### Testing Guidelines
+
+Zowe Chat uses the jest testing framework. In general test code should adhere to the same linting and conventions as other code in the project.
+
+ * The Zowe Chat squad uses Test-Driven-Development practices.
+ * All code in PRs should be covered with unit tests.
+ * Add integration tests where needed, particularly in areas that cannot be appropriately covered by unit tests.
+ * Use meaningful test names using the `given when then` pattern.
+ * Test files should be located in a `__tests__` in the same directory as the corresponding `src` folder. The `__tests__` folder must have the same directory structure as the `src` folder.
+ * Mocks should be located in a `__mocks__` folder.
+ * Test files should be named in the format `*.test.ts`.
+ * Use `describe` blocks for test grouping where possible. This makes tests more organized and readable. The `describe` block description can shorten test names.
+
+## Build Process Guidelines
+
+Zowe Chat uses Gulp for build tasks and linting. The build can be ran via `npm run build`.
+
+## Documentation Guidelines
+
+Open a pull request in the [docs-site repository](https://github.com/zowe/docs-site) to create documentation for your contribution.
+
+* Create end-user documentation for how to use your feature, functionality. This end-user documentation can be drafted collaboratively with a tech writer.
+* Open an issue in the [docs-site repository](https://github.com/zowe/docs-site/issues) if you need assistance.
+* End-user documentation requires review and approval by a tech writer. Address all comments raised by the tech writer during review.
+
+In addition to external documentation, please appropriately comment your code for future developers who want to understand, use, and enhance your feature.
+
+### JS Documentation
+
+* Use jsdoc annotations such as `@static`, `@memberof`, `@returns`, `@params`, `@class`, `@exports`, `@interface`, `@types`, `@throws`, `@link`.
+
+## Commit Guidelines
+
+### Commit Sign Off
+
+**Commits must be signed**. Use the `-s` flag to sign off a commit. For example `git commit -s -m"My feature"`.
+
+The sign-off certifies the author of the commit to allow tracking of who did what.
+
+If you forgot to sign off on a commit you can run: `git rebase --exec 'git commit --amend --no-edit --signoff' -i {commit-hash}`.
+
+If you forgot multiple sign offs you can run: `git rebase --signoff HEAD~X` to sign off the last `X` commits.
+
+### Commit Messages
 
 Commits going to a master branch should stick to the Conventional Commits specification. This is a lightweight convention on the top of the commit messages. 
 Template:
@@ -54,7 +106,7 @@ Template:
 ```
 Basic example:
 ```
-feat(authentication): Introducing x509 as a form of authentication
+feat(jobs): Introducing Jobs view.
 
 This is a body, which is purely optional. One can use this section if description is not enough to provide insight. 
 Can also contains notes and hints. Should not be too long.
@@ -72,7 +124,7 @@ Signed-off-by: John Doe <john.doe@zowe.org>
 Type or scope appended with `!` has the same meaning as BREAKING CHANGE(explained in footer section). It introduces a breaking API change (correlating with MAJOR in semantic versioning). MUST be used with caution!
 
 ### Scope
-Optional part of the message. Identifies a part of the codebase altered byt this commit. Examples could be: authentication, Discovery service, ...
+Optional part of the message. Identifies a part of the codebase altered by this commit.
 
 ### Description
 A description MUST immediately follow the colon and space after the type/scope prefix. The description is a short summary of the code changes, e.g., `fix: array parsing issue when multiple spaces were contained in string`.
@@ -98,13 +150,7 @@ A commit body is free-form and MAY consist of any number of newline separated pa
 
 To provide long-term support (LTS) for versions in maintenance mode, any security fix must be merged to the main branch as a separate commit. This allows the security fix to be cherry-picked to maintenance versions.
 
-## Testing Guidelines
-
-## Build Process Guidelines
-
-## Documentation Guidelines
-
-## Planning guidelines
+## Planning Guidelines
 
 The new issues raised in the GitHub are triaged and sized weekly in the Wednesday Squad meetings. There is an [Open Mainframe Project Zowe calendar](https://lists.openmainframeproject.org/calendar) with the squad meetings.
 
