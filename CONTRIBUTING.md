@@ -141,6 +141,7 @@ A commit body is free-form and MAY consist of any number of newline separated pa
 
 * Every pull request should have an associated issue in the [zowe-chat repository](https://github.com/zowe/zowe-chat/issues) and link to it.
 * Pull request reviewers should be assigned to a squad member or requested for review in `#zowe-chat`.
+* There must be 2 approving reviewers for a pull request to be merged.
 * Use a draft pull request for work in progress that you want to build in CI/CD pipelines.
 * Anyone can comment on a pull request to request a delay in merging or to get questions answered.
 * Review guidelines for [how to write the perfect pull request](https://github.blog/2015-01-21-how-to-write-the-perfect-pull-request/) and [good commits](https://cbea.ms/git-commit/).
