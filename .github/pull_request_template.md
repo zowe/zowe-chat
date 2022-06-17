@@ -25,7 +25,7 @@ Please delete options that are not relevant.
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
-- [ ] The java tests in the area I was working on leverage @Nested annotations
+- [ ] The tests in the area I was working on leverage nested `describe` blocks where appropriate
 - [ ] Any dependent changes have been merged and published in downstream modules
 
 For more details about how should the code look like read the [Contributing guideline](https://github.com/zowe/zowe-chat/blob/main/CONTRIBUTING.md)
