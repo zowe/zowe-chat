@@ -57,7 +57,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const moment = require('moment');
 const gulpTypeScript = require('gulp-typescript');
-const tsProject = gulpTypeScript.createProject('tsconfig.json');
+const tsProject = gulpTypeScript.createProject('../tsconfig.json');
 
 // Specify node run-time environment: production, fvt, ut, development
 let nodeEnv = undefined;
@@ -231,7 +231,7 @@ function buildTestCaseTask() {
 // Create package.json file
 async function createPackageJsonTask() {
     // Read package.json
-    const pkgJson = require('../package.json');
+    const pkgJson = require('./package.json');
 
     // Copy
     const result = {...pkgJson};
