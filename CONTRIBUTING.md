@@ -68,11 +68,9 @@ Zowe Chat uses Gulp for build tasks and linting. The build can be ran via `npm r
 
 ## Documentation Guidelines
 
-Open a pull request in the [docs-site repository](https://github.com/zowe/docs-site) to create documentation for your contribution.
+In the future we will work against the [doc-site repository](https://github.com/zowe/docs-site) to create documentation for Zowe Chat. However, in the meantime while this project is started we will not be using the docs site.
 
-* Create end-user documentation for how to use your feature, functionality. This end-user documentation can be drafted collaboratively with a tech writer.
-* Open an issue in the [docs-site repository](https://github.com/zowe/docs-site/issues) if you need assistance.
-* End-user documentation requires review and approval by a tech writer. Address all comments raised by the tech writer during review.
+Instead, please ensure you have appropriate documentation in a corresponding `README` file for your contribution. This can include a link to further `md` files with more details.
 
 In addition to external documentation, please appropriately comment your code for future developers who want to understand, use, and enhance your feature.
 
