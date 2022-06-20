@@ -36,7 +36,8 @@ export const enum ILogLevel {
 export const enum IChatToolType {
     MATTERMOST = 'mattermost',
     SLACK = 'slack',
-    MSTEAMS = 'msteams'
+    MSTEAMS = 'msteams',
+    DUMMY = 'dummy'
 }
 
 export const enum IMessageType {
