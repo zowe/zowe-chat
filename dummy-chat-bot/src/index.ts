@@ -9,25 +9,26 @@ const app = express();
 
 app.listen(port, () => console.log(`Running dummy chat bot on port ${port}`));
 
+const connectionOptions = {
+    protocol: IProtocol.HTTP,
+    hostName: 'localhost',
+    port: 8081,
+    basePath: ''
+};
+
 const botOption: IBotOption = {
     messagingApp: {
         app: app,
         option: {
-            protocol: IProtocol.HTTP,
-            hostName: 'localhost',
-            port: 8081,
-            basePath: '/',
+            ...connectionOptions,
             tlsKey: null,
             tlsCert: null
         }
     },
     chatTool: {
-        type: IChatToolType.MATTERMOST,
+        type: IChatToolType.DUMMY,
         option: {
-            protocol: IProtocol.HTTP,
-            hostName: 'localhost',
-            port: 8081,
-            basePath: '/',
+            ...connectionOptions,
             teamUrl: 'teamurl',
             tlsCertificate: null,
             botUserName: 'dummyBot',
