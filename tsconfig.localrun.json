@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@common/*": ["common-bot-framework/dist/package/*"],
+            "@common": ["common-bot-framework/dist/package"]
+        }
+    }
+}
