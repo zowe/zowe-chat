@@ -9,7 +9,8 @@
     "main": "index.js",
     "types": "./index.d.ts",
     "scripts": {
-        "start": "ts-node --project ../tsconfig.localrun.json src/index.ts"
+        "build:common": "npx -w ../common-bot-framework gulp build",
+        "start": "npm run build:common && ts-node --project ../tsconfig.localrun.json src/index.ts"
     },
     "dependencies": {
         "express": "4.18.1"
