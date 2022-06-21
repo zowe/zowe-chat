@@ -10,5 +10,5 @@ const app = express();
 app.use(bodyParser.json());
 app.use('/', router);
 
-const server = DummyChatServer.get(app);
-server.listen(port, () => console.log(`Running dummy chat server on port ${port}`));
+const server = new DummyChatServer(app, port);
+server.listen();
