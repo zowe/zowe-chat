@@ -35,7 +35,6 @@ export class DummyMiddleware extends Middleware {
         this.send = this.send.bind(this);
         this.getUserById = this.getUserById.bind(this);
         this.addUser = this.addUser.bind(this);
-        this.getChannelById = this.getChannelById.bind(this);
 
         const option = this.bot.getOption();
         if (option.chatTool.type !== IChatToolType.DUMMY) {
@@ -63,7 +62,7 @@ export class DummyMiddleware extends Middleware {
         logger.start(this.send, this);
 
         try {
-            logger.debug(`Chat tool data sent to Mattermost server: ${Util.dumpObject(chatContextData.chatToolContext, 2)}`);
+            logger.debug(`Chat tool data sent to local dummy server: ${Util.dumpObject(chatContextData.chatToolContext, 2)}`);
 
             for (const msg of messages) {
 
@@ -220,14 +219,5 @@ export class DummyMiddleware extends Middleware {
 
         logger.end(this.getUserById, this);
         return user;
-    }
-
-    async getChannelById(id: string): Promise<IChannel> {
-        logger.start(this.getChannelById, this);
-
-        const channel = await this.client.getChannelById(id);
-
-        logger.end(this.getChannelById, this);
-        return channel;
     }
 }

@@ -46,7 +46,6 @@ export class DummyClient {
         this.dummyServerWsBaseUrl = `${this.option.protocol === IProtocol.HTTPS ? IProtocol.WSS : IProtocol.WS}${urlPostfix}`;
 
         this.connect = this.connect.bind(this);
-        this.getChannelById = this.getChannelById.bind(this);
         this.getChannelByName = this.getChannelByName.bind(this);
         this.getUserById = this.getUserById.bind(this);
         this.get = this.get.bind(this);
@@ -201,8 +200,8 @@ export class DummyClient {
         logger.start(this.onMessage, this);
 
         try {
+            logger.debug(`Received message is '${data}'`);
             const message: Record<string, any> = JSON.parse(data);
-            logger.debug(`Received message is ${Util.dumpObject(message)}`);
 
             if (message.event !== undefined && message.event === 'posted') {
                 this.middleware.processMessage(message);
@@ -288,32 +287,6 @@ export class DummyClient {
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             logger.end(this.authenticate, this);
-        }
-    }
-
-    async getChannelById(id: string): Promise<IChannel> {
-        logger.start(this.getChannelById, this);
-
-        try {
-            const response = await this.get(`${this.dummyServerRestBaseUrl}/channels/${id}`);
-            logger.debug(Util.dumpResponse(response));
-
-            if (response.statusCode === 200) {
-                const channel = {
-                    id: response.body.id,
-                    name: response.body.display_name,
-                    chattingType: this.getChattingType(response.body.type),
-                };
-                return channel;
-            } else {
-                logger.error(`Failed to get channel which id is ${id}: ${response.statusMessage}`);
-                return null;
-            }
-        } catch (error) {
-            logger.error(Util.dumpObject(error));
-            logger.error(logger.getErrorStack(new Error(error.name), error));
-        } finally {
-            logger.end(this.getChannelById, this);
         }
     }
 

@@ -38,9 +38,9 @@ const botOption: IBotOption = {
 };
 
 const bot = new CommonBotClass(botOption);
-bot.listen(() => true, processMessage);
+bot.listen(() => {console.log('CARSON YOU ARE HERE'); return true;}, processMessage);
 
 async function processMessage(chatContextData: IChatContextData): Promise<void> {
     console.log('Processing message');
-    await bot.send(chatContextData, [{ type: IMessageType.PLAIN_TEXT, message: 'bot response!' }]);
+    await bot.send(chatContextData, [{ type: IMessageType.PLAIN_TEXT, message: 'bot processed: ' + chatContextData.message }]);
 }
