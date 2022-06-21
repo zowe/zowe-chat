@@ -47,6 +47,7 @@ export class DummyChatServer {
         this.webSocketServer = new Websocket.Server({ server: this.server });
 
         this.onConnection = this.onConnection.bind(this);
+        this.handleMessage = this.handleMessage.bind(this);
     }
 
     public listen() {
@@ -54,12 +55,18 @@ export class DummyChatServer {
         this.server.listen(this.port, () => console.log(`Running dummy chat server on port ${this.port}`));
     }
 
+    public input(message: string) {
+        this.handleMessage(message);
+    }
+
     private onConnection(ws: Websocket): void {
-        ws.on('message', (message: string) => {
-            console.log('received: ' + message);
-            this.webSocketServer.clients.forEach(client => {
-                client.send(JSON.stringify({ message: 'You sent me : ' + message, event: 'posted', data: getDummyData(message) }));
-            });
+        ws.on('message', this.handleMessage);
+    }
+
+    private handleMessage(message: string): void {
+        console.log('received: ' + message);
+        this.webSocketServer.clients.forEach(client => {
+            client.send(JSON.stringify({ message: 'You sent me : ' + message, event: 'posted', data: getDummyData(message) }));
         });
     }
 }

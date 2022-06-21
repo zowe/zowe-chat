@@ -12,3 +12,7 @@ app.use('/', router);
 
 const server = new DummyChatServer(app, port);
 server.listen();
+
+process.stdin.on('data', function(chunk) {
+    server.input(chunk.toString());
+});
