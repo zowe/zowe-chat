@@ -37,10 +37,11 @@ const botOption: IBotOption = {
     }
 };
 
+const botProcessedTag = 'bot processed'
+
 const bot = new CommonBotClass(botOption);
-bot.listen(() => {console.log('CARSON YOU ARE HERE'); return true;}, processMessage);
+bot.listen((message: string) => !message.includes(botProcessedTag), processMessage);
 
 async function processMessage(chatContextData: IChatContextData): Promise<void> {
-    console.log('Processing message');
-    await bot.send(chatContextData, [{ type: IMessageType.PLAIN_TEXT, message: 'bot processed: ' + chatContextData.message }]);
+    await bot.send(chatContextData, [{ type: IMessageType.PLAIN_TEXT, message: botProcessedTag + ': ' + chatContextData.message }]);
 }
