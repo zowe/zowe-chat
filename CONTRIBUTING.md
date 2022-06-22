@@ -71,6 +71,7 @@ Zowe Chat uses Gulp for build tasks and linting. The build can be ran via `npm r
 In the future we will work against the [doc-site repository](https://github.com/zowe/docs-site) to create documentation for Zowe Chat. However, in the meantime while this project is started we will not be using the docs site.
 
 Instead, please ensure you have appropriate documentation in a corresponding `README` file for your contribution. This can include a link to further `md` files with more details.
+For squad-internal documentation, please add documentation in an appropriate folder structure within the [docs](./docs) folder.
 
 In addition to external documentation, please appropriately comment your code for future developers who want to understand, use, and enhance your feature.
 
@@ -143,6 +144,7 @@ A commit body is free-form and MAY consist of any number of newline separated pa
 * Use a draft pull request for work in progress that you want to build in CI/CD pipelines.
 * Anyone can comment on a pull request to request a delay in merging or to get questions answered.
 * Review guidelines for [how to write the perfect pull request](https://github.blog/2015-01-21-how-to-write-the-perfect-pull-request/) and [good commits](https://cbea.ms/git-commit/).
+* Pull request titles should be prefixed with one of the [commit message types](#type)
 
 ### Security Fixes
 
