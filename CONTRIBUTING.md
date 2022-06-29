@@ -44,8 +44,8 @@ Example for a squad contribution: `squad/GH1234/job-view-handler`.
 
  ### File Naming Guidelines
 
- * Class names should match files names. E.g. class `SubmitJobs` would be found in a file `SubmitJobs.ts`.
- * Interface names should match file names and should start with the capital letter `I`. E.g. interfacd `ISubmitJobsParms` would be found in `ISubmitJobsParms.ts`.
+ * Class names should match files names. E.g. class `JobSubmission` would be found in a file `JobSubmission.ts`.
+ * Interface names should match file names and should start with the capital letter `I`. E.g. interfacd `IJobSubmissionParms` would be found in `IJobSubmissionParms.ts`.
  * Nested directories should be single lowercase words, named by feature. For example `security`, `message`, `config`.
  * Keep the directory hierarchy shallow.
 
@@ -90,6 +90,8 @@ The sign-off certifies the author of the commit to allow tracking of who did wha
 If you forgot to sign off on a commit you can run: `git rebase --exec 'git commit --amend --no-edit --signoff' -i {commit-hash}`.
 
 If you forgot multiple sign offs you can run: `git rebase --signoff HEAD~X` to sign off the last `X` commits.
+
+You can set up [this DCO sign off tool](https://github.com/coderanger/dco) to automatically sign off commits.
 
 ### Commit Messages
 
@@ -139,12 +141,14 @@ A commit body is free-form and MAY consist of any number of newline separated pa
 ## Pull Request Guidelines
 
 * Every pull request should have an associated issue in the [zowe-chat repository](https://github.com/zowe/zowe-chat/issues) and link to it.
-* Pull request reviewers should be assigned to a squad member or requested for review in `#zowe-chat`.
+* Pull request reviewers should be assigned to a [committer](https://github.com/orgs/zowe/teams/zowe-chat-committers). You can also request reviews in `#zowe-chat`.
 * There must be 2 approving reviewers for a pull request to be merged.
 * Use a draft pull request for work in progress that you want to build in CI/CD pipelines.
 * Anyone can comment on a pull request to request a delay in merging or to get questions answered.
 * Review guidelines for [how to write the perfect pull request](https://github.blog/2015-01-21-how-to-write-the-perfect-pull-request/) and [good commits](https://cbea.ms/git-commit/).
-* Pull request titles should be prefixed with one of the [commit message types](#type)
+* Pull request titles should be prefixed with one of the [commit message types](#type).
+* Once a pull request is approved by 2 reviewers and has passed all checks, the creator of the PR should merge it. If the creator does not have permission to merge
+to the targeted branch, a [squad committer](https://github.com/orgs/zowe/teams/zowe-chat-committers) can be requested to merge. You can also request a merge in `#zowe-chat`.
 
 ### Security Fixes
 
