@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "paths": {
+            "@commonbot/*": ["commonbot/dist/package/*"],
+            "@commonbot": ["commonbot/dist/package"]
+        }
+    }
+}
