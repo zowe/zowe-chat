@@ -57,7 +57,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const moment = require('moment');
 const gulpTypeScript = require('gulp-typescript');
-const tsProject = gulpTypeScript.createProject('tsconfig.json');
+const tsProject = gulpTypeScript.createProject('../tsconfig.json');
 
 // Specify node run-time environment: production, fvt, ut, development
 let nodeEnv = undefined;
@@ -343,10 +343,10 @@ async function packagingTask() {
         return childProcess.execSync(`cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
-                + `&& tar zcf ../release/${packagedFileName} * `
-                + `&& rm -rf ${zchatopsProjectDirectory}/src/lib/common-bot-v*.tar.gz && cp ../release/${packagedFileName} `
-                + `${zchatopsProjectDirectory}/src/lib/${releasedFileName} `
-                + `&& cd ${zchatopsProjectDirectory} && npm uninstall commonbot && npm install ./src/lib/${releasedFileName} --production=false`,
+                + `&& tar zcf ../release/${packagedFileName} * `,
+                // + `&& rm -rf ${zchatopsProjectDirectory}/src/lib/common-bot-v*.tar.gz && cp ../release/${packagedFileName} `
+                // + `${zchatopsProjectDirectory}/src/lib/${releasedFileName} `
+                // + `&& cd ${zchatopsProjectDirectory} && npm uninstall commonbot && npm install ./src/lib/${releasedFileName} --production=false`,
         {stdio: 'inherit'});
     }
 }
