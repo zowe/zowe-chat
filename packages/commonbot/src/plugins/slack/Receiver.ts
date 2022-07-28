@@ -10,8 +10,7 @@
 
 import {ExpressReceiver, ExpressReceiverOptions} from '@slack/bolt';
 import {Application} from 'express';
-import logger from '../../utils/Logger';
-
+import logger = require('../../utils/Logger');
 
 class Receiver extends ExpressReceiver {
     constructor(expressReceiverOptions: ExpressReceiverOptions) {
