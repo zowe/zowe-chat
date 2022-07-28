@@ -67,7 +67,7 @@ if (releaseType === undefined || releaseType.length === 0) {
 // Define target build version for packaging
 let releaseVersion = process.env.RELEASE_VERSION;
 if (releaseVersion === undefined || releaseVersion.length === 0) {
-    releaseVersion = '1.0.1';
+    releaseVersion = '1.1.1';
 }
 
 // Specify build time
