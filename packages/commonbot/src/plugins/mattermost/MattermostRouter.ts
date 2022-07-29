@@ -8,12 +8,13 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {IUser, IRouteHandlerFunction, IChatContextData} from '../../types';
+import {IUser, IRouteHandlerFunction, IChatContextData, IPayloadType, IEvent, IActionType} from '../../types';
 import type {Request, Response} from 'express';
 import CommonBot = require('../../CommonBot');
 import Router = require('../../Router');
 import logger = require('../../utils/Logger');
 import MattermostMiddleware = require('./MattermostMiddleware');
+
 class MattermostRouter extends Router {
     // Constructor
     constructor(bot: CommonBot) {
@@ -60,13 +61,54 @@ class MattermostRouter extends Router {
             const payload = req.body;
             logger.debug(`Action request body is ${JSON.stringify(payload)}`);
 
+            // Get  event
+            const event: IEvent = {
+                'pluginId': '',
+                'action': {
+                    'id': '',
+                    'type': null,
+                    'token': '',
+                },
+            };
             if (payload.type === 'dialog_submission') {
                 // 204 will indicate that the dialog_submission have been received.
                 res.sendStatus(204);
+
+                // Set event
+                const segments = payload.state.split(':');
+                if (segments.length >= 3) {
+                    event.pluginId = segments[0];
+                    event.action.id = segments[1];
+                    event.action.token = segments[2];
+                } else {
+                    logger.error(`The data format of state is wrong!\n state=${payload.state}`);
+                }
+                event.action.type = IActionType.DIALOG_SUBMIT;
             } else {
                 // Must send {} back to Mattermost server, otherwise dialog could not be opened successfully.
                 // It works fine with interactive component: button and select.
                 res.send({});
+
+                // Set event
+                event.pluginId = payload.context.pluginId;
+                event.action.id = payload.context.action.id;
+                event.action.token = payload.context.action.token;
+                if (payload.type === 'select') {
+                    event.action.type = IActionType.DIALOG_OPEN;
+                } else if (payload.type === 'button') {
+                    if (payload.context.action.type !== undefined) {
+                        event.action.type = payload.context.action.type;
+                    } else {
+                        if (payload.context.action.id.startsWith('DIALOG_OPEN_')) {
+                            event.action.type = IActionType.DIALOG_OPEN;
+                        } else {
+                            event.action.type = IActionType.BUTTON_CLICK;
+                        }
+                    }
+                } else {
+                    event.action.type = IActionType.UNSUPPORTED;
+                    logger.error(`Unsupported Mattermost interactive component: ${payload.type}`);
+                }
             }
 
             let rootId: string = '';
@@ -86,30 +128,38 @@ class MattermostRouter extends Router {
             const channel = await middleware.getChannelById(payload.channel_id);
             logger.debug(`channel is ${JSON.stringify(channel)}`);
 
-            const chatContext: IChatContextData = {
-                'message': null,
-                'bot': <CommonBot> this.bot,
-                'chatToolContext': chatToolContext,
-                'user': {
-                    'id': payload.user_id,
-                    'name': user ? user.name : '',
-                    'email': user ? user.email : '',
+            const chatContextData: IChatContextData = {
+                'payload': {
+                    'type': IPayloadType.EVENT,
+                    'data': event,
                 },
-                'channel': {
-                    'id': payload.channel_id,
-                    'name': payload.channel_name,
+                'context': {
+                    'chatting': {
+                        'bot': this.bot,
+                        'type': channel.chattingType,
+                        'user': {
+                            'id': payload.user_id,
+                            'name': user ? user.name : '',
+                            'email': user ? user.email : '',
+                        },
+                        'channel': {
+                            'id': payload.channel_id,
+                            'name': payload.channel_name,
+                        },
+                        'team': {
+                            'id': payload.team_id,
+                            'name': payload.team_domain,
+                        },
+                        'tenant': {
+                            'id': '',
+                            'name': '',
+                        },
+                    },
+                    'chatTool': chatToolContext,
                 },
-                'team': {
-                    'id': payload.team_id,
-                    'name': payload.team_domain,
-                },
-                'tenant': {
-                    'id': '',
-                    'name': '',
-                },
-                'chattingType': channel.chattingType,
             };
-            this.router.handler(chatContext);
+
+            this.router.handler(chatContextData);
         } catch (err) {
             // Print exception stack
             logger.error(logger.getErrorStack(new Error(err.name), err));

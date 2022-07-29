@@ -402,7 +402,6 @@ class MattermostClient {
 
         try {
             const response = await this.get(`${this.mattermostServerBaseUrl}/channels/${id}`);
-            logger.debug(Util.dumpResponse(response));
 
             if (response.statusCode === 200) {
                 const channel = {

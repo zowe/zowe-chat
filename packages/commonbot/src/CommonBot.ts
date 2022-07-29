@@ -29,9 +29,15 @@ class CommonBot {
     // Constructor
     constructor(option: IBotOption) {
         this.option = option;
+        logger.info(`Bot option: ${JSON.stringify(this.option, null, 4)}`);
+
         this.middleware = null;
         this.listeners = [];
         this.router = null;
+
+        this.listen = this.listen.bind(this);
+        this.route = this.route.bind(this);
+        this.send = this.send.bind(this);
     }
 
     // Get option
@@ -66,6 +72,7 @@ class CommonBot {
             // Create listener
             let listener: Listener = null;
             const pluginFileName = `${chatToolType.substring(0, 1).toUpperCase()}${chatToolType.substring(1)}Listener`;
+            logger.info(`Loading listener ${chatToolType}/${pluginFileName} ...`);
             if (fs.existsSync(`${__dirname}/plugins/${chatToolType}`) === false ) {
                 logger.error(`Unsupported chat tool: ${chatToolType}`);
                 throw new Error(`Unsupported chat tool`);
@@ -112,6 +119,7 @@ class CommonBot {
 
             // Create router
             const pluginFileName = `${chatToolType.substring(0, 1).toUpperCase()}${chatToolType.substring(1)}Router`;
+            logger.info(`Loading router ${chatToolType}/${pluginFileName} ...`);
             if (fs.existsSync(`${__dirname}/plugins/${chatToolType}`) === false ) {
                 logger.error(`Unsupported chat tool: ${chatToolType}`);
                 throw new Error(`Unsupported chat tool`);
