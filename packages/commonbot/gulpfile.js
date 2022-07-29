@@ -13,7 +13,6 @@
 //   gulp test                    - Run test cases in the folder ./test
 //   gulp testUnit                - Run unit test cases in the folder ./test/ut
 //   gulp testFunction            - Run functional test case in the folder ./test/fvt
-//   gulp deploy                 - Deploy all building result in ./dist folder to the remote folder ${ZCHATOPS_HOME}/commonbot on development server
 // Environment Variables:
 //   NODE_ENV                     - Indicate what kind of environment the gulp command is running in. Support value: production | ut | fvt | ...(dev)
 //                                        = production : Build and package production package
@@ -39,12 +38,6 @@
 //                                   Used in gulp build, gulp packaging task
 //   RELEASE_VERSION               - Indicate which version will be add build file name
 //                                   Used in gulp packaging task
-//   ZCHATOPS_SERVER_HOST_NAME      - Indicate which remote server the code will be deployed to.
-//                                   Used in deploy task
-//   ZCHATOPS_SERVER_HOME_DIRECTORY - Indicate which remote folder the code will be deployed to.
-//                                   Used in gulp deploy task
-//   ZCHATOPS_SERVER_USER_NAME      - Indicate which user of the remote server is used to deploy the code.
-//                                   Used in gulp deploy task
 //
 // Author:
 //   bjwsfang@cn.ibm.com
@@ -57,33 +50,24 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const moment = require('moment');
 const gulpTypeScript = require('gulp-typescript');
-const tsProject = gulpTypeScript.createProject('../tsconfig.json');
+const tsProject = gulpTypeScript.createProject('tsconfig.json');
 
 // Specify node run-time environment: production, fvt, ut, development
-let nodeEnv = undefined;
+let nodeEnv = 'development';
 if (process.env.NODE_ENV !== undefined) {
     nodeEnv = process.env.NODE_ENV.toLowerCase();
 }
 
 // Define target release type of build file name
-const releaseType = process.env.RELEASE_TYPE;
+let releaseType = process.env.RELEASE_TYPE;
+if (releaseType === undefined || releaseType.length === 0) {
+    releaseType = 'daily';
+}
 
 // Define target build version for packaging
-const releaseVersion = process.env.RELEASE_VERSION;
-
-// Specify the host name of your development server to auto-deploy latest code
-const zchatopsServerHostName = process.env.ZCHATOPS_SERVER_HOST_NAME;
-
-// Specify the user name of your development server name to auto-deploy latest code
-const zchatopsServerUserName = process.env.ZCHATOPS_SERVER_USER_NAME;
-
-// Specify the home directory of Z ChatOps server
-const zchatopsHomeDirectory = process.env.ZCHATOPS_HOME_DIRECTORY;
-
-// Specify node run-time environment: production, fvt, ut, development
-let zchatopsProjectDirectory = `${__dirname}/../zchatops`;
-if (process.env.ZCHATOPS_PROJECT_DIRECTORY !== undefined && process.env.ZCHATOPS_PROJECT_DIRECTORY.length > 0) {
-    zchatopsProjectDirectory = process.env.ZCHATOPS_PROJECT_DIRECTORY;
+let releaseVersion = process.env.RELEASE_VERSION;
+if (releaseVersion === undefined || releaseVersion.length === 0) {
+    releaseVersion = '1.1.1';
 }
 
 // Specify build time
@@ -132,10 +116,6 @@ console.log('###################################################');
 console.log(`                    NODE_ENV = ${nodeEnv}`);
 console.log(`                RELEASE_TYPE = ${releaseType}`);
 console.log(`             RELEASE_VERSION = ${releaseVersion}`);
-console.log(`   ZCHATOPS_SERVER_HOST_NAME = ${zchatopsServerHostName}`);
-console.log(`   ZCHATOPS_SERVER_USER_NAME = ${zchatopsServerUserName}`);
-console.log(`     ZCHATOPS_HOME_DIRECTORY = ${zchatopsHomeDirectory}`);
-console.log(`  ZCHATOPS_PROJECT_DIRECTORY = ${zchatopsProjectDirectory}`);
 console.log('###################################################');
 console.log('');
 console.log(`Build folder: ${JSON.stringify(folder, null, 2)}`);
@@ -143,34 +123,12 @@ console.log(`Build time: ${buildTime}`);
 
 if (nodeEnv === undefined || nodeEnv.length === 0
     || releaseType === undefined || releaseType.length === 0
-    || releaseVersion === undefined || releaseVersion.length === 0
-    || zchatopsServerHostName === undefined || zchatopsServerHostName.length === 0
-    || zchatopsServerUserName === undefined || zchatopsServerUserName.length === 0
-    || zchatopsHomeDirectory === undefined || zchatopsHomeDirectory.length === 0
-    || zchatopsProjectDirectory === undefined || zchatopsProjectDirectory.length === 0) {
+    || releaseVersion === undefined || releaseVersion.length === 0) {
     console.log('');
     console.log(`The value of some required building system environment variables is empty!`);
     console.log(`Check and set them first please!`);
     process.exit(1);
 }
-
-// Get deploy options for gulp deploy task
-function getDeployOption() {
-    const options = {
-        deployNodeModule: false,
-    };
-
-    // Get options
-    for (let i = 3; i < process.argv.length; i++) {
-        if (process.argv[i] === '-n') {
-            options.deployNodeModule = true;
-        }
-    }
-
-    return options;
-}
-console.log(`Deploy options = ${JSON.stringify(getDeployOption(), null, 2)}`);
-
 
 // Clean dist folder
 function cleanTask() {
@@ -208,18 +166,6 @@ function buildSourceTask() {
     return gulp.src(folder.src.source, {dot: true})
             .pipe(gulpIf(isTypeScript, tsProject()))
             .pipe(gulp.dest(folder.src.destination));
-}
-
-// Build license folder task
-async function buildLicenseTask() {
-    switch (releaseType.toLowerCase()) {
-        case 'beta':
-            return childProcess.execSync(`cd ./${folder.src.destination}license && rm -rf ./ga && mv ./beta/* ./ && rm -rf ./beta`, {stdio: 'inherit'});
-        case 'ga':
-            return childProcess.execSync(`cd ./${folder.src.destination}license && rm -rf ./beta; mv ./ga/* ./ && rm -rf ./ga`, {stdio: 'inherit'});
-        default:
-            return;
-    }
 }
 
 // Build test case task
@@ -315,38 +261,25 @@ async function packagingTask() {
         return childProcess.execSync(`cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
-                + `&& tar zcf ../release/${packagedFileName} * `
-                + `&& mkdir -p ${zchatopsProjectDirectory}/src/lib `
-                + `&& rm -rf ${zchatopsProjectDirectory}/src/lib/common-bot-v*.tar.gz && cp ../release/${packagedFileName} `
-                + `${zchatopsProjectDirectory}/src/lib/${releasedFileName} `
-                + `&& cd ${zchatopsProjectDirectory} && npm uninstall commonbot && npm install ./src/lib/${releasedFileName} --production=false`,
+                + `&& tar zcf ../release/${packagedFileName} * `,
         {stdio: 'inherit'});
     } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
-                + `&& tar zcf ../release/${packagedFileName} * `
-                + `&& rm -rf ${zchatopsProjectDirectory}/src/lib/common-bot-v*.tar.gz && cp ../release/${packagedFileName} `
-                + `${zchatopsProjectDirectory}/src/lib/${releasedFileName} `
-                + `&& cd ${zchatopsProjectDirectory} && npm uninstall commonbot && npm install ./src/lib/${releasedFileName} --production=false`,
+                + `&& tar zcf ../release/${packagedFileName} * `,
         {stdio: 'inherit'});
     } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
-                + `&& tar zcf ../release/${packagedFileName} * `
-                + `&& rm -rf ${zchatopsProjectDirectory}/src/lib/common-bot-v*.tar.gz && cp ../release/${packagedFileName} `
-                + `${zchatopsProjectDirectory}/src/lib/${releasedFileName} `
-                + `&& cd ${zchatopsProjectDirectory} && npm uninstall commonbot && npm install ./src/lib/${releasedFileName} --production=false`,
+                + `&& tar zcf ../release/${packagedFileName} * `,
         {stdio: 'inherit'});
     } else { // Development: folder.src.destination = 'dist/'
         return childProcess.execSync(`cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
                 + `&& tar zcf ../release/${packagedFileName} * `,
-                // + `&& rm -rf ${zchatopsProjectDirectory}/src/lib/common-bot-v*.tar.gz && cp ../release/${packagedFileName} `
-                // + `${zchatopsProjectDirectory}/src/lib/${releasedFileName} `
-                // + `&& cd ${zchatopsProjectDirectory} && npm uninstall commonbot && npm install ./src/lib/${releasedFileName} --production=false`,
         {stdio: 'inherit'});
     }
 }
@@ -410,48 +343,11 @@ async function purgeUnusedFileTask() {
 //   2. Remote Machine:
 //     2.1 cat <Uploaded id_rsa.pub> >> ~/.ssh/authorized_keys
 
-const deployFolder = `${zchatopsHomeDirectory}/lib`;
-console.log(`Deploy folder: ${deployFolder}`);
-// Create required deploy folders
-async function createDeployFolder() {
-    return childProcess.execSync(`ssh ${zchatopsServerUserName}@${zchatopsServerHostName} "mkdir -p ${deployFolder}"`, {stdio: 'inherit'});
-}
-
-// Uninstall common bot framework - product code folder
-async function uninstallProductCodeTask() {
-    return childProcess.execSync(`ssh ${zchatopsServerUserName}@${zchatopsServerHostName} "rm -rf ${deployFolder}/*"`,
-            {stdio: 'inherit'});
-}
-
-// Upload common bot framework - product code folder
-async function uploadProductCodeTask() {
-    return childProcess.spawnSync('scp', ['-r', `${__dirname}/release/${packagedFileName}`,
-        `${zchatopsServerUserName}@${zchatopsServerHostName}:${deployFolder}/${releasedFileName}`],
-    {stdio: 'inherit', shell: true});
-}
-
-
-// Install common-bot framework
-async function installCommonBotTask() {
-    return childProcess.execSync(`ssh ${zchatopsServerUserName}@${zchatopsServerHostName} "cd ${zchatopsHomeDirectory} `
-        + `&& npm uninstall commonbot && npm install ${deployFolder}/${releasedFileName}"`, {stdio: 'inherit'});
-}
-
-// Stop Z ChatOps server task
-async function stopZchatopsServerTask() {
-    return childProcess.execSync(`ssh ${zchatopsServerUserName}@${zchatopsServerHostName} "bnzsvr stop"`, {stdio: 'inherit'});
-}
-
-// Start Z ChatOps server task
-async function startZchatopsServerTask() {
-    return childProcess.execSync(`ssh ${zchatopsServerUserName}@${zchatopsServerHostName} "bnzsvr start"`, {stdio: 'inherit'});
-}
-
 // Export gulp task
 exports.clean = cleanTask;
 if (nodeEnv === 'production') { // Product
-    exports.build = gulp.series(cleanTask, buildSourceTask, createPackageJsonTask,
-            purgeUnusedFileTask, packagingTask);
+    exports.build = gulp.series(cleanTask, buildSourceTask,
+            createPackageJsonTask, purgeUnusedFileTask, packagingTask);
 } else if (nodeEnv === 'fvt') { // FVT
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
             createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
@@ -459,16 +355,11 @@ if (nodeEnv === 'production') { // Product
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
             createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
 } else { // Development
-    exports.build = gulpIf(getDeployOption().deployNodeModule === true,
-            gulp.series(cleanTask, buildSourceTask,
-                    createPackageJsonTask, copyGulpFileTask, installDependencyTask, purgeUnusedFileTask, packagingTask),
-            gulp.series(cleanTask, buildSourceTask,
-                    createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask));
+    exports.build = gulp.series(cleanTask, buildSourceTask,
+            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
 }
 // exports.testUnit = testUnitTask;
 // exports.testFunction = testFunctionTask;
 exports.packaging = packagingTask;
 exports.lint = lintTask;
-exports.deploy = gulp.series(exports.build, stopZchatopsServerTask, createDeployFolder, uninstallProductCodeTask, uploadProductCodeTask,
-        installCommonBotTask, startZchatopsServerTask);
 exports.default = gulp.series(exports.build);

@@ -11,7 +11,7 @@
 
 import type {Application} from 'express';
 import type {Receiver} from '@slack/bolt';
-import CommonBot from '../CommonBot';
+import CommonBot = require('../CommonBot');
 
 export {TaskModuleTaskInfo, Attachment} from 'botbuilder';
 

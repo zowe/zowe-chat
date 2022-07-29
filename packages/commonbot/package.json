@@ -10,8 +10,7 @@
     "types": "./index.d.ts",
     "scripts": {
         "build": "gulp build",
-        "packaging": "gulp packaging",
-        "deploy": "gulp deploy"
+        "packaging": "gulp packaging"
     },
     "dependencies": {
         "@slack/bolt": "3.11.0",
