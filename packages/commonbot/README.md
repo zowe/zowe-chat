@@ -1,14 +1,56 @@
 # Common Bot Framework
 
-The Common Bot Framework is a NPM library that provides a set of uniform interface for developers to create chat bots and chat with them for different chat platforms including Mattermost, Slack and Microsoft Teams.
+The Common Bot Framework is a NPM library that provides a set of uniform interface for developers to create chat bots and chat with them for different chat platforms including Mattermost, Slack and Microsoft Teams so as to to enable chat functionality for your products.
 
 ## Content
+  - [Features](#features)
+  - [Interfaces](#interfaces)
+  - [Environment variables](#environment-variables)
   - [Supported Chat Platforms](#supported-chat-platforms)
   - [Supported Message Types](#supported-message-types)
   - [Create chat bot](#create-chat-bot)
   - [Create message listeners](#create-message-listeners)
   - [Create routers](#create-routers)
 
+## Features
+* Support the latest version of 3 chat platforms
+  * Microsoft Teams
+  * Slack
+  * Mattermost
+* Support to chat with bot in 3 different places
+  * in a channel via @mention bot
+  * in a thread  via @mention bot
+  * 1 on 1 directly
+* Support to interact with bot via interactive components
+  * Dropdown box
+  * Button
+  * Show popup dialog to collect sensitive input: operator account and password
+* Support to create multiple bots in user applications
+
+## Interfaces
+* Messaging App
+* Bot APIs
+  * listen(matcher, handler)
+  * route(basePath, handler)
+  * send(chatContextData, message)
+* Chat context data
+  * Context data for chatting, including message, bot, user / channel / team / tenant information
+  * Context data specific for different chat platforms
+
+## Environment variables
+* COMMONBOT_LOG_FILE
+
+  Specifies the log file of your Common Bot Framework. The default value is $ZCHATOPS_HOME/node_modules/commonbot/log/common-bot.log.
+* COMMONBOT_LOG_LEVEL
+
+  Specifies the level of logs. The value can be error, warn, info, verbose, debug, or silly. The default value is info.
+* COMMONBOT_LOG_MAX_SIZE
+
+  Specifies the maximum size of the file after which the log will rotate. The value can be a number of bytes without any unit or a number with the suffix k, m, or g as units for KB, MB, or GB separately. The default value is null, which means that the file size is unlimited except the operating system limit.
+
+* COMMONBOT_LOG_MAX_FILES
+  Specifies the maximum file number of logs to keep. The default value is null, which means all the log files will be kept and no logs will be removed.
+​
 ## Supported Chat Platforms
 The Common Bot Framework supports 3 chat platforms below at present.
 * Mattermost
@@ -43,9 +85,9 @@ const botOption: IBotOption = {
             'hostName': '<Your host name>',
             'port': 443,
             'basePath': '/api/v4',
-            'tlsCertificate': fs.readFileSync('<Your absolute certificate file path of your Mattermost server>', 'utf8'),
-            'teamUrl': 'devops',
-            'botUserName': 'zowechat',
+            'tlsCertificate': fs.readFileSync('<The absolute file path of your Mattermost server TLS certificate>', 'utf8'),
+            'teamUrl': '<Your team URL>',
+            'botUserName': '<Your bot user name>',
             'botAccessToken': '<Your bot access token>',
         },
     },
@@ -63,10 +105,10 @@ const app = null; // Your Express.JS app, not set here due to socket mode will b
 // Set chat bot option
 const botOption: IBotOption = {
     'messagingApp': null,
-    'botUserName': 'zowechat',
     'chatTool': {
         'type': IChatToolType.SLACK,
         'option': {
+            'botUserName': '<Your bot user name>',
             'signingSecret': '<Your signing secret>',
             'endpoints': '', // Must be set if socketMode is false
             'receiver': undefined, // Must be set if socketMode is false
@@ -89,10 +131,10 @@ const app = express(); // Your Express.JS app
 // Set chat bot option
 const botOption: IBotOption = {
     'messagingApp': this.app.getApplication(),
-    'botUserName': 'zowechat',
     'chatTool': {
         'type': IChatToolType.MSTEAMS,
         'option': {
+            'botUserName': '<Your bot user name>',
             'botId': '<Your bot ID>',
             'botPassword': '<Your bot password>',
         },
@@ -129,7 +171,7 @@ function matchMessage(message: string): boolean {
 }
 
 // Callback function used to process matched message
-async function processMessage(chatContext: IChatContextData): Promise<void> {
+async function processMessage(chatContextData: IChatContextData): Promise<void> {
     // print start log
     console.log(`MattermostChatbot : processMessage  start ===>`);
 
@@ -167,7 +209,7 @@ If some interactive components are included in your bot response, the bot will r
 ``` TypeScript
 // Callback function used to process users' click events
 async function processRoute(chatContextData: IChatContextData): Promise<void> {
- // Print start log
+        // Print start log
         console.log(`SlackChatbot : processRoute  start ===>`);
 
         let botResponse: IMessage[] = [];
