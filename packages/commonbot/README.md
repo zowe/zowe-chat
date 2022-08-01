@@ -45,14 +45,14 @@ const botOption: IBotOption = {
             'basePath': '/api/v4',
             'tlsCertificate': fs.readFileSync('<Your absolute certificate file path of your Mattermost server>', 'utf8'),
             'teamUrl': 'devops',
-            'botUserName': 'bnz',
+            'botUserName': 'zowechat',
             'botAccessToken': '<Your bot access token>',
         },
     },
 };
 
 // Create bot
-const bot = new CommonBot(option);
+const bot = new CommonBot(botOption);
 ```
 
 * Slack
@@ -63,7 +63,7 @@ const app = null; // Your Express.JS app, not set here due to socket mode will b
 // Set chat bot option
 const botOption: IBotOption = {
     'messagingApp': null,
-    'botUserName': 'bnz',
+    'botUserName': 'zowechat',
     'chatTool': {
         'type': IChatToolType.SLACK,
         'option': {
@@ -79,7 +79,7 @@ const botOption: IBotOption = {
 };
 
 // Create bot
-const bot = new CommonBot(option);
+const bot = new CommonBot(botOption);
 ```
 * Microsoft Teams
 ``` TypeScript
@@ -89,7 +89,7 @@ const app = express(); // Your Express.JS app
 // Set chat bot option
 const botOption: IBotOption = {
     'messagingApp': this.app.getApplication(),
-    'botUserName': 'bnz',
+    'botUserName': 'zowechat',
     'chatTool': {
         'type': IChatToolType.MSTEAMS,
         'option': {
@@ -100,7 +100,7 @@ const botOption: IBotOption = {
 };
 
 // Create bot
-const bot = new CommonBot(option);
+const bot = new CommonBot(botOption);
 ```
 ## Create message listeners
 The bot created by you usually can receive all @mention messages for the bot. You must create listeners to match and process the message that you are interested in.
@@ -129,21 +129,18 @@ function matchMessage(message: string): boolean {
 }
 
 // Callback function used to process matched message
-async function processMessage(chatContext: ChatContext): Promise<void> {
+async function processMessage(chatContext: IChatContextData): Promise<void> {
     // print start log
     console.log(`MattermostChatbot : processMessage  start ===>`);
 
-    // Get context data
-    const contextData = chatContext.getContextData();
-
     // Create executor
     const executor: IExecutor = {
-        id: contextData.user.id,
-        name: contextData.user.name,
-        team: contextData.team,
-        channel: contextData.channel,
-        email: contextData.user.email,
-        conversationType: contextData.chattingType,
+        id: chatContextData.user.id,
+        name: chatContextData.user.name,
+        team: chatContextData.team,
+        channel: chatContextData.channel,
+        email: chatContextData.user.email,
+        conversationType: chatContextData.chattingType,
     };
 
     const messageText = this.message.substring(this.message.indexOf(`@${this.botName}`) + this.botName.length + 2);
@@ -153,7 +150,7 @@ async function processMessage(chatContext: ChatContext): Promise<void> {
         let commandOutput: IMessage[] = [];
         commandOutput = this.view.getHelloView(executor);
 
-        await chatContext.send(commandOutput);
+        await this.bot.send(chatContextData, commandOutput);
     }
 
     console.log(`MattermostChatbot : processMessage    end <===`);
@@ -169,84 +166,115 @@ If some interactive components are included in your bot response, the bot will r
 
 ``` TypeScript
 // Callback function used to process users' click events
-async function processRoute(chatContext: ChatContext): Promise<void> {
-    // Print start log
-    console.log(`SlackChatbot : processRoute  start ===>`);
+async function processRoute(chatContextData: IChatContextData): Promise<void> {
+ // Print start log
+        console.log(`SlackChatbot : processRoute  start ===>`);
 
-    const contextData = chatContext.getContextData();
-    let botResponse: IMessage[] = [];
-    let payload: Record<string, any> = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
-    try {
-        // Get payload
-        payload = contextData.chatToolContext.body;
-        console.debug(`payload: ${JSON.stringify(payload, null, 2)}`);
-
-        const executor: IExecutor = {
-            id: contextData.user.id,
-            name: contextData.user.name,
-            email: contextData.user.email,
-            team: {
-                id: '',
-                name: '',
-            },
-            channel: {
-                id: contextData.channel.id,
-                name: contextData.channel.name,
-            },
-            conversationType: contextData.chattingType,
-        };
-
-        if (payload.type === 'view_submission') {
-            const privateMetadata = JSON.parse(payload.view.private_metadata);
-            console.debug(`privateMetadata: ${JSON.stringify(privateMetadata)}`);
-
-            if (contextData.channel.id === '') {
-                contextData.channel.id = ( privateMetadata.channelId ? privateMetadata.channelId : '' );
-            }
-
-            const stateValues = payload.view.state.values;
-            const comment = (stateValues[`block_comment`] ? stateValues[`block_comment`][`action_comment`].value : '');
-            botResponse = this.view.getDialogSubmit(executor, comment);
-            // Handle the view submission
-        } else if (payload.actions[0].type === 'static_select') { // Dropdown box
-            // Handle drop down
-        } else if (payload.actions[0].type === 'button') { // Button
-            botResponse = this.view.getDialog(executor, payload);
-        } else {
-            const errorMessage = `Unsupported Slack interactive component: ${payload.actions[0].type}`;
-            console.error(errorMessage);
-            botResponse = [{
-                type: IMessageType.SLACK_BLOCK,
-                message: errorMessage,
-            }];
-            return;
-        }
-    } catch (err) {
-        // Print exception stack
-        console.error(`Exception occurred when processing inbound Slack message!`);
-        console.error(err.stack);
-
-        botResponse = [{
-            type: IMessageType.SLACK_BLOCK,
-            message: err.name,
-        }];
-    } finally {
-        // Send response to chat tool
+        let botResponse: IMessage[] = [];
+        let payload: Record<string, any> = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
         try {
-            console.info(`Command output: ${JSON.stringify(botResponse)}`);
-            for (const msg of botResponse) {
-                await chatContext.send([msg]);
+            // Get payload
+            payload = chatContextData.chatToolContext.body;
+            console.debug(`payload: ${JSON.stringify(payload, null, 2)}`);
+
+            const executor: IExecutor = {
+                id: chatContextData.user.id,
+                name: chatContextData.user.name,
+                email: chatContextData.user.email,
+                team: {
+                    id: '',
+                    name: '',
+                },
+                channel: {
+                    id: chatContextData.channel.id,
+                    name: chatContextData.channel.name,
+                },
+                conversationType: chatContextData.chattingType,
+            };
+
+            if (payload.type === 'view_submission') {
+                const privateMetadata = JSON.parse(payload.view.private_metadata);
+                console.debug(`privateMetadata: ${JSON.stringify(privateMetadata)}`);
+
+                if (chatContextData.channel.id === '') {
+                    chatContextData.channel.id = ( privateMetadata.channelId ? privateMetadata.channelId : '' );
+                }
+
+                const stateValues = payload.view.state.values;
+                const comment = (stateValues[`block_comment`] ? stateValues[`block_comment`][`action_comment`].value : '');
+                botResponse = this.view.getDialogSubmit(executor, comment);
+                // Handle the view submission
+            } else if (payload.actions[0].type === 'static_select') { // Dropdown box
+                // Handle drop down
+            } else if (payload.actions[0].type === 'button') { // Button
+                botResponse = this.view.getDialog(executor, payload);
+            } else {
+                const errorMessage = `Unsupported Slack interactive component: ${payload.actions[0].type}`;
+                console.error(errorMessage);
+                botResponse = [{
+                    type: IMessageType.SLACK_BLOCK,
+                    message: errorMessage,
+                }];
+                return;
             }
         } catch (err) {
             // Print exception stack
-            console.error(`Exception occurred when send message to Slack!`);
+            console.error(`Exception occurred when processing inbound Slack message!`);
             console.error(err.stack);
+
+            botResponse = [{
+                type: IMessageType.SLACK_BLOCK,
+                message: err.name,
+            }];
         } finally {
-            // print end log
-            console.log(`SlackChatbot : processRoute    end <===`);
+            // Send response to chat tool
+            try {
+                console.info(`Command output: ${JSON.stringify(botResponse)}`);
+                for (const msg of botResponse) {
+                    let replyData: IMessage;
+                    if (msg.type === IMessageType.PLAIN_TEXT) {
+                        let isThread = false;
+                        let threadTs = '';
+                        if (payload.container !== undefined && payload.container.thread_ts !== undefined) {
+                            isThread = true;
+                        }
+                        if (isThread) {
+                            threadTs = payload.container.thread_ts;
+                            console.debug(`Message thread_ts: ${threadTs}`);
+                        }
+                    } else if (msg.type === IMessageType.SLACK_BLOCK) {
+                        let isThread = false;
+                        if (payload.container !== undefined && payload.container.thread_ts !== undefined) {
+                            isThread = true;
+                        }
+                        if (isThread) {
+                            msg.message.thread_ts = payload.container.thread_ts;
+                            console.debug(`Message thread_ts: ${msg.message.thread_ts}`);
+                        }
+
+                        msg.message.channel = chatContextData.channel.id;
+                        replyData = msg;
+                    } else if (msg.type === IMessageType.SLACK_VIEW) {
+                        replyData = msg;
+                    } else if (msg.type === IMessageType.SLACK_VIEW_UPDATE) {
+                        replyData = msg;
+                    } else {
+                        console.error(`Unsupported message type: ${JSON.stringify(msg, null, 2)}`);
+                    }
+                    await this.bot.send(chatContextData, [replyData]);
+                }
+            } catch (err) {
+                // Print exception stack
+                console.error(`Exception occurred when send message to Slack!`);
+                console.error(err.stack);
+            } finally {
+                // print end log
+                console.log(`SlackChatbot : processRoute    end <===`);
+            }
         }
     }
 }
+
 
 // Register event handler
 bot.route('<Your base path>', processRoute);
