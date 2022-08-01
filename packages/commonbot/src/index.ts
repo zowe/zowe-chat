@@ -10,6 +10,5 @@
 
 import CommonBot = require('./CommonBot');
 
-export = {
-    CommonBot,
-};
+export default CommonBot;
+export * from './types';

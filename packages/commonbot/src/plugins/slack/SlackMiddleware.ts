@@ -8,7 +8,8 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IChatContextData, ILogLevel, IMessage, IMessageType, ISlackOption, IChattingType, IUser, IChatToolType, IChannel} from '../../types';
+import {IChatContextData, ILogLevel, IMessage, IMessageType, ISlackOption, IChattingType, IUser, IChatToolType, IChannel,
+    IPayloadType, IActionType, IEvent} from '../../types';
 import type {SlackEventMiddlewareArgs, SlackViewMiddlewareArgs, AllMiddlewareArgs, SlackActionMiddlewareArgs, AppOptions} from '@slack/bolt';
 import {ExpressReceiverOptions} from '@slack/bolt';
 import {WebClient} from '@slack/web-api';
@@ -140,9 +141,10 @@ class SlackMiddleware extends Middleware {
 
             // Search the user from cached users.
             // (<Record<string, any>>slackEvent.message).user is the id of the user
-            let user = this.getUser((<Record<string, any>>slackEvent.message).user);
+            let user = this.getUser((<Record<string, any>>slackEvent.message).user); // eslint-disable-line @typescript-eslint/no-explicit-any
             // if user have not been cached, then search from the slack server and cache it
             if (user === undefined ) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const userInfo = await slackEvent.client.users.info({user: (<Record<string, any>>slackEvent.message).user});
                 logger.debug(`Cache the user info: ${JSON.stringify(userInfo)}`);
                 user = {id: userInfo.user.id, name: userInfo.user.real_name, email: userInfo.user.profile.email};
@@ -164,12 +166,12 @@ class SlackMiddleware extends Middleware {
             // message: {"client_msg_id":"0716d94a-1561-4154-b0ce-12386a3b9b6f","type":"message","text":"<@U034W9HMH9V> _*help ad*_   ~_cdfad_~    `<https://www.ibm.com>`     <https://www.ibm.com>","user":"W0197PJSJAG","ts":"1646978508.524889","team":"T0197NLG020","blocks":[{"type":"rich_text","block_id":"W4yRm","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U034W9HMH9V"},{"type":"text","text":" "},{"type":"text","text":"help ad","style":{"bold":true,"italic":true}},{"type":"text","text":"   "},{"type":"text","text":"cdfad","style":{"italic":true,"strike":true}},{"type":"text","text":"    "},{"type":"link","url":"https://www.ibm.com","style":{"code":true}},{"type":"text","text":"     "},{"type":"link","url":"https://www.ibm.com"}]}]}],"channel":"G01F96Y55KJ","event_ts":"1646978508.524889","channel_type":"group"}
             // Get the message text
             const reg = new RegExp(`<@${slackEvent.context.botUserId}>`, 'g');
-            message = (<Record<string, any>>slackEvent.message).text.replace(reg, `@${this.botName}`);
+            message = (<Record<string, any>>slackEvent.message).text.replace(reg, `@${this.botName}`); // eslint-disable-line @typescript-eslint/no-explicit-any
 
             // Try to get the raw message
             let rawMessage = '';
-            if ((<Record<string, any>>slackEvent.message).blocks !== undefined) {
-                const messageBlocks = (<Record<string, any>>slackEvent.message).blocks;
+            if ((<Record<string, any>>slackEvent.message).blocks !== undefined) { // eslint-disable-line @typescript-eslint/no-explicit-any
+                const messageBlocks = (<Record<string, any>>slackEvent.message).blocks; // eslint-disable-line @typescript-eslint/no-explicit-any
                 for (const block of messageBlocks) {
                     // Get the rich_text block
                     if (block.type === 'rich_text' && block.elements !== undefined) {
@@ -213,29 +215,35 @@ class SlackMiddleware extends Middleware {
             }
 
             const chatContextData: IChatContextData = {
-                'message': message,
-                'bot': this.bot,
-                'chatToolContext': chatToolContext,
-                'chattingType': channel.chattingType,
-                'user': {
-                    'id': user.id,
-                    'name': user.name,
-                    'email': user.email,
+                'payload': {
+                    'type': IPayloadType.MESSAGE,
+                    'data': message,
                 },
-                'channel': {
-                    'id': channel.id,
-                    'name': channel.name,
-                },
-                'team': {
-                    'id': '',
-                    'name': '',
-                },
-                'tenant': {
-                    'id': '',
-                    'name': '',
+                'context': {
+                    'chatting': {
+                        'bot': this.bot,
+                        'type': channel.chattingType,
+                        'user': {
+                            'id': user.id,
+                            'name': user.name,
+                            'email': user.email,
+                        },
+                        'channel': {
+                            'id': channel.id,
+                            'name': channel.name,
+                        },
+                        'team': {
+                            'id': '',
+                            'name': '',
+                        },
+                        'tenant': {
+                            'id': '',
+                            'name': '',
+                        },
+                    },
+                    'chatTool': chatToolContext,
                 },
             };
-
             logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Get listeners
@@ -245,7 +253,7 @@ class SlackMiddleware extends Middleware {
             for (const listener of listeners) {
                 const matchers = listener.getMessageMatcher().getMatchers();
                 for (const matcher of matchers) {
-                    const matched: boolean = matcher.matcher(chatContextData.message);
+                    const matched: boolean = matcher.matcher(chatContextData);
                     if (matched) {
                     // Call message handler to process message
                         for (const handler of matcher.handlers) {
@@ -293,9 +301,10 @@ class SlackMiddleware extends Middleware {
 
             // Search the user from cached users.
             // (<Record<string, any>>slackEvent.message).user is the id of the user
-            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id);
+            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id); // eslint-disable-line @typescript-eslint/no-explicit-any
             // if user have not been cached, then search from the slack server and cache it
             if (user === undefined ) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const userInfo = await slackEvent.client.users.info({user: (<Record<string, any>>slackEvent.body).user.id});
                 logger.debug(`Cache the user info: ${JSON.stringify(userInfo)}`);
                 user = {id: userInfo.user.id, name: userInfo.user.real_name, email: userInfo.user.profile.email};
@@ -311,32 +320,72 @@ class SlackMiddleware extends Middleware {
                 this.channels.set(channelId, channel);
             }
 
-            // Create chat context data
-            const chatContextData: IChatContextData = {
-                'message': '',
-                'bot': this.bot,
-                'chatToolContext': chatToolContext,
-                // Action doesn't contain the conversation type context.
-                'chattingType': channel.chattingType,
-                'user': {
-                    'id': user.id,
-                    'name': user.name,
-                    'email': user.email,
-                },
-                'channel': {
-                    'id': channel.id,
-                    'name': channel.name,
-                },
-                'team': {
+            // Get  event
+            const event: IEvent = {
+                'pluginId': '',
+                'action': {
                     'id': '',
-                    'name': '',
-                },
-                'tenant': {
-                    'id': '',
-                    'name': '',
+                    'type': null,
+                    'token': '',
                 },
             };
+            const eventBody: any = slackEvent.body; // eslint-disable-line @typescript-eslint/no-explicit-any
+            const actionId = eventBody.actions[0].action_id;
+            const segments = actionId.split(':');
+            if (segments.length >= 3) {
+                event.pluginId = segments[0];
+                event.action.id = segments[1];
+                event.action.token = segments[2];
+            } else {
+                logger.error(`The data format of action_id is wrong!\n action_id=${actionId}`);
+            }
+            if (eventBody.type === 'view_submission') {
+                event.action.type = IActionType.DIALOG_SUBMIT;
+            } else {
+                if (eventBody.actions[0].type === 'static_select') {
+                    event.action.type = IActionType.DROPDOWN_SELECT;
+                } else if (eventBody.actions[0].type === 'button') {
+                    if (event.action.id.startsWith('DIALOG_OPEN_')) {
+                        event.action.type = IActionType.DIALOG_OPEN;
+                    } else {
+                        event.action.type = IActionType.BUTTON_CLICK;
+                    }
+                } else {
+                    event.action.type = IActionType.UNSUPPORTED;
+                    logger.error(`Unsupported Slack interactive component: ${eventBody.actions[0].type}`);
+                }
+            }
 
+            const chatContextData: IChatContextData = {
+                'payload': {
+                    'type': IPayloadType.EVENT,
+                    'data': event,
+                },
+                'context': {
+                    'chatting': {
+                        'bot': this.bot,
+                        'type': channel.chattingType,
+                        'user': {
+                            'id': user.id,
+                            'name': user.name,
+                            'email': user.email,
+                        },
+                        'channel': {
+                            'id': channel.id,
+                            'name': channel.name,
+                        },
+                        'team': {
+                            'id': '',
+                            'name': '',
+                        },
+                        'tenant': {
+                            'id': '',
+                            'name': '',
+                        },
+                    },
+                    'chatTool': chatToolContext,
+                },
+            };
 
             // Get router
             const router = <SlackRouter> this.bot.geRouter();
@@ -381,9 +430,10 @@ class SlackMiddleware extends Middleware {
 
             // Search the user from cached users.
             // (<Record<string, any>>slackEvent.message).user is the id of the user
-            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id);
+            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id); // eslint-disable-line @typescript-eslint/no-explicit-any
             // if user have not been cached, then search from the slack server and cache it
             if (user === undefined ) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const userInfo = await slackEvent.client.users.info({user: (<Record<string, any>>slackEvent.body).user.id});
                 logger.debug(`Cache the user info: ${JSON.stringify(userInfo)}`);
                 user = {id: userInfo.user.id, name: userInfo.user.real_name, email: userInfo.user.profile.email};
@@ -401,29 +451,45 @@ class SlackMiddleware extends Middleware {
                 this.channels.set(channelId, channel);
             }
 
+            // Get  event
+            const event: IEvent = {
+                'pluginId': privateMetaData.pluginId,
+                'action': {
+                    'id': privateMetaData.action.id,
+                    'type': IActionType.DIALOG_SUBMIT,
+                    'token': privateMetaData.action.token,
+                },
+            };
+
             const chatContextData: IChatContextData = {
-                'message': '',
-                'bot': this.bot,
-                'chatToolContext': chatToolContext,
-                // View Action doesn't contain the conversation type context. Using privateMetaData
-                'chattingType': channel.chattingType,
-                'user': {
-                    'id': user.id,
-                    'name': user.name,
-                    'email': user.email,
+                'payload': {
+                    'type': IPayloadType.EVENT,
+                    'data': event,
                 },
-                // View Action doesn't contain the context channel information. Using privateMetaData
-                'channel': {
-                    'id': channel.id,
-                    'name': channel.name,
-                },
-                'team': {
-                    'id': '',
-                    'name': '',
-                },
-                'tenant': {
-                    'id': '',
-                    'name': '',
+                'context': {
+                    'chatting': {
+                        'bot': this.bot,
+                        'type': channel.chattingType,
+                        'user': {
+                            'id': user.id,
+                            'name': user.name,
+                            'email': user.email,
+                        },
+                        // View Action doesn't contain the context channel information. Using privateMetaData
+                        'channel': {
+                            'id': channel.id,
+                            'name': channel.name,
+                        },
+                        'team': {
+                            'id': '',
+                            'name': '',
+                        },
+                        'tenant': {
+                            'id': '',
+                            'name': '',
+                        },
+                    },
+                    'chatTool': chatToolContext,
                 },
             };
 
@@ -449,15 +515,19 @@ class SlackMiddleware extends Middleware {
         try {
             for (const msg of messages) {
                 logger.debug(`msg: ${JSON.stringify(msg, null, 2)}`);
-                if (msg.type == IMessageType.SLACK_VIEW) {
+                if (msg.type == IMessageType.SLACK_VIEW_OPEN) {
                     await this.app.client.views.open(msg.message);
                 } else if (msg.type == IMessageType.SLACK_VIEW_UPDATE) {
                     await this.app.client.views.update(msg.message);
+                } else if (msg.type == IMessageType.PLAIN_TEXT) {
+                    await this.app.client.chat.postMessage({
+                        'channel': chatContextData.context.chatting.channel.id,
+                        'text': msg.message,
+                    });
                 } else {
                     if (msg.message.text === undefined || msg.message.text === null) {
                         msg.message.text = 'New message from Common bot';
                     }
-
                     await this.app.client.chat.postMessage(msg.message);
                 }
             }
