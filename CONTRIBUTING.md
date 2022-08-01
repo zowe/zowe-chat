@@ -156,6 +156,9 @@ To provide long-term support (LTS) for versions in maintenance mode, any securit
 
 ## Planning Guidelines
 
+### Story Definition
+
+### Story Sizing
 The new issues raised in the GitHub are triaged and sized weekly in the Wednesday Squad meetings. There is an [Open Mainframe Project Zowe calendar](https://lists.openmainframeproject.org/calendar) with the squad meetings.
 
 To get a better understanding on the complexity of different issues, we use a modified Fibonacci sequence (1, 2, 3, 5, 8, 13, 20, 40, 100) as the number of the points to size each issue.  
