@@ -15,8 +15,7 @@ import logger = require('../../utils/Logger');
 import MattermostClient = require('./MattermostClient');
 import Util = require('../../utils/Util');
 import MattermostListener = require('./MattermostListener');
-import {IChatContextData, IMessage, IMessageType, IChatToolType, IMattermostOption, IUser, IChattingType, IChannel} from '../../types';
-
+import {IChatContextData, IMessage, IMessageType, IChatToolType, IMattermostOption, IUser, IChattingType, IChannel, IPayloadType} from '../../types';
 class MattermostMiddleware extends Middleware {
     private client: MattermostClient;
     private botUser: IUser;
@@ -74,36 +73,39 @@ class MattermostMiddleware extends Middleware {
         logger.start(this.send, this);
 
         try {
-            logger.debug(`Chat tool data sent to Mattermost server: ${Util.dumpObject(chatContextData.chatToolContext, 2)}`);
+            // Get chat context data
+            logger.debug(`Chat tool data sent to Mattermost server: ${Util.dumpObject(chatContextData.context.chatTool, 2)}`);
 
             for (const msg of messages) {
                 // Process view to open dialog.
-                if (msg.type === IMessageType.MATTERMOST_DIALOG_OPENING) {
+                if (msg.type === IMessageType.MATTERMOST_DIALOG_OPEN) {
                     await this.client.openDialog(msg.message);
                     break;
                 }
 
                 // Send message back to channel
-                if (chatContextData.chatToolContext !== null) { // Conversation message
+                if (chatContextData.context.chatTool !== null) { // Conversation message
                     logger.info('Send conversation message ...');
-                    this.client.sendMessage(msg.message, chatContextData.channel.id, chatContextData.chatToolContext.rootId);
+                    this.client.sendMessage(msg.message, chatContextData.context.chatting.channel.id, chatContextData.context.chatTool.rootId);
                 } else {
                     // Proactive message
                     logger.info('Send proactive message ...');
 
                     // Find channel if channel id is not provided.
                     let channelId: string = null;
-                    if (chatContextData.channel.id === '' && chatContextData.channel.name !== '') { // channel name is provided.
-                        const channelInfo: IChannel = await this.client.getChannelByName(chatContextData.channel.name);
+                    if (chatContextData.context.chatting.channel.id === ''
+                        && chatContextData.context.chatting.channel.name !== '') { // channel name is provided.
+                        const channelInfo: IChannel = await this.client.getChannelByName(chatContextData.context.chatting.channel.name);
 
                         if (channelInfo === null) {
-                            logger.error(`The specified MatterMost channel does not exist!\n${JSON.stringify(chatContextData.channel, null, 2)}`);
+                            logger.error(`The specified MatterMost channel does not exist!\n`
+                                + JSON.stringify(chatContextData.context.chatting.channel, null, 2));
                             return;
                         }
                         logger.debug(`Target channel info: ${JSON.stringify(channelInfo, null, 2)}`);
                         channelId = channelInfo.id;
                     } else { // channel id is provided.
-                        channelId = chatContextData.channel.id;
+                        channelId = chatContextData.context.chatting.channel.id;
                     }
 
                     logger.debug(`Target channel id: ${channelId}`);
@@ -121,6 +123,7 @@ class MattermostMiddleware extends Middleware {
     }
 
     // Process normal message
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async processMessage(rawMessage: Record<string, any>): Promise<void> {
         logger.start(this.processMessage, this);
 
@@ -180,28 +183,35 @@ class MattermostMiddleware extends Middleware {
                 receivedMessage = `@${this.botUser.name} ${receivedMessage}`;
             }
             const chatContextData: IChatContextData = {
-                'message': receivedMessage,
-                'bot': this.bot,
-                'chatToolContext': {
-                    'rootId': messagePost.root_id,
+                'payload': {
+                    'type': IPayloadType.MESSAGE,
+                    'data': receivedMessage,
                 },
-                'chattingType': chattingType,
-                'user': {
-                    'id': messagePost.user_id,
-                    'name': (user !== null) ? user.name : rawMessage.data.sender_name.trim().substring(1),
-                    'email': (user !== null) ? user.email : '',
-                },
-                'channel': {
-                    'id': messagePost.channel_id,
-                    'name': rawMessage.data.channel_name,
-                },
-                'team': {
-                    'id': rawMessage.data.team_id,
-                    'name': '',
-                },
-                'tenant': {
-                    'id': '',
-                    'name': '',
+                'context': {
+                    'chatting': {
+                        'bot': this.bot,
+                        'type': chattingType,
+                        'user': {
+                            'id': messagePost.user_id,
+                            'name': (user !== null) ? user.name : rawMessage.data.sender_name.trim().substring(1),
+                            'email': (user !== null) ? user.email : '',
+                        },
+                        'channel': {
+                            'id': messagePost.channel_id,
+                            'name': rawMessage.data.channel_name,
+                        },
+                        'team': {
+                            'id': rawMessage.data.team_id,
+                            'name': '',
+                        },
+                        'tenant': {
+                            'id': '',
+                            'name': '',
+                        },
+                    },
+                    'chatTool': {
+                        'rootId': messagePost.root_id,
+                    },
                 },
             };
             logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
@@ -213,7 +223,7 @@ class MattermostMiddleware extends Middleware {
             for (const listener of listeners) {
                 const matchers = listener.getMessageMatcher().getMatchers();
                 for (const matcher of matchers) {
-                    const matched: boolean = matcher.matcher(chatContextData.message);
+                    const matched: boolean = matcher.matcher(chatContextData);
                     if (matched) {
                         // Call message handler to process message
                         for (const handler of matcher.handlers) {

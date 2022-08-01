@@ -213,7 +213,7 @@ class MattermostClient {
         logger.start(this.onMessage, this);
 
         try {
-            const message: Record<string, any> = JSON.parse(data);
+            const message: Record<string, any> = JSON.parse(data); // eslint-disable-line @typescript-eslint/no-explicit-any
             logger.debug(`Received message is ${Util.dumpObject(message)}`);
 
             if (message.event !== undefined && message.event === 'posted') {
@@ -303,11 +303,12 @@ class MattermostClient {
     }
 
     // Send message to Mattermost channel, group or direct message through Mattermost web service Rest API posts.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async sendMessage(message: Record<string, any>, channelId: string, rootId: string): Promise<void> {
         logger.start(this.sendMessage, this);
 
         try {
-            const postObject: Record<string, any> = {
+            const postObject: Record<string, any> = { // eslint-disable-line @typescript-eslint/no-explicit-any
                 message: message,
                 root_id: rootId,
                 channel_id: channelId,
@@ -335,6 +336,7 @@ class MattermostClient {
     }
 
     // Send message to Mattermost server through the WebSocket.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private authenticate(message: Record<string, any>): void {
         logger.start(this.authenticate, this);
         try {
@@ -355,6 +357,7 @@ class MattermostClient {
     }
 
     // Open dialog
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async openDialog(payload: Record<string, any>): Promise<void> {
         logger.start(this.openDialog, this);
 
@@ -402,7 +405,6 @@ class MattermostClient {
 
         try {
             const response = await this.get(`${this.mattermostServerBaseUrl}/channels/${id}`);
-            logger.debug(Util.dumpResponse(response));
 
             if (response.statusCode === 200) {
                 const channel = {
@@ -519,10 +521,11 @@ class MattermostClient {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async get(url: string): Promise<Record<string, any>> {
         logger.start(this.get, this);
 
-        const res: Record<string, any> = {};
+        const res: Record<string, any> = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
         try {
             logger.debug(`url is ${url}`);
             const request = superagent.get(url)

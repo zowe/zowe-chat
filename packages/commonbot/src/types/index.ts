@@ -8,7 +8,6 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-
 import type {Application} from 'express';
 import type {Receiver} from '@slack/bolt';
 import CommonBot = require('../CommonBot');
@@ -43,13 +42,14 @@ export const enum IMessageType {
     PLAIN_TEXT = 'plainText',
 
     MATTERMOST_ATTACHMENT = 'mattermost.attachment',
-    MATTERMOST_DIALOG_OPENING = 'mattermost.dialog.opening',
+    MATTERMOST_DIALOG_OPEN = 'mattermost.dialog.open',
 
     SLACK_BLOCK = 'slack.block',
-    SLACK_VIEW = 'slack.view',
-    SLACK_VIEW_UPDATE = 'slack.viewUpdate',
+    SLACK_VIEW_OPEN = 'slack.view.open',
+    SLACK_VIEW_UPDATE = 'slack.view.update',
 
     MSTEAMS_ADAPTIVE_CARD = 'msteams.adaptiveCard',
+    MSTEAMS_DIALOG_OPEN = 'msteams.dialog.open',
 }
 
 export const enum IChattingType {
@@ -58,6 +58,19 @@ export const enum IChattingType {
     PRIVATE_CHANNEL = 'privateChannel',
     GROUP = 'group', // Group chatting
     UNKNOWN = 'unknown',
+}
+
+export const enum IPayloadType {
+    MESSAGE = 'message',
+    EVENT = 'event',
+}
+
+export const enum IActionType {
+    BUTTON_CLICK = 'button.click',
+    DROPDOWN_SELECT = 'dropdown.select',
+    DIALOG_OPEN = 'dialog.open',
+    DIALOG_SUBMIT = 'dialog.submit',
+    UNSUPPORTED = 'unsupported'
 }
 
 export interface IMessage {
@@ -227,7 +240,7 @@ export interface IMsteamsOption {
 }
 
 export interface IMessageMatcherFunction {
-    (message: string): boolean
+    (chatContextData: IChatContextData): boolean
 }
 
 export interface IMessageHandlerFunction {
@@ -259,15 +272,55 @@ export interface IUser {
     email: string,
 }
 
+// export interface IChatContextData {
+//     message: string,
+//     bot: CommonBot,
+//     chatToolContext: Record<string, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+//     chattingType: IChattingType,
+//     user: IUser,
+//     channel: IName,
+//     team: IName,
+//     tenant: IName,
+// }
+
 export interface IChatContextData {
-    message: string,
-    bot: CommonBot,
-    chatToolContext: Record<string, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-    chattingType: IChattingType,
-    user: IUser,
-    channel: IName,
-    team: IName,
-    tenant: IName,
+    payload: IPayload;
+    context: IContext;
+    extraData?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export interface IPayload {
+    type: IPayloadType;
+    data: string | IEvent;
+}
+export interface IContext {
+    chatting: IChattingContext;
+    chatTool: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IChatToolContext {
+    // TODO: details must be added later
+}
+
+export interface IChattingContext {
+    bot: CommonBot;
+    type: IChattingType;
+    user: IUser;
+    channel: IName;
+    team: IName;
+    tenant: IName;
+}
+
+export interface IEvent{
+    pluginId: string;
+    action: IAction;
+}
+
+export interface IAction {
+    id: string;
+    type: IActionType;
+    token: string;
 }
 
 export interface IName {
