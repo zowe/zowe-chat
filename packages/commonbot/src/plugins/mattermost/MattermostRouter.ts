@@ -94,7 +94,7 @@ class MattermostRouter extends Router {
                 event.action.id = payload.context.action.id;
                 event.action.token = payload.context.action.token;
                 if (payload.type === 'select') {
-                    event.action.type = IActionType.DIALOG_OPEN;
+                    event.action.type = IActionType.DROPDOWN_SELECT;
                 } else if (payload.type === 'button') {
                     if (payload.context.action.type !== undefined) {
                         event.action.type = payload.context.action.type;
@@ -115,6 +115,7 @@ class MattermostRouter extends Router {
             if (payload.context !== undefined && payload.context.rootId !== undefined && payload.context.rootId !== '') {
                 rootId = payload.context.rootId;
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const chatToolContext: Record<string, any> = {
                 'channelId': payload.channel_id,
                 'rootId': rootId,

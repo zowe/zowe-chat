@@ -111,7 +111,7 @@ class MsteamsMiddleware extends Middleware {
 
             // Get text and attachment part of the message to be sent
             let textMessage: string = '';
-            const mentions: Record<string, any>[] = [];
+            const mentions: Record<string, any>[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
             const attachments: Attachment[] = [];
             for (const message of messages) {
                 if (message.type === IMessageType.PLAIN_TEXT) {

@@ -141,9 +141,10 @@ class SlackMiddleware extends Middleware {
 
             // Search the user from cached users.
             // (<Record<string, any>>slackEvent.message).user is the id of the user
-            let user = this.getUser((<Record<string, any>>slackEvent.message).user);
+            let user = this.getUser((<Record<string, any>>slackEvent.message).user); // eslint-disable-line @typescript-eslint/no-explicit-any
             // if user have not been cached, then search from the slack server and cache it
             if (user === undefined ) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const userInfo = await slackEvent.client.users.info({user: (<Record<string, any>>slackEvent.message).user});
                 logger.debug(`Cache the user info: ${JSON.stringify(userInfo)}`);
                 user = {id: userInfo.user.id, name: userInfo.user.real_name, email: userInfo.user.profile.email};
@@ -165,12 +166,12 @@ class SlackMiddleware extends Middleware {
             // message: {"client_msg_id":"0716d94a-1561-4154-b0ce-12386a3b9b6f","type":"message","text":"<@U034W9HMH9V> _*help ad*_   ~_cdfad_~    `<https://www.ibm.com>`     <https://www.ibm.com>","user":"W0197PJSJAG","ts":"1646978508.524889","team":"T0197NLG020","blocks":[{"type":"rich_text","block_id":"W4yRm","elements":[{"type":"rich_text_section","elements":[{"type":"user","user_id":"U034W9HMH9V"},{"type":"text","text":" "},{"type":"text","text":"help ad","style":{"bold":true,"italic":true}},{"type":"text","text":"   "},{"type":"text","text":"cdfad","style":{"italic":true,"strike":true}},{"type":"text","text":"    "},{"type":"link","url":"https://www.ibm.com","style":{"code":true}},{"type":"text","text":"     "},{"type":"link","url":"https://www.ibm.com"}]}]}],"channel":"G01F96Y55KJ","event_ts":"1646978508.524889","channel_type":"group"}
             // Get the message text
             const reg = new RegExp(`<@${slackEvent.context.botUserId}>`, 'g');
-            message = (<Record<string, any>>slackEvent.message).text.replace(reg, `@${this.botName}`);
+            message = (<Record<string, any>>slackEvent.message).text.replace(reg, `@${this.botName}`); // eslint-disable-line @typescript-eslint/no-explicit-any
 
             // Try to get the raw message
             let rawMessage = '';
-            if ((<Record<string, any>>slackEvent.message).blocks !== undefined) {
-                const messageBlocks = (<Record<string, any>>slackEvent.message).blocks;
+            if ((<Record<string, any>>slackEvent.message).blocks !== undefined) { // eslint-disable-line @typescript-eslint/no-explicit-any
+                const messageBlocks = (<Record<string, any>>slackEvent.message).blocks; // eslint-disable-line @typescript-eslint/no-explicit-any
                 for (const block of messageBlocks) {
                     // Get the rich_text block
                     if (block.type === 'rich_text' && block.elements !== undefined) {
@@ -300,9 +301,10 @@ class SlackMiddleware extends Middleware {
 
             // Search the user from cached users.
             // (<Record<string, any>>slackEvent.message).user is the id of the user
-            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id);
+            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id); // eslint-disable-line @typescript-eslint/no-explicit-any
             // if user have not been cached, then search from the slack server and cache it
             if (user === undefined ) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const userInfo = await slackEvent.client.users.info({user: (<Record<string, any>>slackEvent.body).user.id});
                 logger.debug(`Cache the user info: ${JSON.stringify(userInfo)}`);
                 user = {id: userInfo.user.id, name: userInfo.user.real_name, email: userInfo.user.profile.email};
@@ -327,7 +329,7 @@ class SlackMiddleware extends Middleware {
                     'token': '',
                 },
             };
-            const eventBody: any = slackEvent.body;
+            const eventBody: any = slackEvent.body; // eslint-disable-line @typescript-eslint/no-explicit-any
             const actionId = eventBody.actions[0].action_id;
             const segments = actionId.split(':');
             if (segments.length >= 3) {
@@ -428,9 +430,10 @@ class SlackMiddleware extends Middleware {
 
             // Search the user from cached users.
             // (<Record<string, any>>slackEvent.message).user is the id of the user
-            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id);
+            let user = this.getUser((<Record<string, any>>slackEvent.body).user.id); // eslint-disable-line @typescript-eslint/no-explicit-any
             // if user have not been cached, then search from the slack server and cache it
             if (user === undefined ) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const userInfo = await slackEvent.client.users.info({user: (<Record<string, any>>slackEvent.body).user.id});
                 logger.debug(`Cache the user info: ${JSON.stringify(userInfo)}`);
                 user = {id: userInfo.user.id, name: userInfo.user.real_name, email: userInfo.user.profile.email};

@@ -8,7 +8,6 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-
 import type {Application} from 'express';
 import type {Receiver} from '@slack/bolt';
 import CommonBot from '../CommonBot';
@@ -287,7 +286,7 @@ export interface IUser {
 export interface IChatContextData {
     payload: IPayload;
     context: IContext;
-    extraData?: any;
+    extraData?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export interface IPayload {
@@ -296,7 +295,7 @@ export interface IPayload {
 }
 export interface IContext {
     chatting: IChattingContext;
-    chatTool: any; // TODO: IChatToolContext;
+    chatTool: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

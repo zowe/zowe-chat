@@ -24,7 +24,7 @@ Except pure plain text and markdown format, most of chat platforms provide their
 * **SLACK_VIEW_OPEN**: _**Slack only**_ Open a dialog
 * **SLACK_VIEW_UPDATE**:  _**Slack only**_ Close a dialog
 * **MSTEAMS_ADAPTIVE_CARD**: _**Teams only**_ Message including multiple interactive component including buttons etc. [Learn More ...](https://docs.microsoft.com/en-us/adaptive-cards/)
-
+* **MSTEAMS_DIALOG_OPEN**: _**Teams only**_ Open a dialog
 
 ## Create chat bot
 Before you can leverage Common Bot Framework to create one chat bot, you must create one required chat platform app and configure your chat platform and write down the values for all required properties. [Learn more ...](https://www.ibm.com/docs/en/z-chatops/1.1.2?topic=software-configuring-your-chat-platform)
@@ -35,12 +35,6 @@ const app = express(); // Your Express.JS app
 
 // Set chat bot option
 const botOption: IBotOption = {
-    'log': {
-        'filePath': './common-bot.log',
-        'level': ILogLevel.INFO,
-        'maximumSize': null,
-        'maximumFiles': null,
-    },
     'messagingApp': app,
     'chatTool': {
         'type': IChatToolType.MATTERMOST,
@@ -51,13 +45,8 @@ const botOption: IBotOption = {
             'basePath': '/api/v4',
             'tlsCertificate': fs.readFileSync('<Your absolute certificate file path of your Mattermost server>', 'utf8'),
             'teamUrl': 'devops',
+            'botUserName': 'bnz',
             'botAccessToken': '<Your bot access token>',
-            'integrationEndpoint': {
-                'protocol': IProtocol.HTTPS,
-                'hostName': '<Your host name>',
-                'port': <Your port number>,
-                'basePath': '<Your base path>',
-            },
         },
     },
 };
@@ -73,13 +62,8 @@ const app = null; // Your Express.JS app, not set here due to socket mode will b
 
 // Set chat bot option
 const botOption: IBotOption = {
-    'log': {
-        'filePath': './common-bot.log',
-        'level': ILogLevel.INFO,
-        'maximumSize': null,
-        'maximumFiles': null,
-    },
     'messagingApp': null,
+    'botUserName': 'bnz',
     'chatTool': {
         'type': IChatToolType.SLACK,
         'option': {
@@ -104,24 +88,13 @@ const app = express(); // Your Express.JS app
 
 // Set chat bot option
 const botOption: IBotOption = {
-    'log': {
-        'filePath': './common-bot.log',
-        'level': ILogLevel.INFO,
-        'maximumSize': null,
-        'maximumFiles': null,
-    },
     'messagingApp': this.app.getApplication(),
+    'botUserName': 'bnz',
     'chatTool': {
         'type': IChatToolType.MSTEAMS,
         'option': {
             'botId': '<Your bot ID>',
             'botPassword': '<Your bot password>',
-            'messagingEndpoint': {
-                'protocol': IProtocol.HTTPS,
-                'hostName': '<Your host name>',
-                'port': <Your port number>,
-                'basePath': '<Your base path>',
-            },
         },
     },
 };

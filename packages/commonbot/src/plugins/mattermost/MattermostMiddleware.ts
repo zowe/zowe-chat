@@ -123,6 +123,7 @@ class MattermostMiddleware extends Middleware {
     }
 
     // Process normal message
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async processMessage(rawMessage: Record<string, any>): Promise<void> {
         logger.start(this.processMessage, this);
 
