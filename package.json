@@ -1,5 +1,5 @@
 {
-    "name": "zowe-chat-repo",
+    "name": "@zowe/chat",
     "version": "1.0.0",
     "description": "Zowe Chat mono repository",
     "license": "EPL-2.0",

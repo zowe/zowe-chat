@@ -1,5 +1,5 @@
 {
-    "name": "commonbot",
+    "name": "@zowe/commonbot",
     "version": "1.1.1",
     "description": "IBM Common Bot Framework",
     "author": "IBM",
