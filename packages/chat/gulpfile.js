@@ -1,5 +1,5 @@
 // Description:
-//   Gulp script used to clean, build, test (UT & FVT), deploy or packaging Zowe Chat - core。
+//   Gulp script used to clean, build, test (UT & FVT), deploy or packaging Zowe Chat。
 //
 // Usage:
 //   gulp                         - same as 'gulp build'
@@ -20,21 +20,21 @@
 //                                        = fvt        : Build and package function test package
 //                                        = ...(dev)   : Build source code for development
 //   RELEASE_TYPE                 - Indicate what kind of release will the package file be named: beta | ga | ...(dev)
-//                                        = beta       : Beta is added to package file name: zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = production -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = ut         -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = fvt        -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = ...        -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                        = ga         : Package file name: zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = production -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = ut         -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = fvt        -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = ...        -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                        = ...(dev)   : Package file name: zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = production -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = ut         -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = fvt        -> zowe-chat-core-v${releaseVersion}.tar.gz
-//                                                       NODE_ENV = ...        -> zowe-chat-core-v${releaseVersion}.tar.gz
+//                                        = beta       : Beta is added to package file name: zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = production -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = ut         -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = fvt        -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = ...        -> zowe-chat-v${releaseVersion}.tar.gz
+//                                        = ga         : Package file name: zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = production -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = ut         -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = fvt        -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = ...        -> zowe-chat-v${releaseVersion}.tar.gz
+//                                        = ...(dev)   : Package file name: zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = production -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = ut         -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = fvt        -> zowe-chat-v${releaseVersion}.tar.gz
+//                                                       NODE_ENV = ...        -> zowe-chat-v${releaseVersion}.tar.gz
 //                                   Used in gulp build, gulp packaging task
 //   RELEASE_VERSION               - Indicate which version will be add build file name
 //                                   Used in gulp packaging task
@@ -254,26 +254,26 @@ async function packagingTask() {
         default:
             buildTypeSegment = '';
     }
-    packagedFileName = `zowe-chat-core-v${releaseVersion.replace(/\./g, '')}${releaseTypeSegment}${buildTypeSegment}-${buildTime}.tar.gz`;
-    releasedFileName = `zowe-chat-core-v${releaseVersion.replace(/\./g, '')}.tar.gz`;
+    packagedFileName = `zowe-chat-v${releaseVersion.replace(/\./g, '')}${releaseTypeSegment}${buildTypeSegment}-${buildTime}.tar.gz`;
+    releasedFileName = `zowe-chat-v${releaseVersion.replace(/\./g, '')}.tar.gz`;
 
     if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zowe-chat-core*.tar.gz `
+        return childProcess.execSync(`cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zowe-chat*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& tar zcf ../release/${packagedFileName} * `,
         {stdio: 'inherit'});
     } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zowe-chat-core*.tar.gz `
+        return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zowe-chat*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& tar zcf ../release/${packagedFileName} * `,
         {stdio: 'inherit'});
     } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zowe-chat-core*.tar.gz `
+        return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zowe-chat*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& tar zcf ../release/${packagedFileName} * `,
         {stdio: 'inherit'});
     } else { // Development: folder.src.destination = 'dist/'
-        return childProcess.execSync(`pwd && cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zowe-chat-core*.tar.gz `
+        return childProcess.execSync(`pwd && cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zowe-chat*.tar.gz `
                 + `&& rm -rf ./package-lock.json `
                 + `&& tar zcf ../release/${packagedFileName} * `,
         {stdio: 'inherit'});

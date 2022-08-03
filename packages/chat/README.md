@@ -1,6 +1,6 @@
-# Zowe Chat Core
+# Zowe Chat
 
-Zowe Chat Core component provides basic functionalities for chatting and two abstract listeners (MessageListener and EventListener) for users to create their own plugins to extend capabilities of Zowe Chat as plugins.
+Zowe Chat component provides basic functionalities for chatting and two abstract listeners (MessageListener and EventListener) for users to create their own plugins to extend capabilities of Zowe Chat as plugins.
 
 ## Content
   - [Features](#features)
