@@ -8,7 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {IProtocol, IAppOption, IChatToolType, ILogOption, IChatContextData, IMessage} from 'commonbot';
+import type {IProtocol, IAppOption, IChatToolType, ILogOption, IChatContextData, IMessage} from '@zowe/commonbot';
 
 
 export interface IConfig {
@@ -114,4 +114,4 @@ export interface IChatListenerRegistryEntry {
 
 export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IHttpEndpoint,
     IMessageHandlerFunction, IMessageMatcherFunction, IRouteHandlerFunction, IMessagingApp, IMessage, IMessageType, IAppOption, IPayloadType,
-    IEvent, IActionType} from 'commonbot';
+    IEvent, IActionType} from '@zowe/commonbot';
