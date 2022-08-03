@@ -8492,9 +8492,10 @@
             }
         },
         "packages/chat": {
+            "name": "@zowe/chat",
             "version": "1.0.0",
             "bundleDependencies": [
-                "commonbot"
+                "@zowe/commonbot"
             ],
             "license": "EPL-2.0",
             "dependencies": {

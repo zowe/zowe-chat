@@ -242,13 +242,13 @@ class MsteamsMiddleware extends Middleware {
                     // Note this function can't send multiple attachments
                     // Error message:
                     //  2021-04-29T13:07:06.805Z [ERROR] Error: Error
-                    //  at MsteamsMiddleware.send (/opt/ibm/zchatops/node_modules/commonbot/adapters/msteams/MsteamsMiddleware.js:136:47)
+                    //  at MsteamsMiddleware.send (/opt/ibm/zchatops/node_modules/@zowe/commonbot/adapters/msteams/MsteamsMiddleware.js:136:47)
                     //  Error: Activity resulted into multiple skype activities
                     //  at new RestError (/opt/ibm/zchatops/node_modules/@azure/ms-rest-js/dist/msRest.node.js:1403:28)
                     //  at /opt/ibm/zchatops/node_modules/@azure/ms-rest-js/dist/msRest.node.js:2528:37
                     //  at processTicksAndRejections (internal/process/task_queues.js:97:5)
-                    //  at async MsteamsMiddleware.send (/opt/ibm/zchatops/node_modules/commonbot/adapters/msteams/MsteamsMiddleware.js:132:17)
-                    //  at async ChatContext.send (/opt/ibm/zchatops/node_modules/commonbot/ChatContext.js:17:13)
+                    //  at async MsteamsMiddleware.send (/opt/ibm/zchatops/node_modules/@zowe/commonbot/adapters/msteams/MsteamsMiddleware.js:132:17)
+                    //  at async ChatContext.send (/opt/ibm/zchatops/node_modules/@zowe/commonbot/ChatContext.js:17:13)
                     const conversationResourceResponse = await connectorClient.conversations.createConversation(conversationParameters);
 
                     // Create the rest not sended Activity

@@ -18,7 +18,7 @@ import Config = require('../common/Config');
 import Logger = require('../utils/Logger');
 import EventListener = require('../listener/EventListener');
 import MessageListener = require('../listener/MessageListener');
-import CommonBot from 'commonbot';
+import CommonBot from '@zowe/commonbot';
 
 const logger = Logger.getInstance();
 const config = Config.getInstance();
