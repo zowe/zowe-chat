@@ -40,7 +40,7 @@ The Common Bot Framework is a NPM library that provides a set of uniform interfa
 ## Environment variables
 * COMMONBOT_LOG_FILE
 
-  Specifies the log file of your Common Bot Framework. The default value is $ZCHATOPS_HOME/node_modules/commonbot/log/common-bot.log.
+  Specifies the log file of your Common Bot Framework. The default value is $ZCHATOPS_HOME/node_modules/@zowe/commonbot/log/common-bot.log.
 * COMMONBOT_LOG_LEVEL
 
   Specifies the level of logs. The value can be error, warn, info, verbose, debug, or silly. The default value is info.

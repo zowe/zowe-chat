@@ -8,7 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import CommonBot, { IBotOption, ISlackOption } from 'packages/commonbot/dist/package';
+import CommonBot, { IBotOption, ISlackOption } from '@zowe/commonbot';
 import { AppConfig, IChatToolType, IMattermostConfig, IMsteamsConfig, ISlackConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
 import { MessageListener } from '../listener/MessageListener';
