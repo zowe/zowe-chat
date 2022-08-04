@@ -8,27 +8,30 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {ExpressReceiver, ExpressReceiverOptions} from '@slack/bolt';
-import {Application} from 'express';
-import logger = require('../../utils/Logger');
+import { ExpressReceiver, ExpressReceiverOptions } from '@slack/bolt';
+import { Application } from 'express';
+import Logger from '../../utils/Logger';
 
 class Receiver extends ExpressReceiver {
+
+    private mLog: Logger
+
     constructor(expressReceiverOptions: ExpressReceiverOptions) {
         super(expressReceiverOptions);
     }
 
     // Replace the default app and use the router
     setApp(messagingApp: Application): void {
-        logger.start(this.setApp, this);
+        this.mLog.start(this.setApp, this);
         try {
             this.app = messagingApp;
             this.app.use(this.router);
         } catch (err) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(err.name), err));
+            this.mLog.error(this.mLog.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            logger.end(this.setApp, this);
+            this.mLog.end(this.setApp, this);
         }
     }
 }

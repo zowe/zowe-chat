@@ -8,15 +8,16 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {IMessageHandlerFunction, IMessageMatcherFunction} from './types';
+import type { IMessageHandlerFunction, IMessageMatcherFunction } from './types';
+import Logger from './utils/Logger';
 
 import CommonBot = require('./CommonBot');
-import logger = require('./utils/Logger');
 import MessageMatcher = require('./MessageMatcher');
 
 class Listener {
     protected bot: CommonBot;
     protected messageMatcher: MessageMatcher;
+    protected logger: Logger
 
     // Constructor
     constructor(bot: CommonBot) {
@@ -30,16 +31,16 @@ class Listener {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async listen(matcher: IMessageMatcherFunction, handler: IMessageHandlerFunction): Promise<void> {
         // Print start log
-        logger.start(this.listen, this);
+        this.logger.start(this.listen, this);
 
         try {
-            logger.debug('Run base listener');
+            this.logger.debug('Run base listener');
         } catch (err) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(err.name), err));
+            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            logger.end(this.listen, this);
+            this.logger.end(this.listen, this);
         }
     }
 

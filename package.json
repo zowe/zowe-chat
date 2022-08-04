@@ -8,7 +8,8 @@
         "build": "gulp build"
     },
     "workspaces": [
-        "packages/*"
+        "packages/commonbot",
+        "packages/core"
     ],
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": ">=5.10.1",

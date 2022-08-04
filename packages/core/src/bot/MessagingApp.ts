@@ -8,16 +8,16 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {Application} from 'express';
-import {IAppOption} from '../types';
+import type { Application } from 'express';
+import helmet from 'helmet';
+import { IAppOption } from '../config/base/AppConfig';
 
 import fs = require('fs');
 import express = require('express');
 import https = require('https');
 import http = require('http');
-import helmet from 'helmet';
 
-class MessagingApp {
+export class MessagingApp {
     private option: IAppOption;
     private app: Application;
     private server: https.Server | http.Server;
@@ -29,7 +29,7 @@ class MessagingApp {
         // Create express app
         this.app = express();
         this.app.use(express.json());
-        this.app.use(express.urlencoded({extended: false}));
+        this.app.use(express.urlencoded({ extended: false }));
         this.app.use(helmet()); // Secure Express apps with various HTTP headers
     }
 
@@ -96,7 +96,7 @@ class MessagingApp {
 
     // Event listener for error event.
     private onError(port: string | number | boolean) {
-        return function(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+        return function (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             if (error.syscall !== 'listen') {
                 console.error(`Listen is not called!`);
                 console.error(error.stack);
@@ -125,12 +125,10 @@ class MessagingApp {
 
     // Event listener for listening event
     private onListening(server: https.Server | http.Server) {
-        return function() {
+        return function () {
             const addr = server.address();
             const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
             console.info(`The messaging app server is listening on ${bind}`);
         };
     }
 }
-
-export = MessagingApp;

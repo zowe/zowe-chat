@@ -17,6 +17,11 @@ import { IConfigProperty } from "./IConfigProperty";
  * as well as provide option definitions for create & update profile commands
  */
 export interface IConfigBlockDefinition {
+
+    /**
+     * Key to be used as the block's key entry in a configuration map. i.e., "myConfigurationArea"
+     */
+    key: string;
     /**
      * A short, descriptive title of your configuration 
      */

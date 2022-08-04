@@ -12,3 +12,4 @@ import CommonBot = require('./CommonBot');
 
 export default CommonBot;
 export * from './types';
+module.exports = 'commonbot'

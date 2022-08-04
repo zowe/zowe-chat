@@ -8,11 +8,11 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IMessageHandlerFunction, IMessageMatcherFunction} from '../../types';
+import { IMessageHandlerFunction, IMessageMatcherFunction } from '../../types';
 
 import CommonBot = require('../../CommonBot');
+
 import Listener = require('../../Listener');
-import logger = require('../../utils/Logger');
 import MattermostMiddleware = require('./MattermostMiddleware');
 
 class MattermostListener extends Listener {
@@ -26,9 +26,9 @@ class MattermostListener extends Listener {
     // Run listener
     async listen(matcher: IMessageMatcherFunction, handler: IMessageHandlerFunction): Promise<void> {
         // Print start log
-        logger.start(this.listen, this);
+        this.logger.start(this.listen, this);
         try {
-            let middleware = <MattermostMiddleware> this.bot.getMiddleware();
+            let middleware = <MattermostMiddleware>this.bot.getMiddleware();
             if (middleware === null) {
                 middleware = new MattermostMiddleware(this.bot);
                 this.bot.setMiddleware(middleware);
@@ -39,10 +39,10 @@ class MattermostListener extends Listener {
             this.messageMatcher.addMatcher(matcher, handler);
         } catch (err) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(err.name), err));
+            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            logger.end(this.listen, this);
+            this.logger.end(this.listen, this);
         }
     }
 }

@@ -1,6 +1,6 @@
 import { IConfigBlockDefinition } from "./IConfigBlockDefinition";
 
-export interface IConfigSchema {
+export interface IChatConfigSchema {
 
     sections: IConfigBlockDefinition[];
 }

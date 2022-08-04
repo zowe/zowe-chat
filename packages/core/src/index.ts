@@ -8,12 +8,17 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import ChatBot = require('./bot/ChatBot');
-import Logger = require('./utils/Logger');
+import { ChatBot } from "./bot/ChatBot";
+import { AppConfigLoader } from "./config/AppConfigLoader";
+import { AppConfig } from "./config/base/AppConfig";
+import { Logger } from "./utils/Logger";
+
+const appConfig: AppConfig = AppConfigLoader.getAppConfig()
+const appLog = new Logger(appConfig)
+
+// TODO: Lifecycle / catch errors?
 
 // Start chat bot
-const chatBot = ChatBot.getInstance();
+const chatBot = new ChatBot(appConfig, appLog)
 chatBot.run();
 
-export default Logger;
-export * from './types';

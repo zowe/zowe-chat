@@ -8,11 +8,10 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IUser, IRouteHandlerFunction, IChatContextData, IPayloadType, IEvent, IActionType} from '../../types';
-import type {Request, Response} from 'express';
+import type { Request, Response } from 'express';
+import { IActionType, IChatContextData, IEvent, IPayloadType, IRouteHandlerFunction, IUser } from '../../types';
 import CommonBot = require('../../CommonBot');
 import Router = require('../../Router');
-import logger = require('../../utils/Logger');
 import MattermostMiddleware = require('./MattermostMiddleware');
 
 class MattermostRouter extends Router {
@@ -28,7 +27,7 @@ class MattermostRouter extends Router {
     // Run router
     async route(path: string, handler: IRouteHandlerFunction): Promise<void> {
         // Print start log
-        logger.start(this.route, this);
+        this.logger.start(this.route, this);
 
         try {
             // Set router
@@ -44,22 +43,22 @@ class MattermostRouter extends Router {
             await option.messagingApp.app.post(this.router.path, this.processAction);
         } catch (err) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(err.name), err));
+            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            logger.end(this.route, this);
+            this.logger.end(this.route, this);
         }
     }
 
     // Process user interactive actions e.g. button clicks, menu selects.
     async processAction(req: Request, res: Response): Promise<void> {
         // Print start log
-        logger.start(this.processAction, this);
+        this.logger.start(this.processAction, this);
 
         try {
             //  Set root_id to chatToolContext, so the response could be displayed in thread.
             const payload = req.body;
-            logger.debug(`Action request body is ${JSON.stringify(payload)}`);
+            this.logger.debug(`Action request body is ${JSON.stringify(payload)}`);
 
             // Get  event
             const event: IEvent = {
@@ -81,7 +80,7 @@ class MattermostRouter extends Router {
                     event.action.id = segments[1];
                     event.action.token = segments[2];
                 } else {
-                    logger.error(`The data format of state is wrong!\n state=${payload.state}`);
+                    this.logger.error(`The data format of state is wrong!\n state=${payload.state}`);
                 }
                 event.action.type = IActionType.DIALOG_SUBMIT;
             } else {
@@ -107,7 +106,7 @@ class MattermostRouter extends Router {
                     }
                 } else {
                     event.action.type = IActionType.UNSUPPORTED;
-                    logger.error(`Unsupported Mattermost interactive component: ${payload.type}`);
+                    this.logger.error(`Unsupported Mattermost interactive component: ${payload.type}`);
                 }
             }
 
@@ -122,12 +121,12 @@ class MattermostRouter extends Router {
                 'body': payload,
             };
 
-            const middleware = <MattermostMiddleware> this.bot.getMiddleware();
+            const middleware = <MattermostMiddleware>this.bot.getMiddleware();
             const user: IUser = await middleware.getUserById(payload.user_id);
-            logger.debug(`user is ${JSON.stringify(user)}`);
+            this.logger.debug(`user is ${JSON.stringify(user)}`);
 
             const channel = await middleware.getChannelById(payload.channel_id);
-            logger.debug(`channel is ${JSON.stringify(channel)}`);
+            this.logger.debug(`channel is ${JSON.stringify(channel)}`);
 
             const chatContextData: IChatContextData = {
                 'payload': {
@@ -163,10 +162,10 @@ class MattermostRouter extends Router {
             this.router.handler(chatContextData);
         } catch (err) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(err.name), err));
+            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            logger.end(this.processAction, this);
+            this.logger.end(this.processAction, this);
         }
     }
 }

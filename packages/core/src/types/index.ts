@@ -8,59 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {IProtocol, IAppOption, IChatToolType, ILogOption, IChatContextData, IMessage} from 'commonbot';
-
-
-export interface IConfig {
-    chatServer: IChatServerConfig;
-    chatTool: IMattermostConfig | ISlackConfig | IMsteamsConfig;
-}
-
-export interface IChatServerConfig {
-    chatToolType: IChatToolType;
-    log: ILogOption;
-    recordLimit: number;
-    pluginLimit: number,
-    userId: string;
-    userPassword: string;
-}
-
-export interface IMattermostConfig {
-    protocol: IProtocol;
-    hostName: string;
-    port: number;
-    basePath: string;
-    tlsCertificate: string;
-    teamUrl: string;
-    botUserName: string;
-    botAccessToken: string;
-    messagingApp: IAppOption;
-}
-
-export interface ISlackConfig {
-    botUserName: string;
-    signingSecret: string;
-    token: string;
-    socketMode: ISlackConfigSocketMode;
-    httpEndpoint: ISlackConfigHttpEndpoint;
-}
-
-export interface ISlackConfigSocketMode {
-    enabled: boolean;
-    appToken: string;
-}
-
-export interface ISlackConfigHttpEndpoint {
-    enabled: boolean;
-    messagingApp: IAppOption;
-}
-
-export interface IMsteamsConfig {
-    botUserName: string;
-    botId: string;
-    botPassword: string;
-    messagingApp: IAppOption;
-}
+import { IChatContextData, IMessage } from 'packages/commonbot/dist/package';
 
 export interface IName {
     id: string;
@@ -112,6 +60,3 @@ export interface IChatListenerRegistryEntry {
     chatPlugin: IChatPlugin;
 }
 
-export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IHttpEndpoint,
-    IMessageHandlerFunction, IMessageMatcherFunction, IRouteHandlerFunction, IMessagingApp, IMessage, IMessageType, IAppOption, IPayloadType,
-    IEvent, IActionType} from 'commonbot';

@@ -8,23 +8,28 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IChatContextData, IChatListenerRegistryEntry, IMessageListener} from '../types';
+import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ = require('lodash');
 
-import Logger from '../utils/Logger';
-import Config from '../common/Config';
+import { IChatContextData } from 'packages/commonbot/dist/package';
+import { AppConfig } from '../config/base/AppConfig';
+import { SecurityFacility } from '../security/SecurityFacility';
+import { Logger } from '../utils/Logger';
 import Util from '../utils/Util';
 
-const logger = Logger.getInstance();
-const config = Config.getInstance();
+export class MessageListener {
 
-class MessageListener {
     private chatListeners: IChatListenerRegistryEntry[];
+    private log: Logger
+    private config: AppConfig
+    private securityFacility: SecurityFacility;
 
-    constructor() {
+    constructor(config: AppConfig, securityFac: SecurityFacility, log: Logger) {
         this.chatListeners = [];
-
+        this.config = config;
+        this.log = log;
+        this.securityFacility = securityFac;
         this.matchMessage = this.matchMessage.bind(this);
         this.processMessage = this.processMessage.bind(this);
     }
@@ -32,17 +37,15 @@ class MessageListener {
     // Register Zowe chat listener
     registerChatListener(listenerEntry: IChatListenerRegistryEntry): void {
         // Print start log
-        logger.start(this.registerChatListener, this);
+        this.log.start(this.registerChatListener, this);
 
         // Register listener
-        logger.info(`Listener: ${listenerEntry.listenerName}    Type: ${listenerEntry.listenerType}    `
+        this.log.info(`Listener: ${listenerEntry.listenerName}    Type: ${listenerEntry.listenerType}    `
             + `Plugin: ${listenerEntry.chatPlugin.package}    Version: ${listenerEntry.chatPlugin.version}    Priority: ${listenerEntry.chatPlugin.priority}`);
         this.chatListeners.push(listenerEntry);
 
         // Print end log
-        logger.end(this.registerChatListener, this);
-
-        return;
+        this.log.end(this.registerChatListener, this);
     }
 
     // Get chat listener
@@ -53,7 +56,7 @@ class MessageListener {
     // Match inbound message
     matchMessage(chatContextData: IChatContextData): boolean {
         // Print start log
-        logger.start(this.matchMessage, this);
+        this.log.start(this.matchMessage, this);
 
         try {
             // Initialize extra data
@@ -65,7 +68,7 @@ class MessageListener {
             // Match the bot name
             const botOption = chatContextData.context.chatting.bot.getOption();
             if ((<string>chatContextData.payload.data).indexOf(`@${botOption.chatTool.option.botUserName}`) === -1) {
-                logger.info(`The message is not for @${botOption.chatTool.option.botUserName}!`);
+                this.log.info(`The message is not for @${botOption.chatTool.option.botUserName}!`);
             } else {
                 // Find matched listeners
                 for (const listener of this.chatListeners) {
@@ -75,8 +78,8 @@ class MessageListener {
                         chatContextData.extraData.contexts.push(contextData);
                     }
                 }
-                logger.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the message!`);
-                logger.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
+                this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the message!`);
+                this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
             }
 
             // Set return result
@@ -87,17 +90,21 @@ class MessageListener {
             }
         } catch (error) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            //this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            this.log.error(error)
         } finally {
             // Print end log
-            logger.end(this.matchMessage, this);
+            this.log.end(this.matchMessage, this);
         }
     }
 
     // Process matched message
     async processMessage(chatContextData: IChatContextData): Promise<void> {
         // Print start log
-        logger.start(this.processMessage, this);
+        this.log.start(this.processMessage, this);
+
+        this.securityFacility.isAuthenticated(chatContextData)
+
 
         try {
             // Get matched listener and contexts
@@ -105,30 +112,30 @@ class MessageListener {
             const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
 
             // Get the number of plugin limit
-            let pluginLimit = config.getConfig().chatServer.pluginLimit;
-            logger.info(`pluginLimit: ${pluginLimit}`);
+            let pluginLimit = this.config.chatServer.pluginLimit;
+            this.log.info(`pluginLimit: ${pluginLimit}`);
             if (pluginLimit < 0 || pluginLimit > matchedListeners.length) {
                 pluginLimit = matchedListeners.length;
             }
-            logger.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched message!`);
+            this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched message!`);
 
             // Process matched messages
             for (let i = 0; i < pluginLimit; i++) {
                 // Process message
                 const msgs = await (<IMessageListener>matchedListeners[i].listenerInstance).processMessage(listenerContexts[i]);
-                logger.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
+                this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
                 // Send response
                 await chatContextData.context.chatting.bot.send(listenerContexts[i], msgs);
             }
         } catch (error) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            // this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            this.log.error(error)
         } finally {
             // Print end log
-            logger.end(this.processMessage, this);
+            this.log.end(this.processMessage, this);
         }
     }
-}
 
-export = MessageListener;
+}

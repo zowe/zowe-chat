@@ -8,132 +8,141 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IBotOption, IChatListenerType, IChatPlugin} from '../types';
-
+import CommonBot, { IBotOption, ISlackOption } from 'packages/commonbot/dist/package';
+import { AppConfig, IChatToolType, IMattermostConfig, IMsteamsConfig, ISlackConfig } from '../config/base/AppConfig';
+import { UserConfigManager } from '../config/UserConfigManager';
+import { MessageListener } from '../listener/MessageListener';
+import { SecurityConfigSchema } from '../security/config/SecurityConfigSchema';
+import { SecurityFacility } from '../security/SecurityFacility';
+import { IChatListenerType, IChatPlugin } from '../types';
+import { Logger } from '../utils/Logger';
+import { MessagingApp } from './MessagingApp';
 import fs = require('fs');
 import path = require('path');
 import yaml = require('js-yaml');
-
-import Config = require('../common/Config');
-import Logger = require('../utils/Logger');
 import EventListener = require('../listener/EventListener');
-import MessageListener = require('../listener/MessageListener');
-import CommonBot from 'commonbot';
 
-const logger = Logger.getInstance();
-const config = Config.getInstance();
 
-class ChatBot {
-    private static instance: ChatBot;
-    private botOption: IBotOption;
-    private bot: CommonBot;
-    private plugins: IChatPlugin[];
+export class ChatBot {
+
+    private readonly mSecurity: SecurityFacility
+    private readonly mLog: Logger;
+    private readonly appConfig: AppConfig;
+    private readonly configManager: UserConfigManager
+    private readonly mApp: MessagingApp;
+    private readonly mPluginHome = '/usr/lpp/zowe/zowechat';
+    private readonly mBot: CommonBot;
+    private readonly plugins: IChatPlugin[] = [];
     private messageListener: MessageListener;
     private eventListener: EventListener;
 
-    private constructor() {
+    // TODO: Can we cleanup or clarify the initialization logic? For some steps, ordering is required but not explicit enough?
+    constructor(chatConfig: AppConfig, log: Logger) {
+        this.mLog = log
+        this.appConfig = chatConfig
+
         try {
-            logger.debug(`Zowe Chat Config: \n ${JSON.stringify(config.getConfig(), null, 4)}`);
+            this.mLog.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
+            let botOpts: IBotOption = this.generateBotOpts();
+            this.mApp = new MessagingApp(botOpts.messagingApp.option);
+            botOpts.messagingApp.app = this.mApp.getApplication();
+            this.mBot = new CommonBot(botOpts);
 
-            this.botOption = config.getBotOption();
-            this.bot = new CommonBot(this.botOption);
             this.plugins = [];
-            this.messageListener = new MessageListener();
-            this.eventListener = new EventListener();
+            this.loadPlugins();
 
-            if (ChatBot.instance === undefined) {
-                ChatBot.instance = this;
+            let blockConfigList = [SecurityConfigSchema]
+
+            for (let plugin of this.plugins) {
+                // TODO: Build plugin configuration interface
+                /**
+               *    if (plugin.configSchema !== undefined) {
+               *        admConfigList.push(plugin.configSchema);
+               *    }
+               */
             }
-
-            return ChatBot.instance;
+            this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
+            this.mSecurity = new SecurityFacility(this.configManager, log)
+            this.messageListener = new MessageListener(this.appConfig, this.mSecurity, log);
+            this.eventListener = new EventListener(this.appConfig, log);
         } catch (error) {
-            logger.error(`Failed to create chat bot!`);
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.mLog.error(`Failed to create chat bot!`);
+            this.mLog.error(`Error details: ${error}`);
+            this.mLog.debug(`Error stack: ${error.stack}`)
             process.exit(1);
         }
     }
 
-    // Get the singleton instance
-    static getInstance(): ChatBot {
-        if (ChatBot.instance === undefined) {
-            ChatBot.instance = new ChatBot();
-        }
-
-        return ChatBot.instance;
-    }
-
     // Run chat bot
-    run(): void {
+    public run(): void {
         // Print start log
-        logger.start(this.run, this);
-
+        this.mLog.start(this.run, this);
         try {
             // Load plugins
-            logger.info('Load Zowe Chat plugins ...');
-            this.loadPlugins();
+            this.mLog.info('Load Zowe Chat plugins ...');
+
 
             // Start server
-            const app = config.getMessagingApp();
+            const app = this.mApp
             if (app !== null) {
-                logger.info('Start messaging server ...');
+                this.mLog.info('Start messaging server ...');
                 app.startServer();
             }
 
             // Register listeners
-            logger.info('Register message listeners ...');
-            this.bot.listen(this.messageListener.matchMessage, this.messageListener.processMessage);
+            this.mLog.info('Register message listeners ...');
+            this.mBot.listen(this.messageListener.matchMessage, this.messageListener.processMessage);
 
 
             // Register routers
-            logger.info('Register event routers ...');
-            this.bot.route(this.botOption.messagingApp.option.basePath, this.eventListener.processEvent);
+            this.mLog.info('Register event routers ...');
+            this.mBot.route(this.mBot.getOption().messagingApp.option.basePath, this.eventListener.processEvent);
 
             // // Load translation resource
             // logger.info('Load translations ...');
         } catch (error) {
-            logger.error(`Failed to run Zowe chat bot!`);
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.mLog.error(`Failed to run Zowe chat bot!`);
+            this.mLog.error(`${error}`);
             process.exit(2);
         } finally {
             // Print end log
-            logger.end(this.run, this);
+            this.mLog.end(this.run, this);
         }
     }
-
     // Load plugins
     private loadPlugins(): void {
         // Print start log
-        logger.start(this.loadPlugins, this);
+        this.mLog.start(this.loadPlugins, this);
 
         try {
             // Get plugin home
-            const pluginHome = config.getPluginHome();
+            const pluginHome = this.mPluginHome;
             let pluginYamlFilePath = `${pluginHome}${path.sep}plugin.yaml`;
-            logger.info(`Zowe Chat plugin home: ${pluginHome}`);
+            this.mLog.info(`Zowe Chat plugin home: ${pluginHome}`);
 
             // Read plugin configuration file
             if (fs.existsSync(pluginYamlFilePath) === false) {
                 //  Check zowe chat server configuration folder
                 pluginYamlFilePath = `${__dirname}${path.sep}..${path.sep}config${path.sep}plugin.yaml`;
                 if (fs.existsSync(pluginYamlFilePath) === false) {
-                    logger.error(`Zowe Chat plugin configuration file plugin.yaml does not exist in ${pluginHome} `
+                    this.mLog.error(`Zowe Chat plugin configuration file plugin.yaml does not exist in ${pluginHome} `
                         + `and ${__dirname}${path.sep}..${path.sep}config !`);
-                    logger.error(`Skip loading plugins!`);
+                    this.mLog.error(`Skip loading plugins!`);
                     return;
                 }
             }
 
             // Read Zowe Chat plugins configuration file
-            this.plugins = <IChatPlugin[]>yaml.load(fs.readFileSync(pluginYamlFilePath, 'utf8'));
-            logger.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
+            let pluginList = <IChatPlugin[]>yaml.load(fs.readFileSync(pluginYamlFilePath, 'utf8'));
+            this.mLog.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Sort plugin per priority in descend order
-            this.plugins.sort((a, b)=>b.priority - a.priority);
-            logger.debug(`Plugins sorted by priority:\n${JSON.stringify(this.plugins, null, 4)}`);
+            pluginList.sort((a, b) => b.priority - a.priority);
+            this.mLog.debug(`Plugins sorted by priority:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Load plugins one by one in priority descend order
-            for (const plugin of this.plugins) {
-                logger.info(`Loading the plugin ${plugin.package} ...`);
+            for (const plugin of pluginList) {
+                this.mLog.info(`Loading the plugin ${plugin.package} ...`);
 
                 // Get plugin installed path
                 let pluginPath = '';
@@ -146,7 +155,7 @@ class ChatBot {
 
                 // Check whether the plugin is installed
                 if (fs.existsSync(pluginPath) === false) {
-                    logger.error(`The plugin file "${pluginPath}" does not exist!`);
+                    this.mLog.error(`The plugin file "${pluginPath}" does not exist!`);
                 } else {
                     // Load plugin
                     const ZoweChatPlugin = require(pluginPath);
@@ -158,36 +167,164 @@ class ChatBot {
                             this.messageListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.MESSAGE,
-                                'listenerInstance': new ZoweChatPlugin[listenerName](logger),
+                                'listenerInstance': new ZoweChatPlugin[listenerName](this.mLog),
                                 'chatPlugin': plugin,
                             });
                         } else if (listenerName.endsWith('EventListener')) {
                             this.eventListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.EVENT,
-                                'listenerInstance': new ZoweChatPlugin[listenerName](logger),
+                                'listenerInstance': new ZoweChatPlugin[listenerName](this.mLog),
                                 'chatPlugin': plugin,
                             });
                             // this.bot.listen(listener.matchEvent.bind(listener.this), listener.processEvent.bind(listener.this));
                         } else {
-                            logger.error(`The listener "${listenerName}" is not supported!`);
+                            this.mLog.error(`The listener "${listenerName}" is not supported!`);
                         }
                     }
                 }
+                this.mLog.debug(`Loading plugin ${plugin.package} complete`);
+                this.plugins.push(plugin)
             }
         } catch (error) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.mLog.error(`${error}`);
         } finally {
             // Print end log
-            logger.end(this.loadPlugins, this);
+            this.mLog.end(this.loadPlugins, this);
         }
     }
+
+    private readYamlFile(filePath: string): any {
+        if (!fs.existsSync(filePath)) {
+            this.mLog.info(`TBD002E: File ${filePath} does not exist.`);
+            throw new Error(`TBD002E: File ${filePath} does not exist.`);
+        }
+
+        try {
+            return yaml.load(fs.readFileSync(filePath).toString(), {});
+        } catch (err) {
+            this.mLog.info(`TBD003E: Error parsing the content for file ${filePath}. Please make sure the file is valid YAML.`);
+            this.mLog.info(err)
+            throw new Error(`TBD003E: Error parsing the content for file ${filePath}. Please make sure the file is valid YAML.`);
+        }
+    }
+
+    private generateBotOpts(): IBotOption {
+        let botOpts: IBotOption;
+        try {
+            // Read chat tool configuration
+            if (this.appConfig.chatServer.chatToolType === IChatToolType.MATTERMOST) {
+                // Read Mattermost configuration file
+                this.appConfig.chatTool = this.readYamlFile(`${__dirname}/../config/chatTools/mattermost.yaml`) as IMattermostConfig;
+                this.mLog.debug(`mattermost.yaml: `);
+                this.mLog.debug(JSON.stringify(this.appConfig.chatTool, null, 4));
+
+                // Get Mattermost option
+                const option: IMattermostConfig = { ...this.appConfig.chatTool };
+                option.messagingApp = undefined;
+                botOpts = {
+                    messagingApp: {
+                        'option': this.appConfig.chatTool.messagingApp,
+                        'app': null,
+                    },
+                    'chatTool': {
+                        'type': IChatToolType.MATTERMOST,
+                        'option': option,
+                    },
+                };
+
+                // Read certificate
+                if (fs.existsSync((<IMattermostOption>(botOpts.chatTool.option)).tlsCertificate)) {
+                    (<IMattermostOption>(botOpts.chatTool.option)).tlsCertificate = fs.readFileSync(this.appConfig.chatTool.tlsCertificate, 'utf8');
+                } else {
+                    this.mLog.error(`The TLS certificate file ${botOpts.chatTool.tlsCertificate} does not exist!`);
+                    process.exit(4);
+                }
+
+                // Create messaging app
+
+            } else if (this.appConfig.chatServer.chatToolType === IChatToolType.SLACK) {
+                // Read Slack configuration file
+                this.appConfig.chatTool = <ISlackConfig>this.readYamlFile(`${__dirname}/../config/chatTools/slack.yaml`);
+                console.info(`slack.yaml: `);
+                console.info(JSON.stringify(this.appConfig.chatTool, null, 4));
+
+                // Get slack option
+                const option: ISlackOption = {
+                    botUserName: this.appConfig.chatTool.botUserName,
+                    signingSecret: this.appConfig.chatTool.signingSecret,
+                    endpoints: '',
+                    receiver: null,
+                    token: this.appConfig.chatTool.token,
+                    logLevel: this.appConfig.chatServer.log.level,
+                    socketMode: true,
+                    appToken: null,
+                };
+                if (this.appConfig.chatTool.socketMode.enabled === false && this.appConfig.chatTool.httpEndpoint.enabled === true) { // Http endpoint mode
+                    option.endpoints = this.appConfig.chatTool.httpEndpoint.messagingApp.basePath;
+                    option.receiver = null; // The value will be updated by Common Bot Framework
+                    option.socketMode = false;
+
+                    botOpts = {
+                        'messagingApp': {
+                            'option': this.appConfig.chatTool.httpEndpoint.messagingApp,
+                            'app': null,
+                        },
+                        'chatTool': {
+                            'type': IChatToolType.SLACK,
+                            'option': option,
+                        },
+                    };
+
+
+                } else { // Socket mode
+                    option.appToken = this.appConfig.chatTool.socketMode.appToken;
+
+                    botOpts = {
+                        'messagingApp': {
+                            'option': this.appConfig.chatTool.httpEndpoint.messagingApp,
+                            'app': null,
+                        },
+                        'chatTool': {
+                            'type': IChatToolType.SLACK,
+                            'option': option,
+                        },
+                    };
+                }
+            } else if (this.appConfig.chatServer.chatToolType === IChatToolType.MSTEAMS) {
+                // Read Microsoft Teams configuration file
+                this.appConfig.chatTool = <IMsteamsConfig>this.readYamlFile(`${__dirname}/../config/chatTools/msteams.yaml`);
+                console.info(`msteams.yaml: `);
+                console.info(JSON.stringify(this.appConfig.chatTool, null, 4));
+
+                // Get Microsoft Teams option
+                botOpts = {
+                    'messagingApp': {
+                        'option': this.appConfig.chatTool.messagingApp,
+                        'app': null,
+                    },
+                    'chatTool': {
+                        'type': IChatToolType.MSTEAMS,
+                        'option': {
+                            'botUserName': this.appConfig.chatTool.botUserName,
+                            'botId': this.appConfig.chatTool.botId,
+                            'botPassword': this.appConfig.chatTool.botPassword,
+                        },
+                    },
+                };
+
+            } else {
+                this.mLog.error(`Unsupported chat tool: ${this.appConfig.chatServer.chatToolType}`);
+                process.exit(5);
+            }
+        } catch (error) {
+            this.mLog.error(`Failed to config the chat tool!`);
+            this.mLog.error(error.stack);
+            process.exit(5);
+        }
+
+        return botOpts
+    }
+
 }
-
-// Create instance
-// const chatBot = ChatBot.getInstance();
-// Object.freeze(chatBot);
-
-export = ChatBot;
-

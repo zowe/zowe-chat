@@ -20,6 +20,10 @@ export interface IConfigProperty {
     type: string | string[];
 
     /**
+     * A description of your the properties behaviors and intended function
+     */
+    description: string;
+    /**
      *  Default value for the property
      */
     default?: any;
@@ -38,7 +42,12 @@ export interface IConfigProperty {
     /**
      * Nested properties e.g. banana.origin.zipcode, banana.origin.country
      */
-    properties?: IConfigProperty;
+    properties?: {
+        /**
+         * General mapping of property name to an IProfileProperty object.
+         */
+        [key: string]: IConfigProperty,
+    };
 
     /**
      * Indicates if the given property should be securely stored
