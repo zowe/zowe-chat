@@ -12,7 +12,7 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ = require('lodash');
 
-import { IChatContextData } from 'packages/commonbot/dist/package';
+import { IChatContextData } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityFacility } from '../security/SecurityFacility';
 import { Logger } from '../utils/Logger';

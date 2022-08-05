@@ -12,7 +12,7 @@ import { IChatListenerRegistryEntry, IEventListener } from '../types';
 
 import _ = require('lodash');
 
-import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from 'packages/commonbot/dist/package';
+import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { Logger } from '../utils/Logger';
 import Util from '../utils/Util';

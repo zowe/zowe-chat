@@ -8,19 +8,19 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import CommonBot, { IBotOption, ISlackOption } from '@zowe/commonbot';
+import CommonBot, { IBotOption, IMattermostOption, ISlackOption } from '@zowe/commonbot';
+import * as fs from "fs-extra";
+import * as yaml from "js-yaml";
+import path from 'path';
 import { AppConfig, IChatToolType, IMattermostConfig, IMsteamsConfig, ISlackConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
+import EventListener from '../listener/EventListener';
 import { MessageListener } from '../listener/MessageListener';
 import { SecurityConfigSchema } from '../security/config/SecurityConfigSchema';
 import { SecurityFacility } from '../security/SecurityFacility';
 import { IChatListenerType, IChatPlugin } from '../types';
 import { Logger } from '../utils/Logger';
 import { MessagingApp } from './MessagingApp';
-import fs = require('fs');
-import path = require('path');
-import yaml = require('js-yaml');
-import EventListener = require('../listener/EventListener');
 
 
 export class ChatBot {
@@ -44,7 +44,9 @@ export class ChatBot {
         try {
             this.mLog.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
             let botOpts: IBotOption = this.generateBotOpts();
-            this.mApp = new MessagingApp(botOpts.messagingApp.option);
+
+            // TODO: Fix casting, circular dependency between config and commonbot
+            this.mApp = new MessagingApp(botOpts.messagingApp.option as any);
             botOpts.messagingApp.app = this.mApp.getApplication();
             this.mBot = new CommonBot(botOpts);
 
@@ -56,10 +58,10 @@ export class ChatBot {
             for (let plugin of this.plugins) {
                 // TODO: Build plugin configuration interface
                 /**
-               *    if (plugin.configSchema !== undefined) {
-               *        admConfigList.push(plugin.configSchema);
-               *    }
-               */
+                  *    if (plugin.configSchema !== undefined) {
+                  *        admConfigList.push(plugin.configSchema);
+                  *    }
+                  */
             }
             this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
             this.mSecurity = new SecurityFacility(this.configManager, log)
@@ -221,16 +223,17 @@ export class ChatBot {
                 this.mLog.debug(JSON.stringify(this.appConfig.chatTool, null, 4));
 
                 // Get Mattermost option
+                // TODO: Fix casting, circular dependency between config and commonbot
                 const option: IMattermostConfig = { ...this.appConfig.chatTool };
                 option.messagingApp = undefined;
                 botOpts = {
                     messagingApp: {
-                        'option': this.appConfig.chatTool.messagingApp,
-                        'app': null,
+                        option: this.appConfig.chatTool.messagingApp as any,
+                        app: null,
                     },
-                    'chatTool': {
-                        'type': IChatToolType.MATTERMOST,
-                        'option': option,
+                    chatTool: {
+                        type: IChatToolType.MATTERMOST as any,
+                        option: option as any,
                     },
                 };
 
@@ -238,7 +241,7 @@ export class ChatBot {
                 if (fs.existsSync((<IMattermostOption>(botOpts.chatTool.option)).tlsCertificate)) {
                     (<IMattermostOption>(botOpts.chatTool.option)).tlsCertificate = fs.readFileSync(this.appConfig.chatTool.tlsCertificate, 'utf8');
                 } else {
-                    this.mLog.error(`The TLS certificate file ${botOpts.chatTool.tlsCertificate} does not exist!`);
+                    this.mLog.error(`The TLS certificate file ${(<IMattermostOption>(botOpts.chatTool.option)).tlsCertificate} does not exist!`);
                     process.exit(4);
                 }
 
@@ -265,29 +268,32 @@ export class ChatBot {
                     option.endpoints = this.appConfig.chatTool.httpEndpoint.messagingApp.basePath;
                     option.receiver = null; // The value will be updated by Common Bot Framework
                     option.socketMode = false;
+                    // TODO: Fix casting, circular dependency between config and commonbot
 
                     botOpts = {
                         'messagingApp': {
-                            'option': this.appConfig.chatTool.httpEndpoint.messagingApp,
+                            'option': this.appConfig.chatTool.httpEndpoint.messagingApp as any,
                             'app': null,
                         },
                         'chatTool': {
-                            'type': IChatToolType.SLACK,
+                            'type': IChatToolType.SLACK as any,
                             'option': option,
                         },
                     };
 
 
                 } else { // Socket mode
+                    // TODO: Fix casting, circular dependency between config and commonbot
+
                     option.appToken = this.appConfig.chatTool.socketMode.appToken;
 
                     botOpts = {
                         'messagingApp': {
-                            'option': this.appConfig.chatTool.httpEndpoint.messagingApp,
+                            'option': this.appConfig.chatTool.httpEndpoint.messagingApp as any,
                             'app': null,
                         },
                         'chatTool': {
-                            'type': IChatToolType.SLACK,
+                            'type': IChatToolType.SLACK as any,
                             'option': option,
                         },
                     };
@@ -297,15 +303,15 @@ export class ChatBot {
                 this.appConfig.chatTool = <IMsteamsConfig>this.readYamlFile(`${__dirname}/../config/chatTools/msteams.yaml`);
                 console.info(`msteams.yaml: `);
                 console.info(JSON.stringify(this.appConfig.chatTool, null, 4));
-
+                // TODO: Fix casting, circular dependency between config and commonbot
                 // Get Microsoft Teams option
                 botOpts = {
                     'messagingApp': {
-                        'option': this.appConfig.chatTool.messagingApp,
+                        'option': this.appConfig.chatTool.messagingApp as any,
                         'app': null,
                     },
                     'chatTool': {
-                        'type': IChatToolType.MSTEAMS,
+                        'type': IChatToolType.MSTEAMS as any,
                         'option': {
                             'botUserName': this.appConfig.chatTool.botUserName,
                             'botId': this.appConfig.chatTool.botId,

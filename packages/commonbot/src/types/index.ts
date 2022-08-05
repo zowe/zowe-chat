@@ -8,11 +8,11 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {Application} from 'express';
-import type {Receiver} from '@slack/bolt';
+import type { Receiver } from '@slack/bolt';
+import type { Application } from 'express';
 import CommonBot = require('../CommonBot');
 
-export {TaskModuleTaskInfo, Attachment} from 'botbuilder';
+export { Attachment, TaskModuleTaskInfo } from 'botbuilder';
 
 
 /* eslint-disable no-unused-vars */

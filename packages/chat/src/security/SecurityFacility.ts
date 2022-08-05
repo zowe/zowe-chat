@@ -1,5 +1,5 @@
+import { IChatContextData } from "@zowe/commonbot";
 import * as crypto from "crypto";
-import { IChatContextData } from "packages/commonbot/dist/package";
 import { UserConfigManager } from "../config/UserConfigManager";
 import { Logger } from "../utils/Logger";
 import { AuthenticationStrategy, SecurityConfig } from "./config/SecurityConfig";
