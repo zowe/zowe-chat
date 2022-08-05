@@ -32,13 +32,13 @@ class MsteamsMiddleware extends Middleware {
 
         // Get option
         const option = this.bot.getOption();
-        if (option.chatTool.type !== IChatToolType.MSTEAMS) {
-            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool.type}`);
+        if (option.chatTool !== IChatToolType.MSTEAMS) {
+            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
             throw new Error(`Wrong chat tool type`);
         }
 
         // Create adapter
-        const msteamsOption: IMsteamsOption = <IMsteamsOption>option.chatTool.option;
+        const msteamsOption: IMsteamsOption = option.msteams;
         this.botFrameworkAdapter = new BotFrameworkAdapter({
             appId: msteamsOption.botId,
             appPassword: msteamsOption.botPassword,
@@ -60,7 +60,7 @@ class MsteamsMiddleware extends Middleware {
             this.logger.error(this.logger.getErrorStack(new Error(error.name), error));
 
             // Send a trace activity, which will be displayed in Bot Framework Emulator
-            await context.sendTraceActivity( 'processTurnError Trace', `${error}`, 'https://www.botframework.com/schemas/error', 'TurnError');
+            await context.sendTraceActivity('processTurnError Trace', `${error}`, 'https://www.botframework.com/schemas/error', 'TurnError');
 
             // Send a message to the user
             await context.sendActivity('The bot encountered an error or bug. To continue to run this bot, please fix the bot source code.');
@@ -156,9 +156,9 @@ class MsteamsMiddleware extends Middleware {
             if (textMessage !== '' && attachments.length === 0) { // Pure text
                 activity = MessageFactory.text(textMessage);
             } else if (textMessage === '' && attachments.length > 0) { // Adaptive card
-                activity = {attachments: attachments};
+                activity = { attachments: attachments };
             } else if (textMessage !== '' && attachments.length > 0) { // Pure text + adaptive card
-                activity = {text: textMessage, attachments: attachments};
+                activity = { text: textMessage, attachments: attachments };
             } else {
                 activity = '';
                 this.logger.warn(`The message to be sent is empty!`);
@@ -168,8 +168,8 @@ class MsteamsMiddleware extends Middleware {
             // Send message back to channel
             if (activity !== '') {
                 if (chatContextData.context.chatTool !== null && chatContextData.context.chatTool !== undefined
-                        && chatContextData.context.chatTool.context !== null
-                        && chatContextData.context.chatTool.context !== undefined) { // Conversation message
+                    && chatContextData.context.chatTool.context !== null
+                    && chatContextData.context.chatTool.context !== undefined) { // Conversation message
                     this.logger.info('Send conversation message ...');
 
                     // Get conversation reference
@@ -251,20 +251,20 @@ class MsteamsMiddleware extends Middleware {
 
                     // Create the rest not sended Activity
                     let restActivity: Partial<Activity> = null;
-                    if ( textMessage !== '' && attachments.length > 0) {
-                        restActivity = {attachments: attachments};
+                    if (textMessage !== '' && attachments.length > 0) {
+                        restActivity = { attachments: attachments };
                         restActivity.entities = <Entity[]>mentions;
                     } else if (textMessage === '' && attachments.length > 1) {
                         // Remove the first attachment since it's already been sended.
                         attachments.shift();
-                        restActivity = {attachments: attachments};
+                        restActivity = { attachments: attachments };
                         restActivity.entities = <Entity[]>mentions;
                     }
                     this.logger.debug(`restActivity: ${JSON.stringify(restActivity, null, 2)}`);
                     // Create the conversationReference
                     const conversationReference = TurnContext.getConversationReference(firstActivity);
                     // Construct the conversationReference
-                    conversationReference.conversation = <ConversationAccount> {
+                    conversationReference.conversation = <ConversationAccount>{
                         isGroup: true,
                         id: conversationResourceResponse.id,
                         conversationType: 'channel',

@@ -32,7 +32,7 @@ export const SecurityConfigSchema: IConfigBlockDefinition = {
                 }
             ],
             default: LoginStrategy.RequireLogin.toString(),
-            onChange: (oldValue: string, newValue: string) => {
+            onChange: (oldValue: string, newValue: string): boolean => {
                 // TODO: ES2017 removes the need for this cast to string. Review tslint/compiler target
                 if (Object.values<string>(LoginStrategy).includes(newValue)) {
                     return true;

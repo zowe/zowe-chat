@@ -15,18 +15,20 @@ import helmet from 'helmet';
 import http from "http";
 import https from "https";
 
-import { IAppOption } from '../config/base/AppConfig';
+import { IServerOptions } from '../config/base/AppConfig';
+import { Logger } from '../utils/Logger';
 
 export class MessagingApp {
 
-    private option: IAppOption;
-    private app: Application;
+    private readonly log: Logger;
+    private readonly option: IServerOptions;
+    private readonly app: Application;
     private server: https.Server | http.Server;
 
-    constructor(option: IAppOption) {
+    constructor(option: IServerOptions, log: Logger) {
         // Set app option
         this.option = option;
-
+        this.log = log;
         // Create express app
         this.app = express();
         this.app.use(express.json());

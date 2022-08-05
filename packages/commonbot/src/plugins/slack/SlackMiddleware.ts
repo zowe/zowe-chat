@@ -32,8 +32,8 @@ class SlackMiddleware extends Middleware {
         this.users = new Map<string, IUser>();
         this.channels = new Map<string, IChannel>();
         const option = this.bot.getOption();
-        if (option.chatTool.type !== IChatToolType.SLACK) {
-            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool.type}`);
+        if (option.chatTool !== IChatToolType.SLACK) {
+            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
             throw new Error(`Wrong chat tool type`);
         }
 
@@ -54,7 +54,7 @@ class SlackMiddleware extends Middleware {
         }
 
         // Create the slack receiver if socket mode is not enabled
-        const slackOption: ISlackOption = <ISlackOption>option.chatTool.option;
+        const slackOption: ISlackOption = option.slack;
         if (slackOption.socketMode === false) {
             this.logger.debug(`Socket mode is not enabled, start the http/https receiver`);
             const expressReceiverOptions: ExpressReceiverOptions = {
@@ -68,14 +68,14 @@ class SlackMiddleware extends Middleware {
             if (option.messagingApp.app !== null) {
                 receiver.setApp(option.messagingApp.app);
             }
-            (<ISlackOption>option.chatTool.option).receiver = receiver;
+            option.slack.receiver = receiver;
         } else {
             // While socket mode is enabled, receiver should be undefined.
             slackOption.receiver = undefined;
         }
 
         // Create the bolt app: https://slack.dev/bolt-js/reference#initialization-options
-        this.app = new App(<AppOptions>option.chatTool.option);
+        this.app = new App(<AppOptions>option.slack);
 
         this.run = this.run.bind(this);
         this.send = this.send.bind(this);
@@ -93,7 +93,7 @@ class SlackMiddleware extends Middleware {
         try {
             const option = this.bot.getOption();
             // Only start the receiver if the app use socket mode
-            if ((<ISlackOption>option.chatTool.option).socketMode === true) {
+            if (option.slack.socketMode === true) {
                 await this.app.start();
             }
 

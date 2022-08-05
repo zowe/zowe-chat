@@ -68,7 +68,7 @@ class CommonBot {
 
         try {
             // Get chat tool type
-            const chatToolType = this.option.chatTool.type;
+            const chatToolType = this.option.chatTool;
 
             // Create listener
             let listener: Listener = null;
@@ -116,7 +116,7 @@ class CommonBot {
 
         try {
             // Get chat tool type
-            const chatToolType = this.option.chatTool.type;
+            const chatToolType = this.option.chatTool;
 
             // Create router
             const pluginFileName = `${chatToolType.substring(0, 1).toUpperCase()}${chatToolType.substring(1)}Router`;

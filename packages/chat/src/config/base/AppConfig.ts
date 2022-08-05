@@ -1,11 +1,15 @@
+import { IChatToolType, IProtocol } from "@zowe/commonbot";
 
 export type AppConfig = {
-    chatServer: IChatServerConfig;
-    chatTool: IMattermostConfig | ISlackConfig | IMsteamsConfig;
+    app: ChatAppConfig;
+    mattermost: IMattermostConfig;
+    slack: ISlackConfig;
+    msteams: IMsteamsConfig;
 }
 
-export type IChatServerConfig = {
-    chatToolType: IChatToolType;
+export type ChatAppConfig = {
+    chatToolType: IChatToolType
+    server: IServerOptions
     log: ILogOption;
     recordLimit: number;
     pluginLimit: number;
@@ -13,6 +17,14 @@ export type IChatServerConfig = {
     userId: string;
     userPassword: string;
 }
+
+export type ILogOption = {
+    filePath: string,
+    level: ILogLevel,
+    maximumSize: string,
+    maximumFiles: string
+}
+
 
 export type IMattermostConfig = {
     protocol: IProtocol;
@@ -23,7 +35,7 @@ export type IMattermostConfig = {
     teamUrl: string;
     botUserName: string;
     botAccessToken: string;
-    messagingApp: IAppOption;
+    messagingApp: IServerOptions;
 }
 
 export type ISlackConfig = {
@@ -41,40 +53,26 @@ export type ISlackConfigSocketMode = {
 
 export type ISlackConfigHttpEndpoint = {
     enabled: boolean;
-    messagingApp: IAppOption;
+    messagingApp: IServerOptions;
 }
 
 export type IMsteamsConfig = {
     botUserName: string;
     botId: string;
     botPassword: string;
-    messagingApp: IAppOption;
+    messagingApp: IServerOptions;
 }
 
-export type ILogOption = {
-    filePath: string,
-    level: ILogLevel,
-    maximumSize: string,
-    maximumFiles: string
+
+export type IServerOptions = {
+    protocol: IProtocol;
+    hostName: string;
+    port: number;
+    basePath: string;
+    tlsKey: string;
+    tlsCert: string;
 }
 
-export type IHttpEndpoint = {
-    protocol: IProtocol,
-    hostName: string,
-    port: number,
-    basePath: string
-}
-
-export interface IAppOption extends IHttpEndpoint {
-    tlsKey: string,
-    tlsCert: string
-}
-
-export const enum IChatToolType {
-    MATTERMOST = 'mattermost',
-    SLACK = 'slack',
-    MSTEAMS = 'msteams'
-}
 
 export enum ILogLevel {
     ERROR = 'error',
@@ -83,11 +81,4 @@ export enum ILogLevel {
     VERBOSE = 'verbose',
     DEBUG = 'debug',
     SILLY = 'silly'
-}
-
-export const enum IProtocol {
-    HTTP = 'http',
-    HTTPS = 'https',
-    WS = 'ws',
-    WSS = 'wss',
 }

@@ -15,7 +15,7 @@ export class UserConfigManager {
     constructor(appConfig: AppConfig, aggregateConfig: IChatConfigSchema, log: Logger) {
         this.mLog = log;
         this.mConfigSchema = aggregateConfig;
-        let userConfigDir = appConfig.chatServer.extendedConfigDir
+        let userConfigDir = appConfig.app.extendedConfigDir
         if (userConfigDir === undefined) {
             userConfigDir = "./_config";
         }

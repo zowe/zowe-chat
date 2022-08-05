@@ -2,6 +2,29 @@
 # The default value is mattermost.
 chatToolType: slack
 
+server:
+  # Specify the protocol of your HTTP endpoint. The value can be https or http.
+  # The default value is https.
+  protocol: https
+
+  # Specify the host name or IP address of your HTTP endpoint.
+  hostName: <Your host name>
+
+  # Specify the port number of your HTTP endpoint.
+  # The default value is 7701.
+  port: 7701
+
+  # TODO: this should not be configurable, we should set it. At the very least, it must not be obviously configurable - advanced only.
+  # Specify the base path of your HTTP endpoint.
+  # The default value is /zowechat/api/v1.
+  basePath: /zowechat/api/v1
+
+  # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
+  tlsKey: <Your absolute TLS key file path of your messaging server>
+
+  # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
+  tlsCert: <Your absolute TLS cert file path of your messaging server>
+
 # Configure logging
 log:
   # Specify the level of logs, the value can be error, warn, info, verbose, debug or silly.
@@ -62,51 +85,6 @@ slack:
     # The default value is false.
     enabled: false
 
-    messagingApp:
-      # Specify the protocol of your HTTP endpoint. The value can be https or http.
-      # The default value is https.
-      protocol: https
-
-      # Specify the host name or IP address of your HTTP endpoint.
-      hostName: <Your host name>
-
-      # Specify the port number of your HTTP endpoint.
-      # The default value is 7701.
-      port: 7701
-
-      # Specify the base path of your HTTP endpoint.
-      # The default value is /zowechat/api/v1.
-      basePath: /zowechat/api/v1
-
-      # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
-      tlsKey: <Your absolute TLS key file path of your messaging server>
-
-      # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
-      tlsCert: <Your absolute TLS cert file path of your messaging server>
-
-  # // Set chatbot option
-  # this.option = {
-  #     'log': {
-  #         'level': ILogLevel.DEBUG,
-  #         'maximumSize': null,
-  #         'maximumFiles': null,
-  #     },
-  #     'messagingApp': null,
-  #     'chatTool': {
-  #         'type': IChatToolType.SLACK,
-  #         'option': {
-  #             'signingSecret': 'c3cad8889bb3ef7f1e58f9d606b641d0',
-  #             'endpoints': '/bnz/api/v1', // Must be set if socketMode is false
-  #             'receiver': undefined, // Must be set if socketMode is false
-  #             'token': 'xoxb-1313768544068-3129664033056-LeieTX1TXaTpk7vYGnBSdA8y',
-  #             'logLevel': ILogLevel.DEBUG,
-  #             'socketMode': true,
-  #             'appToken': 'xapp-1-A033TG7URS4-3091255160823-375133bcc3a082fb91592e2b6d963f4735721796ce795b5114de8600b7ab0348', // Must be set if
-  #             //                                                                                                                  socketMode is true
-  #         },
-  #     },
-  # };
-
 # Specify your Mattermost configuration here, if you set chatToolType to Slack.
 mattermost:
   # Specify the protocol of your Mattermost server. The value can be https or http.
@@ -139,28 +117,6 @@ mattermost:
   # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
   botAccessToken: <Your bot access token>
 
-  # Configure the messaging application which your Mattermost server will communicate with when some user clicking actions occur.
-  messagingApp:
-    # Specify the protocol of your HTTP endpoint. The value can be https or http.
-    # The default value is https.
-    protocol: https
-
-    # Specify the host name or IP address of your HTTP endpoint.
-    hostName: <Your host name>
-
-    # Specify the port number of your HTTP endpoint.
-    # The default value is 7701.
-    port: 7701
-
-    # Specify the base path of your HTTP endpoint.
-    # The default value is /zowechat/api/v1.
-    basePath: /zowechat/api/v1
-
-    # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
-    tlsKey: <Your absolute TLS key file path of your messaging server>
-
-    # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
-    tlsCert: <Your absolute TLS cert file path of your messaging server>
 
 # Specify your MSTeams configuration here, if you set chatToolType to Slack.
 msteams:
@@ -174,27 +130,3 @@ msteams:
   # Specify the password of your Microsoft Teams bot.
   # The password will be encrypted automatically by Z ChatOps server with <AES> prefix added.
   botPassword: <Your bot password>
-
-  # Configure the messaging endpoint for your Microsoft Teams bot.
-  # Configure the messaging application which your Microsoft Teams bot will communicate with when some user clicking actions occur.
-  messagingApp:
-    # Specify the protocol of your messaging endpoint. The value only can be https.
-    # The default value is https.
-    protocol: https
-
-    # Specify the host name or IP address of your messaging endpoint.
-    hostName: <Your host name>
-
-    # Specify the port number of your messaging endpoint.
-    # The default value is 7701.
-    port: 7701
-
-    # Specify the base path of your messaging endpoint.
-    # The default value is /zowechat/api/v1.
-    basePath: /zowechat/api/v1
-
-    # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
-    tlsKey: <Your absolute TLS key file path of your messaging server>
-
-    # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
-    tlsCert: <Your absolute TLS cert file path of your messaging server>

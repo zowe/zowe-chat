@@ -113,7 +113,7 @@ class EventListener {
                 const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
 
                 // Get the number of plugin limit
-                let pluginLimit = this.config.chatServer.pluginLimit;
+                let pluginLimit = this.config.app.pluginLimit;
                 this.log.info(`pluginLimit: ${pluginLimit}`);
                 if (pluginLimit < 0 || pluginLimit > matchedListeners.length) {
                     pluginLimit = matchedListeners.length;

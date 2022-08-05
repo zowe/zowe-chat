@@ -6,7 +6,7 @@ export class AppConfigLoader {
 
     private static mAppConfig: AppConfig;
 
-    public static getAppConfig(): AppConfig {
+    public static loadAppConfig(): AppConfig {
 
         if (AppConfigLoader.mAppConfig == null) {
             let cfgFilePath = process.env.ZOWE_CONFIG_DIR;

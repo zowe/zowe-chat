@@ -26,24 +26,24 @@ export class Logger {
         try {
             // Handle environment variables
             if (process.env.ZOWE_CHAT_LOG_FILE_PATH !== undefined && process.env.ZOWE_CHAT_LOG_FILE_PATH.trim() !== '') {
-                this.appConfig.chatServer.log.filePath = process.env.ZOWE_CHAT_LOG_FILE_PATH; // Set log file
+                this.appConfig.app.log.filePath = process.env.ZOWE_CHAT_LOG_FILE_PATH; // Set log file
             } else {
-                this.appConfig.chatServer.log.filePath = `${__dirname}/../log/zoweChatServer.log`;
+                this.appConfig.app.log.filePath = `${__dirname}/../log/zoweChatServer.log`;
             }
-            const filePath = path.dirname(this.appConfig.chatServer.log.filePath);
+            const filePath = path.dirname(this.appConfig.app.log.filePath);
             fs.ensureFileSync(filePath)
             if (process.env.ZOWE_CHAT_LOG_LEVEL !== undefined && process.env.ZOWE_CHAT_LOG_LEVEL.trim() !== '') {
                 if ((Object.values<string>(ILogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
-                    this.appConfig.chatServer.log.level = <ILogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
+                    this.appConfig.app.log.level = <ILogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
                 } else {
                     console.error('Unsupported value specified in the variable ZOWE_CHAT_LOG_LEVEL!');
                 }
             }
             if (process.env.ZOWE_CHAT_LOG_MAX_SIZE !== undefined && process.env.ZOWE_CHAT_LOG_MAX_SIZE.trim() !== '') {
-                this.appConfig.chatServer.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE;
+                this.appConfig.app.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE;
             }
             if (process.env.ZOWE_CHAT_LOG_MAX_FILES !== undefined && process.env.ZOWE_CHAT_LOG_MAX_FILES.trim() !== '') {
-                this.appConfig.chatServer.log.maximumFiles = process.env.ZOWE_CHAT_LOG_MAX_FILES;
+                this.appConfig.app.log.maximumFiles = process.env.ZOWE_CHAT_LOG_MAX_FILES;
             }
         } catch (error) {
             console.error(`Failed to config the log!`);
@@ -62,12 +62,12 @@ export class Logger {
 
         // Create logger instance
         this.mLog = winston.createLogger({
-            level: this.appConfig.chatServer.log.level, // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
+            level: this.appConfig.app.log.level, // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
             //   format: winston.format.combine(winston.format.timestamp(), winston.format.colorize(), winston.format.simple()),
             transports: [new winston.transports.File({
-                filename: this.appConfig.chatServer.log.filePath,
-                maxsize: <number><unknown>this.appConfig.chatServer.log.maximumSize,
-                maxFiles: <number><unknown>this.appConfig.chatServer.log.maximumFiles,
+                filename: this.appConfig.app.log.filePath,
+                maxsize: <number><unknown>this.appConfig.app.log.maximumSize,
+                maxFiles: <number><unknown>this.appConfig.app.log.maximumFiles,
                 format: combine(timestamp(), bnzFormat),
                 options: { flags: 'w' }
             }),

@@ -13,7 +13,7 @@ import { AppConfigLoader } from "./config/AppConfigLoader";
 import { AppConfig } from "./config/base/AppConfig";
 import { Logger } from "./utils/Logger";
 
-const appConfig: AppConfig = AppConfigLoader.getAppConfig()
+const appConfig: AppConfig = AppConfigLoader.loadAppConfig()
 const appLog = new Logger(appConfig)
 
 // TODO: Lifecycle / catch errors?

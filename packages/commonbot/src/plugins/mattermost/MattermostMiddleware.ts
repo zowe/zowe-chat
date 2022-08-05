@@ -40,8 +40,8 @@ class MattermostMiddleware extends Middleware {
 
         // Get option
         const option = this.bot.getOption();
-        if (option.chatTool.type !== IChatToolType.MATTERMOST) {
-            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool.type}`);
+        if (option.chatTool !== IChatToolType.MATTERMOST) {
+            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
             throw new Error(`Wrong chat tool type`);
         }
     }
@@ -52,7 +52,7 @@ class MattermostMiddleware extends Middleware {
         this.logger.start(this.run, this);
 
         try {
-            const mattermostOption = <IMattermostOption>(this.bot.getOption().chatTool.option);
+            const mattermostOption = <IMattermostOption>(this.bot.getOption().mattermost);
             this.client = new MattermostClient(this, mattermostOption);
             if (mattermostOption.botAccessToken != null) {
                 await this.client.connect();
@@ -216,7 +216,7 @@ class MattermostMiddleware extends Middleware {
             this.logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Get listeners
-            const listeners = <[MattermostListener]> this.bot.getListeners();
+            const listeners = <[MattermostListener]>this.bot.getListeners();
 
             // Match and process message
             for (const listener of listeners) {

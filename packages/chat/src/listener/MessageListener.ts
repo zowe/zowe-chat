@@ -12,7 +12,7 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ = require('lodash');
 
-import { IChatContextData } from '@zowe/commonbot';
+import { IChatContextData, IChatToolType } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityFacility } from '../security/SecurityFacility';
 import { Logger } from '../utils/Logger';
@@ -21,6 +21,7 @@ import Util from '../utils/Util';
 export class MessageListener {
 
     private chatListeners: IChatListenerRegistryEntry[];
+    private readonly botName;
     private log: Logger
     private config: AppConfig
     private securityFacility: SecurityFacility;
@@ -32,6 +33,22 @@ export class MessageListener {
         this.securityFacility = securityFac;
         this.matchMessage = this.matchMessage.bind(this);
         this.processMessage = this.processMessage.bind(this);
+        // TODO: Bot name should be hoisted to a common variable
+        switch (this.config.app.chatToolType) {
+            case IChatToolType.MATTERMOST:
+                this.botName = this.config.mattermost.botUserName;
+                break;
+            case IChatToolType.SLACK:
+                this.botName = this.config.slack.botUserName;
+                break;
+            case IChatToolType.MSTEAMS:
+                this.botName = this.config.msteams.botUserName;
+                break;
+            default:
+                this.log.error(`Unknown chat tool type: ${this.config.app.chatToolType}`);
+                throw new Error(`Unknown chat tool type: ${this.config.app.chatToolType}`);
+        }
+
     }
 
     // Register Zowe chat listener
@@ -66,9 +83,10 @@ export class MessageListener {
             };
 
             // Match the bot name
-            const botOption = chatContextData.context.chatting.bot.getOption();
-            if ((<string>chatContextData.payload.data).indexOf(`@${botOption.chatTool.option.botUserName}`) === -1) {
-                this.log.info(`The message is not for @${botOption.chatTool.option.botUserName}!`);
+
+
+            if ((<string>chatContextData.payload.data).indexOf(`@${this.botName}`) === -1) {
+                this.log.debug(`Received message is not for @${this.botName}, ignoring.`);
             } else {
                 // Find matched listeners
                 for (const listener of this.chatListeners) {
@@ -112,7 +130,7 @@ export class MessageListener {
             const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
 
             // Get the number of plugin limit
-            let pluginLimit = this.config.chatServer.pluginLimit;
+            let pluginLimit = this.config.app.pluginLimit;
             this.log.info(`pluginLimit: ${pluginLimit}`);
             if (pluginLimit < 0 || pluginLimit > matchedListeners.length) {
                 pluginLimit = matchedListeners.length;
