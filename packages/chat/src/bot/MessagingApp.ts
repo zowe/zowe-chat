@@ -9,15 +9,16 @@
  */
 
 import type { Application } from 'express';
+import express from "express";
+import * as fs from "fs";
 import helmet from 'helmet';
+import http from "http";
+import https from "https";
+
 import { IAppOption } from '../config/base/AppConfig';
 
-import fs = require('fs');
-import express = require('express');
-import https = require('https');
-import http = require('http');
-
 export class MessagingApp {
+
     private option: IAppOption;
     private app: Application;
     private server: https.Server | http.Server;
