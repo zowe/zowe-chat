@@ -50,26 +50,3 @@ httpEndpoint:
 
     # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
     tlsCert: <Your absolute TLS cert file path of your messaging server>
-
-# // Set chatbot option
-# this.option = {
-#     'log': {
-#         'level': ILogLevel.DEBUG,
-#         'maximumSize': null,
-#         'maximumFiles': null,
-#     },
-#     'messagingApp': null,
-#     'chatTool': {
-#         'type': IChatToolType.SLACK,
-#         'option': {
-#             'signingSecret': 'c3cad8889bb3ef7f1e58f9d606b641d0',
-#             'endpoints': '/bnz/api/v1', // Must be set if socketMode is false
-#             'receiver': undefined, // Must be set if socketMode is false
-#             'token': 'xoxb-1313768544068-3129664033056-LeieTX1TXaTpk7vYGnBSdA8y',
-#             'logLevel': ILogLevel.DEBUG,
-#             'socketMode': true,
-#             'appToken': 'xapp-1-A033TG7URS4-3091255160823-375133bcc3a082fb91592e2b6d963f4735721796ce795b5114de8600b7ab0348', // Must be set if
-#             //                                                                                                                  socketMode is true
-#         },
-#     },
-# };
