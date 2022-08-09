@@ -13,10 +13,10 @@ import { IActionType, IChatContextData, IEvent, IPayloadType, IUser, TaskModuleT
 
 import { CardFactory, ChannelInfo, TaskModuleRequest, TaskModuleResponse, TeamsActivityHandler, TeamsInfo, TurnContext } from 'botbuilder';
 
+import { CommonBot } from '../../CommonBot';
 import { IChattingType } from '../../types';
 import { Logger } from '../../utils/Logger';
 import Util = require('../../utils/Util');
-import CommonBot = require('../../CommonBot');
 import MsteamsListener = require('./MsteamsListener');
 import MsteamsRouter = require('./MsteamsRouter');
 import MsteamsMiddleware = require('./MsteamsMiddleware');

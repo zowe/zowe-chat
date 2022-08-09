@@ -7,14 +7,15 @@ import { IConfigBlockDefinition } from "./doc/IConfigBlockDefinition";
 
 export class UserConfigManager {
 
-    private readonly mConfigSchema: IChatConfigSchema;
-    private readonly mConfigData: any
-    private readonly mConfigFilePath: string
-    private readonly mLog: Logger;
+    // TODO: Drop config schema as a member variable? Is it only needed during init?
+    private readonly configSchema: IChatConfigSchema;
+    private readonly configData: any
+    private readonly configFilePath: string
+    private readonly log: Logger;
 
     constructor(appConfig: AppConfig, aggregateConfig: IChatConfigSchema, log: Logger) {
-        this.mLog = log;
-        this.mConfigSchema = aggregateConfig;
+        this.log = log;
+        this.configSchema = aggregateConfig;
         let userConfigDir = appConfig.app.extendedConfigDir
         if (userConfigDir === undefined) {
             userConfigDir = "./_config";
@@ -26,38 +27,55 @@ export class UserConfigManager {
                 userConfigDir = userConfigDir.substring(0, userConfigDir.length - 1);
             }
             fs.ensureFileSync(`${userConfigDir}/user.yaml`);
-            this.mConfigFilePath = `${userConfigDir}/user.yaml`;
+            this.configFilePath = `${userConfigDir}/user.yaml`;
         } catch (err) {
-            this.mLog.error(`Error creating file within directory: ${userConfigDir}. Please ensure this directory exists and Zowe Chat can write to it.`);
-            this.mLog.debug(`Error details: ${err}`);
+            this.log.error(`Error creating file within directory: ${userConfigDir}. Please ensure this directory exists and Zowe Chat can write to it.`);
+            this.log.debug(`Error details: ${err}`);
             throw Error("Unable to initialize the runtime config manager. See Log for details.");
         }
 
-
-        this.mConfigData = JSON.parse(fs.readFileSync(`${this.mConfigFilePath}`).toString());
+        let configContents = fs.readJSONSync(`${this.configFilePath}`, { throws: false });
+        if (configContents == undefined || configContents == {}) {
+            this.configData = this.generateConfig(this.configSchema)
+        } else {
+            this.configData = configContents
+        }
         this.validateConfig()
+        this.writeConfigFile()
     }
 
+    private generateConfig(schema: IChatConfigSchema) {
+        let config: any = {}
+        for (let block of schema.sections) {
+            config[block.key] = {}
+        }
+        return config
+    }
+
+    public updateConfig(schemaBlock: IConfigBlockDefinition, config: any): void {
+        this.configData[schemaBlock.key] = config;
+        this.writeConfigFile();
+    }
 
     public getConfigFromSchema(schemaBlock: IConfigBlockDefinition): any {
-        return this.mConfigData[schemaBlock.key]
+        return this.configData[schemaBlock.key]
     }
 
     private writeConfigFile(): void {
-        fs.writeFileSync(this.mConfigFilePath, JSON.stringify(this.mConfigData));
+        fs.writeJSONSync(this.configFilePath, this.configData, { spaces: 2 });
     }
 
 
     // TODO: move validation as a function of ConfigSchema??
     private validateConfig(): void {
-        for (let block of this.mConfigSchema.sections) {
+        for (let block of this.configSchema.sections) {
             this.validateProperties(block.properties, [block.key]);
         }
     }
 
     // TODO: better type checking for properties
     private validateProperties(properties: any, accessPrefix: string[]): void {
-        let context = this.mConfigData
+        let context = this.configData
         for (let prefix of accessPrefix) {
             context = context[`${prefix}`]
         }

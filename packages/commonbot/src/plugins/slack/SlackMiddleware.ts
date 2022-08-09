@@ -13,7 +13,7 @@ import { App, ExpressReceiverOptions, LogLevel } from '@slack/bolt';
 import { WebClient } from '@slack/web-api';
 import { IActionType, IChannel, IChatContextData, IChattingType, IChatToolType, IEvent, ILogLevel, IMessage, IMessageType, IPayloadType, ISlackOption, IUser } from '../../types';
 
-import CommonBot = require('../../CommonBot');
+import { CommonBot } from '../../CommonBot';
 import Middleware = require('../../Middleware');
 import Util = require('../../utils/Util');
 import SlackListener = require('./SlackListener');

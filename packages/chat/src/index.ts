@@ -15,7 +15,6 @@ import { Logger } from "./utils/Logger";
 
 const appConfig: AppConfig = AppConfigLoader.loadAppConfig()
 const appLog = new Logger(appConfig)
-
 // TODO: Lifecycle / catch errors?
 
 // Start chat bot

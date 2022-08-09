@@ -9,29 +9,29 @@ export class PassticketProvider implements ICredentialProvider {
 
     private readonly securityConfig: SecurityConfig
     private readonly applId: string;
-    private readonly mLog: Logger;
+    private readonly log: Logger;
 
     constructor(configuration: SecurityConfig, log: Logger) {
         this.securityConfig = configuration
-        this.mLog = log;
+        this.log = log;
         this.applId = this.securityConfig.passticketOptions.applId
 
         let binFile = `${__dirname}/bin/genPtkt`
 
         // verify the passticket bin exists and has correct permissions
         if (!fs.existsSync(`${binFile}`)) {
-            this.mLog.error("Passticket binary not found");
+            this.log.error("Passticket binary not found");
             throw new Error("Passticket binary not found");
         }
 
         let attrs: fs.Stats = fs.lstatSync(`${binFile}`);
 
         if (!attrs.isFile()) {
-            this.mLog.error("Passticket binary is not a file");
+            this.log.error("Passticket binary is not a file");
             throw new Error("Passticket binary is not a file");
         }
         let attrMode = attrs.mode
-        this.mLog.info(`Passticket binary mode: ${attrMode}`)
+        this.log.info(`Passticket binary mode: ${attrMode}`)
 
     }
 
@@ -43,15 +43,15 @@ export class PassticketProvider implements ICredentialProvider {
         try {
             jsonFormat = JSON.parse(stdOut.toString())
         } catch (e) {
-            this.mLog.error(`Non-fatal error encountered. Could not generate a passticket for user ${principal.getDistributedPrincipal()}`)
-            this.mLog.debug(`Error: ${e}`)
-            this.mLog.debug(`Passticket response: ${stdOut}`)
+            this.log.error(`Non-fatal error encountered. Could not generate a passticket for user ${principal.getDistributedPrincipal()}`)
+            this.log.debug(`Error: ${e}`)
+            this.log.debug(`Passticket response: ${stdOut}`)
             return ""
         }
 
         if (!Object.keys(jsonFormat).includes("passticket")) {
-            this.mLog.error(`Non-fatal error. Error generating passticket for user ${principal.getDistributedPrincipal()}`)
-            this.mLog.error(`safRc: ${jsonFormat.safRc}, racfRc: ${jsonFormat.racfRc}, racfReason: ${jsonFormat.racfReason}`)
+            this.log.error(`Non-fatal error. Error generating passticket for user ${principal.getDistributedPrincipal()}`)
+            this.log.error(`safRc: ${jsonFormat.safRc}, racfRc: ${jsonFormat.racfRc}, racfReason: ${jsonFormat.racfReason}`)
             return ""
         }
 

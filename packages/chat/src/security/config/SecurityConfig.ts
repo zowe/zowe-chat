@@ -1,6 +1,7 @@
 export type SecurityConfig = {
     userStorage: string;
     encryptionKey: string;
+    encryptionIv: string;
     loginStrategy: LoginStrategy
     authenticationStrategy: AuthenticationStrategy
     chatbotUser: string

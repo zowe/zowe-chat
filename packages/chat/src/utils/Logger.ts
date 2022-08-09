@@ -9,29 +9,29 @@
  */
 
 import * as fs from "fs-extra";
-import * as path from "path";
+import path from "path";
+import * as winston from "winston";
 import { AppConfig, ILogLevel } from "../config/base/AppConfig";
-import winston = require('winston');
 
 export class Logger {
 
-    private readonly mLog: winston.Logger;
+    private readonly log: winston.Logger;
     private readonly appConfig: AppConfig;
+    // TODO: move into constructor
+    private logFile: string;
 
     constructor(appConfig: AppConfig) {
 
         this.appConfig = appConfig
-
         // TODO: Don't update the mConfig object? Keep computed properties separate?
         try {
             // Handle environment variables
             if (process.env.ZOWE_CHAT_LOG_FILE_PATH !== undefined && process.env.ZOWE_CHAT_LOG_FILE_PATH.trim() !== '') {
-                this.appConfig.app.log.filePath = process.env.ZOWE_CHAT_LOG_FILE_PATH; // Set log file
+                this.logFile = process.env.ZOWE_CHAT_LOG_FILE_PATH; // Set log file
             } else {
-                this.appConfig.app.log.filePath = `${__dirname}/../log/zoweChatServer.log`;
+                this.logFile = `./log/zoweChatServer.log`;
             }
-            const filePath = path.dirname(this.appConfig.app.log.filePath);
-            fs.ensureFileSync(filePath)
+            fs.ensureFileSync(this.logFile)
             if (process.env.ZOWE_CHAT_LOG_LEVEL !== undefined && process.env.ZOWE_CHAT_LOG_LEVEL.trim() !== '') {
                 if ((Object.values<string>(ILogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
                     this.appConfig.app.log.level = <ILogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
@@ -43,7 +43,7 @@ export class Logger {
                 this.appConfig.app.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE;
             }
             if (process.env.ZOWE_CHAT_LOG_MAX_FILES !== undefined && process.env.ZOWE_CHAT_LOG_MAX_FILES.trim() !== '') {
-                this.appConfig.app.log.maximumFiles = process.env.ZOWE_CHAT_LOG_MAX_FILES;
+                this.appConfig.app.log.maximumFiles = Number.parseInt(process.env.ZOWE_CHAT_LOG_MAX_FILES);
             }
         } catch (error) {
             console.error(`Failed to config the log!`);
@@ -60,27 +60,43 @@ export class Logger {
             return `${timestamp} [${level.toUpperCase()}] ${message}`;
         });
 
+        // TODO: fix file logging - not working
         // Create logger instance
-        this.mLog = winston.createLogger({
+        this.log = winston.createLogger({
             level: this.appConfig.app.log.level, // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
+            handleExceptions: true,
+            format: combine(timestamp(), bnzFormat),
+            exitOnError: true,
             //   format: winston.format.combine(winston.format.timestamp(), winston.format.colorize(), winston.format.simple()),
-            transports: [new winston.transports.File({
-                filename: this.appConfig.app.log.filePath,
-                maxsize: <number><unknown>this.appConfig.app.log.maximumSize,
-                maxFiles: <number><unknown>this.appConfig.app.log.maximumFiles,
-                format: combine(timestamp(), bnzFormat),
-                options: { flags: 'w' }
-            }),
-            ],
         });
+
+        const fileTransport = new winston.transports.File({
+            filename: path.resolve(this.logFile),
+            maxsize: 10 * 1024 * 1024,
+            maxFiles: this.appConfig.app.log.maximumFiles,
+            format: combine(timestamp(), bnzFormat),
+            options: { flags: 'a' }
+        })
+
+        this.log.add(fileTransport)
 
         // TODO: this is an express env, should we use something else more specific? ZOWE_CHAT_DEV_MODE?
         // Only use console logger in development mode.
         if (process.env.NODE_ENV === 'development') {
-            this.mLog.add(new winston.transports.Console({ format: combine(timestamp(), bnzFormat) }));
+            this.log.add(new winston.transports.Console({ format: combine(timestamp(), bnzFormat) }));
         }
 
+        process.on("beforeExit", (code) => {
+            this.log.clear();
+        })
+
+        process.on("exit", (code) => {
+            this.log.end();
+        })
+
     }
+
+
 
     // Print start log
     //  - functionName: function name or function object can be specified here
@@ -124,11 +140,11 @@ export class Logger {
 
         // Print start log
         if (arguments.length >= 3) {
-            this.mLog.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
+            this.log.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
         } else if (arguments.length == 2) {
-            this.mLog.info(`${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
+            this.log.info(`${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
         } else {
-            this.mLog.info(`${funName.replace(/bound /, '')}    start ===>`);
+            this.log.info(`${funName.replace(/bound /, '')}    start ===>`);
         }
     }
 
@@ -174,11 +190,11 @@ export class Logger {
 
         // Print end log
         if (arguments.length >= 3) {
-            this.mLog.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}      end <===`);
+            this.log.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}      end <===`);
         } else if (arguments.length == 2) {
-            this.mLog.info(`${clsName} : ${funName.replace(/bound /, '')}      end <===`);
+            this.log.info(`${clsName} : ${funName.replace(/bound /, '')}      end <===`);
         } else {
-            this.mLog.info(`${funName.replace(/bound /, '')}      end <===`);
+            this.log.info(`${funName.replace(/bound /, '')}      end <===`);
         }
     }
 
@@ -211,19 +227,19 @@ export class Logger {
     }
 
     public debug(log: string) {
-        this.mLog.debug(log);
+        this.log.debug(log);
     }
 
     public error(log: string) {
-        this.mLog.error(log);
+        this.log.error(log);
     }
 
     public warn(log: string) {
-        this.mLog.warn(log);
+        this.log.warn(log);
     }
 
     public info(log: string) {
-        this.mLog.info(log);
+        this.log.info(log);
     }
 
 }

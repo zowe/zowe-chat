@@ -8,8 +8,6 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import CommonBot = require('./CommonBot');
-
-export default CommonBot;
+export * from "./CommonBot";
 export * from './types';
-module.exports = 'commonbot'
+

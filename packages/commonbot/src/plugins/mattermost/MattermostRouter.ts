@@ -9,8 +9,8 @@
  */
 
 import type { Request, Response } from 'express';
+import { CommonBot } from '../../CommonBot';
 import { IActionType, IChatContextData, IEvent, IPayloadType, IRouteHandlerFunction, IUser } from '../../types';
-import CommonBot = require('../../CommonBot');
 import Router = require('../../Router');
 import MattermostMiddleware = require('./MattermostMiddleware');
 

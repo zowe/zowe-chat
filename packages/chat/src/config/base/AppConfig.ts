@@ -22,7 +22,7 @@ export type ILogOption = {
     filePath: string,
     level: ILogLevel,
     maximumSize: string,
-    maximumFiles: string
+    maximumFiles: number
 }
 
 

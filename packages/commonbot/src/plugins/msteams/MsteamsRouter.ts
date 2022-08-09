@@ -10,7 +10,7 @@
 
 import type { IRouteHandlerFunction } from '../../types';
 
-import CommonBot = require('../../CommonBot');
+import { CommonBot } from '../../CommonBot';
 import Router = require('../../Router');
 import MsteamsMiddleware = require('./MsteamsMiddleware');
 

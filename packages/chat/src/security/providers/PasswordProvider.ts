@@ -1,10 +1,14 @@
+import { Logger } from "../../utils/Logger";
+import { SecurityConfig } from "../config/SecurityConfig";
 import { ChatPrincipal } from "../user/ChatPrincipal";
 import { ICredentialProvider } from "./ICredentialProvider";
 
 export class PasswordProvider implements ICredentialProvider {
 
-    constructor() {
-        throw new Error("Not implemented");
+
+
+    constructor(config: SecurityConfig, log: Logger) {
+        
     }
 
     getCredential(chatUser: ChatPrincipal): string {

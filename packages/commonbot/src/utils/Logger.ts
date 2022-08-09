@@ -15,7 +15,7 @@ import fs = require('fs');
 import path = require('path');
 
 export class Logger {
-
+    private static readonly instance: Logger = new Logger();
     private logger: winston.Logger;
     private option: ILogOption;
 
@@ -62,7 +62,7 @@ export class Logger {
                 this.option.maximumFiles = process.env.COMMONBOT_LOG_MAX_FILES;
             }
         } catch (error) {
-            console.error(`Failed to process the environment variables for Common Bot Framework!`);
+            console.log(`Failed to process the environment variables for Common Bot Framework!`);
             console.error(error.stack);
             process.exit(1);
         }
@@ -234,6 +234,10 @@ export class Logger {
 
     info(log: string) {
         this.logger.info(log);
+    }
+
+    public static getInstance(): Logger {
+        return Logger.instance
     }
 }
 

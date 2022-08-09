@@ -8,9 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+import { CommonBot } from './CommonBot';
 import type { IChatContextData, IMessage } from './types';
 import Logger from './utils/Logger';
-import CommonBot = require('./CommonBot');
 
 class Middleware {
     protected bot: CommonBot;
@@ -18,6 +18,7 @@ class Middleware {
 
     // Constructor
     constructor(bot: CommonBot) {
+        this.logger = Logger.getInstance()
         this.bot = bot;
     }
 

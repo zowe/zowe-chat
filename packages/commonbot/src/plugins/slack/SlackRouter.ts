@@ -8,9 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+import { CommonBot } from '../../CommonBot';
 import type { IRouteHandlerFunction } from '../../types';
 
-import CommonBot = require('../../CommonBot');
 import Router = require('../../Router');
 
 class SlackRouter extends Router {

@@ -12,7 +12,7 @@ import type { Request, Response } from 'express';
 import { IChatContextData, IChatToolType, IMessage, IMessageType, IMsteamsOption } from '../../types';
 
 import { Activity, Attachment, BotFrameworkAdapter, CardFactory, ConversationAccount, ConversationParameters, Entity, MessageFactory, TurnContext } from 'botbuilder';
-import CommonBot = require('../../CommonBot');
+import { CommonBot } from '../../CommonBot';
 import Middleware = require('../../Middleware');
 import BotActivityHandler = require('./BotActivityHandler');
 import Util = require('../../utils/Util');

@@ -10,7 +10,7 @@
 
 import { IMessageHandlerFunction, IMessageMatcherFunction } from '../../types';
 
-import CommonBot = require('../../CommonBot');
+import { CommonBot } from '../../CommonBot';
 import Listener = require('../../Listener');
 import SlackMiddleware = require('./SlackMiddleware');
 
@@ -19,7 +19,7 @@ class SlackListener extends Listener {
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
-
+        
         this.listen = this.listen.bind(this);
     }
 

@@ -10,7 +10,7 @@
 
 import { IMessageHandlerFunction, IMessageMatcherFunction } from '../../types';
 
-import CommonBot = require('../../CommonBot');
+import { CommonBot } from '../../CommonBot';
 import Listener = require('../../Listener');
 import MsteamsMiddleware = require('./MsteamsMiddleware');
 

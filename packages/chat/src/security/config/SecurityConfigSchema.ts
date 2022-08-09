@@ -15,7 +15,12 @@ export const SecurityConfigSchema: IConfigBlockDefinition = {
         },
         encryptionKey: {
             type: "string",
-            description: "The key used to encrypt secure information, using symmetric key encryption. Leave blank to generate a key.",
+            description: "The key used to encrypt secure information, using symmetric key encryption. Leave blank to generate a random key.",
+            default: ""
+        },
+        encryptionIv: {
+            type: "string",
+            description: "The initialization vector used to encrypt secure information using. Leave blank to generate a random IV.",
             default: ""
         },
         loginStrategy: {

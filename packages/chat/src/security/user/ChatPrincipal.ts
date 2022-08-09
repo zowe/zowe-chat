@@ -1,18 +1,18 @@
 export class ChatPrincipal {
 
-    private readonly mMainframeUser: string;
-    private readonly mDistributedUser: string;
+    private readonly mainframeUser: string;
+    private readonly distributedUser: string;
 
     constructor(originalUser: string, mappedUser: string) {
-        this.mDistributedUser = originalUser
-        this.mMainframeUser = mappedUser
+        this.distributedUser = originalUser
+        this.mainframeUser = mappedUser
     }
 
     public getDistributedPrincipal(): string {
-        return this.mDistributedUser
+        return this.distributedUser
     }
 
     public getMainframeUser(): string {
-        return this.mMainframeUser
+        return this.mainframeUser
     }
 }

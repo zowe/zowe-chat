@@ -20,7 +20,7 @@ import fs = require('fs');
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare function require(moduleName: string): any;
 
-class CommonBot {
+export class CommonBot {
     private option: IBotOption;
     private middleware: Middleware;
     private listeners: Listener[]; // MsteamsListener | SlackListener[] | MattermostListener[];
@@ -30,6 +30,7 @@ class CommonBot {
     // Constructor
     constructor(option: IBotOption) {
         this.option = option;
+        this.logger = Logger.getInstance()
         this.logger.info(`Bot option: ${JSON.stringify(this.option, null, 4)}`);
 
         this.middleware = null;
@@ -166,5 +167,3 @@ class CommonBot {
         }
     }
 }
-
-export = CommonBot;

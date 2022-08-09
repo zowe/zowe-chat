@@ -9,9 +9,9 @@
  */
 
 
+import { CommonBot } from './CommonBot';
 import { IRoute, IRouteHandlerFunction } from './types';
 import Logger from './utils/Logger';
-import CommonBot = require('./CommonBot');
 
 
 class Router {
@@ -21,6 +21,7 @@ class Router {
 
     // Constructor
     constructor(bot: CommonBot) {
+        this.logger = Logger.getInstance()
         this.bot = bot;
 
         this.router = null;

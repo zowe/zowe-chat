@@ -9,12 +9,12 @@
  */
 
 
-import CommonBot = require('../../CommonBot');
+import { CommonBot } from '../../CommonBot';
+import { IChannel, IChatContextData, IChattingType, IChatToolType, IMattermostOption, IMessage, IMessageType, IPayloadType, IUser } from '../../types';
 import Middleware = require('../../Middleware');
 import MattermostClient = require('./MattermostClient');
 import Util = require('../../utils/Util');
 import MattermostListener = require('./MattermostListener');
-import { IChannel, IChatContextData, IChattingType, IChatToolType, IMattermostOption, IMessage, IMessageType, IPayloadType, IUser } from '../../types';
 class MattermostMiddleware extends Middleware {
     private client: MattermostClient;
     private botUser: IUser;

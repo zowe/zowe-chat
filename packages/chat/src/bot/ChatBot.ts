@@ -8,7 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import CommonBot, { IBotOption, IChatToolType, IMattermostOption, ISlackOption } from '@zowe/commonbot';
+import { CommonBot, IBotOption, IChatToolType, IMattermostOption, ISlackOption } from '@zowe/commonbot';
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import path from 'path';
@@ -25,13 +25,13 @@ import { MessagingApp } from './MessagingApp';
 
 export class ChatBot {
 
-    private readonly mSecurity: SecurityFacility
-    private readonly mLog: Logger;
+    private readonly security: SecurityFacility
+    private readonly log: Logger;
     private readonly appConfig: AppConfig;
     private readonly configManager: UserConfigManager
-    private readonly mApp: MessagingApp;
-    private readonly mPluginHome = '/usr/lpp/zowe/zowechat';
-    private readonly mBot: CommonBot;
+    private readonly app: MessagingApp;
+    private readonly pluginHome = '/usr/lpp/zowe/zowechat';
+    private readonly bot: CommonBot;
     private readonly plugins: IChatPlugin[] = [];
     private messageListener: MessageListener;
     private eventListener: EventListener;
@@ -39,19 +39,20 @@ export class ChatBot {
     // TODO: Can we cleanup or clarify the initialization logic? For some steps, ordering is required but not explicit enough?
     constructor(chatConfig: AppConfig, log: Logger) {
         // App Config and Log are used in multiple methods within the constructor.
-        this.mLog = log
+        this.log = log
         this.appConfig = chatConfig
 
         try {
-            this.mLog.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
-            this.mApp = new MessagingApp(this.appConfig.app.server, this.mLog);
-            let cBotOpts: IBotOption = this.generateBotOpts(this.mApp);
-
+            this.log.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
+            this.app = new MessagingApp(this.appConfig.app.server, this.log);
+            let cBotOpts: IBotOption = this.generateBotOpts(this.app);
+            this.log.info("Creating CommonBot ...");
             // TODO: Fix casting, circular dependency between config and commonbot
-            this.mBot = new CommonBot(cBotOpts);
-
+            this.bot = new CommonBot(cBotOpts);
+            this.log.info("Bot initialized")
             this.plugins = [];
             this.loadPlugins();
+            this.log.info("Plugins initialized")
 
             let blockConfigList = [SecurityConfigSchema]
 
@@ -64,13 +65,16 @@ export class ChatBot {
                   */
             }
             this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
-            this.mSecurity = new SecurityFacility(this.configManager, log)
-            this.messageListener = new MessageListener(this.appConfig, this.mSecurity, log);
+            this.security = new SecurityFacility(this.configManager, log)
+            this.log.info("Admin configuration and security initialized")
+
+            this.messageListener = new MessageListener(this.appConfig, this.security, log);
             this.eventListener = new EventListener(this.appConfig, log);
         } catch (error) {
-            this.mLog.error(`Failed to create chat bot!`);
-            this.mLog.error(`Error details: ${error}`);
-            this.mLog.debug(`Error stack: ${error.stack}`)
+            console.log(error)
+            this.log.error(`Failed to create chat bot!`);
+            this.log.error(`Error details: ${error}`);
+            this.log.debug(`Error stack: ${error.stack}`)
             process.exit(1);
         }
     }
@@ -78,73 +82,73 @@ export class ChatBot {
     // Run chat bot
     public run(): void {
         // Print start log
-        this.mLog.start(this.run, this);
+        this.log.start(this.run, this);
         try {
             // Load plugins
-            this.mLog.info('Load Zowe Chat plugins ...');
+            this.log.info('Load Zowe Chat plugins ...');
 
 
             // Start server
-            const app = this.mApp
+            const app = this.app
             if (app !== null) {
-                this.mLog.info('Start messaging server ...');
+                this.log.info('Start messaging server ...');
                 app.startServer();
             }
 
             // Register listeners
-            this.mLog.info('Register message listeners ...');
-            this.mBot.listen(this.messageListener.matchMessage, this.messageListener.processMessage);
+            this.log.info('Register message listeners ...');
+            this.bot.listen(this.messageListener.matchMessage, this.messageListener.processMessage);
 
 
             // Register routers
-            this.mLog.info('Register event routers ...');
-            this.mBot.route(this.mBot.getOption().messagingApp.option.basePath, this.eventListener.processEvent);
+            this.log.info('Register event routers ...');
+            this.bot.route(this.bot.getOption().messagingApp.option.basePath, this.eventListener.processEvent);
 
             // // Load translation resource
             // logger.info('Load translations ...');
         } catch (error) {
-            this.mLog.error(`Failed to run Zowe chat bot!`);
-            this.mLog.error(`${error}`);
+            this.log.error(`Failed to run Zowe chat bot!`);
+            this.log.error(`${error}`);
             process.exit(2);
         } finally {
             // Print end log
-            this.mLog.end(this.run, this);
+            this.log.end(this.run, this);
         }
     }
     // Load plugins
     private loadPlugins(): void {
         // Print start log
-        this.mLog.start(this.loadPlugins, this);
+        this.log.start(this.loadPlugins, this);
 
         try {
             // Get plugin home
-            const pluginHome = this.mPluginHome;
+            const pluginHome = this.pluginHome;
             let pluginYamlFilePath = `${pluginHome}${path.sep}plugin.yaml`;
-            this.mLog.info(`Zowe Chat plugin home: ${pluginHome}`);
+            this.log.info(`Zowe Chat plugin home: ${pluginHome}`);
 
             // Read plugin configuration file
             if (fs.existsSync(pluginYamlFilePath) === false) {
                 //  Check zowe chat server configuration folder
                 pluginYamlFilePath = `${__dirname}${path.sep}..${path.sep}config${path.sep}plugin.yaml`;
                 if (fs.existsSync(pluginYamlFilePath) === false) {
-                    this.mLog.error(`Zowe Chat plugin configuration file plugin.yaml does not exist in ${pluginHome} `
+                    this.log.error(`Zowe Chat plugin configuration file plugin.yaml does not exist in ${pluginHome} `
                         + `and ${__dirname}${path.sep}..${path.sep}config !`);
-                    this.mLog.error(`Skip loading plugins!`);
+                    this.log.error(`Skip loading plugins!`);
                     return;
                 }
             }
 
             // Read Zowe Chat plugins configuration file
             let pluginList = <IChatPlugin[]>yaml.load(fs.readFileSync(pluginYamlFilePath, 'utf8'));
-            this.mLog.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
+            this.log.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Sort plugin per priority in descend order
             pluginList.sort((a, b) => b.priority - a.priority);
-            this.mLog.debug(`Plugins sorted by priority:\n${JSON.stringify(this.plugins, null, 4)}`);
+            this.log.debug(`Plugins sorted by priority:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Load plugins one by one in priority descend order
             for (const plugin of pluginList) {
-                this.mLog.info(`Loading the plugin ${plugin.package} ...`);
+                this.log.info(`Loading the plugin ${plugin.package} ...`);
 
                 // Get plugin installed path
                 let pluginPath = '';
@@ -157,7 +161,7 @@ export class ChatBot {
 
                 // Check whether the plugin is installed
                 if (fs.existsSync(pluginPath) === false) {
-                    this.mLog.error(`The plugin file "${pluginPath}" does not exist!`);
+                    this.log.error(`The plugin file "${pluginPath}" does not exist!`);
                 } else {
                     // Load plugin
                     const ZoweChatPlugin = require(pluginPath);
@@ -169,45 +173,45 @@ export class ChatBot {
                             this.messageListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.MESSAGE,
-                                'listenerInstance': new ZoweChatPlugin[listenerName](this.mLog),
+                                'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
                                 'chatPlugin': plugin,
                             });
                         } else if (listenerName.endsWith('EventListener')) {
                             this.eventListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.EVENT,
-                                'listenerInstance': new ZoweChatPlugin[listenerName](this.mLog),
+                                'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
                                 'chatPlugin': plugin,
                             });
                             // this.bot.listen(listener.matchEvent.bind(listener.this), listener.processEvent.bind(listener.this));
                         } else {
-                            this.mLog.error(`The listener "${listenerName}" is not supported!`);
+                            this.log.error(`The listener "${listenerName}" is not supported!`);
                         }
                     }
                 }
-                this.mLog.debug(`Loading plugin ${plugin.package} complete`);
+                this.log.debug(`Loading plugin ${plugin.package} complete`);
                 this.plugins.push(plugin)
             }
         } catch (error) {
             // Print exception stack
-            this.mLog.error(`${error}`);
+            this.log.error(`${error}`);
         } finally {
             // Print end log
-            this.mLog.end(this.loadPlugins, this);
+            this.log.end(this.loadPlugins, this);
         }
     }
 
     private readYamlFile(filePath: string): any {
         if (!fs.existsSync(filePath)) {
-            this.mLog.info(`TBD002E: File ${filePath} does not exist.`);
+            this.log.info(`TBD002E: File ${filePath} does not exist.`);
             throw new Error(`TBD002E: File ${filePath} does not exist.`);
         }
 
         try {
             return yaml.load(fs.readFileSync(filePath).toString(), {});
         } catch (err) {
-            this.mLog.info(`TBD003E: Error parsing the content for file ${filePath}. Please make sure the file is valid YAML.`);
-            this.mLog.info(err)
+            this.log.info(`TBD003E: Error parsing the content for file ${filePath}. Please make sure the file is valid YAML.`);
+            this.log.info(err)
             throw new Error(`TBD003E: Error parsing the content for file ${filePath}. Please make sure the file is valid YAML.`);
         }
     }
@@ -218,8 +222,8 @@ export class ChatBot {
             // Read chat tool configuration
             if (this.appConfig.app.chatToolType === IChatToolType.MATTERMOST) {
                 // Read Mattermost configuration file
-                this.mLog.debug(`mattermost configuration: `);
-                this.mLog.debug(JSON.stringify(this.appConfig.mattermost, null, 4));
+                this.log.debug(`mattermost configuration: `);
+                this.log.debug(JSON.stringify(this.appConfig.mattermost, null, 4));
 
                 // Get Mattermost option
                 // TODO: Fix casting, circular dependency between config and commonbot
@@ -237,7 +241,7 @@ export class ChatBot {
                 if (fs.existsSync(this.appConfig.app.server.tlsCert)) {
                     botOpts.mattermost.tlsCertificate = fs.readFileSync(this.appConfig.app.server.tlsCert, 'utf8');
                 } else {
-                    this.mLog.error(`The TLS certificate file ${this.appConfig.app.server.tlsCert} does not exist!`);
+                    this.log.error(`The TLS certificate file ${this.appConfig.app.server.tlsCert} does not exist!`);
                     process.exit(4);
                 }
 
@@ -311,12 +315,12 @@ export class ChatBot {
                 };
 
             } else {
-                this.mLog.error(`Unsupported chat tool: ${this.appConfig.app.chatToolType}`);
+                this.log.error(`Unsupported chat tool: ${this.appConfig.app.chatToolType}`);
                 process.exit(5);
             }
         } catch (error) {
-            this.mLog.error(`Failed to config the chat tool!`);
-            this.mLog.error(error.stack);
+            this.log.error(`Failed to config the chat tool!`);
+            this.log.error(error.stack);
             process.exit(5);
         }
 

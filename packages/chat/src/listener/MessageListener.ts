@@ -10,7 +10,7 @@
 
 import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
-import _ = require('lodash');
+import _ from "lodash";
 
 import { IChatContextData, IChatToolType } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
@@ -22,9 +22,9 @@ export class MessageListener {
 
     private chatListeners: IChatListenerRegistryEntry[];
     private readonly botName;
-    private log: Logger
-    private config: AppConfig
-    private securityFacility: SecurityFacility;
+    private readonly log: Logger
+    private readonly config: AppConfig
+    private readonly securityFacility: SecurityFacility;
 
     constructor(config: AppConfig, securityFac: SecurityFacility, log: Logger) {
         this.chatListeners = [];

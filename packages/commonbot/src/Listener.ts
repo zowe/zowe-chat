@@ -11,7 +11,7 @@
 import type { IMessageHandlerFunction, IMessageMatcherFunction } from './types';
 import Logger from './utils/Logger';
 
-import CommonBot = require('./CommonBot');
+import { CommonBot } from './CommonBot';
 import MessageMatcher = require('./MessageMatcher');
 
 class Listener {
@@ -22,6 +22,7 @@ class Listener {
     // Constructor
     constructor(bot: CommonBot) {
         this.bot = bot;
+        this.logger = Logger.getInstance()
         this.messageMatcher = new MessageMatcher();
 
         this.listen = this.listen.bind(this);
