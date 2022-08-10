@@ -19,7 +19,7 @@ import Util from '../utils/Util';
 const logger = Logger.getInstance();
 const config = Config.getInstance();
 
-class EventListener {
+class BotEventListener {
     private chatListeners: IChatListenerRegistryEntry[];
     constructor() {
         this.chatListeners = [];
@@ -152,4 +152,4 @@ class EventListener {
     }
 }
 
-export = EventListener;
+export = BotEventListener;
