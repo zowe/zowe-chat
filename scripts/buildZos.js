@@ -33,17 +33,17 @@ async function main() {
         binary: false,
     })
 
-    await Shell.executeSsh(session, "cd /u/zowead6 && xlc -q64 -qin=all:nostp -opass genPassticket.c", (data) => {
+    await Shell.executeSsh(session, "cd /u/zowead6 && xlc -q64 -qin=all:nostp -opassticket_bin genPassticket.c", (data) => {
         if (data.trim()) console.log(data);
     });
 
-    await Shell.executeSsh(session, "extattr +a /u/zowead6/pass", (data) => {
+    await Shell.executeSsh(session, "extattr +a /u/zowead6/passticket_bin", (data) => {
         if (data.trim()) console.log(data);
     });
 
-    await files.Download.ussFile(zosmfSession, `/u/zowead6/pass`, {
+    await files.Download.ussFile(zosmfSession, `/u/zowead6/passticket_bin`, {
         binary: true,
-        file: `.build${sep}pass`
+        file: `.build${sep}passticket_bin`
     })
 }
 

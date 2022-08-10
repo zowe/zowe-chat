@@ -10,14 +10,14 @@
 
 import { ChatBot } from "./bot/ChatBot";
 import { AppConfigLoader } from "./config/AppConfigLoader";
-import { AppConfig } from "./config/base/AppConfig";
 import { Logger } from "./utils/Logger";
 
-const appConfig: AppConfig = AppConfigLoader.loadAppConfig()
-const appLog = new Logger(appConfig)
-// TODO: Lifecycle / catch errors?
-
-// Start chat bot
-const chatBot = new ChatBot(appConfig, appLog)
+// App config must be loaded without error.
+AppConfigLoader.loadAppConfig()
+// Logger must be initialized for future class initialization. Uses AppConfig.
+const appLog = Logger.getInstance()
+// Start chat bot. Requires AppConfig and Logger.
+appLog.info("Initializing Zowe Chat Bot")
+const chatBot = ChatBot.getInstance()
 chatBot.run();
 

@@ -11,17 +11,19 @@
 import * as fs from "fs-extra";
 import path from "path";
 import * as winston from "winston";
+import { AppConfigLoader } from "../config/AppConfigLoader";
 import { AppConfig, ILogLevel } from "../config/base/AppConfig";
 
 export class Logger {
 
+    private static instance: Logger;
     private readonly log: winston.Logger;
     private readonly appConfig: AppConfig;
     // TODO: move into constructor
     private logFile: string;
 
-    constructor(appConfig: AppConfig) {
 
+    private constructor(appConfig: AppConfig) {
         this.appConfig = appConfig
         // TODO: Don't update the mConfig object? Keep computed properties separate?
         try {
@@ -241,5 +243,13 @@ export class Logger {
     public info(log: string) {
         this.log.info(log);
     }
+
+    public static getInstance(): Logger {
+        if (!Logger.instance) {
+            Logger.instance = new Logger(AppConfigLoader.loadAppConfig());
+        }
+        return Logger.instance
+    }
+
 
 }

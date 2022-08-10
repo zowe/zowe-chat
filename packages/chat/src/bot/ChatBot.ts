@@ -12,6 +12,7 @@ import { CommonBot, IBotOption, IChatToolType, IMattermostOption, ISlackOption }
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import path from 'path';
+import { AppConfigLoader } from '../config/AppConfigLoader';
 import { AppConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
 import EventListener from '../listener/EventListener';
@@ -25,6 +26,7 @@ import { MessagingApp } from './MessagingApp';
 
 export class ChatBot {
 
+    private static instance: ChatBot;
     private readonly security: SecurityFacility
     private readonly log: Logger;
     private readonly appConfig: AppConfig;
@@ -37,7 +39,7 @@ export class ChatBot {
     private eventListener: EventListener;
 
     // TODO: Can we cleanup or clarify the initialization logic? For some steps, ordering is required but not explicit enough?
-    constructor(chatConfig: AppConfig, log: Logger) {
+    private constructor(chatConfig: AppConfig, log: Logger) {
         // App Config and Log are used in multiple methods within the constructor.
         this.log = log
         this.appConfig = chatConfig
@@ -325,5 +327,12 @@ export class ChatBot {
         }
 
         return botOpts
+    }
+
+    public static getInstance(): ChatBot {
+        if (!ChatBot.instance) {
+            ChatBot.instance = new ChatBot(AppConfigLoader.loadAppConfig(), Logger.getInstance());
+        }
+        return ChatBot.instance;
     }
 }

@@ -4,11 +4,11 @@ import { AppConfig } from "./base/AppConfig";
 
 export class AppConfigLoader {
 
-    private static mAppConfig: AppConfig;
+    private static appConfig: AppConfig;
 
     public static loadAppConfig(): AppConfig {
 
-        if (AppConfigLoader.mAppConfig == null) {
+        if (AppConfigLoader.appConfig == null) {
 
             let cfgFilePath = process.env.ZOWE_CHAT_CONFIG_DIR;
             if (cfgFilePath === undefined) {
@@ -25,7 +25,7 @@ export class AppConfigLoader {
             }
 
             try {
-                AppConfigLoader.mAppConfig = yaml.load(fs.readFileSync(cfgFilePath).toString(), {}) as AppConfig;
+                AppConfigLoader.appConfig = yaml.load(fs.readFileSync(cfgFilePath).toString(), {}) as AppConfig;
             } catch (err) {
                 console.log(`TBD003E: Error parsing the content for file ${cfgFilePath}. Please make sure the file is valid YAML.`);
                 console.log(err)
@@ -33,7 +33,7 @@ export class AppConfigLoader {
             }
         }
 
-        return AppConfigLoader.mAppConfig
+        return AppConfigLoader.appConfig
 
     }
 

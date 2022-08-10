@@ -9,6 +9,7 @@ import { UserFileMapping } from "./mapping/UserFileMapping";
 import { ICredentialProvider } from "./providers/ICredentialProvider";
 import { PassticketProvider } from "./providers/PassticketProvider";
 import { PasswordProvider } from "./providers/PasswordProvider";
+import { TokenProvider } from "./providers/TokenProvider";
 import { ChatPrincipal } from "./user/ChatPrincipal";
 
 export class SecurityFacility {
@@ -26,18 +27,24 @@ export class SecurityFacility {
         this.log.debug("Initializing security facility");
         this.securityConfig = this.configManager.getConfigFromSchema(SecurityConfigSchema);
 
-        if (this.securityConfig.authenticationStrategy == AuthenticationStrategy.Passticket.toString()) {
-            // TODO: Can we startup with broken authentication so users can change it @ runtime? Fail fast @ startup is fine for now.
-            if (!process.arch.startsWith('s390')) {
-                this.log.error("Passticket authentication is only supported on z/OS");
-                throw Error("Passticket authentication is only supported on z/OS");
-            }
-            this.log.info("Using passtickets authentication strategy");
-            this.credentialProvider = new PassticketProvider(this.securityConfig, this.log);
-        }
-        if (this.securityConfig.authenticationStrategy == AuthenticationStrategy.Password.toString()) {
-            this.log.info("Using password authentication strategy");
-            this.credentialProvider = new PasswordProvider(this.securityConfig, this.log);
+        this.log.info(`Using ${this.securityConfig.authenticationStrategy} authentication strategy`);
+
+        switch (this.securityConfig.authenticationStrategy) {
+            case AuthenticationStrategy.Passticket:
+                if (!process.arch.startsWith('s390')) {
+                    this.log.error("Passticket authentication is only supported when running on z/OS");
+                    throw Error("Passticket authentication is only supported when running on z/OS");
+                }
+                this.credentialProvider = new PassticketProvider(this.securityConfig, this.log);
+                break;
+            case AuthenticationStrategy.Password:
+                this.credentialProvider = new PasswordProvider(this.securityConfig, this.log);
+                break;
+            case AuthenticationStrategy.Token:
+                this.credentialProvider = new TokenProvider(this.securityConfig, this.log);
+                break;
+            default:
+                throw new Error("Unknown authentication strategy: " + this.securityConfig.authenticationStrategy);
         }
 
         let cryptKey: Buffer = Buffer.from(this.securityConfig.encryptionKey, 'base64');

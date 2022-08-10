@@ -17,6 +17,7 @@ export enum LoginStrategy {
 export enum AuthenticationStrategy {
     Passticket = "passticket",
     Password = "password",
+    Token = "token",
 }
 
 export type PassticketOptions = {
