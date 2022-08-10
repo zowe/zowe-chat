@@ -13,12 +13,12 @@ import {IBotOption, IChatListenerType, IChatPlugin} from '../types';
 import fs = require('fs');
 import path = require('path');
 import yaml = require('js-yaml');
+import CommonBot from '@zowe/commonbot';
 
 import Config = require('../common/Config');
 import Logger = require('../utils/Logger');
-import EventListener = require('../listener/EventListener');
-import MessageListener = require('../listener/MessageListener');
-import CommonBot from '@zowe/commonbot';
+import BotEventListener = require('../listeners/BotEventListener');
+import BotMessageListener = require('../listeners/BotMessageListener');
 
 const logger = Logger.getInstance();
 const config = Config.getInstance();
@@ -28,8 +28,8 @@ class ChatBot {
     private botOption: IBotOption;
     private bot: CommonBot;
     private plugins: IChatPlugin[];
-    private messageListener: MessageListener;
-    private eventListener: EventListener;
+    private botMessageListener: BotMessageListener;
+    private botEventListener: BotEventListener;
 
     private constructor() {
         try {
@@ -38,8 +38,8 @@ class ChatBot {
             this.botOption = config.getBotOption();
             this.bot = new CommonBot(this.botOption);
             this.plugins = [];
-            this.messageListener = new MessageListener();
-            this.eventListener = new EventListener();
+            this.botMessageListener = new BotMessageListener();
+            this.botEventListener = new BotEventListener();
 
             if (ChatBot.instance === undefined) {
                 ChatBot.instance = this;
@@ -81,12 +81,12 @@ class ChatBot {
 
             // Register listeners
             logger.info('Register message listeners ...');
-            this.bot.listen(this.messageListener.matchMessage, this.messageListener.processMessage);
+            this.bot.listen(this.botMessageListener.matchMessage, this.botMessageListener.processMessage);
 
 
             // Register routers
             logger.info('Register event routers ...');
-            this.bot.route(this.botOption.messagingApp.option.basePath, this.eventListener.processEvent);
+            this.bot.route(this.botOption.messagingApp.option.basePath, this.botEventListener.processEvent);
 
             // // Load translation resource
             // logger.info('Load translations ...');
@@ -155,20 +155,19 @@ class ChatBot {
                     for (const listenerName of plugin.listeners) {
                         // Create listener
                         if (listenerName.endsWith('MessageListener')) {
-                            this.messageListener.registerChatListener({
+                            this.botMessageListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.MESSAGE,
                                 'listenerInstance': new ZoweChatPlugin[listenerName](logger),
                                 'chatPlugin': plugin,
                             });
                         } else if (listenerName.endsWith('EventListener')) {
-                            this.eventListener.registerChatListener({
+                            this.botEventListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.EVENT,
                                 'listenerInstance': new ZoweChatPlugin[listenerName](logger),
                                 'chatPlugin': plugin,
                             });
-                            // this.bot.listen(listener.matchEvent.bind(listener.this), listener.processEvent.bind(listener.this));
                         } else {
                             logger.error(`The listener "${listenerName}" is not supported!`);
                         }

@@ -19,7 +19,7 @@ import Util from '../utils/Util';
 const logger = Logger.getInstance();
 const config = Config.getInstance();
 
-class MessageListener {
+class BotMessageListener {
     private chatListeners: IChatListenerRegistryEntry[];
 
     constructor() {
@@ -131,4 +131,4 @@ class MessageListener {
     }
 }
 
-export = MessageListener;
+export = BotMessageListener;
