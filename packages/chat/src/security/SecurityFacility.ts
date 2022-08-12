@@ -11,6 +11,7 @@ import { PassticketProvider } from "./providers/PassticketProvider";
 import { PasswordProvider } from "./providers/PasswordProvider";
 import { TokenProvider } from "./providers/TokenProvider";
 import { ChatPrincipal } from "./user/ChatPrincipal";
+import { ChatUser } from "./user/ChatUser";
 
 export class SecurityFacility {
 
@@ -64,37 +65,53 @@ export class SecurityFacility {
         this.log.debug("Security facility initialized");
     }
 
-    public isAuthenticated(chatCtx: IChatContextData): boolean {
-        let principal = this.getPrincipal(chatCtx.context.chatting.user.name);
-        if (principal === undefined) {
-            principal = this.getPrincipal(chatCtx.context.chatting.user.email);
+
+    public authenticateUser(prinicpal: ChatPrincipal): boolean {
+        // TODO: Write authentiction logic
+        if (true /*authenticated==true*/) {
+            return this.userMap.mapUser(prinicpal.getUser().getDistributedUser(), prinicpal.getUser().getMainframeUser());
+        } else {
+            return false;
         }
-        if (principal === undefined) {
-            this.log.debug("Could not find stored principal for user: " + chatCtx.context.chatting.user.name + " Will return 'not authenticated'");
+    }
+
+    public isAuthenticated(chatCtx: IChatContextData): boolean {
+        let user = this.getChatUser(chatCtx);
+        if (user === undefined) {
+            user = this.getChatUser(chatCtx);
+        }
+        if (user === undefined) {
+            this.log.debug("Could not find stored value for user: " + chatCtx.context.chatting.user.name + " Will return 'not authenticated'.");
             return false
         }
         return true
     }
 
-    private persistUser(distributedId: string, mainframeId: string): boolean {
-        return this.userMap.mapUser(distributedId, mainframeId);
-    }
 
     // TODO: return a boolean? what happens during failure conditions? retry?
     private writeConfig(): void {
         this.configManager.updateConfig(SecurityConfigSchema, this.securityConfig);
     }
 
-    public getPassword(principal: ChatPrincipal) {
-        return this.credentialProvider.getCredential(principal);
+    public getPrincipal(user: ChatUser): ChatPrincipal {
+        return new ChatPrincipal(
+            user,
+            this.credentialProvider.getCredential(user)
+        );
     }
 
-    public getPrincipal(userId: string): ChatPrincipal | undefined {
-        let principal: string | undefined = this.userMap.getUser(userId);
+    // TODO: rename to getmainframeuser?
+    public getChatUser(chatCtx: IChatContextData): ChatUser | undefined {
+        let uid: string = chatCtx.context.chatting.user.name
+        let principal: string | undefined = this.userMap.getUser(uid);
+        if (principal === undefined) {
+            uid = chatCtx.context.chatting.user.email;
+            principal = this.userMap.getUser(uid);
+        }
         if (principal === undefined || principal.trim().length == 0) {
-            this.log.debug("User not found in user map: " + userId);
+            this.log.debug("User not found in user map: " + chatCtx.context.chatting.user.name);
             return undefined;
         }
-        return new ChatPrincipal(userId, principal);
+        return new ChatUser(uid, principal);
     }
 }

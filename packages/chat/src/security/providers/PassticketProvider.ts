@@ -2,7 +2,7 @@ import * as exec from "child_process";
 import * as fs from "fs-extra";
 import { Logger } from "../../utils/Logger";
 import { SecurityConfig } from "../config/SecurityConfig";
-import { ChatPrincipal } from "../user/ChatPrincipal";
+import { ChatUser } from "../user/ChatUser";
 import { ICredentialProvider } from "./ICredentialProvider";
 
 export class PassticketProvider implements ICredentialProvider {
@@ -32,25 +32,23 @@ export class PassticketProvider implements ICredentialProvider {
         }
         let attrMode = attrs.mode
         this.log.info(`Passticket binary mode: ${attrMode}`)
-
     }
 
-
-    public getCredential(principal: ChatPrincipal): string {
+    public getCredential(user: ChatUser): string {
         //TODO: convert to async call
-        let stdOut = exec.execSync(`${__dirname}/bin/genPtkt ${this.applId} ${principal.getDistributedPrincipal()}`)
+        let stdOut = exec.execSync(`${__dirname}/bin/genPtkt ${this.applId} ${user.getDistributedUser()}`)
         let jsonFormat: PassticketData
         try {
             jsonFormat = JSON.parse(stdOut.toString())
         } catch (e) {
-            this.log.error(`Non-fatal error encountered. Could not generate a passticket for user ${principal.getDistributedPrincipal()}`)
+            this.log.error(`Non-fatal error encountered. Could not generate a passticket for user ${user.getDistributedUser()}`)
             this.log.debug(`Error: ${e}`)
             this.log.debug(`Passticket response: ${stdOut}`)
             return ""
         }
 
         if (!Object.keys(jsonFormat).includes("passticket")) {
-            this.log.error(`Non-fatal error. Error generating passticket for user ${principal.getDistributedPrincipal()}`)
+            this.log.error(`Non-fatal error. Error generating passticket for user ${user.getDistributedUser()}`)
             this.log.error(`safRc: ${jsonFormat.safRc}, racfRc: ${jsonFormat.racfRc}, racfReason: ${jsonFormat.racfReason}`)
             return ""
         }

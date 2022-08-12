@@ -12,7 +12,7 @@ import * as fs from "fs-extra";
 import path from "path";
 import * as winston from "winston";
 import { AppConfigLoader } from "../config/AppConfigLoader";
-import { AppConfig, ILogLevel } from "../config/base/AppConfig";
+import { AppConfig, LogLevel } from "../config/base/AppConfig";
 
 export class Logger {
 
@@ -35,8 +35,8 @@ export class Logger {
             }
             fs.ensureFileSync(this.logFile)
             if (process.env.ZOWE_CHAT_LOG_LEVEL !== undefined && process.env.ZOWE_CHAT_LOG_LEVEL.trim() !== '') {
-                if ((Object.values<string>(ILogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
-                    this.appConfig.app.log.level = <ILogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
+                if ((Object.values<string>(LogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
+                    this.appConfig.app.log.level = <LogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
                 } else {
                     console.error('Unsupported value specified in the variable ZOWE_CHAT_LOG_LEVEL!');
                 }

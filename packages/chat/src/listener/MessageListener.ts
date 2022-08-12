@@ -121,8 +121,13 @@ export class MessageListener {
         // Print start log
         this.log.start(this.processMessage, this);
 
-        this.securityFacility.isAuthenticated(chatContextData)
+        if (!this.securityFacility.isAuthenticated(chatContextData)) {
+            this.webApp.issueChallenge(chatContextData);
+            await chatContextData.context.chatting.bot.send("You are not authenticated. Please authenticate first and try again!");
+            return;
+        }
 
+        chatContextData.context.chatting.
 
         try {
             // Get matched listener and contexts

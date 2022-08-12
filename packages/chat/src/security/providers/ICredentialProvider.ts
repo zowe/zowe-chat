@@ -1,7 +1,7 @@
-import { ChatPrincipal } from "../user/ChatPrincipal"
+import { ChatUser } from "../user/ChatUser";
 
 export interface ICredentialProvider {
 
-    getCredential(chatUser: ChatPrincipal): string
+    getCredential(chatUser: ChatUser): string
 
 }

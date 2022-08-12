@@ -1,18 +1,20 @@
+import { ChatUser } from "./ChatUser";
+
 export class ChatPrincipal {
 
-    private readonly mainframeUser: string;
-    private readonly distributedUser: string;
+    private readonly chatUser: ChatUser;
+    private readonly mainframeCredential: string;
 
-    constructor(originalUser: string, mappedUser: string) {
-        this.distributedUser = originalUser
-        this.mainframeUser = mappedUser
+    constructor(chatUser: ChatUser, mainframeCredential: string) {
+        this.chatUser = chatUser
+        this.mainframeCredential = mainframeCredential
     }
 
-    public getDistributedPrincipal(): string {
-        return this.distributedUser
+    public getMainframeCredential(): string {
+        return this.mainframeCredential
     }
 
-    public getMainframeUser(): string {
-        return this.mainframeUser
+    public getUser(): ChatUser {
+        return this.chatUser
     }
 }

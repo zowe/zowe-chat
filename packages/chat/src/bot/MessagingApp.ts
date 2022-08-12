@@ -15,17 +15,19 @@ import helmet from 'helmet';
 import http from "http";
 import https from "https";
 
-import { IServerOptions } from '../config/base/AppConfig';
+import { ServerOptions } from '../config/base/AppConfig';
+import { SecurityFacility } from '../security/SecurityFacility';
 import { Logger } from '../utils/Logger';
 
 export class MessagingApp {
 
     private readonly log: Logger;
-    private readonly option: IServerOptions;
+    private readonly option: ServerOptions;
     private readonly app: Application;
+    private readonly securityFacility: SecurityFacility;
     private server: https.Server | http.Server;
 
-    constructor(option: IServerOptions, log: Logger) {
+    constructor(option: ServerOptions, log: Logger) {
         // Set app option
         this.option = option;
         this.log = log;
@@ -34,6 +36,24 @@ export class MessagingApp {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(helmet()); // Secure Express apps with various HTTP headers
+        this.setRoutes()
+    }
+
+    private setRoutes() {
+        this.app.get('/login/:sessionId', (req, res) => {
+            let session = req.params.sessionId;
+            if (session === undefined || session.trim().length == 0) {
+                res.status(400).send('Invalid Challenge URL. Request a new challenge from the Zowe ChaBot.')
+                return;
+            }
+
+            let sessionObj = JSON.parse(Buffer.from(session, 'base64').toString('ascii'));
+
+            this.securityFacility.authenticateUser()
+
+
+
+        })
     }
 
     // Get messaging application

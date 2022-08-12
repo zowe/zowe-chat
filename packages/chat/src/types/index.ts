@@ -9,6 +9,12 @@
  */
 
 import { IChatContextData, IMessage } from "@zowe/commonbot";
+import { ChatPrincipal } from "../security/user/ChatPrincipal";
+
+export type ChatContext = {
+    context: IChatContextData;
+    principal?: ChatPrincipal
+}
 
 export interface IName {
     id: string;

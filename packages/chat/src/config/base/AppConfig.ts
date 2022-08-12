@@ -1,16 +1,19 @@
-import { IChatToolType, IProtocol } from "@zowe/commonbot";
+import { IChatToolType as ChatToolType, IProtocol } from "@zowe/commonbot";
 
+/**
+ * 
+ */
 export type AppConfig = {
     app: ChatAppConfig;
-    mattermost: IMattermostConfig;
-    slack: ISlackConfig;
-    msteams: IMsteamsConfig;
+    mattermost: MattermostConfig;
+    slack: SlackConfig;
+    msteams: MsteamsConfig;
 }
 
 export type ChatAppConfig = {
-    chatToolType: IChatToolType
-    server: IServerOptions
-    log: ILogOption;
+    chatToolType: ChatToolType
+    server: ServerOptions
+    log: LogOption;
     recordLimit: number;
     pluginLimit: number;
     extendedConfigDir: string;
@@ -18,15 +21,15 @@ export type ChatAppConfig = {
     userPassword: string;
 }
 
-export type ILogOption = {
+export type LogOption = {
     filePath: string,
-    level: ILogLevel,
+    level: LogLevel,
     maximumSize: string,
     maximumFiles: number
 }
 
 
-export type IMattermostConfig = {
+export type MattermostConfig = {
     protocol: IProtocol;
     hostName: string;
     port: number;
@@ -35,10 +38,10 @@ export type IMattermostConfig = {
     teamUrl: string;
     botUserName: string;
     botAccessToken: string;
-    messagingApp: IServerOptions;
+    messagingApp: ServerOptions;
 }
 
-export type ISlackConfig = {
+export type SlackConfig = {
     botUserName: string;
     signingSecret: string;
     token: string;
@@ -53,18 +56,18 @@ export type ISlackConfigSocketMode = {
 
 export type ISlackConfigHttpEndpoint = {
     enabled: boolean;
-    messagingApp: IServerOptions;
+    messagingApp: ServerOptions;
 }
 
-export type IMsteamsConfig = {
+export type MsteamsConfig = {
     botUserName: string;
     botId: string;
     botPassword: string;
-    messagingApp: IServerOptions;
+    messagingApp: ServerOptions;
 }
 
 
-export type IServerOptions = {
+export type ServerOptions = {
     protocol: IProtocol;
     hostName: string;
     port: number;
@@ -74,7 +77,7 @@ export type IServerOptions = {
 }
 
 
-export enum ILogLevel {
+export enum LogLevel {
     ERROR = 'error',
     WARN = 'warn',
     INFO = 'info',

@@ -32,19 +32,13 @@ export class UserFileMapping implements IUserMapping {
         let encryptedText = Buffer.from(fs.readFileSync(this.mappingFile).toString(), 'hex');
         let decipher = crypto.createDecipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
         if (encryptedText == undefined || encryptedText.length == 0) {
-            this.userMap = new Map<string,string>()
+            this.userMap = new Map<string, string>()
             this.writeMappingFile()
         } else {
             this.userMap = JSON.parse(Buffer.concat([decipher.update(encryptedText), decipher.final()]).toString())
         }
         this.log.info("User mapping service initialized");
         this.log.info(`Map content: ${this.userMap}`);
-    }
-
-    private writeMappingFile(): void {
-        let cipher = crypto.createCipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
-        let encryptedOut = Buffer.concat([cipher.update(JSON.stringify(this.userMap)), cipher.final()])
-        fs.writeFileSync(this.mappingFile, encryptedOut.toString('hex'));
     }
 
     public userExists(distUser: string): boolean {
@@ -59,5 +53,11 @@ export class UserFileMapping implements IUserMapping {
         this.userMap.set(distUser, mfUser);
         this.writeMappingFile();
         return true
+    }
+
+    private writeMappingFile(): void {
+        let cipher = crypto.createCipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
+        let encryptedOut = Buffer.concat([cipher.update(JSON.stringify(this.userMap)), cipher.final()])
+        fs.writeFileSync(this.mappingFile, encryptedOut.toString('hex'));
     }
 }
