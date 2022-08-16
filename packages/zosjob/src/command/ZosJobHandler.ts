@@ -27,7 +27,7 @@ const logger = Logger.getInstance();
 
 class ZosJobHandler {
     private view: ZosJobSlackView | ZosJobMattermostView | ZosJobMsteamsView = null;
-    private static packageName: string = '@zowe/zos-job-for-zowe-chat';
+    private static packageName: string = '';
 
     // get package name as plugin id for interactive component.
     private static getPackageName(): string {
@@ -162,10 +162,10 @@ class ZosJobHandler {
 
             // session to connect Zosmf REST API.
             const sessionInfo: ISession = {
-                hostname: 'winmvs3b.hursley.ibm.com',
-                port: 32070,
-                password: 'bnz4youy',
-                user: 'lxhong',
+                hostname: '',
+                port: 443,
+                password: '',
+                user: '',
                 // hostname: hostName,
                 // port: Number(port).valueOf(),
                 // user: user,
