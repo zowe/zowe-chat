@@ -9,9 +9,9 @@
  */
 
 import ChatBot = require('./bot/ChatBot');
-import Logger = require('./utils/Logger');
 
 /* eslint-disable @typescript-eslint/no-unused-vars, no-unused-vars */
+export import Logger = require('./utils/Logger');
 export import Config = require('./common/Config');
 export import ChatEventListener = require('./listeners/ChatEventListener');
 export import ChatMessageListener = require('./listeners/ChatMessageListener');
@@ -25,5 +25,4 @@ export import ChatMsteamsView = require('./views/ChatMsteamsView');
 const chatBot = ChatBot.getInstance();
 chatBot.run();
 
-export default Logger;
 export * from './types';
