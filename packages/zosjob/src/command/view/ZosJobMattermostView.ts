@@ -13,7 +13,6 @@ import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 import {Logger, IMessage, IMessageType, IBotOption, ChatMattermostView, IExecutor} from '@zowe/chat';
 
 import * as i18nJsonData from '../../i18n/jobDisplay.json';
-import Util from '../../utils/Util';
 
 const logger = Logger.getInstance();
 
@@ -27,19 +26,23 @@ class ZosJobMattermostView extends ChatMattermostView {
     }
 
     // Get overview view.
-    getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>): IMessage[] {
+    getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>, packageName: string): IMessage[] {
         // Print start log
         logger.start(this.getOverview, this);
 
         let messages: IMessage[] = [];
 
         try {
-            const headerMessage = super.getHeaderMessage(jobs.length, executor, adjectives, 'job', '');
+            let headerMessage = '';
             if (jobs.length === 0) {
+                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: headerMessage,
                 }];
+            } else {
+                // TODO: Think about what message should be when  too many jobs are searched, if jobs.length > limit.
+                headerMessage = `@${executor.name}. I have found ${jobs.length} jobs that match the filter:`;
             }
 
             const detailOptions = [];
@@ -93,10 +96,27 @@ class ZosJobMattermostView extends ChatMattermostView {
 
             // Add action
             const actions = <Record<string, unknown>[]>[];
-            super.addMessageMenuAction(Util.getPackageName(), actions, detailOptions, i18nJsonData.overview.dropDownPlaceholder);
+            const contextData = {
+                'pluginId': packageName,
+                'token': '',
+                'id': '',
+            };
+            super.addMenuAction(actions, i18nJsonData.overview.dropDownPlaceholder,
+                    `${this.botOption.messagingApp.option.protocol}://${this.botOption.messagingApp.option.hostName}:${this.botOption.messagingApp.option.port}${this.botOption.messagingApp.option.basePath}`,
+                    contextData, detailOptions);
 
             // Create message attachments
-            const attachmentObject: Record<string, any> = this.getMessageAttachments(headerMessage, fields, actions);
+            const attachmentObject: Record<string, any> = {
+                props: {
+                    attachments: [
+                        {
+                            pretext: headerMessage,
+                            fields: fields,
+                            actions: actions,
+                        },
+                    ],
+                },
+            };
             messages.push({
                 type: IMessageType.MATTERMOST_ATTACHMENT,
                 message: attachmentObject,
@@ -123,6 +143,18 @@ class ZosJobMattermostView extends ChatMattermostView {
         let messages: IMessage[] = [];
 
         try {
+            // Get header message
+            let headerMessage = '';
+            if (jobs.length === 0) {
+                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
+                return messages = [{
+                    type: IMessageType.PLAIN_TEXT,
+                    message: headerMessage,
+                }];
+            } else {
+                headerMessage = `@${executor.name}. Here is the the basic information of ${jobs[0].jobid}:`;
+            }
+
             const job: Record<string, any> = jobs[0];
 
             // Create fields array within attachment.
@@ -193,8 +225,17 @@ class ZosJobMattermostView extends ChatMattermostView {
             });
 
             // Create message attachments
-            const attachmentObject: Record<string, any> = this.getMessageAttachments(
-                    super.getHeaderMessage(jobs.length, executor, adjectives, 'job', jobs[0].jobid, true), fields, []);
+            const attachmentObject: Record<string, any> = {
+                props: {
+                    attachments: [
+                        {
+                            pretext: headerMessage,
+                            fields: fields,
+                            actions: [],
+                        },
+                    ],
+                },
+            };
 
             messages.push({
                 type: IMessageType.MATTERMOST_ATTACHMENT,

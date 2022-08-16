@@ -8,6 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+import fs = require('fs');
 import {IJob, GetJobs} from '@zowe/zos-jobs-for-zowe-sdk';
 import {
     ISession,
@@ -26,6 +27,24 @@ const logger = Logger.getInstance();
 
 class ZosJobHandler {
     private view: ZosJobSlackView | ZosJobMattermostView | ZosJobMsteamsView = null;
+    private static packageName: string = '@zowe/zos-job-for-zowe-chat';
+
+    // get package name as plugin id for interactive component.
+    private static getPackageName(): string {
+        try {
+            if (ZosJobHandler.packageName === '') {
+                const filePath = `${__dirname}/../package.json`;
+                const jsonFileContent = fs.readFileSync(filePath, 'utf-8');
+                const packageJsonData = JSON.parse(jsonFileContent);
+                ZosJobHandler.packageName = packageJsonData.name;
+            }
+        } catch (error) {
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+            ZosJobHandler.packageName = '';
+        }
+        return ZosJobHandler.packageName;
+    }
+
 
     constructor(botOption: IBotOption) {
         this.getJob = this.getJob.bind(this);
@@ -172,7 +191,7 @@ class ZosJobHandler {
                     && jobs.length === 1) { // if id is specified, show detail view.
                 messages = this.view.getDetail(jobs, executor, adjectives);
             } else {
-                messages = this.view.getOverview(jobs, executor, adjectives);
+                messages = this.view.getOverview(jobs, executor, adjectives, ZosJobHandler.getPackageName());
             }
 
             return messages;

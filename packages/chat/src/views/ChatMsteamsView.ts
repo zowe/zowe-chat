@@ -17,8 +17,8 @@ class ChatMsteamsView extends ChatView {
     }
 
 
-    // Get column set object for text block only
-    getColumnSet(column1Str: string, column2Str: string, separator: boolean = true): Record<string, unknown> {
+    // Create column set object for text block only
+    createColumnSet(column1Text: string, column2Text: string, separator: boolean = true): Record<string, unknown> {
         return {
             'type': 'ColumnSet',
             'columns': [
@@ -28,7 +28,7 @@ class ChatMsteamsView extends ChatView {
                     'items': [
                         {
                             'type': 'TextBlock',
-                            'text': column1Str,
+                            'text': column1Text,
                             'wrap': true,
                         },
                     ],
@@ -39,7 +39,7 @@ class ChatMsteamsView extends ChatView {
                     'items': [
                         {
                             'type': 'TextBlock',
-                            'text': column2Str,
+                            'text': column2Text,
                             'wrap': true,
                         },
                     ],
@@ -50,10 +50,10 @@ class ChatMsteamsView extends ChatView {
     }
 
     // Add column set for dropdown action
-    addDropdownActionObject(cardBody: Record<string, unknown>[], actionDataObj: Record<string, any>): void {
+    addDropdownAction(adaptiveCardBody: Record<string, unknown>[], actionData: Record<string, any>): void {
         // Only add action object when length of choices is greater than 0, otherwise will failed to send view.
-        if (actionDataObj.choices.length > 0) {
-            cardBody.push({
+        if (actionData.choices.length > 0) {
+            adaptiveCardBody.push({
                 'type': 'ColumnSet',
                 'columns': [
                     {
@@ -62,10 +62,10 @@ class ChatMsteamsView extends ChatView {
                         'items': [
                             {
                                 'type': 'Input.ChoiceSet',
-                                'id': actionDataObj.id,
-                                'placeholder': actionDataObj.placeholder,
-                                'choices': actionDataObj.choices,
-                                'separator': actionDataObj.separator,
+                                'id': actionData.id,
+                                'placeholder': actionData.placeholder,
+                                'choices': actionData.choices,
+                                'separator': actionData.separator,
                                 'style': 'compact',
                                 'isMultiSelect': 'false',
                             },
@@ -80,14 +80,13 @@ class ChatMsteamsView extends ChatView {
                                 'actions': [
                                     {
                                         'type': 'Action.Submit',
-                                        'title': actionDataObj.title,
+                                        'title': actionData.title,
                                         'data': {
-                                            'controlId': actionDataObj.id,
-                                            'token': '',
-                                            'pluginId': actionDataObj.pluginId,
+                                            'pluginId': actionData.pluginId,
                                             'action': {
-                                                'id': actionDataObj.id,
+                                                'id': actionData.id,
                                                 'type': IActionType.DROPDOWN_SELECT,
+                                                'token': actionData.token,
                                             },
                                         },
                                     },
@@ -96,15 +95,15 @@ class ChatMsteamsView extends ChatView {
                         ],
                     },
                 ],
-                'separator': actionDataObj.separator,
+                'separator': actionData.separator,
             });
         }
 
         return;
     }
 
-    // Get adaptive card object
-    getAdaptiveCardObject(): Record<string, unknown> {
+    // Get empty adaptive card
+    createEmptyAdaptiveCard(): Record<string, unknown> {
         return {
             'type': 'AdaptiveCard',
             'fallbackText': '',

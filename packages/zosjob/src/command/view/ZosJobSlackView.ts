@@ -13,7 +13,6 @@ import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 import {Logger, IMessage, IMessageType, IExecutor, IBotOption, ChatSlackView} from '@zowe/chat';
 
 import * as i18nJsonData from '../../i18n/jobDisplay.json';
-import Util from '../../utils/Util';
 
 const logger = Logger.getInstance();
 
@@ -27,22 +26,36 @@ class ZosJobSlackView extends ChatSlackView {
     }
 
     // Get overview view.
-    getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>): IMessage[] {
+    getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>, packageName: string): IMessage[] {
         // Print start log
         logger.start(this.getOverview, this);
 
         let messages: IMessage[] = [];
         try {
-            const headerMessage = super.getHeaderMessage(jobs.length, executor, adjectives, 'job', '');
-            // No job found.
+            // Get header message
+            let headerMessage = '';
             if (jobs.length === 0) {
+                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: headerMessage,
                 }];
+            } else {
+                // TODO: Think about what message should be when  too many jobs are searched, if jobs.length > limit.
+                headerMessage = `@${executor.name}. I have found ${jobs.length} jobs that match the filter:`;
             }
 
-            const attachmentObject: Record<string, any> = super.getMessageAttachmentsObject(headerMessage, executor.channel.id);
+            const attachmentObject: Record<string, any> = {
+                'text': headerMessage,
+                'attachments': [
+                    {
+                        'color': '#f2c744',
+                        'blocks': [
+                        ],
+                    },
+                ],
+                'channel': executor.channel.id,
+            };
 
             const detailOptions = [];
             let job: Record<string, any>;
@@ -97,7 +110,7 @@ class ZosJobSlackView extends ChatSlackView {
                 );
 
                 // Create options for job details select menu
-                detailOptions.push(super.getSelectMenuOptionObject(`Details of ${job.jobname}(${job.jobid})`,
+                detailOptions.push(super.createSelectMenuOption(`Details of ${job.jobname}(${job.jobid})`,
                         `@${this.botOption.chatTool.option.botUserName}:zos:job:list:job:id=${job.jobid}`));
             }
 
@@ -106,7 +119,13 @@ class ZosJobSlackView extends ChatSlackView {
                 'type': 'actions',
                 'elements': <Record<string, unknown>[]>[],
             };
-            super.addSelectMenuActionElements(Util.getPackageName(), actionBlock, detailOptions, i18nJsonData.overview.dropDownPlaceholder);
+            const actionData = {
+                'pluginId': packageName,
+                'actionId': 'showJobDetails',
+                'token': '',
+                'placeHolder': i18nJsonData.overview.dropDownPlaceholder,
+            };
+            super.addSelectMenuAction(actionBlock, actionData, detailOptions);
 
             // Add action block object to message attachments.
             if (actionBlock.elements.length > 0) {
@@ -139,10 +158,31 @@ class ZosJobSlackView extends ChatSlackView {
         let messages: IMessage[] = [];
 
         try {
+            // Get header message
+            let headerMessage = '';
+            if (jobs.length === 0) {
+                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
+                return messages = [{
+                    type: IMessageType.PLAIN_TEXT,
+                    message: headerMessage,
+                }];
+            } else {
+                headerMessage = `@${executor.name}. Here is the the basic information of ${jobs[0].jobid}:`;
+            }
+
             // Get job
             const job: Record<string, any> = jobs[0];
-            const attachmentObject: Record<string, any> = super.getMessageAttachmentsObject(
-                    super.getHeaderMessage(jobs.length, executor, adjectives, 'job', jobs[0].jobid, true), executor.channel.id);
+            const attachmentObject: Record<string, any> = {
+                'text': headerMessage,
+                'attachments': [
+                    {
+                        'color': '#f2c744',
+                        'blocks': [
+                        ],
+                    },
+                ],
+                'channel': executor.channel.id,
+            };
 
             // Create fields array within section block.
             let jobSection = {

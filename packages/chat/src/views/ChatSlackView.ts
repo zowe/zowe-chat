@@ -15,46 +15,31 @@ class ChatSlackView extends ChatView {
         super();
     }
 
-    // Get select menu option object
-    getSelectMenuOptionObject(displayText: string, value: string): Record<string, unknown> {
+    // Create select menu option
+    createSelectMenuOption(text: string, value: string): Record<string, unknown> {
         return {
             'text': {
                 'type': 'plain_text',
-                'text': displayText,
+                'text': text,
             },
             'value': value,
         };
     }
 
     // Add select menu to the elements of action block
-    addSelectMenuActionElements(pluginId: string, actionBlock: Record<string, any>, selectMenuOptions: Record<string, unknown>[], placeHolder: string): void {
+    addSelectMenuAction(actionBlock: Record<string, any>, actionData: Record<string, any>, selectMenuOption: Record<string, unknown>[]): void {
         // Only add action object when length of choices is greater than 0, otherwise will failed to send view.
-        if (selectMenuOptions.length > 0) {
+        if (selectMenuOption.length > 0) {
             actionBlock.elements.push({
                 'type': 'static_select',
-                'action_id': `${pluginId}:dropdown.select:${placeHolder}`,
+                'action_id': `${actionData.pluginId}:${actionData.actionId}:${actionData.token}:user_data`,
                 'placeholder': {
                     'type': 'plain_text',
-                    'text': placeHolder,
+                    'text': actionData.placeHolder,
                 },
-                'options': selectMenuOptions,
+                'options': selectMenuOption,
             });
         }
-    }
-
-    // Get message attachments
-    getMessageAttachmentsObject(text: string, channelId: string): Record<string, unknown> {
-        return {
-            'text': text,
-            'attachments': [
-                {
-                    'color': '#f2c744',
-                    'blocks': [
-                    ],
-                },
-            ],
-            'channel': channelId,
-        };
     }
 }
 

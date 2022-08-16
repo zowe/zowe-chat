@@ -8,44 +8,29 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+import {IActionType} from '@zowe/commonbot';
 import ChatView = require('./ChatView');
-import Config from '../common/Config';
 
 class ChatMattermostView extends ChatView {
     constructor() {
         super();
     }
 
-    // Get message attachments
-    getMessageAttachments(pretext: string, fields: Record<string, any>[], actions: Record<string, any>): Record<string, unknown> {
-        return { // eslint-disable-line @typescript-eslint/no-explicit-any
-            props: {
-                attachments: [
-                    {
-                        pretext: pretext,
-                        fields: fields,
-                        actions: actions,
-                    },
-                ],
-            },
-        };
-    }
-
-
-    // Add message menu action to the payload of actions array.
-    addMessageMenuAction(pluginId: string, actionObj: Record<string, unknown>[], options: Record<string, unknown>[], name: string): void {
-        const botOption = Config.getInstance().getBotOption();
+    // Add message menu action to the payload of action array.
+    addMenuAction(actionObj: Record<string, unknown>[], name: string, url:string, contextData: Record<string, unknown>,
+            options: Record<string, unknown>[]): void {
         // Only add action object when length of options is greater than 0, otherwise will failed to send view.
         if (options.length > 0) {
             actionObj.push({
                 'name': name,
                 'integration': {
-                    'url': `${botOption.messagingApp.option.protocol}://${botOption.messagingApp.option.hostName}:${botOption.messagingApp.option.port}${botOption.messagingApp.option.basePath}`,
+                    'url': url,
                     'context': {
-                        'pluginId': pluginId,
+                        'pluginId': contextData.pluginId,
                         'action': {
-                            'token': '',
-                            'id': '',
+                            'id': contextData.id,
+                            'type': IActionType.DROPDOWN_SELECT,
+                            'token': contextData.token,
                         },
                     },
                 },

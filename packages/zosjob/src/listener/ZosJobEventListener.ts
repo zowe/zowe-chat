@@ -92,13 +92,12 @@ class ZosJobEventListener implements ChatEventListener {
         }
     }
 
+    // Process inbound Mattermost event.
     private async processMattermostEvent(chatContextData: IChatContextData, executor: IExecutor): Promise<IMessage[]> {
         // Print start log
         logger.start(this.processMattermostEvent, this);
 
-        // Process event
         let messages: IMessage[] = [];
-
         try {
             logger.debug(`payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
             logger.debug(`chatTool body: ${JSON.stringify(chatContextData.context.chatTool.body, null, 4)}`);
@@ -135,13 +134,12 @@ class ZosJobEventListener implements ChatEventListener {
         }
     }
 
+    // Process inbound Slack event.
     private async processSlackEvent(chatContextData: IChatContextData, executor: IExecutor): Promise<IMessage[]> {
         // Print start log
         logger.start(this.processSlackEvent, this);
 
-        // Process event
         let messages: IMessage[] = [];
-
         try {
             logger.debug(`payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
             logger.debug(`chat tool payload: ${JSON.stringify(chatContextData.context.chatTool.payload, null, 4)}`);
@@ -176,14 +174,12 @@ class ZosJobEventListener implements ChatEventListener {
             logger.end(this.processSlackEvent, this);
         }
     }
-
+    // Process inbound Msteams event.
     private async processMsteamsEvent(chatContextData: IChatContextData, executor: IExecutor): Promise<IMessage[]> {
         // Print start log
         logger.start(this.processMsteamsEvent, this);
 
-        // Process event
         let messages: IMessage[] = [];
-
         try {
             logger.debug(`payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
             logger.debug(`chatTool: ${JSON.stringify(chatContextData.context.chatTool, null, 4)}`);
@@ -191,8 +187,8 @@ class ZosJobEventListener implements ChatEventListener {
             const event: IEvent = <IEvent>chatContextData.payload.data;
             const botOption = chatContextData.context.chatting.bot.getOption();
             if (event.action.type === IActionType.DROPDOWN_SELECT) {
-                const controlId = chatContextData.context.chatTool.context.activity.value.controlId;
-                const selectedValue: string = chatContextData.context.chatTool.context.activity.value[controlId];
+                const actionId = chatContextData.context.chatTool.context.activity.value.action.id;
+                const selectedValue: string = chatContextData.context.chatTool.context.activity.value[actionId];
 
                 // Parse command
                 const command: ICommand = this.parseCommand(selectedValue);
@@ -221,7 +217,8 @@ class ZosJobEventListener implements ChatEventListener {
         }
     }
 
-    async processCommand(command: ICommand, executor: IExecutor, botOption: IBotOption) {
+    // Process command and return command response.
+    async processCommand(command: ICommand, executor: IExecutor, botOption: IBotOption): Promise<IMessage[]> {
         // Process event
         let messages: IMessage[] = [];
         try {
@@ -263,8 +260,8 @@ class ZosJobEventListener implements ChatEventListener {
         }
     }
 
-    // parse command
-    parseCommand(commandStr: string): ICommand {
+    // Parse command from interactive component event.
+    parseCommand(commandText: string): ICommand {
         const command: ICommand = {
             scope: '',
             resource: '',
@@ -273,14 +270,15 @@ class ZosJobEventListener implements ChatEventListener {
             adjectives: {},
         };
 
-        if (commandStr !== undefined && commandStr !== null && commandStr.trim() !== '') {
-            const objects = commandStr.trim().split(':');
+        if (commandText !== undefined && commandText !== null && commandText.trim() !== '') {
+            const objects = commandText.trim().split(':');
 
             command.scope = objects.length >= 2 ? objects[1] : '';
             command.resource = objects.length >= 3 ? objects[2] : '';
             command.verb = objects.length >= 4 ? objects[3] : '';
             command.object = objects.length >= 5 ? objects[4] : '';
 
+            // Process adjectives
             if (objects.length >= 6 && objects[5].trim().length > 0) {
                 const adjectives = objects[5].split('|');
                 for (const adjective of adjectives) {
