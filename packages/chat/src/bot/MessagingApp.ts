@@ -14,9 +14,12 @@ import * as fs from "fs";
 import helmet from 'helmet';
 import http from "http";
 import https from "https";
+import path from 'path';
 
 import { ServerOptions } from '../config/base/AppConfig';
 import { SecurityFacility } from '../security/SecurityFacility';
+import { ChatPrincipal } from '../security/user/ChatPrincipal';
+import { ChatUser } from '../security/user/ChatUser';
 import { Logger } from '../utils/Logger';
 
 export class MessagingApp {
@@ -27,32 +30,55 @@ export class MessagingApp {
     private readonly securityFacility: SecurityFacility;
     private server: https.Server | http.Server;
 
-    constructor(option: ServerOptions, log: Logger) {
+    constructor(option: ServerOptions, securityFac: SecurityFacility, log: Logger) {
         // Set app option
         this.option = option;
         this.log = log;
+        this.securityFacility = securityFac;
         // Create express app
         this.app = express();
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(helmet()); // Secure Express apps with various HTTP headers
+
+        const staticFiles = "../chat-react-ui/build/"
+
+        this.app.use(express.static(staticFiles));
         this.setRoutes()
+        const rootRoute = express.Router();
+        rootRoute.get('(/*)?', (req, res) => {
+            res.sendFile(path.resolve(staticFiles, "index.html"));
+        });
+        this.app.use(rootRoute)
+    }
+
+    private getUser(userId: number) {
+        return true
     }
 
     private setRoutes() {
-        this.app.get('/login/:sessionId', (req, res) => {
-            let session = req.params.sessionId;
-            if (session === undefined || session.trim().length == 0) {
-                res.status(400).send('Invalid Challenge URL. Request a new challenge from the Zowe ChaBot.')
-                return;
+        this.app.get('/api/v1/auth/user/:userId', this.getUser.bind(this));
+        this.app.post('/api/v1/auth/login', (req, res) => {
+            this.log.info(JSON.stringify(req.body))
+
+            /*
+                        if (session === undefined || session.trim().length == 0) {
+                            res.status(400).send('Invalid Challenge URL. Request a new challenge from the Zowe ChaBot.')
+                            return;
+                        }
+            */
+            // add defensive block
+            let user = req.body.user;
+            let pass = req.body.pass;
+
+            //   let sessionObj = JSON.parse(Buffer.from(session, 'base64').toString('ascii'));
+
+            let authN = this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser("testuser", user), pass))
+            if (authN) {
+                res.status(200).send('OK')
+            } else {
+                res.status(401).send('Unauthorized')
             }
-
-            let sessionObj = JSON.parse(Buffer.from(session, 'base64').toString('ascii'));
-
-            this.securityFacility.authenticateUser()
-
-
-
         })
     }
 

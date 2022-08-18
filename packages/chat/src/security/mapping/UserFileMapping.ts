@@ -14,7 +14,8 @@ export class UserFileMapping implements IUserMapping {
     private readonly encryptKey: Buffer;
     private readonly log: Logger;
     private readonly mappingFile: string;
-    private userMap: Map<string, string>;
+    // TODO: Convert to Map<string, string>? Set function wasn't working.
+    private readonly userMap: any;
 
 
     constructor(mappingFile: string, encryptionKey: Buffer, encryptionIv: Buffer, logger: Logger) {
@@ -31,33 +32,39 @@ export class UserFileMapping implements IUserMapping {
         }
         let encryptedText = Buffer.from(fs.readFileSync(this.mappingFile).toString(), 'hex');
         let decipher = crypto.createDecipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
+        this.userMap = {}
         if (encryptedText == undefined || encryptedText.length == 0) {
-            this.userMap = new Map<string, string>()
             this.writeMappingFile()
         } else {
-            this.userMap = JSON.parse(Buffer.concat([decipher.update(encryptedText), decipher.final()]).toString())
+            const jsonFormat: Object = JSON.parse(Buffer.concat([decipher.update(encryptedText), decipher.final()]).toString())
+            for (let [key, value] of Object.entries(jsonFormat)) {
+                this.userMap[key] = value
+            }
         }
         this.log.info("User mapping service initialized");
-        this.log.info(`Map content: ${this.userMap}`);
+        this.log.debug(`Map content: ${JSON.stringify(this.userMap)}`);
     }
 
     public userExists(distUser: string): boolean {
-        return this.userMap.has(distUser);
+        return Object.keys(this.userMap).includes(distUser);
     }
 
     public getUser(distUser: string): string | undefined {
-        return this.userMap.get(distUser);
+        return this.userMap[distUser];
     }
 
     public mapUser(distUser: string, mfUser: string): boolean {
-        this.userMap.set(distUser, mfUser);
+        console.log(`Mapping ${distUser} to ${mfUser}`)
+        let output = this.userMap[distUser] = mfUser;
+        console.log(JSON.stringify(output))
         this.writeMappingFile();
         return true
     }
 
     private writeMappingFile(): void {
+        console.log("Writing " + JSON.stringify(this.userMap))
         let cipher = crypto.createCipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
         let encryptedOut = Buffer.concat([cipher.update(JSON.stringify(this.userMap)), cipher.final()])
-        fs.writeFileSync(this.mappingFile, encryptedOut.toString('hex'));
+        fs.writeFileSync(this.mappingFile, encryptedOut.toString('hex'), { flag: 'w' });
     }
 }

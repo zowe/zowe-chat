@@ -68,7 +68,8 @@ export class SecurityFacility {
 
     public authenticateUser(prinicpal: ChatPrincipal): boolean {
         // TODO: Write authentiction logic
-        if (true /*authenticated==true*/) {
+
+        if (prinicpal.getUser().getMainframeUser() == "abc" /*authenticated==true*/) {
             return this.userMap.mapUser(prinicpal.getUser().getDistributedUser(), prinicpal.getUser().getMainframeUser());
         } else {
             return false;

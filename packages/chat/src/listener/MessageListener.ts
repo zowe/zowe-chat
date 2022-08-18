@@ -122,12 +122,11 @@ export class MessageListener {
         this.log.start(this.processMessage, this);
 
         if (!this.securityFacility.isAuthenticated(chatContextData)) {
-            this.webApp.issueChallenge(chatContextData);
-            await chatContextData.context.chatting.bot.send("You are not authenticated. Please authenticate first and try again!");
+            /*  this.webApp.issueChallenge(chatContextData);
+              await chatContextData.context.chatting.bot.send("You are not authenticated. Please authenticate first and try again!");*/
             return;
         }
 
-        chatContextData.context.chatting.
 
         try {
             // Get matched listener and contexts
@@ -141,7 +140,6 @@ export class MessageListener {
                 pluginLimit = matchedListeners.length;
             }
             this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched message!`);
-
             // Process matched messages
             for (let i = 0; i < pluginLimit; i++) {
                 // Process message

@@ -46,7 +46,13 @@ export class ChatBot {
 
         try {
             this.log.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
-            this.app = new MessagingApp(this.appConfig.app.server, this.log);
+
+            let blockConfigList = [SecurityConfigSchema]
+            this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
+            this.security = new SecurityFacility(this.configManager, log)
+            this.log.info("Admin configuration and security facility initialized")
+
+            this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
             let cBotOpts: IBotOption = this.generateBotOpts(this.app);
             this.log.info("Creating CommonBot ...");
             // TODO: Fix casting, circular dependency between config and commonbot
@@ -56,7 +62,6 @@ export class ChatBot {
             this.loadPlugins();
             this.log.info("Plugins initialized")
 
-            let blockConfigList = [SecurityConfigSchema]
 
             for (let plugin of this.plugins) {
                 // TODO: Build plugin configuration interface
@@ -66,9 +71,7 @@ export class ChatBot {
                   *    }
                   */
             }
-            this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
-            this.security = new SecurityFacility(this.configManager, log)
-            this.log.info("Admin configuration and security initialized")
+
 
             this.messageListener = new MessageListener(this.appConfig, this.security, log);
             this.eventListener = new EventListener(this.appConfig, log);
