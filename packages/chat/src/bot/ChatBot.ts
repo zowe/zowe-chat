@@ -8,21 +8,16 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import { CommonBot, IBotOption, IChatToolType, IMattermostOption, ISlackOption } from '@zowe/commonbot';
-import * as fs from "fs-extra";
-import * as yaml from "js-yaml";
-import path from 'path';
-import { AppConfigLoader } from '../config/AppConfigLoader';
+import { CommonBot, IBotOption } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
-import EventListener from '../listener/EventListener';
-import { MessageListener } from '../listener/MessageListener';
+import { BotEventListener } from '../listeners/BotEventListener';
+import { BotMessageListener } from '../listeners/BotMessageListener';
 import { SecurityConfigSchema } from '../security/config/SecurityConfigSchema';
 import { SecurityFacility } from '../security/SecurityFacility';
-import { IChatListenerType, IChatPlugin } from '../types';
+import { IChatPlugin } from '../types';
 import { Logger } from '../utils/Logger';
 import { MessagingApp } from './MessagingApp';
-
 
 export class ChatBot {
 
@@ -35,8 +30,9 @@ export class ChatBot {
     private readonly pluginHome = '/usr/lpp/zowe/zowechat';
     private readonly bot: CommonBot;
     private readonly plugins: IChatPlugin[] = [];
-    private messageListener: MessageListener;
-    private eventListener: EventListener;
+    private botMessageListener: BotMessageListener;
+    private botEventListener: BotEventListener;
+
 
     // TODO: Can we cleanup or clarify the initialization logic? For some steps, ordering is required but not explicit enough?
     private constructor(chatConfig: AppConfig, log: Logger) {
@@ -54,6 +50,8 @@ export class ChatBot {
 
             this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
             let cBotOpts: IBotOption = this.generateBotOpts(this.app);
+                        this.botMessageListener = new BotMessageListener();
+            this.botEventListener = new BotEventListener();
             this.log.info("Creating CommonBot ...");
             // TODO: Fix casting, circular dependency between config and commonbot
             this.bot = new CommonBot(cBotOpts);
@@ -73,8 +71,8 @@ export class ChatBot {
             }
 
 
-            this.messageListener = new MessageListener(this.appConfig, this.security, log);
-            this.eventListener = new EventListener(this.appConfig, log);
+            this.botMessageListener = new BotMessageListener(this.appConfig, this.security, log);
+            this.botEventListener = new BotEventListener(this.appConfig, log);
         } catch (error) {
             console.log(error)
             this.log.error(`Failed to create chat bot!`);
@@ -101,13 +99,21 @@ export class ChatBot {
             }
 
             // Register listeners
-            this.log.info('Register message listeners ...');
-            this.bot.listen(this.messageListener.matchMessage, this.messageListener.processMessage);
+            logger.info('Register message listeners ...');
+            this.bot.listen(this.botMessageListener.matchMessage, this.botMessageListener.processMessage);
 
 
             // Register routers
             this.log.info('Register event routers ...');
             this.bot.route(this.bot.getOption().messagingApp.option.basePath, this.eventListener.processEvent);
+=======
+            logger.info('Register message listeners ...');
+            this.bot.listen(this.botMessageListener.matchMessage, this.botMessageListener.processMessage);
+
+
+            // Register routers
+            logger.info('Register event routers ...');
+            this.bot.route(this.botOption.messagingApp.option.basePath, this.botEventListener.processEvent);
 
             // // Load translation resource
             // logger.info('Load translations ...');
@@ -175,20 +181,19 @@ export class ChatBot {
                     for (const listenerName of plugin.listeners) {
                         // Create listener
                         if (listenerName.endsWith('MessageListener')) {
-                            this.messageListener.registerChatListener({
+                            this.botMessageListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.MESSAGE,
                                 'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
                                 'chatPlugin': plugin,
                             });
                         } else if (listenerName.endsWith('EventListener')) {
-                            this.eventListener.registerChatListener({
+                            this.botEventListener.registerChatListener({
                                 'listenerName': listenerName,
                                 'listenerType': IChatListenerType.EVENT,
                                 'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
                                 'chatPlugin': plugin,
                             });
-                            // this.bot.listen(listener.matchEvent.bind(listener.this), listener.processEvent.bind(listener.this));
                         } else {
                             this.log.error(`The listener "${listenerName}" is not supported!`);
                         }

@@ -18,7 +18,7 @@ import { SecurityFacility } from '../security/SecurityFacility';
 import { Logger } from '../utils/Logger';
 import Util from '../utils/Util';
 
-export class MessageListener {
+export class BotMessageListener {
 
     private chatListeners: IChatListenerRegistryEntry[];
     private readonly botName;

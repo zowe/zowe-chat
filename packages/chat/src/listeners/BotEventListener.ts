@@ -17,7 +17,7 @@ import { AppConfig } from '../config/base/AppConfig';
 import { Logger } from '../utils/Logger';
 import Util from '../utils/Util';
 
-class EventListener {
+export class BotEventListener {
     private chatListeners: IChatListenerRegistryEntry[];
     private log: Logger;
     private config: AppConfig
@@ -153,5 +153,3 @@ class EventListener {
         }
     }
 }
-
-export = EventListener;

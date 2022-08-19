@@ -11,7 +11,15 @@
 import { ChatBot } from "./bot/ChatBot";
 import { AppConfigLoader } from "./config/AppConfigLoader";
 import { Logger } from "./utils/Logger";
-
+/* TODO: Resolve these in broader merge operation
+export import Config = require('./common/Config');
+export import ChatEventListener = require('./listeners/ChatEventListener');
+export import ChatMessageListener = require('./listeners/ChatMessageListener');
+export import ChatView = require('./views/ChatView');
+export import ChatMattermostView = require('./views/ChatMattermostView');
+export import ChatSlackView = require('./views/ChatSlackView');
+export import ChatMsteamsView = require('./views/ChatMsteamsView');
+*/
 // App config must be loaded without error.
 AppConfigLoader.loadAppConfig()
 // Logger must be initialized for future class initialization. Uses AppConfig.
