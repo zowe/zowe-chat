@@ -8,11 +8,113 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+import {IActionType} from '@zowe/commonbot';
 import ChatView = require('./ChatView');
 
 class ChatMsteamsView extends ChatView {
     constructor() {
         super();
+    }
+
+
+    // Create column set object for text block only
+    createColumnSet(column1Text: string, column2Text: string, separator: boolean = true): Record<string, unknown> {
+        return {
+            'type': 'ColumnSet',
+            'columns': [
+                {
+                    'type': 'Column',
+                    'width': 'stretch',
+                    'items': [
+                        {
+                            'type': 'TextBlock',
+                            'text': column1Text,
+                            'wrap': true,
+                        },
+                    ],
+                },
+                {
+                    'type': 'Column',
+                    'width': 'stretch',
+                    'items': [
+                        {
+                            'type': 'TextBlock',
+                            'text': column2Text,
+                            'wrap': true,
+                        },
+                    ],
+                },
+            ],
+            'separator': separator,
+        };
+    }
+
+    // Add column set for dropdown action
+    addDropdownAction(adaptiveCardBody: Record<string, unknown>[], actionData: Record<string, any>): void {
+        // Only add action object when length of choices is greater than 0, otherwise will failed to send view.
+        if (actionData.choices.length > 0) {
+            adaptiveCardBody.push({
+                'type': 'ColumnSet',
+                'columns': [
+                    {
+                        'type': 'Column',
+                        'width': 'stretch',
+                        'items': [
+                            {
+                                'type': 'Input.ChoiceSet',
+                                'id': actionData.id,
+                                'placeholder': actionData.placeholder,
+                                'choices': actionData.choices,
+                                'separator': actionData.separator,
+                                'style': 'compact',
+                                'isMultiSelect': 'false',
+                            },
+                        ],
+                    },
+                    {
+                        'type': 'Column',
+                        'width': '160px',
+                        'items': [
+                            {
+                                'type': 'ActionSet',
+                                'actions': [
+                                    {
+                                        'type': 'Action.Submit',
+                                        'title': actionData.title,
+                                        'data': {
+                                            'pluginId': actionData.pluginId,
+                                            'action': {
+                                                'id': actionData.id,
+                                                'type': IActionType.DROPDOWN_SELECT,
+                                                'token': actionData.token,
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                'separator': actionData.separator,
+            });
+        }
+
+        return;
+    }
+
+    // Get empty adaptive card
+    createEmptyAdaptiveCard(): Record<string, unknown> {
+        return {
+            'type': 'AdaptiveCard',
+            'fallbackText': '',
+            'msteams': {
+                'width': 'Full',
+            },
+            'body': [],
+            'actions': [],
+            '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+            'version': '1.4',
+        };
     }
 }
 

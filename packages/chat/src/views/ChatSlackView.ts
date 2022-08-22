@@ -14,6 +14,33 @@ class ChatSlackView extends ChatView {
     constructor() {
         super();
     }
+
+    // Create select menu option
+    createSelectMenuOption(text: string, value: string): Record<string, unknown> {
+        return {
+            'text': {
+                'type': 'plain_text',
+                'text': text,
+            },
+            'value': value,
+        };
+    }
+
+    // Add select menu to the elements of action block
+    addSelectMenuAction(actionBlock: Record<string, any>, actionData: Record<string, any>, selectMenuOption: Record<string, unknown>[]): void {
+        // Only add action object when length of choices is greater than 0, otherwise will failed to send view.
+        if (selectMenuOption.length > 0) {
+            actionBlock.elements.push({
+                'type': 'static_select',
+                'action_id': `${actionData.pluginId}:${actionData.actionId}:${actionData.token}:user_data`,
+                'placeholder': {
+                    'type': 'plain_text',
+                    'text': actionData.placeHolder,
+                },
+                'options': selectMenuOption,
+            });
+        }
+    }
 }
 
 export = ChatSlackView;
