@@ -8,7 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IActionType} from '@zowe/commonbot';
+import {IActionType} from '../types';
 import ChatView = require('./ChatView');
 
 class ChatMattermostView extends ChatView {
