@@ -9,7 +9,10 @@
             "version": "1.0.0",
             "license": "EPL-2.0",
             "workspaces": [
-                "packages/*"
+                "packages/commonbot",
+                "packages/chat",
+                "packages/zosjob",
+                "packages/clicommand"
             ],
             "devDependencies": {
                 "@typescript-eslint/eslint-plugin": ">=5.10.1",
@@ -706,6 +709,10 @@
         },
         "node_modules/@zowe/chat": {
             "resolved": "packages/chat",
+            "link": true
+        },
+        "node_modules/@zowe/clicommand": {
+            "resolved": "packages/clicommand",
             "link": true
         },
         "node_modules/@zowe/commonbot": {
@@ -10344,23 +10351,21 @@
         "packages/chat": {
             "name": "@zowe/chat",
             "version": "1.0.0",
-            "bundleDependencies": [
-                "@zowe/commonbot"
-            ],
             "license": "EPL-2.0",
             "dependencies": {
-                "@zowe/commonbot": "*",
                 "express": "4.18.1",
                 "helmet": "^5.0.2",
                 "js-yaml": "^4.1.0",
                 "lodash": "^4.17.21",
-                "winston": "^3.7.2"
+                "winston": "^3.7.2",
+                "yargs": "^17.5.1"
             },
             "devDependencies": {
                 "@types/express": ">=4.17.13",
                 "@types/js-yaml": "^4.0.5",
                 "@types/lodash": "^4.14.182",
                 "@types/node": ">=17.0.31",
+                "@types/yargs": "^17.0.11",
                 "@typescript-eslint/eslint-plugin": ">=5.23.0",
                 "@typescript-eslint/parser": ">=5.23.0",
                 "eslint": ">=8.15.0",
@@ -10372,7 +10377,127 @@
                 "node": ">=16.13.2"
             }
         },
+        "packages/chat/node_modules/cliui": {
+            "version": "7.0.4",
+            "resolved": "https://registry.npmjs.org/cliui/-/cliui-7.0.4.tgz",
+            "integrity": "sha512-OcRE68cOsVMXp1Yvonl/fzkQOyjLSu/8bhPDfQt0e0/Eb283TKP20Fs2MqoPsr9SwA595rRCA+QMzYc9nBP+JQ==",
+            "dependencies": {
+                "string-width": "^4.2.0",
+                "strip-ansi": "^6.0.0",
+                "wrap-ansi": "^7.0.0"
+            }
+        },
+        "packages/chat/node_modules/get-caller-file": {
+            "version": "2.0.5",
+            "resolved": "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz",
+            "integrity": "sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==",
+            "engines": {
+                "node": "6.* || 8.* || >= 10.*"
+            }
+        },
+        "packages/chat/node_modules/is-fullwidth-code-point": {
+            "version": "3.0.0",
+            "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz",
+            "integrity": "sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==",
+            "engines": {
+                "node": ">=8"
+            }
+        },
+        "packages/chat/node_modules/string-width": {
+            "version": "4.2.3",
+            "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+            "integrity": "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==",
+            "dependencies": {
+                "emoji-regex": "^8.0.0",
+                "is-fullwidth-code-point": "^3.0.0",
+                "strip-ansi": "^6.0.1"
+            },
+            "engines": {
+                "node": ">=8"
+            }
+        },
         "packages/chat/node_modules/typescript": {
+            "version": "4.7.4",
+            "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.7.4.tgz",
+            "integrity": "sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==",
+            "dev": true,
+            "bin": {
+                "tsc": "bin/tsc",
+                "tsserver": "bin/tsserver"
+            },
+            "engines": {
+                "node": ">=4.2.0"
+            }
+        },
+        "packages/chat/node_modules/wrap-ansi": {
+            "version": "7.0.0",
+            "resolved": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-7.0.0.tgz",
+            "integrity": "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==",
+            "dependencies": {
+                "ansi-styles": "^4.0.0",
+                "string-width": "^4.1.0",
+                "strip-ansi": "^6.0.0"
+            },
+            "engines": {
+                "node": ">=10"
+            },
+            "funding": {
+                "url": "https://github.com/chalk/wrap-ansi?sponsor=1"
+            }
+        },
+        "packages/chat/node_modules/y18n": {
+            "version": "5.0.8",
+            "resolved": "https://registry.npmjs.org/y18n/-/y18n-5.0.8.tgz",
+            "integrity": "sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==",
+            "engines": {
+                "node": ">=10"
+            }
+        },
+        "packages/chat/node_modules/yargs": {
+            "version": "17.5.1",
+            "resolved": "https://registry.npmjs.org/yargs/-/yargs-17.5.1.tgz",
+            "integrity": "sha512-t6YAJcxDkNX7NFYiVtKvWUz8l+PaKTLiL63mJYWR2GnHq2gjEWISzsLp9wg3aY36dY1j+gfIEL3pIF+XlJJfbA==",
+            "dependencies": {
+                "cliui": "^7.0.2",
+                "escalade": "^3.1.1",
+                "get-caller-file": "^2.0.5",
+                "require-directory": "^2.1.1",
+                "string-width": "^4.2.3",
+                "y18n": "^5.0.5",
+                "yargs-parser": "^21.0.0"
+            },
+            "engines": {
+                "node": ">=12"
+            }
+        },
+        "packages/chat/node_modules/yargs-parser": {
+            "version": "21.1.1",
+            "resolved": "https://registry.npmjs.org/yargs-parser/-/yargs-parser-21.1.1.tgz",
+            "integrity": "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==",
+            "engines": {
+                "node": ">=12"
+            }
+        },
+        "packages/clicommand": {
+            "version": "0.0.1",
+            "license": "EPL-2.0",
+            "devDependencies": {
+                "@types/node": ">=17.0.31",
+                "@typescript-eslint/eslint-plugin": ">=5.23.0",
+                "@typescript-eslint/parser": ">=5.23.0",
+                "eslint": ">=8.15.0",
+                "eslint-config-google": ">=0.14.0",
+                "ts-node": ">=10.7.0",
+                "typescript": ">=4.6.4"
+            },
+            "engines": {
+                "node": ">=16.13.2"
+            },
+            "peerDependencies": {
+                "@zowe/chat": "*"
+            }
+        },
+        "packages/clicommand/node_modules/typescript": {
             "version": "4.7.4",
             "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.7.4.tgz",
             "integrity": "sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==",
@@ -12961,9 +13086,9 @@
                 "@types/js-yaml": "^4.0.5",
                 "@types/lodash": "^4.14.182",
                 "@types/node": ">=17.0.31",
+                "@types/yargs": "^17.0.11",
                 "@typescript-eslint/eslint-plugin": ">=5.23.0",
                 "@typescript-eslint/parser": ">=5.23.0",
-                "@zowe/commonbot": "*",
                 "eslint": ">=8.15.0",
                 "eslint-config-google": ">=0.14.0",
                 "express": "4.18.1",
@@ -12972,7 +13097,92 @@
                 "lodash": "^4.17.21",
                 "ts-node": ">=10.7.0",
                 "typescript": ">=4.6.4",
-                "winston": "^3.7.2"
+                "winston": "^3.7.2",
+                "yargs": "^17.5.1"
+            },
+            "dependencies": {
+                "cliui": {
+                    "version": "7.0.4",
+                    "resolved": "https://registry.npmjs.org/cliui/-/cliui-7.0.4.tgz",
+                    "integrity": "sha512-OcRE68cOsVMXp1Yvonl/fzkQOyjLSu/8bhPDfQt0e0/Eb283TKP20Fs2MqoPsr9SwA595rRCA+QMzYc9nBP+JQ==",
+                    "requires": {
+                        "string-width": "^4.2.0",
+                        "strip-ansi": "^6.0.0",
+                        "wrap-ansi": "^7.0.0"
+                    }
+                },
+                "get-caller-file": {
+                    "version": "2.0.5",
+                    "resolved": "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz",
+                    "integrity": "sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg=="
+                },
+                "is-fullwidth-code-point": {
+                    "version": "3.0.0",
+                    "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz",
+                    "integrity": "sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg=="
+                },
+                "string-width": {
+                    "version": "4.2.3",
+                    "resolved": "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz",
+                    "integrity": "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==",
+                    "requires": {
+                        "emoji-regex": "^8.0.0",
+                        "is-fullwidth-code-point": "^3.0.0",
+                        "strip-ansi": "^6.0.1"
+                    }
+                },
+                "typescript": {
+                    "version": "4.7.4",
+                    "resolved": "https://registry.npmjs.org/typescript/-/typescript-4.7.4.tgz",
+                    "integrity": "sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==",
+                    "dev": true
+                },
+                "wrap-ansi": {
+                    "version": "7.0.0",
+                    "resolved": "https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-7.0.0.tgz",
+                    "integrity": "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==",
+                    "requires": {
+                        "ansi-styles": "^4.0.0",
+                        "string-width": "^4.1.0",
+                        "strip-ansi": "^6.0.0"
+                    }
+                },
+                "y18n": {
+                    "version": "5.0.8",
+                    "resolved": "https://registry.npmjs.org/y18n/-/y18n-5.0.8.tgz",
+                    "integrity": "sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA=="
+                },
+                "yargs": {
+                    "version": "17.5.1",
+                    "resolved": "https://registry.npmjs.org/yargs/-/yargs-17.5.1.tgz",
+                    "integrity": "sha512-t6YAJcxDkNX7NFYiVtKvWUz8l+PaKTLiL63mJYWR2GnHq2gjEWISzsLp9wg3aY36dY1j+gfIEL3pIF+XlJJfbA==",
+                    "requires": {
+                        "cliui": "^7.0.2",
+                        "escalade": "^3.1.1",
+                        "get-caller-file": "^2.0.5",
+                        "require-directory": "^2.1.1",
+                        "string-width": "^4.2.3",
+                        "y18n": "^5.0.5",
+                        "yargs-parser": "^21.0.0"
+                    }
+                },
+                "yargs-parser": {
+                    "version": "21.1.1",
+                    "resolved": "https://registry.npmjs.org/yargs-parser/-/yargs-parser-21.1.1.tgz",
+                    "integrity": "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="
+                }
+            }
+        },
+        "@zowe/clicommand": {
+            "version": "file:packages/clicommand",
+            "requires": {
+                "@types/node": ">=17.0.31",
+                "@typescript-eslint/eslint-plugin": ">=5.23.0",
+                "@typescript-eslint/parser": ">=5.23.0",
+                "eslint": ">=8.15.0",
+                "eslint-config-google": ">=0.14.0",
+                "ts-node": ">=10.7.0",
+                "typescript": ">=4.6.4"
             },
             "dependencies": {
                 "typescript": {

@@ -8,21 +8,24 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IChatContextData, IChatListenerRegistryEntry, IMessageListener} from '../types';
+import {IChatContextData, IChatListenerRegistryEntry, IMessageListener, IPayloadType} from '../types';
 
 import _ = require('lodash');
 
-import Logger from '../utils/Logger';
-import Config from '../common/Config';
-import Util from '../utils/Util';
+import BotListener = require('./BotListener');
+import Logger = require('../utils/Logger');
+import Config = require('../common/Config');
+import Util = require('../utils/Util');
 
 const logger = Logger.getInstance();
 const config = Config.getInstance();
 
-class BotMessageListener {
+class BotMessageListener extends BotListener {
     private chatListeners: IChatListenerRegistryEntry[];
 
     constructor() {
+        super();
+
         this.chatListeners = [];
 
         this.matchMessage = this.matchMessage.bind(this);
@@ -56,31 +59,51 @@ class BotMessageListener {
         logger.start(this.matchMessage, this);
 
         try {
-            // Initialize extra data
-            chatContextData.extraData = {
-                listeners: <IChatListenerRegistryEntry[]>[],
-                contexts: <IChatContextData[]>[],
-            };
+            // Initialize listener and context pool
+            const listeners: IChatListenerRegistryEntry[] = [];
+            const contexts: IChatContextData[] = [];
 
             // Match the bot name
             const botOption = chatContextData.context.chatting.bot.getOption();
             if ((<string>chatContextData.payload.data).indexOf(`@${botOption.chatTool.option.botUserName}`) === -1) {
                 logger.info(`The message is not for @${botOption.chatTool.option.botUserName}!`);
             } else {
-                // Find matched listeners
-                for (const listener of this.chatListeners) {
-                    const contextData: IChatContextData = _.cloneDeep(chatContextData);
-                    if ((<IMessageListener>listener.listenerInstance).matchMessage(contextData)) {
-                        chatContextData.extraData.listeners.push(listener);
-                        chatContextData.extraData.contexts.push(contextData);
+                if (chatContextData.payload.type === IPayloadType.MESSAGE) {
+                    // Find matched listeners
+                    for (const listener of this.chatListeners) {
+                        const contextData: IChatContextData = _.cloneDeep(chatContextData);
+                        if (contextData.extraData === undefined || contextData.extraData === null) {
+                            contextData.extraData = {
+                                'chatPlugin': listener.chatPlugin,
+                            };
+                        } else {
+                            contextData.extraData.chatPlugin = listener.chatPlugin;
+                        }
+                        if ((<IMessageListener>listener.listenerInstance).matchMessage(contextData)) {
+                            listeners.push(listener);
+                            contexts.push(contextData);
+                        }
                     }
+                } else {
+                    logger.error(`Wrong payload type: ${chatContextData.payload.type}`);
+                }
+
+                // Set listener and context pool
+                if (chatContextData.extraData === undefined || chatContextData.extraData === null) {
+                    chatContextData.extraData = {
+                        'listeners': listeners,
+                        'contexts': contexts,
+                    };
+                } else {
+                    chatContextData.extraData.listeners = listeners;
+                    chatContextData.extraData.contexts = contexts;
                 }
                 logger.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the message!`);
                 logger.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
             }
 
             // Set return result
-            if (chatContextData.extraData.listeners.length > 0) {
+            if (listeners.length > 0) {
                 return true;
             } else {
                 return false;

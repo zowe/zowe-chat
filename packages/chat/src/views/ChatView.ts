@@ -8,7 +8,21 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+import {IBotOption} from '../types';
+
 class ChatView {
+    protected botOption: IBotOption = null;
+    protected messagingEndpointUrl: string = '';
+
+    constructor(botOption: IBotOption) {
+        this.botOption = botOption;
+
+        // Set messaging endpoint
+        if (botOption.messagingApp !== null && botOption.messagingApp !== undefined) {
+            this.messagingEndpointUrl = `${this.botOption.messagingApp.option.protocol}://${this.botOption.messagingApp.option.hostName}`
+                + `:${this.botOption.messagingApp.option.port}${this.botOption.messagingApp.option.basePath}`;
+        }
+    }
 }
 
 export = ChatView;

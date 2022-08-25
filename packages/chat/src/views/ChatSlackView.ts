@@ -8,11 +8,16 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+import {IBotOption, ISlackBotLimit} from '../types';
 import ChatView = require('./ChatView');
 
 class ChatSlackView extends ChatView {
-    constructor() {
-        super();
+    protected botLimit: ISlackBotLimit;
+
+    constructor(botOption: IBotOption, botLimit?: ISlackBotLimit) {
+        super(botOption);
+
+        this.botLimit = botLimit;
     }
 
     // Create select menu option
@@ -27,6 +32,7 @@ class ChatSlackView extends ChatView {
     }
 
     // Add select menu to the elements of action block
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     addSelectMenuAction(actionBlock: Record<string, any>, actionData: Record<string, any>, selectMenuOption: Record<string, unknown>[]): void {
         // Only add action object when length of choices is greater than 0, otherwise will failed to send view.
         if (selectMenuOption.length > 0) {
