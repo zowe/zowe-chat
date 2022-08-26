@@ -14,7 +14,7 @@ import ChatView = require('./ChatView');
 class ChatSlackView extends ChatView {
     protected botLimit: ISlackBotLimit;
 
-    constructor(botOption: IBotOption, botLimit?: ISlackBotLimit) {
+    constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
         super(botOption);
 
         this.botLimit = botLimit;

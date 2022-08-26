@@ -14,7 +14,7 @@ class ChatHandler {
     protected botOption: IBotOption = null;
     protected botLimit: IBotLimit = null;
 
-    constructor(botOption: IBotOption, botLimit?: IBotLimit) {
+    constructor(botOption: IBotOption, botLimit: IBotLimit) {
         this.botOption = botOption;
         this.botLimit = botLimit;
     }

@@ -14,7 +14,7 @@ import ChatView = require('./ChatView');
 class ChatMsteamsView extends ChatView {
     protected botLimit: IMsteamsBotLimit;
 
-    constructor(botOption: IBotOption, botLimit?: IMsteamsBotLimit) {
+    constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
         super(botOption);
 
         this.botLimit = botLimit;
