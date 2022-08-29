@@ -25,7 +25,7 @@ class ZosJobSlackView extends ChatSlackView {
     }
 
     // Get overview view.
-    getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>, packageName: string): IMessage[] {
+    getOverview(jobs: IJob[], executor: IExecutor, options: Record<string, string>, packageName: string): IMessage[] {
         // Print start log
         logger.start(this.getOverview, this);
 

@@ -31,11 +31,11 @@ class ZosJobHandler extends ChatHandler {
 
         this.getJob = this.getJob.bind(this);
 
-        if (config.getBotOption().chatTool.type === IChatToolType.SLACK) {
+        if (botOption.chatTool.type === IChatToolType.SLACK) {
             this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit, pluginId);
-        } else if (config.getBotOption().chatTool.type === IChatToolType.MATTERMOST) {
+        } else if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
             this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit, pluginId);
-        } else if (config.getBotOption().chatTool.type === IChatToolType.MSTEAMS) {
+        } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
             this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit, pluginId);
         }
     }
@@ -47,41 +47,41 @@ class ZosJobHandler extends ChatHandler {
 
         let messages: IMessage[] = [];
         try {
-            const adjectives = command.adjective.option;
+            const options = command.adjective.option;
 
-            // Get adjective job id -- Optional
+            // Get option job id -- Optional
             let id: string = null;
-            if (adjectives['id'] !== undefined) {
-                id = adjectives['id'];
+            if (options['id'] !== undefined) {
+                id = options['id'];
             }
             logger.debug(`id: ${id}`);
 
-            // Get adjective owner -- Optional
+            // Get option owner -- Optional
             let owner: string = null;
-            if (adjectives['owner'] !== undefined) {
-                owner = adjectives['owner'];
-            } else if (adjectives['o'] !== undefined) {
-                owner = adjectives['o'];
+            if (options['owner'] !== undefined) {
+                owner = options['owner'];
+            } else if (options['o'] !== undefined) {
+                owner = options['o'];
             }
             logger.debug(`owner: ${owner}`);
 
 
-            // Get adjective prefix -- Optional
+            // Get option prefix -- Optional
             // By default * is used as prefix.
             let prefix: string = '*';
-            if (adjectives['prefix'] !== undefined) {
-                prefix = adjectives['prefix'];
-            } else if (adjectives['p'] !== undefined) {
-                prefix = adjectives['p'];
+            if (options['prefix'] !== undefined) {
+                prefix = options['prefix'];
+            } else if (options['p'] !== undefined) {
+                prefix = options['p'];
             }
             logger.debug(`prefix: ${prefix}`);
 
-            // Get adjective limit -- Optional
+            // Get option limit -- Optional
             let limit: string = null;
-            if (adjectives['limit'] !== undefined) {
-                limit = adjectives['limit'];
+            if (options['limit'] !== undefined) {
+                limit = options['limit'];
             } else {
-                limit = String(Config.getInstance().getConfig().chatServer.recordLimit);
+                limit = String(config.getConfig().chatServer.recordLimit);
             }
             logger.debug(`limit: ${limit}`);
 
@@ -95,7 +95,7 @@ class ZosJobHandler extends ChatHandler {
             }
 
             // Add record limit from Zowe Chat configuration to adjectives, then adjectives[limit] can be reached when generating header message.
-            adjectives['limit'] = limit;
+            options['limit'] = limit;
 
             // TODO: Will integrate with Authentication functionality later.
             /* let hostName: string = null;
@@ -172,7 +172,7 @@ class ZosJobHandler extends ChatHandler {
             if (id !== null && jobs.length === 1) { // if id is specified, show detail view.
                 messages = this.view.getDetail(jobs, executor);
             } else {
-                messages = this.view.getOverview(jobs, executor, adjectives, command.extraData.chatPlugin.package);
+                messages = this.view.getOverview(jobs, executor, options, command.extraData.chatPlugin.package);
             }
 
             return messages;

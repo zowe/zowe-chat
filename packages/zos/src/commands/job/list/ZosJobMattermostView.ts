@@ -25,7 +25,7 @@ class ZosJobMattermostView extends ChatMattermostView {
     }
 
     // Get overview view.
-    getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>, packageName: string): IMessage[] {
+    getOverview(jobs: IJob[], executor: IExecutor, options: Record<string, string>, packageName: string): IMessage[] {
         // Print start log
         logger.start(this.getOverview, this);
 
@@ -101,9 +101,7 @@ class ZosJobMattermostView extends ChatMattermostView {
                 'token': '',
                 'id': '',
             };
-            super.addMenuAction(actions, i18nJsonData.overview.dropDownPlaceholder,
-                    this.messagingEndpointUrl,
-                    contextData, detailOptions);
+            super.addMenuAction(actions, i18nJsonData.overview.dropDownPlaceholder, contextData, detailOptions);
 
             // Create message attachments
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
