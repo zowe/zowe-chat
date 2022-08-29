@@ -8,7 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-
+import fs = require('fs');
 import nodeUtil = require('util');
 
 class Util {
@@ -133,6 +133,31 @@ class Util {
         } else {
             return `${dumpResultHeader}\n${Util.concatLines(result)}`;
         }
+    }
+
+    // Get package name in package.json file
+    static getPackageName(filePath: string): string {
+        let name = '';
+
+        try {
+            // Check file path
+            if (fs.existsSync(filePath) === true) {
+                // Read file
+                const fileContent = fs.readFileSync(filePath, 'utf8');
+
+                // Convert to JSON object
+                const obj = JSON.parse(fileContent);
+
+                // Get package name
+                name = obj.name;
+            }
+        } catch (error) {
+            console.error(`Failed to read or parse the package file: ${filePath}`);
+            console.error(error);
+            console.error(error.stack);
+        }
+
+        return name;
     }
 }
 

@@ -8,23 +8,27 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IActionType} from '../types';
+import {IActionType, IBotOption, IMattermostBotLimit} from '../types';
 import ChatView = require('./ChatView');
 
 class ChatMattermostView extends ChatView {
-    constructor() {
-        super();
+    protected botLimit: IMattermostBotLimit;
+
+    constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
+        super(botOption);
+
+        this.botLimit = botLimit;
     }
 
     // Add message menu action to the payload of action array.
-    addMenuAction(actionObj: Record<string, unknown>[], name: string, url:string, contextData: Record<string, unknown>,
+    addMenuAction(actionObj: Record<string, unknown>[], name: string, contextData: Record<string, unknown>,
             options: Record<string, unknown>[]): void {
         // Only add action object when length of options is greater than 0, otherwise will failed to send view.
         if (options.length > 0) {
             actionObj.push({
                 'name': name,
                 'integration': {
-                    'url': url,
+                    'url': this.messagingEndpointUrl,
                     'context': {
                         'pluginId': contextData.pluginId,
                         'action': {
