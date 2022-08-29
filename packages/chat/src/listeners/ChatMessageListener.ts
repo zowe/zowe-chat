@@ -75,7 +75,6 @@ export abstract class ChatMessageListener extends ChatListener {
                     command.scope = <string>argument._[1];
                     command.resource = <string>argument._[2];
                     command.verb = <string>argument._[3];
-                    command.object = <string>argument._[4];
                 } else if (argument._.length === 5) {
                     botUserName = <string>argument._[0];
                     command.scope = <string>argument._[1];

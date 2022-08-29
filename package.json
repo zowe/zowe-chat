@@ -11,7 +11,7 @@
     "workspaces": [
         "packages/commonbot",
         "packages/chat",
-        "packages/zosjob",
+        "packages/zos",
         "packages/clicmd"
     ],
     "devDependencies": {
