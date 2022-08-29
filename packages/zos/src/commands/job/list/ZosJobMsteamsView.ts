@@ -10,23 +10,19 @@
 
 import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IExecutor, IBotOption, ChatMsteamsView} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, IExecutor, ChatMsteamsView, IBotOption, IMsteamsBotLimit, ICommand} from '@zowe/chat';
 
-import * as i18nJsonData from '../../i18n/jobDisplay.json';
+const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
 const logger = Logger.getInstance();
 
 class ZosJobMsteamsView extends ChatMsteamsView {
-    private botOption: IBotOption;
-
-    constructor(botOption: IBotOption) {
-        super();
-
-        this.botOption = botOption;
+    constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
+        super(botOption, botLimit);
     }
 
     // Get overview
-    getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>, packageName: string): IMessage[] {
+    getOverview(jobs: IJob[], executor: IExecutor, command: ICommand): IMessage[] {
         // Print start log
         logger.start(this.getOverview, this);
 
@@ -51,8 +47,10 @@ class ZosJobMsteamsView extends ChatMsteamsView {
             });
 
             // Create adaptive card object.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const cardObject: Record<string, any> = super.createEmptyAdaptiveCard();
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let job: Record<string, any>;
             const detailOptions = [];
             for (job of jobs) {
@@ -77,13 +75,13 @@ class ZosJobMsteamsView extends ChatMsteamsView {
                 // Create option array for detail dropdown.
                 detailOptions.push({
                     'title': `Details of ${job.jobname}(${job.jobid})`,
-                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:job:id=${job.jobid}`,
+                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`,
                 });
             }
 
             // Add show details action
             const dropdownDataObj = {
-                'pluginId': packageName,
+                'pluginId': command.extraData.chatPlugin.package,
                 'id': 'showJobDetails',
                 'title': i18nJsonData.overview.buttonTitle,
                 'placeholder': i18nJsonData.overview.dropDownPlaceholder,
@@ -113,7 +111,7 @@ class ZosJobMsteamsView extends ChatMsteamsView {
     }
 
     // Get detail.
-    getDetail(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>): IMessage[] {
+    getDetail(jobs: IJob[], executor: IExecutor): IMessage[] {
         // Print start log
         logger.start(this.getDetail, this);
 
@@ -132,7 +130,9 @@ class ZosJobMsteamsView extends ChatMsteamsView {
                 headerMessage = `@${executor.name}. Here is the the basic information of ${jobs[0].jobid}:`;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const job: Record<string, any> = jobs[0];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const cardObject: Record<string, any> = super.createEmptyAdaptiveCard();
 
             // Add column set

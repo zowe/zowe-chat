@@ -8,53 +8,34 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import fs = require('fs');
 import {IJob, GetJobs} from '@zowe/zos-jobs-for-zowe-sdk';
-import {
-    ISession,
-    Session,
-    SessConstants,
-} from '@zowe/imperative';
+import {ISession, Session, SessConstants} from '@zowe/imperative';
 
-import {Logger, IMessage, IMessageType, IChatToolType, IExecutor, IBotOption, Config} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, IChatToolType, IExecutor, Config, ChatHandler, IBotOption, IBotLimit, ICommand, IMsteamsBotLimit,
+    IMattermostBotLimit, ISlackBotLimit} from '@zowe/chat';
 
-import {ICommand} from '../types/index';
-import ZosJobSlackView from './view/ZosJobSlackView';
-import ZosJobMattermostView from './view/ZosJobMattermostView';
-import ZosJobMsteamsView from './view/ZosJobMsteamsView';
+import ZosJobSlackView from './ZosJobSlackView';
+import ZosJobMattermostView from './ZosJobMattermostView';
+import ZosJobMsteamsView from './ZosJobMsteamsView';
 
 const logger = Logger.getInstance();
+const config = Config.getInstance();
 
-class ZosJobHandler {
+
+class ZosJobHandler extends ChatHandler {
     private view: ZosJobSlackView | ZosJobMattermostView | ZosJobMsteamsView = null;
-    private static packageName: string = '';
 
-    // get package name as plugin id for interactive component.
-    private static getPackageName(): string {
-        try {
-            if (ZosJobHandler.packageName === '') {
-                const filePath = `${__dirname}/../package.json`;
-                const jsonFileContent = fs.readFileSync(filePath, 'utf-8');
-                const packageJsonData = JSON.parse(jsonFileContent);
-                ZosJobHandler.packageName = packageJsonData.name;
-            }
-        } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
-            ZosJobHandler.packageName = '';
-        }
-        return ZosJobHandler.packageName;
-    }
+    constructor(botOption: IBotOption, botLimit: IBotLimit) {
+        super(botOption, botLimit);
 
-
-    constructor(botOption: IBotOption) {
         this.getJob = this.getJob.bind(this);
 
-        if ( botOption.chatTool.type === IChatToolType.SLACK) {
-            this.view = new ZosJobSlackView(botOption);
+        if (botOption.chatTool.type === IChatToolType.SLACK) {
+            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit);
         } else if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
-            this.view = new ZosJobMattermostView(botOption);
+            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit);
         } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
-            this.view = new ZosJobMsteamsView(botOption);
+            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit);
         }
     }
 
@@ -65,41 +46,41 @@ class ZosJobHandler {
 
         let messages: IMessage[] = [];
         try {
-            const adjectives = command.adjectives;
+            const options = command.adjective.option;
 
-            // Get adjective job id -- Optional
+            // Get option job id -- Optional
             let id: string = null;
-            if (adjectives['id'] !== undefined) {
-                id = adjectives['id'];
+            if (options['id'] !== undefined) {
+                id = options['id'];
             }
             logger.debug(`id: ${id}`);
 
-            // Get adjective owner -- Optional
+            // Get option owner -- Optional
             let owner: string = null;
-            if (adjectives['owner'] !== undefined) {
-                owner = adjectives['owner'];
-            } else if (adjectives['o'] !== undefined) {
-                owner = adjectives['o'];
+            if (options['owner'] !== undefined) {
+                owner = options['owner'];
+            } else if (options['o'] !== undefined) {
+                owner = options['o'];
             }
             logger.debug(`owner: ${owner}`);
 
 
-            // Get adjective prefix -- Optional
+            // Get option prefix -- Optional
             // By default * is used as prefix.
             let prefix: string = '*';
-            if (adjectives['prefix'] !== undefined) {
-                prefix = adjectives['prefix'];
-            } else if (adjectives['p'] !== undefined) {
-                prefix = adjectives['p'];
+            if (options['prefix'] !== undefined) {
+                prefix = options['prefix'];
+            } else if (options['p'] !== undefined) {
+                prefix = options['p'];
             }
             logger.debug(`prefix: ${prefix}`);
 
-            // Get adjective limit -- Optional
+            // Get option limit -- Optional
             let limit: string = null;
-            if (adjectives['limit'] !== undefined) {
-                limit = adjectives['limit'];
+            if (options['limit'] !== undefined) {
+                limit = options['limit'];
             } else {
-                limit = String(Config.getInstance().getConfig().chatServer.recordLimit);
+                limit = String(config.getConfig().chatServer.recordLimit);
             }
             logger.debug(`limit: ${limit}`);
 
@@ -111,9 +92,6 @@ class ZosJobHandler {
                     message: 'Invalid adjective limit!',
                 }];
             }
-
-            // Add record limit from Zowe Chat configuration to adjectives, then adjectives[limit] can be reached when generating header message.
-            adjectives['limit'] = limit;
 
             // TODO: Will integrate with Authentication functionality later.
             /* let hostName: string = null;
@@ -163,11 +141,11 @@ class ZosJobHandler {
             // session to connect Zosmf REST API.
             const sessionInfo: ISession = {
                 hostname: '',
-                port: 443,
-                password: '',
-                user: '',
                 // hostname: hostName,
+                port: 443,
                 // port: Number(port).valueOf(),
+                user: '',
+                password: '',
                 // user: user,
                 // password: password,
                 type: SessConstants.AUTH_TYPE_BASIC,
@@ -187,11 +165,10 @@ class ZosJobHandler {
             logger.debug(`Got ${jobs.length} job.`);
 
 
-            if (id !== null
-                    && jobs.length === 1) { // if id is specified, show detail view.
-                messages = this.view.getDetail(jobs, executor, adjectives);
+            if (id !== null && jobs.length === 1) { // if id is specified, show detail view.
+                messages = this.view.getDetail(jobs, executor);
             } else {
-                messages = this.view.getOverview(jobs, executor, adjectives, ZosJobHandler.getPackageName());
+                messages = this.view.getOverview(jobs, executor, command);
             }
 
             return messages;

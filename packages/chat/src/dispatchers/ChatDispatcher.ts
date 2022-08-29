@@ -8,11 +8,16 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-export interface ICommand {
-    scope: string,
-    resource: string,
-    verb: string,
-    object: string,
-    adjectives: Record<string, string>,
+import {IBotOption, IBotLimit} from '../types';
+
+class ChatDispatcher {
+    protected botOption: IBotOption = null;
+    protected botLimit: IBotLimit = null;
+
+    constructor(botOption: IBotOption, botLimit: IBotLimit) {
+        this.botOption = botOption;
+        this.botLimit = botLimit;
+    }
 }
 
+export = ChatDispatcher;
