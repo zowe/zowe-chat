@@ -8,10 +8,8 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-class BotListener {
+export class BotListener {
     constructor() {
         // TODO
     }
 }
-
-export = BotListener;

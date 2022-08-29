@@ -9,7 +9,8 @@
  */
 
 
-import {Logger, ChatMsteamsView, IBotOption, IExecutor, IMessage, IMessageType, IMsteamsBotLimit} from '@zowe/chat';
+import { ChatMsteamsView, IExecutor, Logger } from "@zowe/chat";
+import { IBotOption, IMessage, IMessageType, IMsteamsBotLimit } from '@zowe/commonbot';
 
 const logger = Logger.getInstance();
 
@@ -30,7 +31,7 @@ class ZoweCliCommandMsteamsView extends ChatMsteamsView {
             messages.push({
                 type: IMessageType.PLAIN_TEXT,
                 message: `@${executor.name}. I have executed the Zowe CLI command for you. Please see the below for the result!\n\n`
-                        + `<pre>${commandOutput}</pre>`,
+                    + `<pre>${commandOutput}</pre>`,
             });
         } catch (error) {
             logger.error(logger.getErrorStack(new Error(error.name), error));

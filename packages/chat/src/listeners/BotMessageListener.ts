@@ -12,18 +12,17 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ from "lodash";
 
-import BotListener = require('./BotListener');
-
-import { IChatContextData } from '@zowe/commonbot';
+import { IChatContextData, IPayloadType } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityFacility } from '../security/SecurityFacility';
 import { Logger } from '../utils/Logger';
 import Util from '../utils/Util';
+import { BotListener } from './BotListener';
 
 export class BotMessageListener extends BotListener {
 
     private chatListeners: IChatListenerRegistryEntry[];
-    private readonly botName;
+    private readonly botName: string;
     private readonly log: Logger
     private readonly config: AppConfig
     private readonly securityFacility: SecurityFacility;
@@ -91,7 +90,7 @@ export class BotMessageListener extends BotListener {
                         }
                     }
                 } else {
-                    logger.error(`Wrong payload type: ${chatContextData.payload.type}`);
+                    this.log.error(`Wrong payload type: ${chatContextData.payload.type}`);
                 }
 
                 // Set listener and context pool

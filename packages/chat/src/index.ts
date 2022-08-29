@@ -30,3 +30,14 @@ appLog.info("Initializing Zowe Chat Bot")
 const chatBot = ChatBot.getInstance()
 chatBot.run();
 
+export * from "./handlers/ChatHandler";
+export * from "./listeners/BotMessageListener";
+export * from "./listeners/ChatEventListener";
+export * from "./listeners/ChatMessageListener";
+export * from "./types";
+export * from "./utils/Logger";
+export * from "./views/ChatMattermostView";
+export * from "./views/ChatMsteamsView";
+export * from "./views/ChatSlackView";
+export * from "./views/ChatView";
+

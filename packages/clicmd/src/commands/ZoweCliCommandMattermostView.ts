@@ -9,7 +9,9 @@
  */
 
 
-import {Logger, ChatMattermostView, IBotOption, IMessageType, IExecutor, IMessage, IMattermostBotLimit} from '@zowe/chat';
+import { ChatMattermostView, IExecutor, Logger } from "@zowe/chat";
+import { IBotOption, IMattermostBotLimit, IMessage, IMessageType } from '@zowe/commonbot';
+
 
 const logger = Logger.getInstance();
 

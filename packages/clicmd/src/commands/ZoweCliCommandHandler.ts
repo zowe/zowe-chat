@@ -11,8 +11,9 @@
 import childProcess from 'child_process';
 import os from 'os';
 
-import {Logger, IMessage, IExecutor, ICommand, IChatToolType, IBotOption, IBotLimit, ChatHandler, IMessageType,
-    ISlackBotLimit, IMsteamsBotLimit, IMattermostBotLimit} from '@zowe/chat';
+import { ChatHandler, ICommand, IExecutor, Logger } from "@zowe/chat";
+import { IBotLimit, IBotOption, IChatToolType, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit } from '@zowe/commonbot';
+
 import ZoweCliCommandMattermostView from './ZoweCliCommandMattermostView';
 import ZoweCliCommandMsteamsView from './ZoweCliCommandMsteamsView';
 import ZoweCliCommandSlackView from './ZoweCliCommandSlackView';
@@ -26,11 +27,11 @@ class ZoweCliCommandHandler extends ChatHandler {
         super(botOption, botLimit);
 
         // Create view
-        if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
+        if (botOption.chatTool === IChatToolType.MATTERMOST) {
             this.view = new ZoweCliCommandMattermostView(botOption, <IMattermostBotLimit>botLimit);
-        } else if (botOption.chatTool.type === IChatToolType.SLACK) {
+        } else if (botOption.chatTool === IChatToolType.SLACK) {
             this.view = new ZoweCliCommandSlackView(botOption, <ISlackBotLimit>botLimit);
-        } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
+        } else if (botOption.chatTool === IChatToolType.MSTEAMS) {
             this.view = new ZoweCliCommandMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
         }
     }
@@ -47,7 +48,7 @@ class ZoweCliCommandHandler extends ChatHandler {
             try {
                 // TODO: must run using executors' own profile
                 logger.info(`Zowe CLI command to be executed: ${command.extraData.zoweCliCommand}`);
-                cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, {cwd: os.homedir()}).toString();
+                cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, { cwd: os.homedir() }).toString();
             } catch (error) {
                 logger.debug(`status: ${error.status}`);
                 logger.debug(`message: ${error.message}`);

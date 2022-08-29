@@ -8,19 +8,19 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import { IChatContextData, IMessage } from "@zowe/commonbot";
+import { IChatContextData, IMessage, IPayloadType } from "@zowe/commonbot";
+import Logger from "@zowe/commonbot/dist/package/utils/Logger";
 import _ from 'lodash';
 import yargs from 'yargs';
-import { ICommand, IPayloadType } from "../types";
-import { Logger } from "../utils/Logger";
+import { ICommand } from "../types";
 import ChatListener = require('./ChatListener');
-abstract class ChatMessageListener extends ChatListener {
+export abstract class ChatMessageListener extends ChatListener {
 
     private readonly log: Logger;
 
-    constructor(logger: Logger) {
+    constructor() {
         super();
-        this.log = logger;
+        this.log = Logger.getInstance();
     }
 
     // Match inbound message
@@ -103,7 +103,8 @@ abstract class ChatMessageListener extends ChatListener {
             this.log.debug(`Command: ${JSON.stringify(command, null, 4)}`);
         } catch (error) {
             // Print exception stack
-            this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            // this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            this.log.error(error)
         } finally {
             // Print end log
             this.log.end(this.parseMessage, this);

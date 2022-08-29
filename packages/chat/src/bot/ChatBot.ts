@@ -77,8 +77,8 @@ export class ChatBot {
 
 
             this.botMessageListener = new BotMessageListener(this.appConfig, this.security, log);
-            this.botEventListener = new BotEventListener(this.appConfig, log);          
-        } catch (error) {          
+            this.botEventListener = new BotEventListener(this.appConfig, log);
+        } catch (error) {
             console.log(error)
             this.log.error(`Failed to create chat bot!`);
             this.log.error(`Error details: ${error}`);
@@ -151,7 +151,7 @@ export class ChatBot {
             this.log.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Sort plugin per priority in ascend order: Priority 1 (Urgent) · Priority 2 (High) · Priority 3 (Medium) · Priority 4 (Low)
-            this.plugins.sort((a, b)=>a.priority - b.priority);
+            this.plugins.sort((a, b) => a.priority - b.priority);
             this.log.debug(`Plugins sorted by priority:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Load plugins one by one in priority descend order
@@ -205,8 +205,8 @@ export class ChatBot {
                     } else {
                         this.log.error(`The listener "${listenerName}" is not supported!`);
                     }
-                    }
                 }
+
                 this.log.debug(`Loading plugin ${plugin.package} complete`);
                 this.plugins.push(plugin)
             }

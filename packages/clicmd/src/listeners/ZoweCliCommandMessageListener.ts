@@ -9,8 +9,8 @@
  */
 
 
-import {Logger, IChatContextData, IExecutor, IMessage, ChatMessageListener, IMessageType} from '@zowe/chat';
-
+import { ChatMessageListener, IExecutor, Logger } from "@zowe/chat";
+import { IChatContextData, IMessage, IMessageType } from '@zowe/commonbot';
 import ZoweCliCommandHandler from '../commands/ZoweCliCommandHandler';
 
 const logger = Logger.getInstance();

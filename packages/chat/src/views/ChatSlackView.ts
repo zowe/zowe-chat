@@ -8,10 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IBotOption, ISlackBotLimit} from '../types';
-import ChatView = require('./ChatView');
-
-class ChatSlackView extends ChatView {
+import { IBotOption, ISlackBotLimit } from '@zowe/commonbot';
+import { ChatView } from "./ChatView";
+export class ChatSlackView extends ChatView {
     protected botLimit: ISlackBotLimit;
 
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
@@ -48,5 +47,3 @@ class ChatSlackView extends ChatView {
         }
     }
 }
-
-export = ChatSlackView;

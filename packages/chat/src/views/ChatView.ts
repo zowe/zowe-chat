@@ -8,9 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IBotOption} from '../types';
+import { IBotOption } from '@zowe/commonbot';
 
-class ChatView {
+export class ChatView {
     protected botOption: IBotOption = null;
     protected messagingEndpointUrl: string = '';
 
@@ -24,5 +24,3 @@ class ChatView {
         }
     }
 }
-
-export = ChatView;

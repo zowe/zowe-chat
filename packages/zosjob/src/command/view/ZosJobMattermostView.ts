@@ -8,27 +8,26 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
+import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IBotOption, ChatMattermostView, IExecutor} from '@zowe/chat';
-
+import { ChatMattermostView, IExecutor, Logger } from '@zowe/chat';
+import { IBotOption, IMessage, IMessageType } from '@zowe/commonbot';
 import * as i18nJsonData from '../../i18n/jobDisplay.json';
 
-const logger = Logger.getInstance();
 
-class ZosJobMattermostView extends ChatMattermostView {
-    private botOption: IBotOption;
+export class ZosJobMattermostView extends ChatMattermostView {
+    private readonly log: Logger
 
     constructor(botOption: IBotOption) {
-        super();
-
+        super(botOption, null);
+        this.log = Logger.getInstance();
         this.botOption = botOption;
     }
 
     // Get overview view.
     getOverview(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>, packageName: string): IMessage[] {
         // Print start log
-        logger.start(this.getOverview, this);
+        this.log.start(this.getOverview, this);
 
         let messages: IMessage[] = [];
 
@@ -54,38 +53,38 @@ class ZosJobMattermostView extends ChatMattermostView {
                     short: true,
                     value: `**${job.jobid}** (ID: ${job.jobname})`,
                 },
-                {
-                    short: true,
-                    value: '',
-                },
-                {
-                    short: true,
-                    value: `**${i18nJsonData.overview.owner}: ** ${job.owner}`,
-                },
-                {
-                    short: true,
-                    value: `**${i18nJsonData.overview.subSystem}: ** ${job.subsystem}`,
-                },
-                {
-                    short: true,
-                    value: `**${i18nJsonData.overview.status}: ** ${job.status}`,
-                },
-                {
-                    short: true,
-                    value: `**${i18nJsonData.overview.type}: ** ${job.type}`,
-                },
-                {
-                    short: true,
-                    value: `**${i18nJsonData.overview.returnCode}: ** ${job.retcode === null ? ' ' : job.retcode}`,
-                },
-                {
-                    short: true,
-                    value: `**${i18nJsonData.overview.startedTime}: **${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
-                },
-                {
-                    short: false,
-                    value: `*** \n`,
-                });
+                    {
+                        short: true,
+                        value: '',
+                    },
+                    {
+                        short: true,
+                        value: `**${i18nJsonData.overview.owner}: ** ${job.owner}`,
+                    },
+                    {
+                        short: true,
+                        value: `**${i18nJsonData.overview.subSystem}: ** ${job.subsystem}`,
+                    },
+                    {
+                        short: true,
+                        value: `**${i18nJsonData.overview.status}: ** ${job.status}`,
+                    },
+                    {
+                        short: true,
+                        value: `**${i18nJsonData.overview.type}: ** ${job.type}`,
+                    },
+                    {
+                        short: true,
+                        value: `**${i18nJsonData.overview.returnCode}: ** ${job.retcode === null ? ' ' : job.retcode}`,
+                    },
+                    {
+                        short: true,
+                        value: `**${i18nJsonData.overview.startedTime}: **${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                    },
+                    {
+                        short: false,
+                        value: `*** \n`,
+                    });
 
                 // Options for details message menu.
                 detailOptions.push({
@@ -102,8 +101,8 @@ class ZosJobMattermostView extends ChatMattermostView {
                 'id': '',
             };
             super.addMenuAction(actions, i18nJsonData.overview.dropDownPlaceholder,
-                    `${this.botOption.messagingApp.option.protocol}://${this.botOption.messagingApp.option.hostName}:${this.botOption.messagingApp.option.port}${this.botOption.messagingApp.option.basePath}`,
-                    contextData, detailOptions);
+                `${this.botOption.messagingApp.option.protocol}://${this.botOption.messagingApp.option.hostName}:${this.botOption.messagingApp.option.port}${this.botOption.messagingApp.option.basePath}`,
+                contextData, detailOptions);
 
             // Create message attachments
             const attachmentObject: Record<string, any> = {
@@ -123,7 +122,7 @@ class ZosJobMattermostView extends ChatMattermostView {
             });
             return messages;
         } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -131,14 +130,14 @@ class ZosJobMattermostView extends ChatMattermostView {
             }];
         } finally {
             // Print end log
-            logger.end(this.getOverview);
+            this.log.end(this.getOverview);
         }
     }
 
     // Get detail view.
     getDetail(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>): IMessage[] {
         // Print start log
-        logger.start(this.getDetail, this);
+        this.log.start(this.getDetail, this);
 
         let messages: IMessage[] = [];
 
@@ -163,66 +162,66 @@ class ZosJobMattermostView extends ChatMattermostView {
                 short: false,
                 value: `**${job.jobname}** (ID: ${job.jobid})`,
             },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.owner}: ** ${job.owner}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.subSystem}: ** ${job.subsystem}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.status}: ** ${job.status}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.type}: ** ${job.type}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.returnCode}: ** ${job.retcode === null ? ' ' : job.retcode}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.class}: ** ${job.class}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.PhaseName}: ** ${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.Phase}: ** ${job.phase}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.ExecutionSystem}: ** ${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.ExecutionMember}: ** ${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.startedTime}: ** ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.ExecutionSubmittedTime}: ** ${job['exec-submitted'] === undefined ? ' ': job['exec-submitted']}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.ExecutionEndedTime}: ** ${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.reasonNotRunning}: ** ${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
-            },
-            {
-                short: true,
-                value: `**${i18nJsonData.detail.openJob}: ** [Zosmf](${job.url})`,
-            });
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.owner}: ** ${job.owner}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.subSystem}: ** ${job.subsystem}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.status}: ** ${job.status}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.type}: ** ${job.type}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.returnCode}: ** ${job.retcode === null ? ' ' : job.retcode}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.class}: ** ${job.class}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.PhaseName}: ** ${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.Phase}: ** ${job.phase}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.ExecutionSystem}: ** ${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.ExecutionMember}: ** ${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.startedTime}: ** ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.ExecutionSubmittedTime}: ** ${job['exec-submitted'] === undefined ? ' ' : job['exec-submitted']}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.ExecutionEndedTime}: ** ${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.reasonNotRunning}: ** ${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
+                },
+                {
+                    short: true,
+                    value: `**${i18nJsonData.detail.openJob}: ** [Zosmf](${job.url})`,
+                });
 
             // Create message attachments
             const attachmentObject: Record<string, any> = {
@@ -243,7 +242,7 @@ class ZosJobMattermostView extends ChatMattermostView {
             });
             return messages;
         } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -251,9 +250,7 @@ class ZosJobMattermostView extends ChatMattermostView {
             }];
         } finally {
             // Print end log
-            logger.end(this.getDetail);
+            this.log.end(this.getDetail);
         }
     }
 }
-
-export = ZosJobMattermostView;

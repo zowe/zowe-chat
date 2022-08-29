@@ -8,10 +8,10 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IActionType, IBotOption, IMattermostBotLimit} from '../types';
-import ChatView = require('./ChatView');
+import { IActionType, IBotOption, IMattermostBotLimit } from '@zowe/commonbot';
+import { ChatView } from "./ChatView";
 
-class ChatMattermostView extends ChatView {
+export class ChatMattermostView extends ChatView {
     protected botLimit: IMattermostBotLimit;
 
     constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
@@ -46,5 +46,3 @@ class ChatMattermostView extends ChatView {
         return;
     }
 }
-
-export = ChatMattermostView;

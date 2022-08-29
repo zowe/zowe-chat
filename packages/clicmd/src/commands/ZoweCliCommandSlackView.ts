@@ -9,8 +9,8 @@
  */
 
 
-import {Logger, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit} from '@zowe/chat';
-
+import { ChatSlackView, IExecutor, Logger } from '@zowe/chat';
+import { IBotOption, IMessage, IMessageType, ISlackBotLimit } from '@zowe/commonbot';
 const logger = Logger.getInstance();
 
 class ZoweCliCommandSlackView extends ChatSlackView {

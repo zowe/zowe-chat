@@ -40,7 +40,8 @@
     "typescript": ">=4.6.4"
   },
   "peerDependencies": {
-    "@zowe/chat": "*"
+    "@zowe/chat": "*",
+    "@zowe/commonbot": "*"
   },
   "bundledDependencies": [],
   "engines": {

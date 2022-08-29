@@ -9,7 +9,8 @@
  */
 
 
-import {Logger, IChatContextData, ChatEventListener, IMessage} from '@zowe/chat';
+import { ChatEventListener, Logger } from "@zowe/chat";
+import { IChatContextData, IMessage } from '@zowe/commonbot';
 
 const logger = Logger.getInstance();
 

@@ -8,10 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IActionType, IBotOption, IMsteamsBotLimit} from '../types';
-import ChatView = require('./ChatView');
-
-class ChatMsteamsView extends ChatView {
+import { IActionType, IBotOption, IMsteamsBotLimit } from '@zowe/commonbot';
+import { ChatView } from "./ChatView";
+export class ChatMsteamsView extends ChatView {
     protected botLimit: IMsteamsBotLimit;
 
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
@@ -121,5 +120,3 @@ class ChatMsteamsView extends ChatView {
         };
     }
 }
-
-export = ChatMsteamsView;

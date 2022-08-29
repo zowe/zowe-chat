@@ -202,7 +202,7 @@ export class Logger {
 
     // TODO: Marked private, see what breaks.
     // Get error stack with current file name and line number
-    private getErrorStack(newError: Error, caughtError: Error) {
+    public getErrorStack(newError: Error, caughtError: Error) {
         if (newError.stack === undefined && caughtError.stack === undefined) {
             return '';
         } else if (newError.stack !== undefined && caughtError.stack === undefined) {
