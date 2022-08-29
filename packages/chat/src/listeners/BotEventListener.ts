@@ -12,16 +12,19 @@ import {IChatContextData, IChatListenerRegistryEntry, IPayloadType, IEventListen
 
 import _ = require('lodash');
 
-import Config from '../common/Config';
-import Logger from '../utils/Logger';
-import Util from '../utils/Util';
+import BotListener = require('./BotListener');
+import Logger = require('../utils/Logger');
+import Config = require('../common/Config');
+import Util = require('../utils/Util');
 
 const logger = Logger.getInstance();
 const config = Config.getInstance();
 
-class BotEventListener {
+class BotEventListener extends BotListener {
     private chatListeners: IChatListenerRegistryEntry[];
     constructor() {
+        super();
+
         this.chatListeners = [];
 
         this.matchEvent = this.matchEvent.bind(this);
@@ -55,11 +58,9 @@ class BotEventListener {
         logger.start(this.matchEvent, this);
 
         try {
-            // Set extra data
-            chatContextData.extraData = {
-                listeners: <IChatListenerRegistryEntry[]>[],
-                contexts: <IChatContextData[]>[],
-            };
+            // Initialize listener and context pool
+            const listeners: IChatListenerRegistryEntry[] = [];
+            const contexts: IChatContextData[] = [];
 
             // Check payload type
             logger.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
@@ -69,14 +70,32 @@ class BotEventListener {
                 for (const listener of this.chatListeners) {
                     if (event.pluginId === listener.chatPlugin.package) {
                         const contextData: IChatContextData = _.cloneDeep(chatContextData);
+                        if (contextData.extraData === undefined || contextData.extraData === null) {
+                            contextData.extraData = {
+                                'chatPlugin': listener.chatPlugin,
+                            };
+                        } else {
+                            contextData.extraData.chatPlugin = listener.chatPlugin;
+                        }
                         if ((<IEventListener>listener.listenerInstance).matchEvent(contextData)) {
-                            chatContextData.extraData.listeners.push(listener);
-                            chatContextData.extraData.contexts.push(contextData);
+                            listeners.push(listener);
+                            contexts.push(contextData);
                         }
                     }
                 }
             } else {
                 logger.error(`Wrong payload type: ${chatContextData.payload.type}`);
+            }
+
+            // Set listener and context pool
+            if (chatContextData.extraData === undefined || chatContextData.extraData === null) {
+                chatContextData.extraData = {
+                    'listeners': listeners,
+                    'contexts': contexts,
+                };
+            } else {
+                chatContextData.extraData.listeners = listeners;
+                chatContextData.extraData.contexts = contexts;
             }
             logger.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
             logger.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
