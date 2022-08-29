@@ -8,9 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IChatContextData, IMessage} from '../types';
+import { IChatContextData, IMessage } from "@zowe/commonbot";
 
-abstract class ChatMessageListener {
+export abstract class ChatMessageListener {
     constructor() {
         // TODO
     }
@@ -21,5 +21,3 @@ abstract class ChatMessageListener {
     // Process inbound message
     abstract processMessage(chatContextData: IChatContextData): Promise<IMessage[]>;
 }
-
-export = ChatMessageListener;

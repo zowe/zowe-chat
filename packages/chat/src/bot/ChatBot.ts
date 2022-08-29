@@ -8,14 +8,18 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import { CommonBot, IBotOption } from '@zowe/commonbot';
+import { CommonBot, IBotOption, IChatToolType, IMattermostOption, ISlackOption } from '@zowe/commonbot';
+import * as fs from "fs-extra";
+import * as yaml from "js-yaml";
+import * as path from "path";
+import { AppConfigLoader } from '../config/AppConfigLoader';
 import { AppConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
 import { BotEventListener } from '../listeners/BotEventListener';
 import { BotMessageListener } from '../listeners/BotMessageListener';
 import { SecurityConfigSchema } from '../security/config/SecurityConfigSchema';
 import { SecurityFacility } from '../security/SecurityFacility';
-import { IChatPlugin } from '../types';
+import { IChatListenerType, IChatPlugin } from '../types';
 import { Logger } from '../utils/Logger';
 import { MessagingApp } from './MessagingApp';
 
@@ -50,8 +54,8 @@ export class ChatBot {
 
             this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
             let cBotOpts: IBotOption = this.generateBotOpts(this.app);
-                        this.botMessageListener = new BotMessageListener();
-            this.botEventListener = new BotEventListener();
+            this.botMessageListener = new BotMessageListener(this.appConfig, this.security, this.log);
+            this.botEventListener = new BotEventListener(this.appConfig, this.log);
             this.log.info("Creating CommonBot ...");
             // TODO: Fix casting, circular dependency between config and commonbot
             this.bot = new CommonBot(cBotOpts);
@@ -62,9 +66,9 @@ export class ChatBot {
 
 
             for (let plugin of this.plugins) {
-                // TODO: Build plugin configuration interface
+                // TODO: Build plugin configuration interface, other plugin initialization APIs?
                 /**
-                  *    if (plugin.configSchema !== undefined) {
+                  *    if (plugin.getConfigSchema() !== undefined) {
                   *        admConfigList.push(plugin.configSchema);
                   *    }
                   */
@@ -72,8 +76,8 @@ export class ChatBot {
 
 
             this.botMessageListener = new BotMessageListener(this.appConfig, this.security, log);
-            this.botEventListener = new BotEventListener(this.appConfig, log);
-        } catch (error) {
+            this.botEventListener = new BotEventListener(this.appConfig, log);          
+        } catch (error) {          
             console.log(error)
             this.log.error(`Failed to create chat bot!`);
             this.log.error(`Error details: ${error}`);
@@ -99,24 +103,15 @@ export class ChatBot {
             }
 
             // Register listeners
-            logger.info('Register message listeners ...');
+            this.log.info('Register message listeners ...');
             this.bot.listen(this.botMessageListener.matchMessage, this.botMessageListener.processMessage);
-
 
             // Register routers
             this.log.info('Register event routers ...');
-            this.bot.route(this.bot.getOption().messagingApp.option.basePath, this.eventListener.processEvent);
-=======
-            logger.info('Register message listeners ...');
-            this.bot.listen(this.botMessageListener.matchMessage, this.botMessageListener.processMessage);
-
-
-            // Register routers
-            logger.info('Register event routers ...');
-            this.bot.route(this.botOption.messagingApp.option.basePath, this.botEventListener.processEvent);
+            this.bot.route(this.bot.getOption().messagingApp.option.basePath, this.botEventListener.processEvent);
 
             // // Load translation resource
-            // logger.info('Load translations ...');
+            // this.log.info('Load translations ...');
         } catch (error) {
             this.log.error(`Failed to run Zowe chat bot!`);
             this.log.error(`${error}`);
@@ -126,6 +121,7 @@ export class ChatBot {
             this.log.end(this.run, this);
         }
     }
+
     // Load plugins
     private loadPlugins(): void {
         // Print start log
@@ -150,7 +146,7 @@ export class ChatBot {
             }
 
             // Read Zowe Chat plugins configuration file
-            let pluginList = <IChatPlugin[]>yaml.load(fs.readFileSync(pluginYamlFilePath, 'utf8'));
+            let pluginList = <IChatPlugin[]>this.readYamlFile(pluginYamlFilePath)
             this.log.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Sort plugin per priority in descend order
