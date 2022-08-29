@@ -1,6 +1,6 @@
-# Zowe Chat
+# @zowe/chat project
 
-Zowe Chat component provides basic functionalities for chatting and two abstract listeners (MessageListener and EventListener) for users to create their own plugins to extend capabilities of Zowe Chat as plugins.
+@zowe/chat is the core component of @zowe/zowe-chat project. The component provides basic functionalities for chatting and two abstract listeners (ChatMessageListener and ChatEventListener) for users to create their own plugins to extend capabilities of Zowe Chat as plugins.
 
 ## Content
   - [Features](#features)
@@ -13,10 +13,15 @@ Zowe Chat component provides basic functionalities for chatting and two abstract
   * Configuration
   * Logging
   * Utility 
-* Support extendibility via two abstract listeners below 
-  * MessageListener
-  * EventListener
+* Support extendibility via following classes
+  * ChatMessageListener `<required>`
+  * ChatEventListener `<required>`
+  * ChatHandler `<optional>`
+  * ChatMattermostView `<optional>`
+  * ChatSlackView `<optional>`
+  * ChatMsteamsView `<optional>`
 * Load plugins dynamically from ZOWE_CHAT_PLUGIN_HOME
+* Sort plugins per the specified priority
 
 ## Environment variables
 * ZOWE_CHAT_HOME
@@ -44,16 +49,15 @@ Zowe Chat component provides basic functionalities for chatting and two abstract
 
 ## Steps to create one plugin
 * Create one NPM project
-* Implement two interfaces `IMessageListener` and `IEventListener`
+* Extend and implement two abstract classes `ChatMessageListener` and `ChatEventListener`
 
-    Note:  No need to implement `IEventListener` interface if you don't have any interactivity component in your bot response.
-  * IMessageListener
+    Note:  No need to extend and implement `ChatEventListener` interface if you don't have any interactivity component in your bot response.
+  * ChatMessageListener
   ```TypeScript
-    class YourMessageListener implements IMessageListener {
-        private logger: Logger;
+    class YourMessageListener extends ChatMessageListener {
 
-        constructor(logger: Logger) {
-            this.logger = logger;
+        constructor() {
+            super()
 
             this.matchMessage = this.matchMessage.bind(this);
             this.processMessage = this.processMessage.bind(this);
@@ -97,13 +101,11 @@ Zowe Chat component provides basic functionalities for chatting and two abstract
         }
     }
   ```
-  * IEventListener
+  * ChatEventListener
   ```TypeScript
-    class YourEventListener implements IEventListener {
-        private logger: Logger;
-
-        constructor(logger: Logger) {
-            this.logger = logger;
+    class YourEventListener extends ChatEventListener {
+        constructor() {
+            super();
 
             this.matchEvent = this.matchEvent.bind(this);
             this.processEvent = this.processEvent.bind(this);
@@ -340,12 +342,3 @@ Zowe Chat component provides basic functionalities for chatting and two abstract
             },
         }
     ```
-## Steps to run Zowe Chat server
-* Go to Zowe Chat home directory
-  ```Shell
-     cd $ZOWE_CHAT_HOME
-  ```
-* Run the command below to start the server
-  ```Shell
-     node index.js
-  ```

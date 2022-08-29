@@ -11,6 +11,7 @@ The Common Bot Framework is a NPM library that provides a set of uniform interfa
   - [Create chat bot](#create-chat-bot)
   - [Create message listeners](#create-message-listeners)
   - [Create routers](#create-routers)
+  - [Chat tool limitation](#chat-tool-limitation)
 
 ## Features
 * Support the latest version of 3 chat platforms
@@ -33,6 +34,7 @@ The Common Bot Framework is a NPM library that provides a set of uniform interfa
   * listen(matcher, handler)
   * route(basePath, handler)
   * send(chatContextData, message)
+  * getLimit()
 * Chat context data
   * Context data for chatting, including message, bot, user / channel / team / tenant information
   * Context data specific for different chat platforms
@@ -320,4 +322,48 @@ async function processRoute(chatContextData: IChatContextData): Promise<void> {
 
 // Register event handler
 bot.route('<Your base path>', processRoute);
+```
+
+## Chat Tool Limitation
+Different chat tool usually has different limitation. You can use the bot API `getLimit()` to retrieve the corresponding limitation of your chat tool.
+* Mattermost
+```TypeScript
+{
+    // Unit for MaxLength: character
+    // Unit for MaxNumber: item
+    'messageMaxLength': 16383, // Message supports at most 16383 (multi-byte) characters (65535 bytes)since v5.0.0
+    //                            https://developers.mattermost.com/integrate/webhooks/incoming/#tips-and-best-practices
+};
+```
+
+* Slack
+```TypeScript
+ {
+    // Unit for MaxLength: character
+    // Unit for MaxNumber: item
+    'messageMaxLength': 40000, // https://api.slack.com/changelog/2018-04-truncating-really-long-messages
+    'blockIdMaxLength': 255,
+    'actionBlockElementsMaxNumber': 25, // https://api.slack.com/reference/block-kit/blocks#actions_fields
+    'contextBlockElementsMaxNumber': 10, // https://api.slack.com/reference/block-kit/blocks#context_fields
+    'headerBlockTextMaxLength': 150, // https://api.slack.com/reference/block-kit/blocks#header_fields
+    'imageBlockUrlMaxLength': 3000, // https://api.slack.com/reference/block-kit/blocks#image_fields
+    'imageBlockAltTextMaxLength': 2000,
+    'imageBlockTitleTextMaxLength': 2000,
+    'inputBlockLabelTextMaxLength': 2000, // https://api.slack.com/reference/block-kit/blocks#input_fields
+    'inputBlockHintTextMaxLength': 2000,
+    'sectionBlockTextMaxLength': 3000, // https://api.slack.com/reference/block-kit/blocks#section_fields
+    'sectionBlockFieldsMaxNumber': 10,
+    'sectionBlockFieldsTextMaxLength': 2000,
+    'videoBlockAuthorNameMaxLength': 50, // https://api.slack.com/reference/block-kit/blocks#video_fields
+    'videoBlockTitleTextMaxLength': 200,
+}
+```
+* Microsoft Teams
+```TypeScript
+{
+    // Unit for MaxLength: byte
+    // Unit for MaxNumber: item
+    'messageMaxLength': 28 * 1024, // https://docs.microsoft.com/en-us/microsoftteams/limits-specifications-teams#chat
+    'fileAttachmentMaxNumber': 10,
+};
 ```
