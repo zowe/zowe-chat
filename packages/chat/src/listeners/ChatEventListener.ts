@@ -9,11 +9,11 @@
  */
 
 import { IChatContextData, IMessage } from "@zowe/commonbot";
+import ChatListener from "./ChatListener";
 
-
-export abstract class ChatEventListener {
+export abstract class ChatEventListener extends ChatListener {
     constructor() {
-        // TODO
+        super();
     }
 
     // Match inbound message

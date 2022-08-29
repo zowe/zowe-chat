@@ -118,6 +118,29 @@ export const enum IActionType {
     UNSUPPORTED = 'unsupported'
 }
 
+export const enum IConnectionStatus {
+    ALIVE = 'alive',
+    NOT_CONNECTED = 'not_connected',
+    CONNECTING = 'connecting',
+    RECONNECTING = 'reconnecting',
+    CLOSED = 'closed',
+    CLOSING = 'closing',
+    EXPIRED = 'expired',
+    ERROR = 'error',
+}
+
+// export const enum ISlackBlockType {
+//     ACTION = 'action',
+//     CONTEXT = 'context',
+//     DIVIDER = 'Divider',
+//     FILE = 'file',
+//     HEADER = 'header',
+//     IMAGE = 'image',
+//     INPUT = 'input',
+//     SECTION = 'section',
+//     VIDEO = 'video',
+// }
+
 export interface IMessage {
     type: IMessageType,
     message: any, // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -367,25 +390,42 @@ export interface IAction {
 }
 
 export interface IName {
-    id: string,
-    name: string
+    id: string;
+    name: string;
 }
 
 export interface IChannel {
-    id: string,
-    name: string,
-    chattingType: IChattingType,
+    id: string;
+    name: string;
+    chattingType: IChattingType;
 }
 
-export const enum IConnectionStatus {
-    ALIVE = 'alive',
-    NOT_CONNECTED = 'not_connected',
-    CONNECTING = 'connecting',
-    RECONNECTING = 'reconnecting',
-    CLOSED = 'closed',
-    CLOSING = 'closing',
-    EXPIRED = 'expired',
-    ERROR = 'error',
+export interface IBotLimit {
+    messageMaxLength: number; // Unit: characters for Mattermost and Slack, byte for Microsoft Teams
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IMattermostBotLimit extends IBotLimit {
+    // TODO:
+}
 
+export interface ISlackBotLimit extends IBotLimit {
+    blockIdMaxLength: number;
+    actionBlockElementsMaxNumber: number;
+    contextBlockElementsMaxNumber: number;
+    headerBlockTextMaxLength: number;
+    imageBlockUrlMaxLength: number;
+    imageBlockAltTextMaxLength: number;
+    imageBlockTitleTextMaxLength: number;
+    inputBlockLabelTextMaxLength: number;
+    inputBlockHintTextMaxLength: number;
+    sectionBlockTextMaxLength: number;
+    sectionBlockFieldsMaxNumber: number;
+    sectionBlockFieldsTextMaxLength: number;
+    videoBlockAuthorNameMaxLength: number;
+    videoBlockTitleTextMaxLength: number;
+}
+
+export interface IMsteamsBotLimit extends IBotLimit {
+    fileAttachmentMaxNumber: number;
+}

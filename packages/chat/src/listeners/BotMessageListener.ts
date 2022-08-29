@@ -12,13 +12,15 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ from "lodash";
 
-import { IChatContextData, IChatToolType } from '@zowe/commonbot';
+import BotListener = require('./BotListener');
+
+import { IChatContextData } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityFacility } from '../security/SecurityFacility';
 import { Logger } from '../utils/Logger';
 import Util from '../utils/Util';
 
-export class BotMessageListener {
+export class BotMessageListener extends BotListener {
 
     private chatListeners: IChatListenerRegistryEntry[];
     private readonly botName;
@@ -27,28 +29,14 @@ export class BotMessageListener {
     private readonly securityFacility: SecurityFacility;
 
     constructor(config: AppConfig, securityFac: SecurityFacility, log: Logger) {
+        super();
+
         this.chatListeners = [];
         this.config = config;
         this.log = log;
         this.securityFacility = securityFac;
         this.matchMessage = this.matchMessage.bind(this);
         this.processMessage = this.processMessage.bind(this);
-        // TODO: Bot name should be hoisted to a common variable
-        switch (this.config.app.chatToolType) {
-            case IChatToolType.MATTERMOST:
-                this.botName = this.config.mattermost.botUserName;
-                break;
-            case IChatToolType.SLACK:
-                this.botName = this.config.slack.botUserName;
-                break;
-            case IChatToolType.MSTEAMS:
-                this.botName = this.config.msteams.botUserName;
-                break;
-            default:
-                this.log.error(`Unknown chat tool type: ${this.config.app.chatToolType}`);
-                throw new Error(`Unknown chat tool type: ${this.config.app.chatToolType}`);
-        }
-
     }
 
     // Register Zowe chat listener
@@ -76,11 +64,9 @@ export class BotMessageListener {
         this.log.start(this.matchMessage, this);
 
         try {
-            // Initialize extra data
-            chatContextData.extraData = {
-                listeners: <IChatListenerRegistryEntry[]>[],
-                contexts: <IChatContextData[]>[],
-            };
+            // Initialize listener and context pool
+            const listeners: IChatListenerRegistryEntry[] = [];
+            const contexts: IChatContextData[] = [];
 
             // Match the bot name
 
@@ -88,20 +74,42 @@ export class BotMessageListener {
             if ((<string>chatContextData.payload.data).indexOf(`@${this.botName}`) === -1) {
                 this.log.debug(`Received message is not for @${this.botName}, ignoring.`);
             } else {
-                // Find matched listeners
-                for (const listener of this.chatListeners) {
-                    const contextData: IChatContextData = _.cloneDeep(chatContextData);
-                    if ((<IMessageListener>listener.listenerInstance).matchMessage(contextData)) {
-                        chatContextData.extraData.listeners.push(listener);
-                        chatContextData.extraData.contexts.push(contextData);
+                if (chatContextData.payload.type === IPayloadType.MESSAGE) {
+                    // Find matched listeners
+                    for (const listener of this.chatListeners) {
+                        const contextData: IChatContextData = _.cloneDeep(chatContextData);
+                        if (contextData.extraData === undefined || contextData.extraData === null) {
+                            contextData.extraData = {
+                                'chatPlugin': listener.chatPlugin,
+                            };
+                        } else {
+                            contextData.extraData.chatPlugin = listener.chatPlugin;
+                        }
+                        if ((<IMessageListener>listener.listenerInstance).matchMessage(contextData)) {
+                            listeners.push(listener);
+                            contexts.push(contextData);
+                        }
                     }
+                } else {
+                    logger.error(`Wrong payload type: ${chatContextData.payload.type}`);
+                }
+
+                // Set listener and context pool
+                if (chatContextData.extraData === undefined || chatContextData.extraData === null) {
+                    chatContextData.extraData = {
+                        'listeners': listeners,
+                        'contexts': contexts,
+                    };
+                } else {
+                    chatContextData.extraData.listeners = listeners;
+                    chatContextData.extraData.contexts = contexts;
                 }
                 this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the message!`);
                 this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
             }
 
             // Set return result
-            if (chatContextData.extraData.listeners.length > 0) {
+            if (listeners.length > 0) {
                 return true;
             } else {
                 return false;

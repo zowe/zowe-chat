@@ -22,6 +22,7 @@ import { SecurityFacility } from '../security/SecurityFacility';
 import { IChatListenerType, IChatPlugin } from '../types';
 import { Logger } from '../utils/Logger';
 import { MessagingApp } from './MessagingApp';
+import Util = require('../utils/Util');
 
 export class ChatBot {
 
@@ -149,8 +150,8 @@ export class ChatBot {
             let pluginList = <IChatPlugin[]>this.readYamlFile(pluginYamlFilePath)
             this.log.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
-            // Sort plugin per priority in descend order
-            pluginList.sort((a, b) => b.priority - a.priority);
+            // Sort plugin per priority in ascend order: Priority 1 (Urgent) · Priority 2 (High) · Priority 3 (Medium) · Priority 4 (Low)
+            this.plugins.sort((a, b)=>a.priority - b.priority);
             this.log.debug(`Plugins sorted by priority:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Load plugins one by one in priority descend order
@@ -168,31 +169,42 @@ export class ChatBot {
 
                 // Check whether the plugin is installed
                 if (fs.existsSync(pluginPath) === false) {
-                    this.log.error(`The plugin file "${pluginPath}" does not exist!`);
-                } else {
-                    // Load plugin
-                    const ZoweChatPlugin = require(pluginPath);
+                    this.log.error(`Can't load the plugin ${plugin.package} due to the plugin file path "${pluginPath}" does not exist!`);
+                    continue;
+                }
 
-                    // Create and register listeners
-                    for (const listenerName of plugin.listeners) {
-                        // Create listener
-                        if (listenerName.endsWith('MessageListener')) {
-                            this.botMessageListener.registerChatListener({
-                                'listenerName': listenerName,
-                                'listenerType': IChatListenerType.MESSAGE,
-                                'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
-                                'chatPlugin': plugin,
-                            });
-                        } else if (listenerName.endsWith('EventListener')) {
-                            this.botEventListener.registerChatListener({
-                                'listenerName': listenerName,
-                                'listenerType': IChatListenerType.EVENT,
-                                'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
-                                'chatPlugin': plugin,
-                            });
-                        } else {
-                            this.log.error(`The listener "${listenerName}" is not supported!`);
-                        }
+                // Verify the consistency of package name
+                const packageFilePath = `${pluginPath}${path.sep}package.json`;
+                const packageName = Util.getPackageName(packageFilePath);
+                if (plugin.package !== packageName) {
+                    this.log.error(`Can't load the plugin ${plugin.package} due to the specified package name in ${pluginYamlFilePath} `
+                        + `is not consistent with the real package name in ${packageFilePath}`);
+                    continue;
+                }
+
+                // Load plugin
+                const ZoweChatPlugin = require(pluginPath);
+
+                // Create and register listeners
+                for (const listenerName of plugin.listeners) {
+                    // Create listener
+                    if (listenerName.endsWith('MessageListener')) {
+                        this.botMessageListener.registerChatListener({
+                            'listenerName': listenerName,
+                            'listenerType': IChatListenerType.MESSAGE,
+                            'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
+                            'chatPlugin': plugin,
+                        });
+                    } else if (listenerName.endsWith('EventListener')) {
+                        this.botEventListener.registerChatListener({
+                            'listenerName': listenerName,
+                            'listenerType': IChatListenerType.EVENT,
+                            'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
+                            'chatPlugin': plugin,
+                        });
+                    } else {
+                        this.log.error(`The listener "${listenerName}" is not supported!`);
+                    }
                     }
                 }
                 this.log.debug(`Loading plugin ${plugin.package} complete`);

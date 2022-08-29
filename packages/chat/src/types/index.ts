@@ -66,4 +66,17 @@ export interface IChatListenerRegistryEntry {
     chatPlugin: IChatPlugin;
 }
 
+export interface ICommand {
+    scope: string;
+    resource: string;
+    verb: string;
+    object: string;
+    adjective: IAdjective;
+    extraData?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export interface IAdjective {
+    arguments: string[];
+    option: Record<string, string>;
+}
 

@@ -15,6 +15,7 @@ import { Logger } from "./utils/Logger";
 export import Config = require('./common/Config');
 export import ChatEventListener = require('./listeners/ChatEventListener');
 export import ChatMessageListener = require('./listeners/ChatMessageListener');
+export import ChatHandler = require('./handlers/ChatHandler');
 export import ChatView = require('./views/ChatView');
 export import ChatMattermostView = require('./views/ChatMattermostView');
 export import ChatSlackView = require('./views/ChatSlackView');
