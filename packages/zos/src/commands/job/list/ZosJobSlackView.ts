@@ -10,22 +10,19 @@
 
 import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IExecutor, ChatSlackView, ISlackBotLimit, IBotOption} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, IExecutor, ChatSlackView, ISlackBotLimit, IBotOption, ICommand} from '@zowe/chat';
 
-import * as i18nJsonData from '../../../i18n/jobDisplay.json';
+const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
 const logger = Logger.getInstance();
 
 class ZosJobSlackView extends ChatSlackView {
-    private pluginId: string = '';
-    constructor(botOption: IBotOption, botLimit: ISlackBotLimit, pluginId: string) {
+    constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
         super(botOption, botLimit);
-
-        this.pluginId = pluginId;
     }
 
     // Get overview view.
-    getOverview(jobs: IJob[], executor: IExecutor, options: Record<string, string>, packageName: string): IMessage[] {
+    getOverview(jobs: IJob[], executor: IExecutor, command: ICommand): IMessage[] {
         // Print start log
         logger.start(this.getOverview, this);
 
@@ -113,7 +110,7 @@ class ZosJobSlackView extends ChatSlackView {
 
                 // Create options for job details select menu
                 detailOptions.push(super.createSelectMenuOption(`Details of ${job.jobname}(${job.jobid})`,
-                        `@${this.botOption.chatTool.option.botUserName}:zos:job:list:job:id=${job.jobid}`));
+                        `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`));
             }
 
             // Create action block object.
@@ -122,7 +119,7 @@ class ZosJobSlackView extends ChatSlackView {
                 'elements': <Record<string, unknown>[]>[],
             };
             const actionData = {
-                'pluginId': packageName,
+                'pluginId': command.extraData.chatPlugin.package,
                 'actionId': 'showJobDetails',
                 'token': '',
                 'placeHolder': i18nJsonData.overview.dropDownPlaceholder,

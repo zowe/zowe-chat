@@ -9,19 +9,15 @@
  */
 
 
-import {IExecutor, IMessage, IMessageType, Logger, IBotLimit, ICommand, IBotOption} from '@zowe/chat';
+import {IExecutor, IMessage, IMessageType, Logger, IBotLimit, ICommand, IBotOption, ChatDispatcher} from '@zowe/chat';
 import ZosJobHandler from './job/list/ZosJobListHandler';
-import * as i18nJsonData from '../i18n/jobDisplay.json';
+const i18nJsonData = require('../i18n/jobDisplay.json');
 
 const logger = Logger.getInstance();
 
-class ZosCommandDispatcher {
-    protected botOption: IBotOption = null;
-    protected botLimit: IBotLimit = null;
-
+class ZosCommandDispatcher extends ChatDispatcher {
     constructor(botOption: IBotOption, botLimit: IBotLimit) {
-        this.botOption = botOption;
-        this.botLimit = botLimit;
+        super(botOption, botLimit);
     }
 
     // Dispatch all zos commands.
@@ -31,9 +27,11 @@ class ZosCommandDispatcher {
         let messages: IMessage[] = [];
         try {
             if (command.resource === 'job') {
+                // Default verb is list.
                 if (command.verb === '' || command.verb === 'list') {
-                    if (command.object === '' || command.object === 'job') {
-                        const handler = new ZosJobHandler(this.botOption, this.botLimit, command.extraData.chatPlugin.package);
+                    // Default object list
+                    if (command.object === '' || command.object === 'status') {
+                        const handler = new ZosJobHandler(this.botOption, this.botLimit);
                         messages = await handler.getJob(command, executor);
                     } else {
                         messages= [{

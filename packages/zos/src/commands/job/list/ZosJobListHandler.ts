@@ -24,19 +24,18 @@ const config = Config.getInstance();
 
 class ZosJobHandler extends ChatHandler {
     private view: ZosJobSlackView | ZosJobMattermostView | ZosJobMsteamsView = null;
-    private pluginId: string = '';
 
-    constructor(botOption: IBotOption, botLimit: IBotLimit, pluginId: string) {
+    constructor(botOption: IBotOption, botLimit: IBotLimit) {
         super(botOption, botLimit);
 
         this.getJob = this.getJob.bind(this);
 
         if (botOption.chatTool.type === IChatToolType.SLACK) {
-            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit, pluginId);
+            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit);
         } else if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
-            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit, pluginId);
+            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit);
         } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
-            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit, pluginId);
+            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit);
         }
     }
 
@@ -94,9 +93,6 @@ class ZosJobHandler extends ChatHandler {
                 }];
             }
 
-            // Add record limit from Zowe Chat configuration to adjectives, then adjectives[limit] can be reached when generating header message.
-            options['limit'] = limit;
-
             // TODO: Will integrate with Authentication functionality later.
             /* let hostName: string = null;
             if (adjectives['host'] !== undefined) {
@@ -148,8 +144,8 @@ class ZosJobHandler extends ChatHandler {
                 // hostname: hostName,
                 port: 443,
                 // port: Number(port).valueOf(),
-                password: '',
                 user: '',
+                password: '',
                 // user: user,
                 // password: password,
                 type: SessConstants.AUTH_TYPE_BASIC,
@@ -172,7 +168,7 @@ class ZosJobHandler extends ChatHandler {
             if (id !== null && jobs.length === 1) { // if id is specified, show detail view.
                 messages = this.view.getDetail(jobs, executor);
             } else {
-                messages = this.view.getOverview(jobs, executor, options, command.extraData.chatPlugin.package);
+                messages = this.view.getOverview(jobs, executor, command);
             }
 
             return messages;

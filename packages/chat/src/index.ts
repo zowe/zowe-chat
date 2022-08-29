@@ -20,6 +20,7 @@ export import ChatView = require('./views/ChatView');
 export import ChatMattermostView = require('./views/ChatMattermostView');
 export import ChatSlackView = require('./views/ChatSlackView');
 export import ChatMsteamsView = require('./views/ChatMsteamsView');
+export import ChatDispatcher = require('./dispatchers/ChatDispatcher');
 /* eslint-enable @typescript-eslint/no-unused-vars, no-unused-vars */
 
 // Start chat bot

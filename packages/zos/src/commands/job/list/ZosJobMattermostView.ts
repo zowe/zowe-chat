@@ -10,22 +10,19 @@
 
 import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, ChatMattermostView, IExecutor, IBotOption, IMattermostBotLimit} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, ChatMattermostView, IExecutor, IBotOption, IMattermostBotLimit, ICommand} from '@zowe/chat';
 
-import * as i18nJsonData from '../../../i18n/jobDisplay.json';
+const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
 const logger = Logger.getInstance();
 
 class ZosJobMattermostView extends ChatMattermostView {
-    private pluginId: string = '';
-    constructor(botOption: IBotOption, botLimit: IMattermostBotLimit, pluginId: string) {
+    constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
         super(botOption, botLimit);
-
-        this.pluginId = pluginId;
     }
 
     // Get overview view.
-    getOverview(jobs: IJob[], executor: IExecutor, options: Record<string, string>, packageName: string): IMessage[] {
+    getOverview(jobs: IJob[], executor: IExecutor, command: ICommand): IMessage[] {
         // Print start log
         logger.start(this.getOverview, this);
 
@@ -90,14 +87,14 @@ class ZosJobMattermostView extends ChatMattermostView {
                 // Options for details message menu.
                 detailOptions.push({
                     'text': `Details of ${job.jobname}(${job.jobid})`,
-                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:job:id=${job.jobid}`,
+                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`,
                 });
             }
 
             // Add action
             const actions = <Record<string, unknown>[]>[];
             const contextData = {
-                'pluginId': packageName,
+                'pluginId': command.extraData.chatPlugin.package,
                 'token': '',
                 'id': '',
             };

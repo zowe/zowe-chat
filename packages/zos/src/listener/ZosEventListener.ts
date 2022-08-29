@@ -11,7 +11,7 @@
 import {Logger, ChatEventListener, IActionType, IChatContextData, IChatToolType, IEvent, IExecutor, IMessage, IMessageType, ICommand} from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
-import * as i18nJsonData from '../i18n/jobDisplay.json';
+const i18nJsonData = require('../i18n/jobDisplay.json');
 
 const logger = Logger.getInstance();
 
@@ -47,9 +47,9 @@ class ZosEventListener extends ChatEventListener {
             this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
             logger.debug(`Command is ${JSON.stringify(this.command)}`);
 
-            // 1: Match bot name
+            // 1: Match bot name.
             // 2. TODO: Check if it is a valid command.
-            // 3: Match command scope and resource
+            // 3: Match command scope.
             if (this.command.extraData.botUserName === botOption.chatTool.option.botUserName) {
                 if (this.command.scope === 'zos') {
                     this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
