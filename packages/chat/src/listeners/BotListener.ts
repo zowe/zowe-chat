@@ -8,11 +8,10 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-export interface ICommand {
-    scope: string,
-    resource: string,
-    verb: string,
-    object: string,
-    adjectives: Record<string, string>,
+class BotListener {
+    constructor() {
+        // TODO
+    }
 }
 
+export = BotListener;

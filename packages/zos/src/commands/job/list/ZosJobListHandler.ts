@@ -8,53 +8,35 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import fs = require('fs');
 import {IJob, GetJobs} from '@zowe/zos-jobs-for-zowe-sdk';
-import {
-    ISession,
-    Session,
-    SessConstants,
-} from '@zowe/imperative';
+import {ISession, Session, SessConstants} from '@zowe/imperative';
 
-import {Logger, IMessage, IMessageType, IChatToolType, IExecutor, IBotOption, Config} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, IChatToolType, IExecutor, Config, ChatHandler, IBotOption, IBotLimit, ICommand, IMsteamsBotLimit,
+    IMattermostBotLimit, ISlackBotLimit} from '@zowe/chat';
 
-import {ICommand} from '../types/index';
-import ZosJobSlackView from './view/ZosJobSlackView';
-import ZosJobMattermostView from './view/ZosJobMattermostView';
-import ZosJobMsteamsView from './view/ZosJobMsteamsView';
+import ZosJobSlackView from './ZosJobSlackView';
+import ZosJobMattermostView from './ZosJobMattermostView';
+import ZosJobMsteamsView from './ZosJobMsteamsView';
 
 const logger = Logger.getInstance();
+const config = Config.getInstance();
 
-class ZosJobHandler {
+
+class ZosJobHandler extends ChatHandler {
     private view: ZosJobSlackView | ZosJobMattermostView | ZosJobMsteamsView = null;
-    private static packageName: string = '';
+    private pluginId: string = '';
 
-    // get package name as plugin id for interactive component.
-    private static getPackageName(): string {
-        try {
-            if (ZosJobHandler.packageName === '') {
-                const filePath = `${__dirname}/../package.json`;
-                const jsonFileContent = fs.readFileSync(filePath, 'utf-8');
-                const packageJsonData = JSON.parse(jsonFileContent);
-                ZosJobHandler.packageName = packageJsonData.name;
-            }
-        } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
-            ZosJobHandler.packageName = '';
-        }
-        return ZosJobHandler.packageName;
-    }
+    constructor(botOption: IBotOption, botLimit: IBotLimit, pluginId: string) {
+        super(botOption, botLimit);
 
-
-    constructor(botOption: IBotOption) {
         this.getJob = this.getJob.bind(this);
 
-        if ( botOption.chatTool.type === IChatToolType.SLACK) {
-            this.view = new ZosJobSlackView(botOption);
-        } else if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
-            this.view = new ZosJobMattermostView(botOption);
-        } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
-            this.view = new ZosJobMsteamsView(botOption);
+        if (config.getBotOption().chatTool.type === IChatToolType.SLACK) {
+            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit, pluginId);
+        } else if (config.getBotOption().chatTool.type === IChatToolType.MATTERMOST) {
+            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit, pluginId);
+        } else if (config.getBotOption().chatTool.type === IChatToolType.MSTEAMS) {
+            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit, pluginId);
         }
     }
 
@@ -65,7 +47,7 @@ class ZosJobHandler {
 
         let messages: IMessage[] = [];
         try {
-            const adjectives = command.adjectives;
+            const adjectives = command.adjective.option;
 
             // Get adjective job id -- Optional
             let id: string = null;
@@ -163,11 +145,11 @@ class ZosJobHandler {
             // session to connect Zosmf REST API.
             const sessionInfo: ISession = {
                 hostname: '',
+                // hostname: hostName,
                 port: 443,
+                // port: Number(port).valueOf(),
                 password: '',
                 user: '',
-                // hostname: hostName,
-                // port: Number(port).valueOf(),
                 // user: user,
                 // password: password,
                 type: SessConstants.AUTH_TYPE_BASIC,
@@ -187,11 +169,10 @@ class ZosJobHandler {
             logger.debug(`Got ${jobs.length} job.`);
 
 
-            if (id !== null
-                    && jobs.length === 1) { // if id is specified, show detail view.
-                messages = this.view.getDetail(jobs, executor, adjectives);
+            if (id !== null && jobs.length === 1) { // if id is specified, show detail view.
+                messages = this.view.getDetail(jobs, executor);
             } else {
-                messages = this.view.getOverview(jobs, executor, adjectives, ZosJobHandler.getPackageName());
+                messages = this.view.getOverview(jobs, executor, adjectives, command.extraData.chatPlugin.package);
             }
 
             return messages;

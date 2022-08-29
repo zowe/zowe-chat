@@ -10,19 +10,18 @@
 
 import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IBotOption, ChatMattermostView, IExecutor} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, ChatMattermostView, IExecutor, IBotOption, IMattermostBotLimit} from '@zowe/chat';
 
-import * as i18nJsonData from '../../i18n/jobDisplay.json';
+import * as i18nJsonData from '../../../i18n/jobDisplay.json';
 
 const logger = Logger.getInstance();
 
 class ZosJobMattermostView extends ChatMattermostView {
-    private botOption: IBotOption;
+    private pluginId: string = '';
+    constructor(botOption: IBotOption, botLimit: IMattermostBotLimit, pluginId: string) {
+        super(botOption, botLimit);
 
-    constructor(botOption: IBotOption) {
-        super();
-
-        this.botOption = botOption;
+        this.pluginId = pluginId;
     }
 
     // Get overview view.
@@ -48,6 +47,7 @@ class ZosJobMattermostView extends ChatMattermostView {
             const detailOptions = [];
             // Create fields array within attachment.
             const fields = [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let job: Record<string, any>;
             for (job of jobs) {
                 fields.push({
@@ -102,10 +102,11 @@ class ZosJobMattermostView extends ChatMattermostView {
                 'id': '',
             };
             super.addMenuAction(actions, i18nJsonData.overview.dropDownPlaceholder,
-                    `${this.botOption.messagingApp.option.protocol}://${this.botOption.messagingApp.option.hostName}:${this.botOption.messagingApp.option.port}${this.botOption.messagingApp.option.basePath}`,
+                    this.messagingEndpointUrl,
                     contextData, detailOptions);
 
             // Create message attachments
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const attachmentObject: Record<string, any> = {
                 props: {
                     attachments: [
@@ -136,7 +137,7 @@ class ZosJobMattermostView extends ChatMattermostView {
     }
 
     // Get detail view.
-    getDetail(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>): IMessage[] {
+    getDetail(jobs: IJob[], executor: IExecutor): IMessage[] {
         // Print start log
         logger.start(this.getDetail, this);
 
@@ -155,6 +156,7 @@ class ZosJobMattermostView extends ChatMattermostView {
                 headerMessage = `@${executor.name}. Here is the the basic information of ${jobs[0].jobid}:`;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const job: Record<string, any> = jobs[0];
 
             // Create fields array within attachment.
@@ -225,6 +227,7 @@ class ZosJobMattermostView extends ChatMattermostView {
             });
 
             // Create message attachments
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const attachmentObject: Record<string, any> = {
                 props: {
                     attachments: [

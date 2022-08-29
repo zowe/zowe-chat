@@ -10,19 +10,18 @@
 
 import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IExecutor, IBotOption, ChatMsteamsView} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, IExecutor, ChatMsteamsView, IBotOption, IMsteamsBotLimit} from '@zowe/chat';
 
-import * as i18nJsonData from '../../i18n/jobDisplay.json';
+import * as i18nJsonData from '../../../i18n/jobDisplay.json';
 
 const logger = Logger.getInstance();
 
 class ZosJobMsteamsView extends ChatMsteamsView {
-    private botOption: IBotOption;
+    private pluginId: string = '';
+    constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit, pluginId: string) {
+        super(botOption, botLimit);
 
-    constructor(botOption: IBotOption) {
-        super();
-
-        this.botOption = botOption;
+        this.pluginId = pluginId;
     }
 
     // Get overview
@@ -51,8 +50,10 @@ class ZosJobMsteamsView extends ChatMsteamsView {
             });
 
             // Create adaptive card object.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const cardObject: Record<string, any> = super.createEmptyAdaptiveCard();
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let job: Record<string, any>;
             const detailOptions = [];
             for (job of jobs) {
@@ -113,7 +114,7 @@ class ZosJobMsteamsView extends ChatMsteamsView {
     }
 
     // Get detail.
-    getDetail(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>): IMessage[] {
+    getDetail(jobs: IJob[], executor: IExecutor): IMessage[] {
         // Print start log
         logger.start(this.getDetail, this);
 
@@ -132,7 +133,9 @@ class ZosJobMsteamsView extends ChatMsteamsView {
                 headerMessage = `@${executor.name}. Here is the the basic information of ${jobs[0].jobid}:`;
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const job: Record<string, any> = jobs[0];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const cardObject: Record<string, any> = super.createEmptyAdaptiveCard();
 
             // Add column set

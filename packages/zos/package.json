@@ -1,10 +1,10 @@
 {
-  "name": "@zowe/zosjob",
+  "name": "@zowe/zos",
   "version": "1.0.0",
-  "description": "Manage z/OS jobs from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
+  "description": "Manage z/OS jobs, datasets, USS files from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
   "type": "commonjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "gulp build",
     "packaging": "gulp packaging",
@@ -19,7 +19,9 @@
     "Chat",
     "z/OS",
     "Z",
-    "job"
+    "job",
+    "dataset", 
+    "file"
   ],
   "author": "Zowe",
   "license": "EPL-2.0",

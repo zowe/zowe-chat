@@ -9,10 +9,11 @@
  */
 
 import {IChatContextData, IMessage} from '../types';
+import ChatListener from './ChatListener';
 
-abstract class ChatEventListener {
+abstract class ChatEventListener extends ChatListener {
     constructor() {
-        // TODO
+        super();
     }
 
     // Match inbound message

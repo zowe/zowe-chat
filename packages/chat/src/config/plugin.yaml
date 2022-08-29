@@ -5,3 +5,10 @@
   listeners:
     - ZosJobMessageListener
     - ZosJobEventListener
+- package: "@zowe/clicmd"
+  registry: https://registry.npmjs.org/
+  version: 0.0.1
+  priority: 2
+  listeners:
+    - ZoweCliCommandMessageListener
+    - ZoweCliCommandEventListener

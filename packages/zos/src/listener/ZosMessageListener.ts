@@ -8,21 +8,19 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import yargs from 'yargs';
-import nodeUtil from 'util';
+import {Logger, ChatMessageListener, IChatContextData, IChatToolType, IExecutor, IMessage, IMessageType, ICommand} from '@zowe/chat';
 
-import {Logger, ChatMessageListener, IChatContextData, IChatToolType, IExecutor, IMessage, IMessageType} from '@zowe/chat';
-
-import {ICommand} from '../types/index';
-import ZosJobHandler from '../command/ZosJobHandler';
+import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
 import * as i18nJsonData from '../i18n/jobDisplay.json';
 
 const logger = Logger.getInstance();
 
-class ZosJobMessageListener implements ChatMessageListener {
+class ZosMessageListener extends ChatMessageListener {
     private command: ICommand;
 
     constructor() {
+        super();
+
         this.processMessage = this.processMessage.bind(this);
     }
 
@@ -35,30 +33,16 @@ class ZosJobMessageListener implements ChatMessageListener {
             // print incoming message
             logger.debug(`Incoming message: ${JSON.stringify(chatContextData.payload, null, 4)}`);
 
-            const message: string = <string>chatContextData.payload.data;
-            const argv = yargs.parseSync(message);
-            logger.debug(`Command argv is ${nodeUtil.inspect(argv, {compact: false, depth: 2})}`);
-
             const botOption = chatContextData.context.chatting.bot.getOption();
-            this.command = {
-                'scope': argv._[1] !== undefined ? String(argv._[1]): '',
-                'resource': argv._[2] !== undefined ? String(argv._[2]): '',
-                'verb': argv._[3] !== undefined ? String(argv._[3]): '',
-                'object': argv._[4] !== undefined ? String(argv._[4]): '',
-                'adjectives': {},
-            };
-
-            for (const key in argv) {
-                if (key !== '_' && key !== '$0') {
-                    this.command.adjectives[key] = String(argv[key]);
-                }
-            }
+            this.command = super.parseMessage(chatContextData);
 
             // 1: Match bot name
             // 2. TODO: Check if it is a valid command.
             // 3: Match command scope and resource
-            if (<string>argv._[0] === `@${botOption.chatTool.option.botUserName}`) {
-                if (this.command.scope === 'zos' && this.command.resource === 'job') {
+            if (this.command.extraData.botUserName === botOption.chatTool.option.botUserName) {
+                if (this.command.scope === 'zos') {
+                    this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
+
                     logger.debug('Message matched!');
                     return true;
                 }
@@ -81,7 +65,6 @@ class ZosJobMessageListener implements ChatMessageListener {
         logger.start(this.processMessage, this);
 
         // Process message
-        let messages: IMessage[] = [];
         try {
             // Create executor
             const executor: IExecutor = {
@@ -104,31 +87,9 @@ class ZosJobMessageListener implements ChatMessageListener {
             }
 
             logger.debug(`Incoming command is ${JSON.stringify(this.command)}`);
-            if (this.command.resource === 'job') {
-                if (this.command.verb === 'list') {
-                    if (this.command.object === 'job') {
-                        const handler = new ZosJobHandler(botOption);
-                        messages = await handler.getJob(this.command, executor);
-                    } else {
-                        messages= [{
-                            type: IMessageType.PLAIN_TEXT,
-                            message: i18nJsonData.error.unknownObject,
-                        }];
-                    }
-                } else {
-                    messages = [{
-                        type: IMessageType.PLAIN_TEXT,
-                        message: i18nJsonData.error.unknownVerb,
-                    }];
-                }
-            } else {
-                messages = [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: i18nJsonData.error.unknownResource,
-                }];
-            }
 
-            return messages;
+            const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
+            return await dispatcher.dispatch(this.command, executor);
         } catch (error) {
             // Print exception stack
             logger.error(logger.getErrorStack(new Error(error.name), error));
@@ -143,4 +104,4 @@ class ZosJobMessageListener implements ChatMessageListener {
     }
 }
 
-export = ZosJobMessageListener;
+export = ZosMessageListener;

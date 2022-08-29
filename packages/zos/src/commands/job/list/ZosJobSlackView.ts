@@ -10,19 +10,18 @@
 
 import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IExecutor, IBotOption, ChatSlackView} from '@zowe/chat';
+import {Logger, IMessage, IMessageType, IExecutor, ChatSlackView, ISlackBotLimit, IBotOption} from '@zowe/chat';
 
-import * as i18nJsonData from '../../i18n/jobDisplay.json';
+import * as i18nJsonData from '../../../i18n/jobDisplay.json';
 
 const logger = Logger.getInstance();
 
 class ZosJobSlackView extends ChatSlackView {
-    private botOption: IBotOption;
+    private pluginId: string = '';
+    constructor(botOption: IBotOption, botLimit: ISlackBotLimit, pluginId: string) {
+        super(botOption, botLimit);
 
-    constructor(botOption: IBotOption) {
-        super();
-
-        this.botOption = botOption;
+        this.pluginId = pluginId;
     }
 
     // Get overview view.
@@ -45,19 +44,22 @@ class ZosJobSlackView extends ChatSlackView {
                 headerMessage = `@${executor.name}. I have found ${jobs.length} jobs that match the filter:`;
             }
 
-            const attachmentObject: Record<string, any> = {
-                'text': headerMessage,
-                'attachments': [
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const blockObject: Record<string, any> = {
+                'blocks': [
                     {
-                        'color': '#f2c744',
-                        'blocks': [
-                        ],
+                        'type': 'section',
+                        'text': {
+                            'type': 'mrkdwn',
+                            'text': headerMessage,
+                        },
                     },
                 ],
                 'channel': executor.channel.id,
             };
 
             const detailOptions = [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let job: Record<string, any>;
             for (job of jobs) {
                 // Create fields array within section block.
@@ -99,11 +101,11 @@ class ZosJobSlackView extends ChatSlackView {
                     ],
                 };
 
-                // Add section block to message attachment.
-                attachmentObject.attachments[0].blocks.push(jobSection);
+                // Add section block to message blocks.
+                blockObject.blocks.push(jobSection);
 
                 // Add divider block
-                attachmentObject.attachments[0].blocks.push(
+                blockObject.blocks.push(
                         {
                             'type': 'divider',
                         },
@@ -129,12 +131,12 @@ class ZosJobSlackView extends ChatSlackView {
 
             // Add action block object to message attachments.
             if (actionBlock.elements.length > 0) {
-                attachmentObject.attachments[0].blocks.push(actionBlock);
+                blockObject.blocks.push(actionBlock);
             }
 
             messages.push({
                 type: IMessageType.SLACK_BLOCK,
-                message: attachmentObject,
+                message: blockObject,
             });
             return messages;
         } catch (error) {
@@ -151,7 +153,7 @@ class ZosJobSlackView extends ChatSlackView {
     }
 
     // Get detail view.
-    getDetail(jobs: IJob[], executor: IExecutor, adjectives: Record<string, string>): IMessage[] {
+    getDetail(jobs: IJob[], executor: IExecutor): IMessage[] {
         // Print start log
         logger.start(this.getDetail, this);
 
@@ -171,14 +173,17 @@ class ZosJobSlackView extends ChatSlackView {
             }
 
             // Get job
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const job: Record<string, any> = jobs[0];
-            const attachmentObject: Record<string, any> = {
-                'text': headerMessage,
-                'attachments': [
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const blockObject: Record<string, any> = {
+                'blocks': [
                     {
-                        'color': '#f2c744',
-                        'blocks': [
-                        ],
+                        'type': 'section',
+                        'text': {
+                            'type': 'mrkdwn',
+                            'text': headerMessage,
+                        },
                     },
                 ],
                 'channel': executor.channel.id,
@@ -231,7 +236,7 @@ class ZosJobSlackView extends ChatSlackView {
                 ],
             };
 
-            attachmentObject.attachments[0].blocks.push(jobSection);
+            blockObject.blocks.push(jobSection);
             // Only 10 items are allowed in one section.
             jobSection = {
                 'type': 'section',
@@ -268,10 +273,10 @@ class ZosJobSlackView extends ChatSlackView {
                 ],
             };
 
-            attachmentObject.attachments[0].blocks.push(jobSection);
+            blockObject.blocks.push(jobSection);
 
             // Add divider block
-            attachmentObject.attachments[0].blocks.push(
+            blockObject.blocks.push(
                     {
                         'type': 'divider',
                     },
@@ -279,7 +284,7 @@ class ZosJobSlackView extends ChatSlackView {
 
             messages.push({
                 type: IMessageType.SLACK_BLOCK,
-                message: attachmentObject,
+                message: blockObject,
             });
             return messages;
         } catch (error) {

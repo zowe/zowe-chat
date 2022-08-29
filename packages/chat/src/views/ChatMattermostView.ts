@@ -8,12 +8,16 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IActionType} from '../types';
+import {IActionType, IBotOption, IMattermostBotLimit} from '../types';
 import ChatView = require('./ChatView');
 
 class ChatMattermostView extends ChatView {
-    constructor() {
-        super();
+    protected botLimit: IMattermostBotLimit;
+
+    constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
+        super(botOption);
+
+        this.botLimit = botLimit;
     }
 
     // Add message menu action to the payload of action array.

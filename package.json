@@ -5,10 +5,14 @@
     "license": "EPL-2.0",
     "private": true,
     "scripts": {
-        "build": "gulp build"
+        "build": "gulp build",
+        "lint": "gulp lint"
     },
     "workspaces": [
-        "packages/*"
+        "packages/commonbot",
+        "packages/chat",
+        "packages/zos",
+        "packages/clicmd"
     ],
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": ">=5.10.1",

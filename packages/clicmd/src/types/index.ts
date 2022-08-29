@@ -8,11 +8,3 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import ZosJobMessageListener = require('./listener/ZosJobMessageListener');
-import ZosJobEventListener = require('./listener/ZosJobEventListener');
-
-
-export = {
-    ZosJobMessageListener,
-    ZosJobEventListener,
-};

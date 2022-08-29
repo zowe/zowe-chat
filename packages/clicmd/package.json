@@ -1,14 +1,13 @@
 {
-  "name": "@zowe/chat",
-  "version": "1.0.0",
-  "description": "Manage z/OS resources from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
+  "name": "@zowe/clicmd",
+  "version": "0.0.1",
+  "description": "Run Zowe CLI commands from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
   "type": "commonjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "gulp build",
     "packaging": "gulp packaging",
-    "start": "node index.js",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
     "lint": "gulp lint"
   },
@@ -18,7 +17,10 @@
   },
   "keywords": [
     "Zowe",
-    "Chat"
+    "Chat",
+    "z/OS",
+    "Z",
+    "CLI"
   ],
   "author": "Zowe",
   "license": "EPL-2.0",
@@ -27,20 +29,9 @@
   },
   "homepage": "https://github.com/zowe/zowe-chat#readme",
   "dependencies": {
-    "@zowe/commonbot": "*",
-    "express": "4.18.1",
-    "helmet": "^5.0.2",
-    "js-yaml": "^4.1.0",
-    "lodash": "^4.17.21",
-    "winston": "^3.7.2",
-    "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "@types/express": ">=4.17.13",
-    "@types/js-yaml": "^4.0.5",
-    "@types/lodash": "^4.14.182",
     "@types/node": ">=17.0.31",
-    "@types/yargs": "^17.0.11",
     "@typescript-eslint/eslint-plugin": ">=5.23.0",
     "@typescript-eslint/parser": ">=5.23.0",
     "eslint": ">=8.15.0",
@@ -48,9 +39,10 @@
     "ts-node": ">=10.7.0",
     "typescript": ">=4.6.4"
   },
-  "bundledDependencies": [
-    "@zowe/commonbot"
-  ],
+  "peerDependencies": {
+    "@zowe/chat": "*"
+  },
+  "bundledDependencies": [],
   "engines": {
     "node": ">=16.13.2"
   }

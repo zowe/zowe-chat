@@ -8,7 +8,8 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import type {IBotOption, IMessageMatcherFunction, IMessageHandlerFunction, IRouteHandlerFunction, IMessage, IChatContextData} from './types';
+import {IBotOption, IChatContextData, IChatToolType, IMattermostBotLimit, IMessage, IMessageHandlerFunction, IMessageMatcherFunction,
+    IMsteamsBotLimit, IRouteHandlerFunction, ISlackBotLimit} from './types';
 
 import Listener = require('./Listener');
 import logger = require('./utils/Logger');
@@ -16,12 +17,14 @@ import Router = require('./Router');
 import Middleware = require('./Middleware');
 
 import fs = require('fs');
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare function require(moduleName: string): any;
+import BotLimit = require('./BotLimit');
+import MattermostBotLimit = require('./plugins/mattermost/MattermostBotLimit');
+import SlackBotLimit = require('./plugins/slack/SlackBotLimit');
+import MsteamsBotLimit = require('./plugins/msteams/MsteamsBotLimit');
 
 class CommonBot {
     private option: IBotOption;
+    private limit: BotLimit | MattermostBotLimit | SlackBotLimit | MsteamsBotLimit;
     private middleware: Middleware;
     private listeners: Listener[]; // MsteamsListener | SlackListener[] | MattermostListener[];
     private router: Router; // | MsteamsRouter | SlackRouter | MattermostRouter;
@@ -30,6 +33,17 @@ class CommonBot {
     constructor(option: IBotOption) {
         this.option = option;
         logger.info(`Bot option: ${JSON.stringify(this.option, null, 4)}`);
+
+        // Create Limit instance
+        if (this.option.chatTool.type === IChatToolType.MATTERMOST) {
+            this.limit = new MattermostBotLimit();
+        } else if (this.option.chatTool.type === IChatToolType.SLACK) {
+            this.limit = new SlackBotLimit();
+        } else if (this.option.chatTool.type === IChatToolType.MSTEAMS) {
+            this.limit = new MsteamsBotLimit();
+        } else {
+            this.limit = null;
+        }
 
         this.middleware = null;
         this.listeners = [];
@@ -48,6 +62,15 @@ class CommonBot {
     // Set option
     setOption(option: IBotOption): void {
         this.option = option;
+    }
+
+    // Get limit
+    getLimit(): IMattermostBotLimit | ISlackBotLimit | IMsteamsBotLimit {
+        if (this.limit !== null) {
+            return this.limit.getLimit();
+        } else {
+            return null;
+        }
     }
 
     // Get middleware
