@@ -46,13 +46,23 @@ class ZoweCliCommandHandler extends ChatHandler {
             // Execute Zowe CLI command
             let cmdOutput = '';
             try {
+                // Get time limit value
+                let cmdTimeout = 10000;// Unit: millisecond; Default: 10 seconds
+                if (process.env.ZOWE_CLI_EXECUTION_TIME_OUT !== undefined && process.env.ZOWE_CLI_EXECUTION_TIME_OUT.trim() !== '') {
+                    cmdTimeout = Number(process.env.ZOWE_CLI_EXECUTION_TIME_OUT);
+                }
+
                 // TODO: must run using executors' own profile
                 logger.info(`Zowe CLI command to be executed: ${command.extraData.zoweCliCommand}`);
-                cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, { cwd: os.homedir() }).toString();
+                cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, {cwd: os.homedir(), timeout: cmdTimeout, windowsHide: true}).toString();
             } catch (error) {
                 logger.debug(`status: ${error.status}`);
                 logger.debug(`message: ${error.message}`);
-                cmdOutput = error.stderr;
+                if (error.code === 'ETIMEDOUT') { // Timeout
+                    cmdOutput = `${error.code}: The execution of Zowe CLI command "${command}" timed out.`;
+                } else {
+                    cmdOutput = error.stderr;
+                }
                 logger.debug(`stdout: ${error.stdout}`);
             }
 
