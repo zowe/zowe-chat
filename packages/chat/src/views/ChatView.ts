@@ -8,15 +8,29 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import { IBotOption } from '@zowe/commonbot';
+import { IBotOption, IChatToolType } from '@zowe/commonbot';
+import Logger from '@zowe/commonbot/dist/package/utils/Logger';
 
 export class ChatView {
+    protected readonly log: Logger;
     protected botOption: IBotOption = null;
+    protected readonly botName: string;
     protected messagingEndpointUrl: string = '';
 
     constructor(botOption: IBotOption) {
         this.botOption = botOption;
-
+        this.log = Logger.getInstance()
+        switch (botOption.chatTool) {
+            case IChatToolType.MATTERMOST:
+                this.botName = botOption.mattermost.botUserName
+                break;
+            case IChatToolType.MSTEAMS:
+                this.botName = botOption.msteams.botUserName
+                break;
+            case IChatToolType.SLACK:
+                this.botName = botOption.slack.botUserName
+                break;
+        }
         // Set messaging endpoint
         if (botOption.messagingApp !== null && botOption.messagingApp !== undefined) {
             this.messagingEndpointUrl = `${this.botOption.messagingApp.option.protocol}://${this.botOption.messagingApp.option.hostName}`

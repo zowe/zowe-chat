@@ -8,18 +8,17 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IJob, GetJobs} from '@zowe/zos-jobs-for-zowe-sdk';
-import {ISession, Session, SessConstants} from '@zowe/imperative';
+import { AppConfig, AppConfigLoader, ChatHandler, ICommand, IExecutor, Logger } from '@zowe/chat';
+import { IBotLimit, IBotOption, IChatToolType, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit } from '@zowe/commonbot';
+import { ISession, SessConstants, Session } from '@zowe/imperative';
+import { GetJobs, IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IChatToolType, IExecutor, Config, ChatHandler, IBotOption, IBotLimit, ICommand, IMsteamsBotLimit,
-    IMattermostBotLimit, ISlackBotLimit} from '@zowe/chat';
-
-import ZosJobSlackView from './ZosJobSlackView';
-import ZosJobMattermostView from './ZosJobMattermostView';
-import ZosJobMsteamsView from './ZosJobMsteamsView';
+import { ZosJobMattermostView } from './ZosJobMattermostView';
+import { ZosJobMsteamsView } from './ZosJobMsteamsView';
+import { ZosJobSlackView } from './ZosJobSlackView';
 
 const logger = Logger.getInstance();
-const config = Config.getInstance();
+const config: AppConfig = AppConfigLoader.loadAppConfig();
 
 
 class ZosJobHandler extends ChatHandler {
@@ -30,11 +29,11 @@ class ZosJobHandler extends ChatHandler {
 
         this.getJob = this.getJob.bind(this);
 
-        if (botOption.chatTool.type === IChatToolType.SLACK) {
+        if (botOption.chatTool === IChatToolType.SLACK) {
             this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit);
-        } else if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
+        } else if (botOption.chatTool === IChatToolType.MATTERMOST) {
             this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit);
-        } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
+        } else if (botOption.chatTool === IChatToolType.MSTEAMS) {
             this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit);
         }
     }
@@ -80,7 +79,7 @@ class ZosJobHandler extends ChatHandler {
             if (options['limit'] !== undefined) {
                 limit = options['limit'];
             } else {
-                limit = String(config.getConfig().chatServer.recordLimit);
+                limit = String(config.app.recordLimit);
             }
             logger.debug(`limit: ${limit}`);
 

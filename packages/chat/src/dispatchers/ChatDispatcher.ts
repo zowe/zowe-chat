@@ -8,9 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IBotOption, IBotLimit} from '../types';
+import { IBotLimit, IBotOption } from '@zowe/commonbot';
 
-class ChatDispatcher {
+export class ChatDispatcher {
     protected botOption: IBotOption = null;
     protected botLimit: IBotLimit = null;
 
@@ -19,5 +19,3 @@ class ChatDispatcher {
         this.botLimit = botLimit;
     }
 }
-
-export = ChatDispatcher;

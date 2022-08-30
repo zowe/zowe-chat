@@ -12,7 +12,7 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ from "lodash";
 
-import { IChatContextData, IPayloadType } from '@zowe/commonbot';
+import { IChatContextData, IChatToolType, IPayloadType } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityFacility } from '../security/SecurityFacility';
 import { Logger } from '../utils/Logger';
@@ -29,7 +29,17 @@ export class BotMessageListener extends BotListener {
 
     constructor(config: AppConfig, securityFac: SecurityFacility, log: Logger) {
         super();
-
+        switch (config.app.chatToolType) {
+            case IChatToolType.MATTERMOST:
+                this.botName = config.mattermost.botUserName
+                break;
+            case IChatToolType.MSTEAMS:
+                this.botName = config.msteams.botUserName
+                break;
+            case IChatToolType.SLACK:
+                this.botName = config.slack.botUserName
+                break;
+        }
         this.chatListeners = [];
         this.config = config;
         this.log = log;

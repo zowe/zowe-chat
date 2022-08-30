@@ -8,7 +8,8 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {Logger, ChatEventListener, IActionType, IChatContextData, IChatToolType, IEvent, IExecutor, IMessage, IMessageType, ICommand} from '@zowe/chat';
+import { ChatEventListener, ICommand, IExecutor, Logger } from '@zowe/chat';
+import { IActionType, IChatContextData, IChatToolType, IEvent, IMessage, IMessageType } from '@zowe/commonbot';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
 const i18nJsonData = require('../i18n/jobDisplay.json');
@@ -33,12 +34,16 @@ class ZosEventListener extends ChatEventListener {
         try {
             const botOption = chatContextData.context.chatting.bot.getOption();
             let eventMessage = '';
-            if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
+            let botName: string;
+            if (botOption.chatTool === IChatToolType.MATTERMOST) {
                 eventMessage = this.getMattermostEvent(chatContextData);
-            } else if (botOption.chatTool.type === IChatToolType.SLACK) {
+                botName = botOption.mattermost.botUserName
+            } else if (botOption.chatTool === IChatToolType.SLACK) {
                 eventMessage = this.getSlackEvent(chatContextData);
-            } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
+                botName = botOption.slack.botUserName
+            } else if (botOption.chatTool === IChatToolType.MSTEAMS) {
                 eventMessage = this.getMsteamsEvent(chatContextData);
+                botName = botOption.msteams.botUserName
             } else {
                 return false;
             }
@@ -50,7 +55,7 @@ class ZosEventListener extends ChatEventListener {
             // 1: Match bot name.
             // 2. TODO: Check if it is a valid command.
             // 3: Match command scope.
-            if (this.command.extraData.botUserName === botOption.chatTool.option.botUserName) {
+            if (this.command.extraData.botUserName === botName) {
                 if (this.command.scope === 'zos') {
                     this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
 
@@ -177,12 +182,12 @@ class ZosEventListener extends ChatEventListener {
             };
 
             const botOption = chatContextData.context.chatting.bot.getOption();
-            if (botOption.chatTool.type !== IChatToolType.MATTERMOST
-                && botOption.chatTool.type !== IChatToolType.SLACK
-                && botOption.chatTool.type !== IChatToolType.MSTEAMS) {
+            if (botOption.chatTool !== IChatToolType.MATTERMOST
+                && botOption.chatTool !== IChatToolType.SLACK
+                && botOption.chatTool !== IChatToolType.MSTEAMS) {
                 return [{
                     type: IMessageType.PLAIN_TEXT,
-                    message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool.type}`,
+                    message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
                 }];
             }
 

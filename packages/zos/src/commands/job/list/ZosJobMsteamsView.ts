@@ -8,15 +8,16 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
+import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IExecutor, ChatMsteamsView, IBotOption, IMsteamsBotLimit, ICommand} from '@zowe/chat';
+import { ChatMsteamsView, ICommand, IExecutor } from '@zowe/chat';
+import { IBotOption, IMessage, IMessageType, IMsteamsBotLimit } from '@zowe/commonbot';
 
 const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
-const logger = Logger.getInstance();
+export class ZosJobMsteamsView extends ChatMsteamsView {
 
-class ZosJobMsteamsView extends ChatMsteamsView {
+
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
         super(botOption, botLimit);
     }
@@ -24,7 +25,7 @@ class ZosJobMsteamsView extends ChatMsteamsView {
     // Get overview
     getOverview(jobs: IJob[], executor: IExecutor, command: ICommand): IMessage[] {
         // Print start log
-        logger.start(this.getOverview, this);
+        this.log.start(this.getOverview, this);
 
         let messages: IMessage[] = [];
         try {
@@ -56,26 +57,26 @@ class ZosJobMsteamsView extends ChatMsteamsView {
             for (job of jobs) {
                 // Add column set
                 cardObject.body.push(super.createColumnSet(
-                        `**${job.jobname}** (ID: ${job.jobid})`,
-                        '',
-                        true));
+                    `**${job.jobname}** (ID: ${job.jobid})`,
+                    '',
+                    true));
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18nJsonData.overview.owner}:** ${job.owner}`,
-                        `**${i18nJsonData.overview.subSystem}:** ${job.subsystem}`,
-                        false));
+                    `**${i18nJsonData.overview.owner}:** ${job.owner}`,
+                    `**${i18nJsonData.overview.subSystem}:** ${job.subsystem}`,
+                    false));
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18nJsonData.overview.status}:** ${job.status}`,
-                        `**${i18nJsonData.overview.type}:** ${job.type}`,
-                        false));
+                    `**${i18nJsonData.overview.status}:** ${job.status}`,
+                    `**${i18nJsonData.overview.type}:** ${job.type}`,
+                    false));
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18nJsonData.overview.returnCode}:** ${job.retcode === null ? ' ' : job.retcode}`,
-                        `**${i18nJsonData.overview.startedTime}:** ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
-                        false));
+                    `**${i18nJsonData.overview.returnCode}:** ${job.retcode === null ? ' ' : job.retcode}`,
+                    `**${i18nJsonData.overview.startedTime}:** ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                    false));
 
                 // Create option array for detail dropdown.
                 detailOptions.push({
                     'title': `Details of ${job.jobname}(${job.jobid})`,
-                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`,
+                    'value': `@${this.botName}:zos:job:list:status:id=${job.jobid}`,
                 });
             }
 
@@ -98,7 +99,7 @@ class ZosJobMsteamsView extends ChatMsteamsView {
             });
             return messages;
         } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -106,14 +107,14 @@ class ZosJobMsteamsView extends ChatMsteamsView {
             }];
         } finally {
             // Print end log
-            logger.end(this.getOverview);
+            this.log.end(this.getOverview);
         }
     }
 
     // Get detail.
     getDetail(jobs: IJob[], executor: IExecutor): IMessage[] {
         // Print start log
-        logger.start(this.getDetail, this);
+        this.log.start(this.getDetail, this);
 
         let messages: IMessage[] = [];
 
@@ -137,41 +138,41 @@ class ZosJobMsteamsView extends ChatMsteamsView {
 
             // Add column set
             cardObject.body.push(super.createColumnSet(
-                    `**${job.jobname}** (ID: ${job.jobid})`,
-                    '',
-                    true));
+                `**${job.jobname}** (ID: ${job.jobid})`,
+                '',
+                true));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.owner}:** ${job.owner}`,
-                    `**${i18nJsonData.detail.subSystem}:** ${job.subsystem}`,
-                    false));
+                `**${i18nJsonData.detail.owner}:** ${job.owner}`,
+                `**${i18nJsonData.detail.subSystem}:** ${job.subsystem}`,
+                false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.status}:** ${job.status}`,
-                    `**${i18nJsonData.detail.type}**: ${job.type}`,
-                    false));
+                `**${i18nJsonData.detail.status}:** ${job.status}`,
+                `**${i18nJsonData.detail.type}**: ${job.type}`,
+                false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.returnCode}:** ${job.retcode === null ? ' ' : job.retcode}`,
-                    `**${i18nJsonData.detail.class}**: ${job.class}`,
-                    false));
+                `**${i18nJsonData.detail.returnCode}:** ${job.retcode === null ? ' ' : job.retcode}`,
+                `**${i18nJsonData.detail.class}**: ${job.class}`,
+                false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.PhaseName}:** ${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
-                    `**${i18nJsonData.detail.Phase}**: ${job.phase}`,
-                    false));
+                `**${i18nJsonData.detail.PhaseName}:** ${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
+                `**${i18nJsonData.detail.Phase}**: ${job.phase}`,
+                false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.ExecutionSystem}**: ${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
-                    `**${i18nJsonData.detail.ExecutionMember}**: ${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
-                    false));
+                `**${i18nJsonData.detail.ExecutionSystem}**: ${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
+                `**${i18nJsonData.detail.ExecutionMember}**: ${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
+                false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.startedTime}:** ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
-                    `**${i18nJsonData.detail.ExecutionSubmittedTime}**: ${job['exec-submitted'] === undefined ? ' ': job['exec-submitted']}`,
-                    false));
+                `**${i18nJsonData.detail.startedTime}:** ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                `**${i18nJsonData.detail.ExecutionSubmittedTime}**: ${job['exec-submitted'] === undefined ? ' ' : job['exec-submitted']}`,
+                false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.ExecutionEndedTime}:** ${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
-                    `**${i18nJsonData.detail.reasonNotRunning}**: ${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
-                    false));
+                `**${i18nJsonData.detail.ExecutionEndedTime}:** ${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
+                `**${i18nJsonData.detail.reasonNotRunning}**: ${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
+                false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18nJsonData.detail.openJob}:** [Zosmf](${job.url})`,
-                    '',
-                    false));
+                `**${i18nJsonData.detail.openJob}:** [Zosmf](${job.url})`,
+                '',
+                false));
 
             messages.push({
                 type: IMessageType.MSTEAMS_ADAPTIVE_CARD,
@@ -179,7 +180,7 @@ class ZosJobMsteamsView extends ChatMsteamsView {
             });
             return messages;
         } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -187,9 +188,7 @@ class ZosJobMsteamsView extends ChatMsteamsView {
             }];
         } finally {
             // Print end log
-            logger.end(this.getDetail);
+            this.log.end(this.getDetail);
         }
     }
 }
-
-export = ZosJobMsteamsView;

@@ -9,7 +9,8 @@
  */
 
 
-import {IExecutor, IMessage, IMessageType, Logger, IBotLimit, ICommand, IBotOption, ChatDispatcher} from '@zowe/chat';
+import { ChatDispatcher, ICommand, IExecutor, Logger } from '@zowe/chat';
+import { IBotLimit, IBotOption, IMessage, IMessageType } from '@zowe/commonbot';
 import ZosJobHandler from './job/list/ZosJobListHandler';
 const i18nJsonData = require('../i18n/jobDisplay.json');
 

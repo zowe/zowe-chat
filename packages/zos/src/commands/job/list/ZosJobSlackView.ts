@@ -8,15 +8,14 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
+import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IExecutor, ChatSlackView, ISlackBotLimit, IBotOption, ICommand} from '@zowe/chat';
-
+import { ChatSlackView, ICommand, IExecutor } from '@zowe/chat';
+import { IBotOption, IMessage, IMessageType, ISlackBotLimit } from '@zowe/commonbot';
 const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
-const logger = Logger.getInstance();
 
-class ZosJobSlackView extends ChatSlackView {
+export class ZosJobSlackView extends ChatSlackView {
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
         super(botOption, botLimit);
     }
@@ -24,7 +23,7 @@ class ZosJobSlackView extends ChatSlackView {
     // Get overview view.
     getOverview(jobs: IJob[], executor: IExecutor, command: ICommand): IMessage[] {
         // Print start log
-        logger.start(this.getOverview, this);
+        this.log.start(this.getOverview, this);
 
         let messages: IMessage[] = [];
         try {
@@ -103,14 +102,14 @@ class ZosJobSlackView extends ChatSlackView {
 
                 // Add divider block
                 blockObject.blocks.push(
-                        {
-                            'type': 'divider',
-                        },
+                    {
+                        'type': 'divider',
+                    },
                 );
 
                 // Create options for job details select menu
                 detailOptions.push(super.createSelectMenuOption(`Details of ${job.jobname}(${job.jobid})`,
-                        `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`));
+                    `@${this.botName}:zos:job:list:status:id=${job.jobid}`));
             }
 
             // Create action block object.
@@ -137,7 +136,7 @@ class ZosJobSlackView extends ChatSlackView {
             });
             return messages;
         } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -145,14 +144,14 @@ class ZosJobSlackView extends ChatSlackView {
             }];
         } finally {
             // Print end log
-            logger.end(this.getOverview);
+            this.log.end(this.getOverview);
         }
     }
 
     // Get detail view.
     getDetail(jobs: IJob[], executor: IExecutor): IMessage[] {
         // Print start log
-        logger.start(this.getDetail, this);
+        this.log.start(this.getDetail, this);
 
         let messages: IMessage[] = [];
 
@@ -216,7 +215,7 @@ class ZosJobSlackView extends ChatSlackView {
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.returnCode}:* ${job.retcode === null? ' ': job.retcode}`,
+                        'text': `*${i18nJsonData.detail.returnCode}:* ${job.retcode === null ? ' ' : job.retcode}`,
                     },
                     {
                         'type': 'mrkdwn',
@@ -252,7 +251,7 @@ class ZosJobSlackView extends ChatSlackView {
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.ExecutionSubmittedTime}:* ${job['exec-submitted'] === undefined ? ' ': job['exec-submitted']}`,
+                        'text': `*${i18nJsonData.detail.ExecutionSubmittedTime}:* ${job['exec-submitted'] === undefined ? ' ' : job['exec-submitted']}`,
                     },
                     {
                         'type': 'mrkdwn',
@@ -274,9 +273,9 @@ class ZosJobSlackView extends ChatSlackView {
 
             // Add divider block
             blockObject.blocks.push(
-                    {
-                        'type': 'divider',
-                    },
+                {
+                    'type': 'divider',
+                },
             );
 
             messages.push({
@@ -285,7 +284,7 @@ class ZosJobSlackView extends ChatSlackView {
             });
             return messages;
         } catch (error) {
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -293,9 +292,8 @@ class ZosJobSlackView extends ChatSlackView {
             }];
         } finally {
             // Print end log
-            logger.end(this.getDetail);
+            this.log.end(this.getDetail);
         }
     }
 }
 
-export = ZosJobSlackView;

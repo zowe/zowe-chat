@@ -16,7 +16,7 @@ import { ICommand } from "../types";
 import ChatListener = require('./ChatListener');
 export abstract class ChatMessageListener extends ChatListener {
 
-    private readonly log: Logger;
+    protected readonly log: Logger;
 
     constructor() {
         super();

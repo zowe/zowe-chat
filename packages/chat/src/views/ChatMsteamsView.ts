@@ -12,7 +12,6 @@ import { IActionType, IBotOption, IMsteamsBotLimit } from '@zowe/commonbot';
 import { ChatView } from "./ChatView";
 export class ChatMsteamsView extends ChatView {
     protected botLimit: IMsteamsBotLimit;
-
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
         super(botOption);
 

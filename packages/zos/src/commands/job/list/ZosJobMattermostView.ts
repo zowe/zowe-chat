@@ -10,12 +10,11 @@
 
 import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import { ChatMattermostView, IExecutor } from '@zowe/chat';
-import { IBotOption, IMessage, IMessageType } from '@zowe/commonbot';
-import * as i18nJsonData from '../../i18n/jobDisplay.json';
+import { ChatMattermostView, ICommand, IExecutor } from '@zowe/chat';
+import { IBotOption, IMattermostBotLimit, IMessage, IMessageType } from '@zowe/commonbot';
+const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
-
-class ZosJobMattermostView extends ChatMattermostView {
+export class ZosJobMattermostView extends ChatMattermostView {
     constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
         super(botOption, botLimit);
     }
@@ -86,7 +85,7 @@ class ZosJobMattermostView extends ChatMattermostView {
                 // Options for details message menu.
                 detailOptions.push({
                     'text': `Details of ${job.jobname}(${job.jobid})`,
-                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`,
+                    'value': `@${this.botName}:zos:job:list:status:id=${job.jobid}`,
                 });
             }
 
