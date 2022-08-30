@@ -6,7 +6,6 @@
 * SPDX-License-Identifier: EPL-2.0
 *
 * Copyright Contributors to the Zowe Project.
-*
 */
 
 // // Lifted from zowe/imperative ConfigSchema.ts

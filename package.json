@@ -5,7 +5,7 @@
     "license": "EPL-2.0",
     "private": true,
     "scripts": {
-        "build": "gulp build",
+        "build": "gulp updateLicense && gulp build",
         "lint": "gulp lint"
     },
     "workspaces": [

@@ -8,16 +8,12 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-export interface JsonSchema {
-    $schema: string;
-    $version: string;
-    type: string;
-    description: string;
-    properties: { [key: string]: any };
+export interface ITaskFunction {
+    (done?: any): any;
+
+    description?: string;
 }
 
-export interface JsonSchemaInfo {
-    original: string;
-    resolved: string;
-    local: boolean;
+export interface IGulpError extends Error {
+    showStack?: boolean;
 }
