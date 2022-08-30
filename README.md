@@ -37,7 +37,7 @@ The following information is critical to working with the code, running/writing/
 | For more information about ... | See: |
 | ------------------------------ | ----- |
 | General guidelines that apply to contributing to Zowe Chat | [Contribution Guidelines](./CONTRIBUTING.md) |
-| Documentation that describes the features of the Common Bot Framework | [About Common Bot Framework](https://github.com/zowe/zowe-chat/README.md) |
+| Documentation that describes the features of the Common Bot Framework | [About Common Bot Framework](https://github.com/zowe/zowe-chat/blob/main/packages/commonbot/README.md) |
 
 ## Steps to build Zowe Chat
 ### Environment variables
