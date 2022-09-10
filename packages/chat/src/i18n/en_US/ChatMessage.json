@@ -1,0 +1,27 @@
+{
+    "errorCode": {
+        "ZWECHT001E": {
+            "text": "Internal server error: {{error}}.",
+            "reason": "",
+            "action": ""
+        },
+        "ZWECHT002E": {
+            "text": "The configuration file ${filePath} does not exist. Please make sure the file exists.",
+            "reason": "",
+            "action": ""
+        },
+        "ZWECHT003E": {
+            "text": "Failed to parse the content for file ${filePath}. Please make sure the file format is valid.",
+            "reason": "",
+            "action": ""
+        }
+    },
+    "common": {
+        "error": {
+            "unknownQuestion": "Sorry, I can't understand the question. Try asking me `help`. You can also check the help guide to learn about what I can do.",
+            "payloadType": "@heWrong message (payloadType: {{payloadType}}) is received by the bot."
+        }
+    },
+    "command": {
+    }
+}

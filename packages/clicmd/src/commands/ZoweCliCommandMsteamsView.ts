@@ -10,6 +10,7 @@
 
 
 import {Logger, ChatMsteamsView, IBotOption, IExecutor, IMessage, IMessageType, IMsteamsBotLimit} from '@zowe/chat';
+import i18next from 'i18next';
 
 const logger = Logger.getInstance();
 
@@ -29,7 +30,7 @@ class ZoweCliCommandMsteamsView extends ChatMsteamsView {
             // Add command output
             messages.push({
                 type: IMessageType.PLAIN_TEXT,
-                message: `@${executor.name}. I have executed the Zowe CLI command for you. Please see the below for the result!\n\n`
+                message: `${i18next.t('zowe.execution', {executorName: executor.name, ns: 'ClicmdMessage'})}\n\n`
                         + `<pre>${commandOutput}</pre>`,
             });
         } catch (error) {

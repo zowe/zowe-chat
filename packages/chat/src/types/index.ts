@@ -79,7 +79,8 @@ export interface IChatPlugin {
     registry: string;
     version: number;
     priority: number;
-    listeners: string[];
+    listeners?: string[];
+    resources?: IResource[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -124,6 +125,11 @@ export interface ICommand {
 export interface IAdjective {
     arguments: string[];
     option: Record<string, string>;
+}
+
+export interface IResource {
+    loadPath: string;
+    namespace: string;
 }
 
 export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IHttpEndpoint,

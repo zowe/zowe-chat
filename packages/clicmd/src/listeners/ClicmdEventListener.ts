@@ -13,7 +13,7 @@ import {Logger, IChatContextData, ChatEventListener, IMessage} from '@zowe/chat'
 
 const logger = Logger.getInstance();
 
-class ZoweCliCommandEventListener extends ChatEventListener {
+class ClicmdEventListener extends ChatEventListener {
     constructor() {
         super();
 
@@ -62,4 +62,4 @@ class ZoweCliCommandEventListener extends ChatEventListener {
     }
 }
 
-export = ZoweCliCommandEventListener;
+export = ClicmdEventListener;

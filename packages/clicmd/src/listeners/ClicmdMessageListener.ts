@@ -15,7 +15,7 @@ import ZoweCliCommandHandler from '../commands/ZoweCliCommandHandler';
 
 const logger = Logger.getInstance();
 
-class ZoweCliCommandMessageListener extends ChatMessageListener {
+class ClicmdMessageListener extends ChatMessageListener {
     constructor() {
         super();
 
@@ -97,4 +97,4 @@ class ZoweCliCommandMessageListener extends ChatMessageListener {
     }
 }
 
-export = ZoweCliCommandMessageListener;
+export = ClicmdMessageListener;

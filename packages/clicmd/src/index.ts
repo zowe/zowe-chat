@@ -8,11 +8,11 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import ZoweCliCommandMessageListener = require('./listeners/ZoweCliCommandMessageListener');
-import ZoweCliCommandEventListener = require('./listeners/ZoweCliCommandEventListener');
+import ClicmdMessageListener = require('./listeners/ClicmdMessageListener');
+import ClicmdEventListener = require('./listeners/ClicmdEventListener');
 
 
 export = {
-    ZoweCliCommandMessageListener,
-    ZoweCliCommandEventListener,
+    ClicmdMessageListener,
+    ClicmdEventListener,
 };

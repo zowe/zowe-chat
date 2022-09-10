@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/zowe/zowe-chat#readme",
   "dependencies": {
+    "i18next": "^21.9.1"
   },
   "devDependencies": {
     "@types/node": ">=17.0.31",
@@ -39,7 +40,7 @@
     "ts-node": ">=10.7.0",
     "typescript": ">=4.6.4"
   },
-  "peerDependencies": {
+  "devDependencies": {
     "@zowe/chat": "*"
   },
   "bundledDependencies": [],

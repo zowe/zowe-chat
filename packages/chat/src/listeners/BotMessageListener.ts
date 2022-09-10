@@ -8,7 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import {IChatContextData, IChatListenerRegistryEntry, IMessageListener, IPayloadType} from '../types';
+import {IChatContextData, IChatListenerRegistryEntry, IMessageListener, IMessageType, IPayloadType} from '../types';
 
 import _ = require('lodash');
 
@@ -16,6 +16,7 @@ import BotListener = require('./BotListener');
 import Logger = require('../utils/Logger');
 import Config = require('../common/Config');
 import Util = require('../utils/Util');
+import i18next from 'i18next';
 
 const logger = Logger.getInstance();
 const config = Config.getInstance();
@@ -67,6 +68,7 @@ class BotMessageListener extends BotListener {
             const botOption = chatContextData.context.chatting.bot.getOption();
             if ((<string>chatContextData.payload.data).indexOf(`@${botOption.chatTool.option.botUserName}`) === -1) {
                 logger.info(`The message is not for @${botOption.chatTool.option.botUserName}!`);
+                return false;
             } else {
                 if (chatContextData.payload.type === IPayloadType.MESSAGE) {
                     // Find matched listeners
@@ -100,13 +102,17 @@ class BotMessageListener extends BotListener {
                 }
                 logger.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the message!`);
                 logger.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
-            }
 
-            // Set return result
-            if (listeners.length > 0) {
-                return true;
-            } else {
-                return false;
+                // Set return result
+                if (listeners.length > 0) {
+                    return true;
+                } else {
+                    // Send response
+                    // await chatContextData.context.chatting.bot.send(listenerContexts[i], msgs);
+                    chatContextData.context.chatting.bot.send(chatContextData, [{type: IMessageType.PLAIN_TEXT,
+                        message: i18next.t('common.error.unknownQuestion', {ns: 'ChatMessage'})}]);
+                    return false;
+                }
             }
         } catch (error) {
             // Print exception stack

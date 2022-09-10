@@ -1,0 +1,12 @@
+{
+    "zowe": {
+        "resource": {
+            "verb": {
+                "object": {
+                    "translationA": "Translation A",
+                    "translationB": "Translation B"
+                }
+            }
+        }
+    }
+}

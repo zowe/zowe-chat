@@ -10,6 +10,7 @@
 
 
 import {Logger, ChatMattermostView, IBotOption, IMessageType, IExecutor, IMessage, IMattermostBotLimit} from '@zowe/chat';
+import i18next from 'i18next';
 
 const logger = Logger.getInstance();
 
@@ -34,7 +35,7 @@ class ZoweCliCommandMattermostView extends ChatMattermostView {
                     props: {
                         attachments: [
                             {
-                                pretext: `@${executor.name}. I have executed the Zowe CLI command for you. Please see the below for the result!`,
+                                pretext: i18next.t('zowe.execution', {executorName: executor.name, ns: 'ClicmdMessage'}),
                                 fields: [{
                                     short: false,
                                     value: '```\n' + commandOutput + '\n```',
