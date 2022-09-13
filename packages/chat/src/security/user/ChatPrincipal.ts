@@ -8,20 +8,21 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+import { ChatCredential } from "./ChatCredential";
 import { ChatUser } from "./ChatUser";
 
 export class ChatPrincipal {
 
     private readonly chatUser: ChatUser;
-    private readonly mainframeCredential: string;
+    private readonly credential: ChatCredential;
 
-    constructor(chatUser: ChatUser, mainframeCredential: string) {
+    constructor(chatUser: ChatUser, mfCred: ChatCredential) {
         this.chatUser = chatUser
-        this.mainframeCredential = mainframeCredential
+        this.credential = mfCred;
     }
 
-    public getMainframeCredential(): string {
-        return this.mainframeCredential
+    public getCredentials(): ChatCredential {
+        return this.credential
     }
 
     public getUser(): ChatUser {

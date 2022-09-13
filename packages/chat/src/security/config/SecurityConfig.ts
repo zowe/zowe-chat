@@ -17,9 +17,30 @@ export type SecurityConfig = {
     chatbotUser: string
     passticketOptions?: PassticketOptions
     passwordOptions?: PasswordOptions
+    tokenOptions?: TokenOptions
 }
 
-export enum LoginStrategy {
+export type LoginStrategy = {
+    strategy: LoginStrategyType,
+    authService: LoginProvider
+}
+
+export type LoginProvider = {
+    service: LoginService
+    protocol: string
+    host: string
+    port: number
+    rejectUnauthorized?: boolean
+}
+
+export enum LoginService {
+    ZOSMF = "zosmf",
+    // SAF = "saf", // only works on z/os?
+    //  ZOWE_V1 = "zowe_v1"
+    //  ZOWE_V2 = "zowe_v2"
+}
+
+export enum LoginStrategyType {
     RequireLogin = "require-login",
     AutoLogin = "auto-login",
 }
@@ -37,4 +58,23 @@ export type PassticketOptions = {
 
 export type PasswordOptions = {
     filePath: string
+}
+
+// TODO: may expand on this later, otherwise flatten it
+export type TokenOptions = {
+    tokenProvider: TokenProvider
+}
+
+export type TokenProvider = {
+    service: TokenService
+    protocol: string
+    host: string
+    port: number
+    rejectUnauthorized?: boolean
+}
+
+export enum TokenService {
+    ZOSMF = "zosmf",
+    // ZOWE_APIML_V1 = "zowe_v1",    TODO: implementation
+    // ZOWE_APIML_V2 = "zowe_v2"     TODO: implementation
 }

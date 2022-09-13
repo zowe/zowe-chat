@@ -1,46 +1,62 @@
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import { AppBar, Box, Container, Toolbar } from '@mui/material';
 import * as React from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { chatAuthProvider } from "./auth/api/auth";
+import { LoginResponse } from "./auth/api/LoginResponse";
 import { AuthContext, useAuth } from "./auth/context/AuthContext";
 import { LoginPage } from "./auth/pages/LoginPage";
 import { ManagementPage } from "./manage/pages/ManagementPage";
 import { AppRoutes } from "./routes/AppRoutes";
-
 //              <!-- <Route path={AppRoutes.Home} element={<PublicPage />} /> -->
 
 export default function ZoweChatApp() {
 
     return (
-        <AuthProvider>
-            <h1>Welcome to Zowe Chat!</h1>
-            <Routes>
-                <Route path={AppRoutes.Root} element={<Layout />}>   </Route>
-                <Route path={AppRoutes.Login} element={<LoginPage />} />
-                <Route path={AppRoutes.Login + "/:loginSession"} element={<LoginPage />} />
-                <Route path={AppRoutes.Management}
-                    element={
-                        <RequireAuth>
-                            <ManagementPage />
-                        </RequireAuth>
-                    }
-                />
-                <Route path="*" element={<Navigate to={AppRoutes.Root} replace />} />
-            </Routes>
-        </AuthProvider>
+        <Container maxWidth="sm">
+            <AuthProvider>
+                <AppBar position="fixed">
+                    <Toolbar variant="dense">Zowe Chat Login</Toolbar>
+                </AppBar>
+                <Toolbar />
+                <Box textAlign="center" component="span">
+                    <h1>Welcome to Zowe Chat</h1>
+                    <Routes>
+                        <Route path={AppRoutes.Root} element={<Layout />}>   </Route>
+                        <Route path={AppRoutes.Login} element={<LoginPage />} />
+                        <Route path={AppRoutes.Login + "/:loginSession"} element={<LoginPage />} />
+                        <Route path={AppRoutes.Management}
+                            element={
+                                <RequireAuth>
+                                    <ManagementPage />
+                                </RequireAuth>
+                            }
+                        />
+                        <Route path="*" element={<Navigate to={AppRoutes.Root} replace />} />
+                    </Routes>
+                </Box>
+            </AuthProvider>
+        </Container>
     );
 
 }
 
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
-    let [user, setUser] = React.useState<any>(null);
+    let [user, setUser] = React.useState<any>(null)
+    let [errorResponse, setError] = React.useState<any>(null)
 
-    let signin = (newUser: string, newPass: string, callback: VoidFunction) => {
-        return chatAuthProvider.signin(newUser, newPass, (success: boolean) => {
-            if (success) {
-                setUser(newUser);
+    let signin = (challenge: string, newUser: string, newPass: string, callback: VoidFunction) => {
+        return chatAuthProvider.signin(challenge, newUser, newPass, (response: LoginResponse) => {
+            if (response.success) {
+                setUser(newUser)
+                setError(null)
             } else {
                 setUser(null)
+                setError(response.serverResponse)
             }
             callback();
         });
@@ -48,12 +64,12 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let signout = (callback: VoidFunction) => {
         return chatAuthProvider.signout(() => {
-            setUser(null);
+            setUser(null)
+            setError(null)
             callback();
         });
     };
-
-    let value = { user, signin, signout };
+    let value = { user, errorResponse, signin, signout };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

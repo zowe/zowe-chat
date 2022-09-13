@@ -21,7 +21,7 @@ class MattermostClient {
     private rejectUnauthorized: boolean = false;
     private heartBeat: number = 60000; // It is in millisecond.
     private autoReconnect = true;
-    private logger: Logger;
+    private logger: Logger = Logger.getInstance()
 
     private middleware: MattermostMiddleware;
     private option: IMattermostOption;

@@ -10,30 +10,34 @@
 
 import { IChatContextData } from "@zowe/commonbot";
 import * as crypto from "crypto";
+import { AppConfig } from "../config/base/AppConfig";
 import { UserConfigManager } from "../config/UserConfigManager";
 import { Logger } from "../utils/Logger";
-import { AuthenticationStrategy, SecurityConfig } from "./config/SecurityConfig";
+import { AuthenticationStrategy, LoginService, LoginStrategyType, SecurityConfig } from "./config/SecurityConfig";
 import { SecurityConfigSchema } from "./config/SecurityConfigSchema";
+import { ICredentialProvider } from "./credentials/ICredentialProvider";
+import { PassticketProvider } from "./credentials/PassticketProvider";
+import { PasswordProvider } from "./credentials/PasswordProvider";
+import { TokenProvider } from "./credentials/TokenProvider";
+import { ZosmfHost, ZosmfLogin } from "./login/ZosmfLogin";
 import { IUserMapping } from "./mapping/IUserMapping";
 import { UserFileMapping } from "./mapping/UserFileMapping";
-import { ICredentialProvider } from "./providers/ICredentialProvider";
-import { PassticketProvider } from "./providers/PassticketProvider";
-import { PasswordProvider } from "./providers/PasswordProvider";
-import { TokenProvider } from "./providers/TokenProvider";
 import { ChatPrincipal } from "./user/ChatPrincipal";
 import { ChatUser } from "./user/ChatUser";
 
-export class SecurityFacility {
+export class SecurityManager {
 
     // TODO: Do we need config manager and a ref to security config? Will we be reloading config dynamically?
     private readonly configManager: UserConfigManager;
+    private readonly appConfig: AppConfig
     private readonly userMap: IUserMapping;
     private readonly log: Logger;
     private securityConfig: SecurityConfig;
     private credentialProvider: ICredentialProvider;
 
-    constructor(configManager: UserConfigManager, log: Logger) {
+    constructor(appConfig: AppConfig, configManager: UserConfigManager, log: Logger) {
         this.log = log;
+        this.appConfig = appConfig
         this.configManager = configManager;
         this.log.debug("Initializing security facility");
         this.securityConfig = this.configManager.getConfigFromSchema(SecurityConfigSchema);
@@ -76,23 +80,51 @@ export class SecurityFacility {
     }
 
 
-    public authenticateUser(prinicpal: ChatPrincipal): boolean {
+    public async authenticateUser(principal: ChatPrincipal): Promise<boolean> {
         // TODO: Write authentiction logic
+        let loggedIn = false;
+        const loginSection = this.securityConfig.loginStrategy
 
-        if (prinicpal.getUser().getMainframeUser() == "abc" /*authenticated==true*/) {
-            return this.userMap.mapUser(prinicpal.getUser().getDistributedUser(), prinicpal.getUser().getMainframeUser());
+        if (loginSection.strategy == LoginStrategyType.RequireLogin) {
+
+            if (loginSection.authService.service == LoginService.ZOSMF) {
+
+                let zosmfHost: ZosmfHost = {
+                    host: this.appConfig.zosmf.host,
+                    port: this.appConfig.zosmf.port,
+                    rejectUnauthorized: this.appConfig.zosmf.rejectUnauthorized,
+                    protocol: this.appConfig.zosmf.protocol
+                }
+                // TODO: Do better on unwrapping creds; make a class instead of type? too much leakage
+                loggedIn = await ZosmfLogin.loginUser(zosmfHost, principal.getUser().getMainframeUser(), principal.getCredentials().value)
+
+            } else {
+                throw new Error("Authentication service" + loginSection.authService.service + " not supported yet.")
+            }
+
         } else {
-            return false;
+            throw new Error("Login strategy type " + loginSection.strategy + " not supported yet.")
         }
+        // extract credential
+        if (loggedIn) {
+            this.credentialProvider.exchangeCredential(principal.getUser(), principal.getCredentials().value)
+            return this.userMap.mapUser(principal.getUser().getDistributedUser(), principal.getUser().getMainframeUser());
+        } else {
+            this.log.debug("Failed to login user " + principal.getUser().getMainframeUser())
+            return false
+        }
+
+    }
+
+    public logoutUser(user: ChatUser) {
+        this.credentialProvider.logout(user)
+        this.userMap.removeUser(user.getDistributedUser())
     }
 
     public isAuthenticated(chatCtx: IChatContextData): boolean {
         let user = this.getChatUser(chatCtx);
         if (user === undefined) {
-            user = this.getChatUser(chatCtx);
-        }
-        if (user === undefined) {
-            this.log.debug("Could not find stored value for user: " + chatCtx.context.chatting.user.name + " Will return 'not authenticated'.");
+            this.log.debug("TBD001D: Could not find stored value for user: " + chatCtx.context.chatting.user.name + " Returning 'not authenticated'.");
             return false
         }
         return true
@@ -104,10 +136,15 @@ export class SecurityFacility {
         this.configManager.updateConfig(SecurityConfigSchema, this.securityConfig);
     }
 
-    public getPrincipal(user: ChatUser): ChatPrincipal {
+    public getPrincipal(user: ChatUser): ChatPrincipal | undefined {
+
+        let cred = this.credentialProvider.getCredential(user)
+        if (cred === undefined || cred.value.length == 0) {
+            return undefined
+        }
         return new ChatPrincipal(
             user,
-            this.credentialProvider.getCredential(user)
+            cred
         );
     }
 

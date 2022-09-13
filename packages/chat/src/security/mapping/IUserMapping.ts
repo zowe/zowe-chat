@@ -17,4 +17,6 @@ export interface IUserMapping {
 
     mapUser(distUser: string, mfUser: string): boolean
 
+    removeUser(distUser: string): boolean
+
 }

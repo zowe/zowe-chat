@@ -9,7 +9,9 @@
     "packaging": "gulp packaging",
     "start": "node index.js",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-    "lint": "gulp lint"
+    "lint": "gulp lint",
+    "madge": "madge --circular --extensions js ./dist",
+    "dpdm": "dpdm dist/"
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,7 @@
   "homepage": "https://github.com/zowe/zowe-chat#readme",
   "dependencies": {
     "@zowe/commonbot": "*",
+    "cors": "^2.8.5",
     "express": "4.18.1",
     "fs-extra": "^7.0.0",
     "helmet": "^5.0.2",
@@ -36,13 +39,14 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.12",
     "@types/express": ">=4.17.13",
     "@types/fs-extra": "^9.0.13",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.182",
     "@types/node": ">=17.0.31",
-    "@types/yargs": "^17.0.11",
     "@types/winston": "^2.4.4",
+    "@types/yargs": "^17.0.11",
     "@typescript-eslint/eslint-plugin": ">=5.23.0",
     "@typescript-eslint/parser": ">=5.23.0",
     "eslint": ">=8.15.0",
@@ -55,5 +59,8 @@
   ],
   "engines": {
     "node": ">=16.13.2"
-  }
+  },
+  "bundleDependencies": [
+    "@zowe/commonbot"
+  ]
 }

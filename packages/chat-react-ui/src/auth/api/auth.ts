@@ -10,40 +10,43 @@
 
 
 import * as axios from "axios";
+import { LoginResponse } from "./LoginResponse";
 
 // TODO: Investigate/fix
 // const API_HOST = (process.env.CHAT_API_HOST) ? process.env.CHAT_API_HOST : "";
-console.log(process.env)
 /*
 * This represents some generic auth provider API, like Firebase.
 */
-const fakeAuthProvider = {
-  isAuthenticated: false,
-  signin(callback: VoidFunction) {
-    fakeAuthProvider.isAuthenticated = true;
-    setTimeout(callback, 100); // fake async
-  },
-  signout(callback: VoidFunction) {
-    fakeAuthProvider.isAuthenticated = false;
-    setTimeout(callback, 100);
-  },
-};
-
 const chatAuthProvider = {
   isAuthenticated: false,
-  signin(user: string, password: string, callback: (success: boolean) => void) {
+  signin(challenge: string, user: string, password: string, callback: (response: LoginResponse) => void) {
     // use axios to authenticate
     axios.default.post(`http://localhost:7701/api/v1/auth/login`, {
+      challenge: challenge,
       user: user,
       password: password,
     }).then((response) => {
       console.log(response)
-      chatAuthProvider.isAuthenticated = true;
-      callback(true)
+      if (response.status == 200) {
+        chatAuthProvider.isAuthenticated = true;
+        callback({
+          success: true,
+          serverResponse: ""
+        })
+      } else {
+        chatAuthProvider.isAuthenticated = false;
+        callback({
+          success: false,
+          serverResponse: (response.data != undefined) ? response.data : "There was an error logging in."
+        })
+      }
     }).catch((error) => {
       console.log(error)
       chatAuthProvider.isAuthenticated = false;
-      callback(false)
+      callback({
+        success: false,
+        serverResponse: (error?.response.data != undefined) ? error?.response.data : "There was an unknown error logging in."
+      })
     });
   },
   signout(callback: VoidFunction) {

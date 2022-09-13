@@ -9,7 +9,7 @@
 */
 
 import { IConfigBlockDefinition } from "../../config/doc/IConfigBlockDefinition";
-import { AuthenticationStrategy, LoginStrategy } from "./SecurityConfig";
+import { AuthenticationStrategy, LoginStrategyType, TokenService } from "./SecurityConfig";
 
 export const SecurityConfigSchema: IConfigBlockDefinition = {
 
@@ -34,27 +34,68 @@ export const SecurityConfigSchema: IConfigBlockDefinition = {
             default: ""
         },
         loginStrategy: {
-            type: "string",
+            type: "object",
             description: "Initial login requirements for users who wish to use Zowe ChatBot",
-            options: [
-                {
-                    description: "Requires all users to login to the Zowe ChatBot framework and map their mainframe account to a Chat Application account",
-                    value: LoginStrategy.RequireLogin.toString(),
+            properties: {
+                strategy: {
+                    type: "string",
+                    description: "Require users to login",
+                    options: [
+                        {
+                            description: "Requires all users to login to the Zowe ChatBot framework and map their mainframe account to a Chat Application account",
+                            value: LoginStrategyType.RequireLogin.toString(),
+                        },
+                        {
+                            description: "All users are automatically mapped to a Chat Service account",
+                            value: LoginStrategyType.AutoLogin.toString(),
+                        }
+                    ],
+                    default: LoginStrategyType.RequireLogin.toString(),
+                    onChange: (oldValue: string, newValue: string): boolean => {
+                        // TODO: ES2017 removes the need for this cast to string. Review tslint/compiler target
+                        if (Object.values<string>(LoginStrategyType).includes(newValue)) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
                 },
-                {
-                    description: "All users are automatically mapped to a Chat Service account",
-                    value: LoginStrategy.AutoLogin.toString(),
-                }
-            ],
-            default: LoginStrategy.RequireLogin.toString(),
-            onChange: (oldValue: string, newValue: string): boolean => {
-                // TODO: ES2017 removes the need for this cast to string. Review tslint/compiler target
-                if (Object.values<string>(LoginStrategy).includes(newValue)) {
-                    return true;
-                } else {
-                    return false;
+                authService: {
+                    type: "object",
+                    description: "Token provider information",
+                    properties: {
+                        service: {
+                            type: "string",
+                            description: "The token identity provider.",
+                            options: [
+                                {
+                                    value: TokenService.ZOSMF,
+                                    description: "z/OSMF",
+                                }
+                            ],
+                            default: TokenService.ZOSMF,
+                        },
+                        host: {
+                            type: "string",
+                            description: "hostname of the token provider",
+                        },
+                        port: {
+                            type: "number",
+                            description: "port of the identity provider",
+                        },
+                        protocol: {
+                            type: "string",
+                            description: "protocl of the authentication service"
+                        },
+                        rejectUnauthorized: {
+                            type: "boolean",
+                            description: "use https",
+                            default: true,
+                        }
+                    }
                 }
             }
+
         },
         authenticationStrategy: {
             type: "string",
@@ -107,5 +148,41 @@ export const SecurityConfigSchema: IConfigBlockDefinition = {
                 }
             }
         },
+        tokenOptions: {
+            type: "object",
+            description: "Token-based Authentication configuration options",
+            properties: {
+                tokenProvider: {
+                    type: "object",
+                    description: "Token provider information",
+                    properties: {
+                        service: {
+                            type: "string",
+                            description: "The token identity provider.",
+                            options: [
+                                {
+                                    value: TokenService.ZOSMF,
+                                    description: "z/OSMF",
+                                }
+                            ],
+                            default: TokenService.ZOSMF,
+                        },
+                        host: {
+                            type: "string",
+                            description: "hostname of the token provider",
+                        },
+                        port: {
+                            type: "number",
+                            description: "port of the identity provider",
+                        },
+                        secure: {
+                            type: "boolean",
+                            description: "use https",
+                            default: true,
+                        }
+                    }
+                },
+            }
+        }
     }
 }

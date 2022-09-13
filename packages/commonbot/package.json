@@ -11,7 +11,9 @@
     "scripts": {
         "build": "gulp build",
         "packaging": "gulp packaging",
-        "lint": "gulp lint"
+        "lint": "gulp lint",
+        "madge": "madge --circular --extensions ts ."
+
     },
     "dependencies": {
         "@slack/bolt": "3.11.0",

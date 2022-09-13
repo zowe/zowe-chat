@@ -11,7 +11,7 @@
 import { ChatBot } from "./bot/ChatBot";
 import { AppConfigLoader } from "./config/AppConfigLoader";
 import { Logger } from "./utils/Logger";
-/* TODO: Resolve these in broader merge operation
+/* TODO: Resolve these with below exports?
 export import Config = require('./common/Config');
 export import ChatEventListener = require('./listeners/ChatEventListener');
 export import ChatMessageListener = require('./listeners/ChatMessageListener');
@@ -21,14 +21,6 @@ export import ChatMattermostView = require('./views/ChatMattermostView');
 export import ChatSlackView = require('./views/ChatSlackView');
 export import ChatMsteamsView = require('./views/ChatMsteamsView');
 */
-// App config must be loaded without error.
-AppConfigLoader.loadAppConfig()
-// Logger must be initialized for future class initialization. Uses AppConfig.
-const appLog = Logger.getInstance()
-// Start chat bot. Requires AppConfig and Logger.
-appLog.info("Initializing Zowe Chat Bot")
-const chatBot = ChatBot.getInstance()
-chatBot.run();
 
 export * from "./config/AppConfigLoader";
 export * from "./config/base/AppConfig";
@@ -43,4 +35,14 @@ export * from "./views/ChatMattermostView";
 export * from "./views/ChatMsteamsView";
 export * from "./views/ChatSlackView";
 export * from "./views/ChatView";
+
+// App config must be loaded without error.
+AppConfigLoader.loadAppConfig()
+// Logger must be initialized for future class initialization. Uses AppConfig.
+const appLog = Logger.getInstance()
+// Start chat bot. Requires AppConfig and Logger.
+appLog.info("Initializing Zowe Chat Bot")
+const chatBot = ChatBot.getInstance()
+chatBot.run();
+
 

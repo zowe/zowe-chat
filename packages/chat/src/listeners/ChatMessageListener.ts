@@ -9,10 +9,10 @@
 */
 
 import { IChatContextData, IMessage, IPayloadType } from "@zowe/commonbot";
-import Logger from "@zowe/commonbot/dist/package/utils/Logger";
 import _ from 'lodash';
 import yargs from 'yargs';
 import { ICommand } from "../types";
+import { Logger } from "../utils/Logger";
 import ChatListener = require('./ChatListener');
 export abstract class ChatMessageListener extends ChatListener {
 

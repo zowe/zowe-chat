@@ -15,10 +15,11 @@ import * as path from "path";
 import { AppConfigLoader } from '../config/AppConfigLoader';
 import { AppConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
+import { LogoutMessageListener } from '../listeners/bot/LogoutMessageListener';
 import { BotEventListener } from '../listeners/BotEventListener';
 import { BotMessageListener } from '../listeners/BotMessageListener';
 import { SecurityConfigSchema } from '../security/config/SecurityConfigSchema';
-import { SecurityFacility } from '../security/SecurityFacility';
+import { SecurityManager } from '../security/SecurityManager';
 import { IChatListenerType, IChatPlugin } from '../types';
 import { Logger } from '../utils/Logger';
 import { MessagingApp } from './MessagingApp';
@@ -27,12 +28,12 @@ import Util = require('../utils/Util');
 export class ChatBot {
 
     private static instance: ChatBot;
-    private readonly security: SecurityFacility
+    private readonly security: SecurityManager
     private readonly log: Logger;
     private readonly appConfig: AppConfig;
     private readonly configManager: UserConfigManager
     private readonly app: MessagingApp;
-    private readonly pluginHome = '/usr/lpp/zowe/zowechat';
+    private readonly pluginHome = '/Users/ma648885/.dev/zowe/zowe-chat/.build/plugins';
     private readonly bot: CommonBot;
     private readonly plugins: IChatPlugin[] = [];
     private botMessageListener: BotMessageListener;
@@ -50,17 +51,18 @@ export class ChatBot {
 
             let blockConfigList = [SecurityConfigSchema]
             this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
-            this.security = new SecurityFacility(this.configManager, log)
+            this.security = new SecurityManager(this.appConfig, this.configManager, log)
             this.log.info("Admin configuration and security facility initialized")
 
             this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
             let cBotOpts: IBotOption = this.generateBotOpts(this.app);
-            this.botMessageListener = new BotMessageListener(this.appConfig, this.security, this.log);
+            this.botMessageListener = new BotMessageListener(this.appConfig, this.security, this.app, this.log);
             this.botEventListener = new BotEventListener(this.appConfig, this.log);
             this.log.info("Creating CommonBot ...");
             // TODO: Fix casting, circular dependency between config and commonbot
             this.bot = new CommonBot(cBotOpts);
             this.log.info("Bot initialized")
+            this.setBotListeners()
             this.plugins = [];
             this.loadPlugins();
             this.log.info("Plugins initialized")
@@ -75,9 +77,6 @@ export class ChatBot {
                   */
             }
 
-
-            this.botMessageListener = new BotMessageListener(this.appConfig, this.security, log);
-            this.botEventListener = new BotEventListener(this.appConfig, log);
         } catch (error) {
             console.log(error)
             this.log.error(`Failed to create chat bot!`);
@@ -121,6 +120,25 @@ export class ChatBot {
             // Print end log
             this.log.end(this.run, this);
         }
+    }
+
+    private setBotListeners(): void {
+        this.log.start(this.setBotListeners, this)
+
+        this.botMessageListener.registerChatListener({
+            listenerName: "LogoutListener",
+            listenerType: IChatListenerType.MESSAGE,
+            listenerInstance: new LogoutMessageListener(this.security, this.log),
+            chatPlugin: {
+                listeners: ['LogoutMessageListener'],
+                package: 'chat',
+                registry: 'local',
+                version: 1,
+                priority: 1,
+            },
+        })
+
+        this.log.end(this.setBotListeners, this)
     }
 
     // Load plugins
@@ -256,11 +274,13 @@ export class ChatBot {
                 };
 
                 // Read certificate
-                if (fs.existsSync(this.appConfig.app.server.tlsCert)) {
-                    botOpts.mattermost.tlsCertificate = fs.readFileSync(this.appConfig.app.server.tlsCert, 'utf8');
-                } else {
-                    this.log.error(`The TLS certificate file ${this.appConfig.app.server.tlsCert} does not exist!`);
-                    process.exit(4);
+                if (this.appConfig.mattermost.protocol === "https") {
+                    if (fs.existsSync(this.appConfig.mattermost.tlsCertificate)) {
+                        botOpts.mattermost.tlsCertificate = fs.readFileSync(this.appConfig.mattermost.tlsCertificate, 'utf8');
+                    } else {
+                        this.log.error(`The TLS certificate file ${this.appConfig.mattermost.tlsCertificate} does not exist!`);
+                        process.exit(4);
+                    }
                 }
 
                 // Create messaging app

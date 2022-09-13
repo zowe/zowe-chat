@@ -10,6 +10,7 @@
 
 export interface IAuthContextType {
     user: any;
-    signin: (user: string, password: string, callback: VoidFunction) => void;
+    errorResponse: any;
+    signin: (challenge: string, user: string, password: string, callback: VoidFunction) => void;
     signout: (callback: VoidFunction) => void;
 }

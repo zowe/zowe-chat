@@ -24,7 +24,8 @@ async function main() {
     const zosmfProfAttrs = profInfo.getDefaultProfile("zosmf");
     const zosmfMergedArgs = profInfo.mergeArgsForProfile(zosmfProfAttrs, { getSecureVals: true });
     const zosmfSession = ProfileInfo.createSession(zosmfMergedArgs.knownArgs);
-
+    console.log("zosmf prof attrs")
+    console.log(JSON.stringify(zosmfMergedArgs.knownArgs))
     await Shell.executeSsh(session, "mkdir -p /u/zowead6", (data) => {
         if (data.trim()) console.log(data);
     });

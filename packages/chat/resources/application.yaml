@@ -1,7 +1,13 @@
+zosmf:
+  host: "***REMOVED***"
+  protocol: "https"
+  rejectUnauthorized: false
+  port: 10443
+
 app:
   # Specify the type of chat tool, the value can be mattermost, slack or msteams.
   # The default value is mattermost.
-  chatToolType: slack
+  chatToolType: mattermost
 
   # Configure logging
   log:
@@ -30,40 +36,38 @@ app:
   # Specify the password of the functional user.
   userPassword: <Your password>
 
-
   server:
     # Specify the protocol of your HTTP endpoint. The value can be https or http.
     # The default value is https.
     protocol: http
-  
+
     # Specify the host name or IP address of your HTTP endpoint.
-    hostName: 0.0.0.0
-  
+    hostName: localhost
+
     # Specify the port number of your HTTP endpoint.
     # The default value is 7701.
     port: 7701
-  
+
     # TODO: this should not be configurable, we should set it. At the very least, it must not be obviously configurable - advanced only.
     # Specify the base path of your HTTP endpoint.
     # The default value is /zowechat/api/v1.
     basePath: /zowechat/api/v1
-  
+
     # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
     tlsKey: <Your absolute TLS key file path of your messaging server>
-  
+
     # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
     tlsCert: <Your absolute TLS cert file path of your messaging server>
-
 
 # Specify your Slack configuration here, if you set chatToolType to Slack.
 slack:
   # Specify the bot user name or account that is used in your chat tool server.
   # The default value is zowechat.
-  botUserName: zowechat
+  botUserName: ***REMOVED***
 
   # Specify the signing secret of your chatbot Slack app
   # The secret will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  signingSecret: <Your signing secret>
+  signingSecret: ***REMOVED***
 
   # Specify the bot user OAuth token of your chatbot Slack app
   # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
@@ -76,7 +80,7 @@ slack:
   socketMode: # Configure the private WebSocket for Slack to communicate with your chatbot Slack app.
     # Enable or disable the socketMode connection protocol. The value can be true or false.
     # The default value is true.
-    enabled: true
+    enabled: false
 
     # Specify the app level token of your chatbot Slack app.
     # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
@@ -92,14 +96,14 @@ slack:
 mattermost:
   # Specify the protocol of your Mattermost server. The value can be https or http.
   # The default value is https.
-  protocol: https
+  protocol: http
 
   # Specify the host name or IP address of your Mattermost server.
-  hostName: <Your host name>
+  hostName: ***REMOVED***
 
   # Specify the port number of your Mattermost server.
   # The default value is 443.
-  port: 443
+  port: 8065
 
   # Specify the base path of your Mattermost web service API server. Only '/api/v4' is supported by Mattermost at present.
   # The default value is /api/v4.
@@ -110,7 +114,7 @@ mattermost:
 
   # Specify the team URL of your team created in your Mattermost server.
   # The default value is devops.
-  teamUrl: devops
+  teamUrl: test-team
 
   # Specify the bot user name or account that is used in your chat tool server.
   # The default value is zowechat.
@@ -118,18 +122,17 @@ mattermost:
 
   # Specify the access token to connect to your bot.
   # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  botAccessToken: <Your bot access token>
-
+  botAccessToken: ***REMOVED***
 
 # Specify your MSTeams configuration here, if you set chatToolType to Slack.
 msteams:
   #  Specify the bot user name or account that is used in your chat tool server.
   # The default value is zowechat.
-  botUserName: zowechat
+  botUserName: mark-chat-bot
 
   # Specify the ID of your Microsoft Teams bot.
-  botId: <Your bot ID>
+  botId: ***REMOVED***
 
   # Specify the password of your Microsoft Teams bot.
   # The password will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  botPassword: <Your bot password>
+  botPassword: ***REMOVED***

@@ -14,10 +14,18 @@ import { IChatToolType as ChatToolType, IProtocol } from "@zowe/commonbot";
  * 
  */
 export type AppConfig = {
+    zosmf: ZosmfServerConfig;
     app: ChatAppConfig;
     mattermost: MattermostConfig;
     slack: SlackConfig;
     msteams: MsteamsConfig;
+}
+
+export type ZosmfServerConfig = {
+    host: string,
+    protocol: string,
+    port: number,
+    rejectUnauthorized: boolean
 }
 
 export type ChatAppConfig = {

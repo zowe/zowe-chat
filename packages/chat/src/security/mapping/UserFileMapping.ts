@@ -55,6 +55,12 @@ export class UserFileMapping implements IUserMapping {
         this.log.debug(`Map content: ${JSON.stringify(this.userMap)}`);
     }
 
+    public removeUser(distUser: string): boolean {
+        delete this.userMap[distUser]
+        this.writeMappingFile()
+        return true
+    }
+
     public userExists(distUser: string): boolean {
         return Object.keys(this.userMap).includes(distUser);
     }

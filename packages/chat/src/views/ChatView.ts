@@ -9,7 +9,7 @@
 */
 
 import { IBotOption, IChatToolType } from '@zowe/commonbot';
-import Logger from '@zowe/commonbot/dist/package/utils/Logger';
+import { Logger } from '../utils/Logger';
 
 export class ChatView {
     protected readonly log: Logger;

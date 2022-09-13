@@ -8,16 +8,18 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+import { IUser } from "@zowe/commonbot";
+import cors from "cors";
+import crypto from "crypto";
 import type { Application } from 'express';
 import express from "express";
 import * as fs from "fs";
 import helmet from 'helmet';
 import http from "http";
 import https from "https";
-import path from 'path';
-
 import { ServerOptions } from '../config/base/AppConfig';
-import { SecurityFacility } from '../security/SecurityFacility';
+import { SecurityManager } from '../security/SecurityManager';
+import { CredentialType } from "../security/user/ChatCredential";
 import { ChatPrincipal } from '../security/user/ChatPrincipal';
 import { ChatUser } from '../security/user/ChatUser';
 import { Logger } from '../utils/Logger';
@@ -27,29 +29,39 @@ export class MessagingApp {
     private readonly log: Logger;
     private readonly option: ServerOptions;
     private readonly app: Application;
-    private readonly securityFacility: SecurityFacility;
+    private readonly securityFacility: SecurityManager;
+    private readonly activeChallenges: Map<string, IUser>;
     private server: https.Server | http.Server;
 
-    constructor(option: ServerOptions, securityFac: SecurityFacility, log: Logger) {
+    constructor(option: ServerOptions, securityFac: SecurityManager, log: Logger) {
         // Set app option
         this.option = option;
         this.log = log;
         this.securityFacility = securityFac;
+        this.activeChallenges = new Map<string, IUser>()
         // Create express app
         this.app = express();
+        this.app.use(cors(this.corsOptions()))
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(helmet()); // Secure Express apps with various HTTP headers
+        const staticFiles = (process.env.ZOWE_CHAT_WEB_DIR == undefined) ? "../chat-react-ui/build/" : process.env.ZOWE_CHAT_WEB_DIR
 
-        const staticFiles = "../chat-react-ui/build/"
-
-        this.app.use(express.static(staticFiles));
+        //  this.app.use(express.static(staticFiles));
         this.setRoutes()
         const rootRoute = express.Router();
-        rootRoute.get('(/*)?', (req, res) => {
-            res.sendFile(path.resolve(staticFiles, "index.html"));
-        });
+        //  rootRoute.get('(/*)?', (req, res) => {
+        //     res.sendFile(path.resolve(staticFiles, "index.html"));
+        //   });
         this.app.use(rootRoute)
+    }
+
+    public generateChallenge(user: IUser) {
+        let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64')
+        //  return `${this.option.protocol}://${this.option.hostName}:${this.option.port}/login/${challengeString}`
+        this.activeChallenges.set(challengeString, user)
+        return `${this.option.protocol}://${this.option.hostName}:3000/login?__key=${challengeString}`
+
     }
 
     private getUser(userId: number) {
@@ -58,26 +70,39 @@ export class MessagingApp {
 
     private setRoutes() {
         this.app.get('/api/v1/auth/user/:userId', this.getUser.bind(this));
-        this.app.post('/api/v1/auth/login', (req, res) => {
-            this.log.info(JSON.stringify(req.body))
+        this.app.post('/api/v1/auth/login', async (req, res) => {
+            try {
+                this.log.info(JSON.stringify(req.body))
 
-            /*
-                        if (session === undefined || session.trim().length == 0) {
-                            res.status(400).send('Invalid Challenge URL. Request a new challenge from the Zowe ChaBot.')
-                            return;
-                        }
-            */
-            // add defensive block
-            let user = req.body.user;
-            let pass = req.body.pass;
-
-            //   let sessionObj = JSON.parse(Buffer.from(session, 'base64').toString('ascii'));
-
-            let authN = this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser("testuser", user), pass))
-            if (authN) {
-                res.status(200).send('OK')
-            } else {
-                res.status(401).send('Unauthorized')
+                /*
+                            if (session === undefined || session.trim().length == 0) {
+                                res.status(400).send('Invalid Challenge URL. Request a new challenge from the Zowe ChaBot.')
+                                return;
+                            }
+                */
+                // add defensive block
+                let challenge: string = req.body.challenge
+                let user: string = req.body.user;
+                let password: string = req.body.password;
+                let iUser = this.activeChallenges.get(challenge)
+                if (challenge == undefined || iUser == undefined) {
+                    res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.')
+                    return
+                }
+                let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(iUser.name, user), {
+                    type: CredentialType.PASSWORD,
+                    value: password
+                }));
+                if (authN) {
+                    res.status(200).send('OK')
+                } else {
+                    res.status(401).send('Unauthorized')
+                }
+            } catch (error) {
+                this.log.debug("Error trying to authenticate user " + req.body.user + ".")
+                this.log.debug("Error: " + error)
+                this.log.debug(error.getErrorStack())
+                res.status(500).send('Interal Server Error')
             }
         })
     }
@@ -180,4 +205,21 @@ export class MessagingApp {
             console.info(`The messaging app server is listening on ${bind}`);
         };
     }
+
+    private corsOptions(): any {
+
+        const whitelist: string[] = ["http://localhost", "http://localhost:8081", "http://localhost:3000"];
+
+        return {
+            origin: (origin: string, callback: Function) => {
+                if (whitelist.indexOf(origin) !== -1 || (origin == null || origin == undefined)) {
+                    callback(null, true);
+                }
+                else {
+                    callback(new Error(origin + "Domain not allowed by CORS"));
+                }
+            }
+        };
+    }
+
 }

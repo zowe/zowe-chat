@@ -12,9 +12,10 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ from "lodash";
 
-import { IChatContextData, IChatToolType, IPayloadType } from '@zowe/commonbot';
+import { IChatContextData, IChatToolType, IMessageType, IPayloadType } from '@zowe/commonbot';
+import { MessagingApp } from '../bot/MessagingApp';
 import { AppConfig } from '../config/base/AppConfig';
-import { SecurityFacility } from '../security/SecurityFacility';
+import { SecurityManager } from '../security/SecurityManager';
 import { Logger } from '../utils/Logger';
 import Util from '../utils/Util';
 import { BotListener } from './BotListener';
@@ -25,10 +26,12 @@ export class BotMessageListener extends BotListener {
     private readonly botName: string;
     private readonly log: Logger
     private readonly config: AppConfig
-    private readonly securityFacility: SecurityFacility;
+    private readonly securityFacility: SecurityManager;
+    private readonly webapp: MessagingApp
 
-    constructor(config: AppConfig, securityFac: SecurityFacility, log: Logger) {
+    constructor(config: AppConfig, securityFac: SecurityManager, webapp: MessagingApp, log: Logger) {
         super();
+        this.webapp = webapp
         switch (config.app.chatToolType) {
             case IChatToolType.MATTERMOST:
                 this.botName = config.mattermost.botUserName
@@ -139,40 +142,52 @@ export class BotMessageListener extends BotListener {
         this.log.start(this.processMessage, this);
 
         if (!this.securityFacility.isAuthenticated(chatContextData)) {
-            /*  this.webApp.issueChallenge(chatContextData);
-              await chatContextData.context.chatting.bot.send("You are not authenticated. Please authenticate first and try again!");*/
-            return;
+            let user = chatContextData.context.chatting.user
+            let redirect = this.webapp.generateChallenge(user)
+            this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
+
+            await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                message: `Hello @${user.name}, you are not currently logged in to the backend system. Please visit ${redirect} to login`,
+                type: IMessageType.PLAIN_TEXT
+            }])
+            this.log.end(this.processMessage, this);
         }
 
+        else {
+            try {
+                // Get matched listener and contexts
+                const matchedListeners: IChatListenerRegistryEntry[] = chatContextData.extraData.listeners;
+                const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
 
-        try {
-            // Get matched listener and contexts
-            const matchedListeners: IChatListenerRegistryEntry[] = chatContextData.extraData.listeners;
-            const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
+                // Get the number of plugin limit
+                let pluginLimit = this.config.app.pluginLimit;
+                this.log.info(`pluginLimit: ${pluginLimit}`);
+                if (pluginLimit < 0 || pluginLimit > matchedListeners.length) {
+                    pluginLimit = matchedListeners.length;
+                }
+                this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched message!`);
+                // Process matched messages
+                for (let i = 0; i < pluginLimit; i++) {
+                    // Process message
+                    let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(listenerContexts[i]))
+                    if (principal != undefined) {
+                        listenerContexts[i].extraData["principal"] = principal
+                    }
+                    const msgs = await (<IMessageListener>matchedListeners[i].listenerInstance).processMessage(listenerContexts[i]);
+                    this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
-            // Get the number of plugin limit
-            let pluginLimit = this.config.app.pluginLimit;
-            this.log.info(`pluginLimit: ${pluginLimit}`);
-            if (pluginLimit < 0 || pluginLimit > matchedListeners.length) {
-                pluginLimit = matchedListeners.length;
+                    // Send response
+                    await chatContextData.context.chatting.bot.send(listenerContexts[i], msgs);
+                }
+            } catch (error) {
+                // Print exception stack
+                // this.log.error(this.log.getErrorStack(new Error(error.name), error));
+                this.log.error(error)
+            } finally {
+                // Print end log
+                this.log.end(this.processMessage, this);
             }
-            this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched message!`);
-            // Process matched messages
-            for (let i = 0; i < pluginLimit; i++) {
-                // Process message
-                const msgs = await (<IMessageListener>matchedListeners[i].listenerInstance).processMessage(listenerContexts[i]);
-                this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
-                // Send response
-                await chatContextData.context.chatting.bot.send(listenerContexts[i], msgs);
-            }
-        } catch (error) {
-            // Print exception stack
-            // this.log.error(this.log.getErrorStack(new Error(error.name), error));
-            this.log.error(error)
-        } finally {
-            // Print end log
-            this.log.end(this.processMessage, this);
         }
     }
 
