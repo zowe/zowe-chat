@@ -22,7 +22,7 @@
         "tss-base": {
             "type": "base",
             "properties": {
-                "host": "***REMOVED***",
+                "host": "zzow03.zowe.marist.cloud",
                 "rejectUnauthorized": false
             },
             "secure": [

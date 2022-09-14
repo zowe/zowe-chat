@@ -96,10 +96,9 @@ export class ZosmfLogin {
                 }
             }
         }
-        console.log(JSON.stringify(client.response))
         return {
             type: CredentialType.TOKEN_LTPA,
-            value: client.response["Set-Cookie"]
+            value: client.response["set-cookie"]
         }
     }
 }

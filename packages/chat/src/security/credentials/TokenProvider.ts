@@ -19,7 +19,7 @@ import { ICredentialProvider } from "./ICredentialProvider";
 export class TokenProvider implements ICredentialProvider {
 
     private readonly log: Logger;
-    private readonly tokenCache: Map<string, string>;
+    private readonly tokenCache: Map<string, ChatCredential>;
     private readonly authHost: string;
     private readonly authPort: number;
     private readonly tokenService: TokenService
@@ -38,6 +38,7 @@ export class TokenProvider implements ICredentialProvider {
         this.tokenService = TokenService.ZOSMF
         this.rejectUnauth = appConfig.zosmf.rejectUnauthorized
         this.log = log
+        this.tokenCache = new Map<string, ChatCredential>()
     }
 
     /* 
@@ -89,8 +90,12 @@ export class TokenProvider implements ICredentialProvider {
         return `${chatUser.getDistributedUser()}:${chatUser.getMainframeUser()}`
     }
 
+    private retrieveCredential(chatUser: ChatUser): ChatCredential {
+        return this.tokenCache.get(this.cacheKey(chatUser))
+    }
+
     private storeCredential(chatUser: ChatUser, cred: ChatCredential): void {
-        this.tokenCache.set(this.cacheKey(chatUser), JSON.stringify(cred))
+        this.tokenCache.set(this.cacheKey(chatUser), cred)
     }
 
     public async exchangeCredential(chatUser: ChatUser, password: string): Promise<boolean> {
@@ -113,7 +118,7 @@ export class TokenProvider implements ICredentialProvider {
     public getCredential(chatUser: ChatUser): ChatCredential | undefined {
 
         try {
-            let cred = <ChatCredential>JSON.parse(this.tokenCache.get(this.cacheKey(chatUser)))
+            let cred = this.retrieveCredential(chatUser)
             if (cred === undefined || cred.value.length == 0) {
                 return {
                     type: CredentialType.UNDEFINED,
@@ -122,11 +127,12 @@ export class TokenProvider implements ICredentialProvider {
             }
             return cred
         } catch (err) {
+            this.log.debug(err)
             return undefined
         }
     }
 
-    public logout(chatUser: ChatUser){ 
+    public logout(chatUser: ChatUser) {
         //nothing required.
     }
 }

@@ -140,9 +140,9 @@ export class BotMessageListener extends BotListener {
     async processMessage(chatContextData: IChatContextData): Promise<void> {
         // Print start log
         this.log.start(this.processMessage, this);
+        let user = chatContextData.context.chatting.user
 
         if (!this.securityFacility.isAuthenticated(chatContextData)) {
-            let user = chatContextData.context.chatting.user
             let redirect = this.webapp.generateChallenge(user)
             this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
 
@@ -155,6 +155,19 @@ export class BotMessageListener extends BotListener {
 
         else {
             try {
+
+                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
+          /*      if (principal == undefined) {
+                    let redirect = this.webapp.generateChallenge(user)
+
+                    await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                        message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
+                        type: IMessageType.PLAIN_TEXT
+                    }])
+                    this.log.end(this.processMessage, this);
+                    return
+                }*/
+
                 // Get matched listener and contexts
                 const matchedListeners: IChatListenerRegistryEntry[] = chatContextData.extraData.listeners;
                 const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
@@ -169,10 +182,7 @@ export class BotMessageListener extends BotListener {
                 // Process matched messages
                 for (let i = 0; i < pluginLimit; i++) {
                     // Process message
-                    let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(listenerContexts[i]))
-                    if (principal != undefined) {
-                        listenerContexts[i].extraData["principal"] = principal
-                    }
+
                     const msgs = await (<IMessageListener>matchedListeners[i].listenerInstance).processMessage(listenerContexts[i]);
                     this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 

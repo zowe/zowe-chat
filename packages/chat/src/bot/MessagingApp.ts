@@ -72,18 +72,15 @@ export class MessagingApp {
         this.app.get('/api/v1/auth/user/:userId', this.getUser.bind(this));
         this.app.post('/api/v1/auth/login', async (req, res) => {
             try {
-                this.log.info(JSON.stringify(req.body))
 
-                /*
-                            if (session === undefined || session.trim().length == 0) {
-                                res.status(400).send('Invalid Challenge URL. Request a new challenge from the Zowe ChaBot.')
-                                return;
-                            }
-                */
+
+
+
                 // add defensive block
                 let challenge: string = req.body.challenge
                 let user: string = req.body.user;
                 let password: string = req.body.password;
+
                 let iUser = this.activeChallenges.get(challenge)
                 if (challenge == undefined || iUser == undefined) {
                     res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.')
@@ -94,6 +91,7 @@ export class MessagingApp {
                     value: password
                 }));
                 if (authN) {
+                    this.activeChallenges.delete(challenge)
                     res.status(200).send('OK')
                 } else {
                     res.status(401).send('Unauthorized')

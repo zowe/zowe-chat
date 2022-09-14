@@ -8,7 +8,7 @@
       "authService": {
         "service": "zosmf",
         "secure": true,
-        "host": "***REMOVED***",
+        "host": "zzow03.zowe.marist.cloud",
         "port": 10443,
         "protocol": "https",
         "rejectUnauthorized": false
