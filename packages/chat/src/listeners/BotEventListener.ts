@@ -15,7 +15,7 @@ import _ = require('lodash');
 import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/commonbot';
 import { AppConfig } from '../config/base/AppConfig';
 import { Logger } from '../utils/Logger';
-import Util from '../utils/Util';
+import Util from "../utils/Util";
 import { BotListener } from './BotListener';
 
 export class BotEventListener extends BotListener {

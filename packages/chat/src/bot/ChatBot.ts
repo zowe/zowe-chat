@@ -22,8 +22,8 @@ import { SecurityConfigSchema } from '../security/config/SecurityConfigSchema';
 import { SecurityManager } from '../security/SecurityManager';
 import { IChatListenerType, IChatPlugin } from '../types';
 import { Logger } from '../utils/Logger';
+import Util from "../utils/Util";
 import { MessagingApp } from './MessagingApp';
-import Util = require('../utils/Util');
 
 export class ChatBot {
 

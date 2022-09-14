@@ -15,7 +15,6 @@ import { Logger } from "../../utils/Logger";
 import { ChatMessageListener } from '../ChatMessageListener';
 
 
-
 export class LogoutMessageListener extends ChatMessageListener {
 
     private readonly logger: Logger;

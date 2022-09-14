@@ -1,8 +1,11 @@
-zosmf:
-  host: "zzow03.zowe.marist.cloud"
-  protocol: "https"
-  rejectUnauthorized: false
-  port: 10443
+security:
+  zosmf:
+    host: <Your zOSMF Host>
+    protocol: https
+    rejectUnauthorized: false
+    port: 443
+  # one of: token, password
+  mode: token
 
 app:
   # Specify the type of chat tool, the value can be mattermost, slack or msteams.
@@ -39,10 +42,10 @@ app:
   server:
     # Specify the protocol of your HTTP endpoint. The value can be https or http.
     # The default value is https.
-    protocol: http
+    protocol: https
 
     # Specify the host name or IP address of your HTTP endpoint.
-    hostName: localhost
+    hostName: <Your hostname>
 
     # Specify the port number of your HTTP endpoint.
     # The default value is 7701.
@@ -63,15 +66,15 @@ app:
 slack:
   # Specify the bot user name or account that is used in your chat tool server.
   # The default value is zowechat.
-  botUserName: Mark-ZoweChat-Test
+  botUserName: zowechat
 
   # Specify the signing secret of your chatbot Slack app
   # The secret will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  signingSecret: cab9f1cfd2d4671cdc924fbbceeb5133
+  signingSecret: <Your slack signing secret>
 
   # Specify the bot user OAuth token of your chatbot Slack app
   # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  token: xoxb-361545124291-3915671076693-N0IzTSDgsevEYqccRBMbAouo
+  token: <Your slack token>
 
   # Specify the protocol to connect to Slack for your chatbot Slack app to receive app payloads.
   # You can see more details in https://api.slack.com/apis/connections.
@@ -84,7 +87,7 @@ slack:
 
     # Specify the app level token of your chatbot Slack app.
     # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-    appToken: xapp-1-A03T0HZNXLJ-3954643467121-9f6c9afe7724e98dc0f1a3199b72f30fbb14d2769389f35367cc6ad6e36a0622
+    appToken: <Your app token>
 
   # Configure the messaging application which Slack will communicate with when some user clicking actions occur.
   httpEndpoint:
@@ -96,14 +99,14 @@ slack:
 mattermost:
   # Specify the protocol of your Mattermost server. The value can be https or http.
   # The default value is https.
-  protocol: http
+  protocol: https
 
   # Specify the host name or IP address of your Mattermost server.
-  hostName: ma648885-dev-box-dev01.msd.labs.broadcom.net
+  hostName: <Your mattermost server hostname>
 
   # Specify the port number of your Mattermost server.
   # The default value is 443.
-  port: 8065
+  port: 443
 
   # Specify the base path of your Mattermost web service API server. Only '/api/v4' is supported by Mattermost at present.
   # The default value is /api/v4.
@@ -114,7 +117,7 @@ mattermost:
 
   # Specify the team URL of your team created in your Mattermost server.
   # The default value is devops.
-  teamUrl: test-team
+  teamUrl: devops
 
   # Specify the bot user name or account that is used in your chat tool server.
   # The default value is zowechat.
@@ -122,17 +125,17 @@ mattermost:
 
   # Specify the access token to connect to your bot.
   # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  botAccessToken: oqqzgnezntbm8xscg3qy9g1cqw
+  botAccessToken: <Your bot token>
 
 # Specify your MSTeams configuration here, if you set chatToolType to Slack.
 msteams:
   #  Specify the bot user name or account that is used in your chat tool server.
   # The default value is zowechat.
-  botUserName: mark-chat-bot
+  botUserName: zowechat
 
   # Specify the ID of your Microsoft Teams bot.
-  botId: 52fc271e-b3ca-4b0b-a732-48c5d70fcdd4
+  botId: <Your Bot ID>
 
   # Specify the password of your Microsoft Teams bot.
   # The password will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  botPassword: WIH8Q~OaBUIvk5gOGnRZRYuOu5yBx18q3~EMAcm0
+  botPassword: <Your bot password>

@@ -17,7 +17,7 @@ import { MessagingApp } from '../bot/MessagingApp';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityManager } from '../security/SecurityManager';
 import { Logger } from '../utils/Logger';
-import Util from '../utils/Util';
+import Util from "../utils/Util";
 import { BotListener } from './BotListener';
 
 export class BotMessageListener extends BotListener {
@@ -157,16 +157,16 @@ export class BotMessageListener extends BotListener {
             try {
 
                 let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
-          /*      if (principal == undefined) {
-                    let redirect = this.webapp.generateChallenge(user)
-
-                    await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
-                        message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
-                        type: IMessageType.PLAIN_TEXT
-                    }])
-                    this.log.end(this.processMessage, this);
-                    return
-                }*/
+                /*      if (principal == undefined) {
+                          let redirect = this.webapp.generateChallenge(user)
+      
+                          await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                              message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
+                              type: IMessageType.PLAIN_TEXT
+                          }])
+                          this.log.end(this.processMessage, this);
+                          return
+                      }*/
 
                 // Get matched listener and contexts
                 const matchedListeners: IChatListenerRegistryEntry[] = chatContextData.extraData.listeners;
