@@ -78,7 +78,7 @@ export class UserFileMapping implements IUserMapping {
     }
 
     private writeMappingFile(): void {
-        console.log("Writing " + JSON.stringify(this.userMap))
+        this.log.debug("Writing to user mapping file")
         let cipher = crypto.createCipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
         let encryptedOut = Buffer.concat([cipher.update(JSON.stringify(this.userMap)), cipher.final()])
         fs.writeFileSync(this.mappingFile, encryptedOut.toString('hex'), { flag: 'w' });

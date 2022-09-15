@@ -157,16 +157,17 @@ export class BotMessageListener extends BotListener {
             try {
 
                 let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
-                /*      if (principal == undefined) {
-                          let redirect = this.webapp.generateChallenge(user)
-      
-                          await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
-                              message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
-                              type: IMessageType.PLAIN_TEXT
-                          }])
-                          this.log.end(this.processMessage, this);
-                          return
-                      }*/
+                if (principal == undefined) {
+                    let redirect = this.webapp.generateChallenge(user)
+
+                    await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                        message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
+                        type: IMessageType.PLAIN_TEXT
+                    }])
+                    this.log.end(this.processMessage, this);
+                    return
+                }
+
 
                 // Get matched listener and contexts
                 const matchedListeners: IChatListenerRegistryEntry[] = chatContextData.extraData.listeners;
@@ -179,19 +180,37 @@ export class BotMessageListener extends BotListener {
                     pluginLimit = matchedListeners.length;
                 }
                 this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched message!`);
+
+                let pluginUnauth: boolean = false
+
                 // Process matched messages
                 for (let i = 0; i < pluginLimit; i++) {
                     // Process message
-
+                    listenerContexts[i].extraData.principal = principal
                     const msgs = await (<IMessageListener>matchedListeners[i].listenerInstance).processMessage(listenerContexts[i]);
                     this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
+                    if (listenerContexts[i].extraData.unauthorized) {
+                        pluginUnauth = true
+                    }
                     // Send response
                     await chatContextData.context.chatting.bot.send(listenerContexts[i], msgs);
                 }
+
+                if (pluginUnauth) {
+                    let redirect = this.webapp.generateChallenge(user)
+
+                    await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                        message: `Hello @${user.name}, it looks like your login expired. Please visit ${redirect} to login again,`,
+                        type: IMessageType.PLAIN_TEXT
+                    }])
+                    this.log.end(this.processMessage, this);
+                    return
+                }
+
             } catch (error) {
                 // Print exception stack
-                // this.log.error(this.log.getErrorStack(new Error(error.name), error));
+                this.log.error(this.log.getErrorStack(new Error(error.name), error));
                 this.log.error(error)
             } finally {
                 // Print end log

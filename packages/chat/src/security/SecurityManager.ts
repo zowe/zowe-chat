@@ -10,13 +10,12 @@
 
 import { IChatContextData } from "@zowe/commonbot";
 import * as crypto from "crypto";
-import { AppConfig } from "../config/base/AppConfig";
+import { AppConfig, AuthType } from "../config/base/AppConfig";
 import { UserConfigManager } from "../config/UserConfigManager";
 import { Logger } from "../utils/Logger";
-import { AuthenticationStrategy, LoginService, LoginStrategyType, SecurityConfig } from "./config/SecurityConfig";
+import { LoginService, LoginStrategyType, SecurityConfig } from "./config/SecurityConfig";
 import { SecurityConfigSchema } from "./config/SecurityConfigSchema";
 import { ICredentialProvider } from "./credentials/ICredentialProvider";
-import { PassticketProvider } from "./credentials/PassticketProvider";
 import { PasswordProvider } from "./credentials/PasswordProvider";
 import { TokenProvider } from "./credentials/TokenProvider";
 import { ZosmfHost, ZosmfLogin } from "./login/ZosmfLogin";
@@ -42,26 +41,6 @@ export class SecurityManager {
         this.log.debug("Initializing security facility");
         this.securityConfig = this.configManager.getConfigFromSchema(SecurityConfigSchema);
 
-        this.log.info(`Using ${this.securityConfig.authenticationStrategy} authentication strategy`);
-
-        switch (this.securityConfig.authenticationStrategy) {
-            case AuthenticationStrategy.Passticket:
-                if (!process.arch.startsWith('s390')) {
-                    this.log.error("Passticket authentication is only supported when running on z/OS");
-                    throw Error("Passticket authentication is only supported when running on z/OS");
-                }
-                this.credentialProvider = new PassticketProvider(this.securityConfig, this.log);
-                break;
-            case AuthenticationStrategy.Password:
-                this.credentialProvider = new PasswordProvider(this.securityConfig, this.log);
-                break;
-            case AuthenticationStrategy.Token:
-                this.credentialProvider = new TokenProvider(this.securityConfig, this.log);
-                break;
-            default:
-                throw new Error("Unknown authentication strategy: " + this.securityConfig.authenticationStrategy);
-        }
-
         let cryptKey: Buffer = Buffer.from(this.securityConfig.encryptionKey, 'base64');
         if (cryptKey === undefined || cryptKey.length == 0) {
             cryptKey = crypto.randomBytes(32)
@@ -75,6 +54,30 @@ export class SecurityManager {
 
         // TODO: choose backing mapping service from configuration?
         this.userMap = new UserFileMapping(this.securityConfig.userStorage, cryptKey, cryptIv, this.log)
+
+        this.log.info(`Using ${this.securityConfig.authenticationStrategy} authentication strategy`);
+        switch (this.appConfig.security.authMode) {
+            /*case AuthenticationStrategy.Passticket:
+                if (!process.arch.startsWith('s390')) {
+                    this.log.error("Passticket authentication is only supported when running on z/OS");
+                    throw Error("Passticket authentication is only supported when running on z/OS");
+                }
+                this.credentialProvider = new PassticketProvider(this.securityConfig, this.log);
+                this.log.debug("Using passticket provider for downstream authentications")
+                break;*/
+            case AuthType.PASSWORD:
+                this.credentialProvider = new PasswordProvider(this.securityConfig, cryptIv, cryptKey, this.log);
+                this.log.debug("Using password provider for downstream authentications")
+                break;
+            case AuthType.TOKEN:
+                this.credentialProvider = new TokenProvider(this.securityConfig, this.log);
+                this.log.debug("Using zOSMF Token provider for downstream authentications")
+                break;
+            default:
+                throw new Error("Unknown authentication strategy: " + this.securityConfig.authenticationStrategy);
+        }
+
+
         this.writeConfig()
         this.log.debug("Security facility initialized");
     }
@@ -139,7 +142,7 @@ export class SecurityManager {
     public getPrincipal(user: ChatUser): ChatPrincipal | undefined {
 
         let cred = this.credentialProvider.getCredential(user)
-        if (cred === undefined || cred.value.length == 0) {
+        if (cred == undefined || cred.value.length == 0) {
             return undefined
         }
         return new ChatPrincipal(

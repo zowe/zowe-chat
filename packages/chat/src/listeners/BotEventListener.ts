@@ -13,22 +13,28 @@ import { IChatListenerRegistryEntry, IEventListener } from '../types';
 import _ = require('lodash');
 
 import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/commonbot';
+import { MessagingApp } from '../bot/MessagingApp';
 import { AppConfig } from '../config/base/AppConfig';
+import { SecurityManager } from '../security/SecurityManager';
 import { Logger } from '../utils/Logger';
 import Util from "../utils/Util";
 import { BotListener } from './BotListener';
 
 export class BotEventListener extends BotListener {
 
-    private chatListeners: IChatListenerRegistryEntry[];
-    private log: Logger;
-    private config: AppConfig
+    private readonly chatListeners: IChatListenerRegistryEntry[];
+    private readonly log: Logger;
+    private readonly config: AppConfig
+    private readonly webapp: MessagingApp;
+    private readonly securityFacility: SecurityManager;
 
-    constructor(config: AppConfig, log: Logger) {
+    constructor(config: AppConfig, security: SecurityManager, webapp: MessagingApp, log: Logger) {
         super()
         this.chatListeners = [];
         this.log = log;
+        this.securityFacility = security;
         this.config = config;
+        this.webapp = webapp
         this.matchEvent = this.matchEvent.bind(this);
         this.processEvent = this.processEvent.bind(this);
     }
@@ -53,58 +59,75 @@ export class BotEventListener extends BotListener {
     }
 
     // Match inbound event
-    matchEvent(chatContextData: IChatContextData): boolean {
+    async matchEvent(chatContextData: IChatContextData): Promise<boolean> {
+
         // Print start log
         this.log.start(this.matchEvent, this);
+
+        let user = chatContextData.context.chatting.user
 
         try {
             // Initialize listener and context pool
             const listeners: IChatListenerRegistryEntry[] = [];
             const contexts: IChatContextData[] = [];
 
-            // Check payload type
-            this.log.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
-            if (chatContextData.payload.type === IPayloadType.EVENT) {
-                // Find matched listeners
-                const event: IEvent = <IEvent>chatContextData.payload.data;
-                for (const listener of this.chatListeners) {
-                    if (event.pluginId === listener.chatPlugin.package) {
-                        const contextData: IChatContextData = _.cloneDeep(chatContextData);
-                        if (contextData.extraData === undefined || contextData.extraData === null) {
-                            contextData.extraData = {
-                                'chatPlugin': listener.chatPlugin,
-                            };
-                        } else {
-                            contextData.extraData.chatPlugin = listener.chatPlugin;
-                        }
-                        if ((<IEventListener>listener.listenerInstance).matchEvent(contextData)) {
-                            listeners.push(listener);
-                            contexts.push(contextData);
+            if (!this.securityFacility.isAuthenticated(chatContextData)) {
+                let redirect = this.webapp.generateChallenge(user)
+                this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
+
+                await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                    message: `Hello @${user.name}, you are not currently logged in to the backend system. Please visit ${redirect} to login`,
+                    type: IMessageType.PLAIN_TEXT
+                }])
+                this.log.end(this.matchEvent, this);
+            }
+
+            else {
+
+                // Check payload type
+                this.log.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
+                if (chatContextData.payload.type === IPayloadType.EVENT) {
+                    // Find matched listeners
+                    const event: IEvent = <IEvent>chatContextData.payload.data;
+                    for (const listener of this.chatListeners) {
+                        if (event.pluginId === listener.chatPlugin.package) {
+                            const contextData: IChatContextData = _.cloneDeep(chatContextData);
+                            if (contextData.extraData === undefined || contextData.extraData === null) {
+                                contextData.extraData = {
+                                    'chatPlugin': listener.chatPlugin,
+                                };
+                            } else {
+                                contextData.extraData.chatPlugin = listener.chatPlugin;
+                            }
+                            if ((<IEventListener>listener.listenerInstance).matchEvent(contextData)) {
+                                listeners.push(listener);
+                                contexts.push(contextData);
+                            }
                         }
                     }
+                } else {
+                    this.log.error(`Wrong payload type: ${chatContextData.payload.type}`);
                 }
-            } else {
-                this.log.error(`Wrong payload type: ${chatContextData.payload.type}`);
-            }
 
-            // Set listener and context pool
-            if (chatContextData.extraData === undefined || chatContextData.extraData === null) {
-                chatContextData.extraData = {
-                    'listeners': listeners,
-                    'contexts': contexts,
-                };
-            } else {
-                chatContextData.extraData.listeners = listeners;
-                chatContextData.extraData.contexts = contexts;
-            }
-            this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
-            this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
+                // Set listener and context pool
+                if (chatContextData.extraData === undefined || chatContextData.extraData === null) {
+                    chatContextData.extraData = {
+                        'listeners': listeners,
+                        'contexts': contexts,
+                    };
+                } else {
+                    chatContextData.extraData.listeners = listeners;
+                    chatContextData.extraData.contexts = contexts;
+                }
+                this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
+                this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
 
-            // Set return result
-            if (chatContextData.extraData.listeners.length > 0) {
-                return true;
-            } else {
-                return false;
+                // Set return result
+                if (chatContextData.extraData.listeners.length > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } catch (error) {
             // Print exception stack

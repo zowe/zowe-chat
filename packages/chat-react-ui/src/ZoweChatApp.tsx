@@ -8,8 +8,8 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { chatAuthProvider } from "./auth/api/auth";
 import { LoginResponse } from "./auth/api/LoginResponse";
 import { AuthContext, useAuth } from "./auth/context/AuthContext";
-import { LoginPage } from "./auth/pages/LoginPage";
-import { ManagementPage } from "./manage/pages/ManagementPage";
+import { LoginPage } from "./pages/LoginPage";
+import { ManagementPage } from "./pages/ManagementPage";
 import { AppRoutes } from "./routes/AppRoutes";
 //              <!-- <Route path={AppRoutes.Home} element={<PublicPage />} /> -->
 

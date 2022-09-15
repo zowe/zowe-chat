@@ -96,9 +96,19 @@ export class ZosmfLogin {
                 }
             }
         }
+
+        let ltpaToken;
+        let ltpaHeader = client.response.headers["set-cookie"]
+
+        if (ltpaHeader instanceof Array) {
+            ltpaToken = ltpaHeader[0]
+        } else {
+            ltpaToken = ltpaHeader
+        }
+
         return {
             type: CredentialType.TOKEN_LTPA,
-            value: client.response["set-cookie"]
+            value: ltpaToken
         }
     }
 }

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { AppRoutes } from "../../routes/AppRoutes";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../auth/context/AuthContext";
+import { AppRoutes } from "../routes/AppRoutes";
 
 export function AuthStatus() {
     let auth = useAuth()

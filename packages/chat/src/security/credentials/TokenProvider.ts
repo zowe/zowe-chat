@@ -41,51 +41,6 @@ export class TokenProvider implements ICredentialProvider {
         this.tokenCache = new Map<string, ChatCredential>()
     }
 
-    /* 
-    TODO: delete?
-
-    private async getZosmfToken(chatUser: ChatUser, password: string): Promise<Token> {
-        let zosmfSession = ProfileInfo.createSession(
-            [{
-                "argName": "port", "dataType": "number", "argValue": this.authPort, "argLoc": { "locType": 2 }, "secure": false
-            },
-            {
-                "argName": "host", "dataType": "string", "argValue": this.authHost, "argLoc": { "locType": 2, }, "secure": false
-            },
-            {
-                "argName": "rejectUnauthorized", "dataType": "boolean", "argValue": this.rejectUnauth, "argLoc": { "locType": 2, }, "secure": false
-            },
-            {
-                "argName": "user", "dataType": "string", "argLoc": { "locType": 2, }, "secure": true, "argValue": chatUser.getMainframeUser()
-            },
-            {
-                "argName": "password", "dataType": "string", "argLoc": { "locType": 2, }, "secure": true, "argValue": password
-            }]
-            , { autoStore: false, requestToken: true });
-
-        let client = new ZosmfRestClient(zosmfSession)
-
-        await client.request({
-            request: "POST",
-            resource: "/zosmf/consoles/console/DEFAULT"
-        })
-        if (client.response.statusCode === 401) {
-            return {
-                tokenType: TokenType.UNDEFINED,
-                value: "",
-            }
-        } else {
-            this.log.info(client.response)
-            this.log.info(JSON.stringify(client.response))
-            return {
-                tokenType: TokenType.LTPA,
-                value: client.response["Set-Cookie"]
-            }
-        }
-    }
-
-    */
-
     private cacheKey(chatUser: ChatUser): string {
         return `${chatUser.getDistributedUser()}:${chatUser.getMainframeUser()}`
     }

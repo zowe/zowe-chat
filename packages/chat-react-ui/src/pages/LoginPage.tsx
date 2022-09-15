@@ -2,7 +2,7 @@ import { Alert, Button, TextField } from "@mui/material";
 import { Buffer } from "buffer";
 import * as React from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../auth/context/AuthContext";
 
 export function LoginPage() {
     let navigate = useNavigate();

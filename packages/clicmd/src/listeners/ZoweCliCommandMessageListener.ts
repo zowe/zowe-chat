@@ -9,6 +9,7 @@
 */
 
 import { ChatMessageListener, IExecutor, Logger } from "@zowe/chat";
+import { ChatPrincipal } from "@zowe/chat/dist/security/user/ChatPrincipal";
 import { IChatContextData, IMessage, IMessageType } from '@zowe/commonbot';
 import ZoweCliCommandHandler from '../commands/ZoweCliCommandHandler';
 
@@ -71,9 +72,10 @@ class ZoweCliCommandMessageListener extends ChatMessageListener {
                 'chattingType': chatContextData.context.chatting.type,
             };
 
+            let principals = chatContextData.extraData.principal as ChatPrincipal
             // Set Zowe CLI command
-            const command = chatContextData.extraData.command;
-            command.extraData.zoweCliCommand = command.extraData.rawMessage.replace(`@${command.extraData.botUserName}`, '').trim();
+            const command = chatContextData.extraData.command
+            command.extraData.zoweCliCommand = command.extraData.rawMessage.replace(`@${command.extraData.botUserName}`, '').trim() + ` --user ${principals.getUser().getMainframeUser()} --password ${principals.getCredentials().value}`;
             command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
 
             // Process command

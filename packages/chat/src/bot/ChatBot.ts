@@ -57,7 +57,7 @@ export class ChatBot {
             this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
             let cBotOpts: IBotOption = this.generateBotOpts(this.app);
             this.botMessageListener = new BotMessageListener(this.appConfig, this.security, this.app, this.log);
-            this.botEventListener = new BotEventListener(this.appConfig, this.log);
+            this.botEventListener = new BotEventListener(this.appConfig, this.security, this.app, this.log);
             this.log.info("Creating CommonBot ...");
             // TODO: Fix casting, circular dependency between config and commonbot
             this.bot = new CommonBot(cBotOpts);
