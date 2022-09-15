@@ -10,7 +10,7 @@
 
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
-import { AppConfig } from "./base/AppConfig";
+import { AppConfig, MattermostConfig, MsteamsConfig, SlackConfig } from "./base/AppConfig";
 
 export class AppConfigLoader {
 
@@ -19,12 +19,13 @@ export class AppConfigLoader {
     public static loadAppConfig(): AppConfig {
 
         if (AppConfigLoader.appConfig == null) {
-
-            let cfgFilePath = process.env.ZOWE_CHAT_CONFIG_DIR;
-            if (cfgFilePath === undefined) {
-                cfgFilePath = "./application.yaml";
+            let cfgDir = process.env.ZOWE_CHAT_CONFIG_DIR;
+            let cfgFilePath = ""
+            if (cfgDir === undefined) {
+                cfgDir = "./"
+                cfgFilePath = cfgDir + "application.yaml";
             } else {
-                cfgFilePath = `${cfgFilePath}/application.yaml`;
+                cfgFilePath = `${cfgDir}/application.yaml`;
             }
 
             // TODO: re-use readYaml from ChatBot.ts? 
@@ -35,7 +36,20 @@ export class AppConfigLoader {
             }
 
             try {
-                AppConfigLoader.appConfig = yaml.load(fs.readFileSync(cfgFilePath).toString(), {}) as AppConfig;
+                let rawConfig: any = yaml.load(fs.readFileSync(cfgFilePath).toString(), {})
+                let slackConfig = `${cfgDir}/${rawConfig.slack}`
+                let mattermostConfig = `${cfgDir}/${rawConfig.mattermost}`
+                let mstConfig = `${cfgDir}/${rawConfig.msteams}`
+                if (fs.existsSync(slackConfig)) {
+                    rawConfig.slack = yaml.load(fs.readFileSync(slackConfig).toString(), {}) as SlackConfig
+                }
+                if (fs.existsSync(mattermostConfig)) {
+                    rawConfig.mattermost = yaml.load(fs.readFileSync(mattermostConfig).toString(), {}) as MattermostConfig
+                }
+                if (fs.existsSync(mstConfig)) {
+                    rawConfig.msteams = yaml.load(fs.readFileSync(mstConfig).toString(), {}) as MsteamsConfig
+                }
+                AppConfigLoader.appConfig = rawConfig as AppConfig;
             } catch (err) {
                 console.log(`TBD003E: Error parsing the content for file ${cfgFilePath}. Please make sure the file is valid YAML.`);
                 console.log(err)

@@ -45,7 +45,7 @@ export class UserConfigManager {
         }
 
         let configContents = fs.readJSONSync(`${this.configFilePath}`, { throws: false });
-        if (configContents == undefined || configContents == {}) {
+        if (configContents == undefined) {
             this.configData = this.generateConfig(this.configSchema)
         } else {
             this.configData = configContents

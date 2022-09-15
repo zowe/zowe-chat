@@ -33,7 +33,7 @@ export class ChatBot {
     private readonly appConfig: AppConfig;
     private readonly configManager: UserConfigManager
     private readonly app: MessagingApp;
-    private readonly pluginHome = '/Users/ma648885/.dev/zowe/zowe-chat/.build/plugins';
+    private readonly pluginHome: string;
     private readonly bot: CommonBot;
     private readonly plugins: IChatPlugin[] = [];
     private botMessageListener: BotMessageListener;
@@ -45,7 +45,7 @@ export class ChatBot {
         // App Config and Log are used in multiple methods within the constructor.
         this.log = log
         this.appConfig = chatConfig
-
+        this.pluginHome = (process.env.ZOWE_CHAT_PLUGINS_DIR != undefined) ? process.env.ZOWE_CHAT_PLUGINS_DIR : process.cwd() + "/plugins"
         try {
             this.log.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
 
@@ -169,8 +169,8 @@ export class ChatBot {
             this.log.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Sort plugin per priority in ascend order: Priority 1 (Urgent) · Priority 2 (High) · Priority 3 (Medium) · Priority 4 (Low)
-            this.plugins.sort((a, b) => a.priority - b.priority);
-            this.log.debug(`Plugins sorted by priority:\n${JSON.stringify(this.plugins, null, 4)}`);
+            pluginList.sort((a, b) => a.priority - b.priority);
+            this.log.debug(`Plugins sorted by priority:\n${JSON.stringify(pluginList, null, 4)}`);
 
             // Load plugins one by one in priority descend order
             for (const plugin of pluginList) {
@@ -200,24 +200,33 @@ export class ChatBot {
                     continue;
                 }
 
-                // Load plugin
-                const ZoweChatPlugin = require(pluginPath);
+
 
                 // Create and register listeners
                 for (const listenerName of plugin.listeners) {
                     // Create listener
                     if (listenerName.endsWith('MessageListener')) {
+
+                        // Load plugin
+                        const ZoweChatPlugin = require(pluginPath);
+                        console.log(ZoweChatPlugin)
+
                         this.botMessageListener.registerChatListener({
                             'listenerName': listenerName,
                             'listenerType': IChatListenerType.MESSAGE,
-                            'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
+                            'listenerInstance': new ZoweChatPlugin[listenerName](),
                             'chatPlugin': plugin,
                         });
                     } else if (listenerName.endsWith('EventListener')) {
+
+
+                        // Load plugin
+                        const ZoweChatPlugin = require(pluginPath);
+
                         this.botEventListener.registerChatListener({
                             'listenerName': listenerName,
                             'listenerType': IChatListenerType.EVENT,
-                            'listenerInstance': new ZoweChatPlugin[listenerName](this.log),
+                            'listenerInstance': new ZoweChatPlugin[listenerName](),
                             'chatPlugin': plugin,
                         });
                     } else {

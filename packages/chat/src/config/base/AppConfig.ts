@@ -14,11 +14,22 @@ import { IChatToolType as ChatToolType, IProtocol } from "@zowe/commonbot";
  * 
  */
 export type AppConfig = {
-    zosmf: ZosmfServerConfig;
+    security: SecurityConfig;
     app: ChatAppConfig;
     mattermost: MattermostConfig;
     slack: SlackConfig;
     msteams: MsteamsConfig;
+}
+
+export type SecurityConfig = {
+    zosmf: ZosmfServerConfig;
+    authMode: AuthType
+    serviceAccount: ServiceAccount
+}
+
+export type ServiceAccount = {
+    user: string;
+    password: string;
 }
 
 export type ZosmfServerConfig = {
@@ -35,8 +46,7 @@ export type ChatAppConfig = {
     recordLimit: number;
     pluginLimit: number;
     extendedConfigDir: string;
-    userId: string;
-    userPassword: string;
+ 
 }
 
 export type LogOption = {
@@ -102,4 +112,9 @@ export enum LogLevel {
     VERBOSE = 'verbose',
     DEBUG = 'debug',
     SILLY = 'silly'
+}
+
+export enum AuthType {
+    TOKEN = 'token',
+    PASSWORD = 'password',
 }

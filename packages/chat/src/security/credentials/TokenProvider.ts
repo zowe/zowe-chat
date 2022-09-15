@@ -32,11 +32,11 @@ export class TokenProvider implements ICredentialProvider {
 
     constructor(config: SecurityConfig, log: Logger) {
         let appConfig = AppConfigLoader.loadAppConfig()
-        this.authProtocol = appConfig.zosmf.protocol
-        this.authPort = appConfig.zosmf.port
-        this.authHost = appConfig.zosmf.host
+        this.authProtocol = appConfig.security.zosmf.protocol
+        this.authPort = appConfig.security.zosmf.port
+        this.authHost = appConfig.security.zosmf.host
         this.tokenService = TokenService.ZOSMF
-        this.rejectUnauth = appConfig.zosmf.rejectUnauthorized
+        this.rejectUnauth = appConfig.security.zosmf.rejectUnauthorized
         this.log = log
         this.tokenCache = new Map<string, ChatCredential>()
     }

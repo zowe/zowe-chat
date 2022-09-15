@@ -5,7 +5,11 @@ security:
     rejectUnauthorized: false
     port: 443
   # one of: token, password
-  mode: token
+  authMode: token
+  # If you prefer all bot requests against mainframe services to use a single service account
+  serviceAccount:
+    user: <Service account ID>
+    password:  <Service account password>
 
 app:
   # Specify the type of chat tool, the value can be mattermost, slack or msteams.
@@ -33,12 +37,6 @@ app:
   # Specify the maximum number of plugins that can respond to the same matched message or event.
   pluginLimit: -1
 
-  # Specify the functional user id used to access your z/OS system.
-  userId: <Your user id>
-
-  # Specify the password of the functional user.
-  userPassword: <Your password>
-
   server:
     # Specify the protocol of your HTTP endpoint. The value can be https or http.
     # The default value is https.
@@ -63,79 +61,10 @@ app:
     tlsCert: <Your absolute TLS cert file path of your messaging server>
 
 # Specify your Slack configuration here, if you set chatToolType to Slack.
-slack:
-  # Specify the bot user name or account that is used in your chat tool server.
-  # The default value is zowechat.
-  botUserName: zowechat
-
-  # Specify the signing secret of your chatbot Slack app
-  # The secret will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  signingSecret: <Your slack signing secret>
-
-  # Specify the bot user OAuth token of your chatbot Slack app
-  # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  token: <Your slack token>
-
-  # Specify the protocol to connect to Slack for your chatbot Slack app to receive app payloads.
-  # You can see more details in https://api.slack.com/apis/connections.
-  # The value can be socketMode or httpEndpoint.
-  # The default value is socketMode.
-  socketMode: # Configure the private WebSocket for Slack to communicate with your chatbot Slack app.
-    # Enable or disable the socketMode connection protocol. The value can be true or false.
-    # The default value is true.
-    enabled: false
-
-    # Specify the app level token of your chatbot Slack app.
-    # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-    appToken: <Your app token>
-
-  # Configure the messaging application which Slack will communicate with when some user clicking actions occur.
-  httpEndpoint:
-    # Enable or disable the httpEndpoint connection protocol. The value can be true or false.
-    # The default value is false.
-    enabled: false
+slack: ./chatTools/slack.yaml
 
 # Specify your Mattermost configuration here, if you set chatToolType to Slack.
-mattermost:
-  # Specify the protocol of your Mattermost server. The value can be https or http.
-  # The default value is https.
-  protocol: https
-
-  # Specify the host name or IP address of your Mattermost server.
-  hostName: <Your mattermost server hostname>
-
-  # Specify the port number of your Mattermost server.
-  # The default value is 443.
-  port: 443
-
-  # Specify the base path of your Mattermost web service API server. Only '/api/v4' is supported by Mattermost at present.
-  # The default value is /api/v4.
-  basePath: /api/v4
-
-  # Specify the absolute file path of the TLS certificate (PEM) of your Mattermost server if HTTPS protocol is specified.
-  tlsCertificate: <Your absolute certificate file path of your Mattermost server>
-
-  # Specify the team URL of your team created in your Mattermost server.
-  # The default value is devops.
-  teamUrl: devops
-
-  # Specify the bot user name or account that is used in your chat tool server.
-  # The default value is zowechat.
-  botUserName: zowechat
-
-  # Specify the access token to connect to your bot.
-  # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  botAccessToken: <Your bot token>
+mattermost: ./chatTools/mattermost.yaml
 
 # Specify your MSTeams configuration here, if you set chatToolType to Slack.
-msteams:
-  #  Specify the bot user name or account that is used in your chat tool server.
-  # The default value is zowechat.
-  botUserName: zowechat
-
-  # Specify the ID of your Microsoft Teams bot.
-  botId: <Your Bot ID>
-
-  # Specify the password of your Microsoft Teams bot.
-  # The password will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  botPassword: <Your bot password>
+msteams: ./chatTools/msteams.yaml

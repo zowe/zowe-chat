@@ -90,10 +90,10 @@ export class SecurityManager {
             if (loginSection.authService.service == LoginService.ZOSMF) {
 
                 let zosmfHost: ZosmfHost = {
-                    host: this.appConfig.zosmf.host,
-                    port: this.appConfig.zosmf.port,
-                    rejectUnauthorized: this.appConfig.zosmf.rejectUnauthorized,
-                    protocol: this.appConfig.zosmf.protocol
+                    host: this.appConfig.security.zosmf.host,
+                    port: this.appConfig.security.zosmf.port,
+                    rejectUnauthorized: this.appConfig.security.zosmf.rejectUnauthorized,
+                    protocol: this.appConfig.security.zosmf.protocol
                 }
                 // TODO: Do better on unwrapping creds; make a class instead of type? too much leakage
                 loggedIn = await ZosmfLogin.loginUser(zosmfHost, principal.getUser().getMainframeUser(), principal.getCredentials().value)

@@ -73,9 +73,6 @@ export class MessagingApp {
         this.app.post('/api/v1/auth/login', async (req, res) => {
             try {
 
-
-
-
                 // add defensive block
                 let challenge: string = req.body.challenge
                 let user: string = req.body.user;

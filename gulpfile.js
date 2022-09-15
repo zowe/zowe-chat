@@ -18,11 +18,6 @@ require('ts-node/register');
 const developmentTasks = require("./gulp/DevelopmentTasks");
 //gulp.task("lint", developmentTasks.lint);
 gulp.task("updateLicense", developmentTasks.license);
+gulp.task("runChat", developmentTasks.runChat)
 //gulp.task('doc', developmentTasks.doc);
 //gulp.task('typedoc', developmentTasks.typedoc);
-
-/**
- * Cleanup related tasks
- */
-//const cleanupTasks = require("./gulp/CleanupTasks");
-//gulp.task('cleanTypedoc', cleanupTasks.cleanTypedoc);

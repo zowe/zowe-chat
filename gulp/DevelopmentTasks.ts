@@ -8,14 +8,16 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+import child_process from "child_process";
 import * as fs from "fs-extra";
+import * as path from "path";
 import { ITaskFunction } from "./GulpHelpers";
 
 const license: ITaskFunction = (done: (err: Error) => void) => {
     // process all typescript files
     require("glob")(
         "{__mocks__,packages,__tests__,jenkins}{/**/*.js,/**/*.ts}",
-        { "ignore": ['**/node_modules/**', '**/lib/**','**/gulp/**'] },
+        { "ignore": ['**/node_modules/**', '**/lib/**', '**/gulp/**'] },
         (globErr: any, filePaths: string[]) => {
             if (globErr) {
                 done(globErr);
@@ -62,4 +64,69 @@ const license: ITaskFunction = (done: (err: Error) => void) => {
 };
 license.description = "Updates the license header in all TypeScript files";
 
+
+
+const runChat: ITaskFunction = (done: (err: Error) => void) => {
+
+    try {
+        child_process.execSync(`which rsync`).toString()
+    } catch (error) {
+        console.log(error)
+        console.log("Rsync not found on system, required for this gulp task to function. Please install rsync and try again.")
+    }
+
+    // ensure we're in root dir or backtrack there
+    let projRoot = process.cwd() + path.sep
+    const keyFile = "CONTRIBUTING.md" // File which only exists in project root
+    while (!fs.existsSync(`${projRoot}${keyFile}`)) {
+
+        projRoot = `${projRoot}..${path.sep}`
+
+        if (path.resolve(projRoot) == path.resolve("/")) {
+            console.log("Error trying to find project root - we're in the filesystem root.")
+            console.log(`Make sure you are running from a dir under the project, and the file ${keyFile} exists in the project root.`)
+            process.exit(1)
+        }
+    }
+
+    let localRunDir = `${projRoot}/.build/`
+
+    fs.mkdirpSync(`${localRunDir}/chatbot/configuration`)
+    fs.mkdirpSync(`${localRunDir}/chatbot/chat`)
+    fs.mkdirpSync(`${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
+    fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/clicmd`)
+    fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/zos`)
+
+
+    child_process.execSync(`rsync -r --ignore-existing packages/chat/resources/* ${localRunDir}/chatbot/configuration`)
+    child_process.execSync(`rsync -r packages/chat/dist/* ${localRunDir}/chatbot/chat`)
+    child_process.execSync(`rsync -r packages/zos/dist/* ${localRunDir}/chatbot/plugins/@zowe/zos`)
+    child_process.execSync(`rsync -r packages/clicmd/dist/* ${localRunDir}/chatbot/plugins/@zowe/clicmd`)
+   // child_process.execSync(`rsync -r packages/commonbot/dist/* ${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
+    try {
+
+        child_process.execSync(`node chatbot/chat/main.js`, {
+            cwd: `${localRunDir}`,
+            stdio: [process.stdout, process.stderr],
+            env: {
+                ZOWE_CHAT_CONFIG_DIR: `${localRunDir}/chatbot/configuration`,
+                NODE_ENV: `development`,
+                ZOWE_CHAT_PLUGINS_DIR: `${localRunDir}/chatbot/plugins`,
+                NODE_PATH: `${projRoot}/packages/chat/node_modules`
+            }
+        })
+    }
+    catch (error) {
+        console.log(error)
+        //      console.log(error.stdout.toString())
+        //    console.log(error.stderr.toString())
+
+    }
+    done(undefined)
+
+}
+
+runChat.description = "Sets up a local environment for running Zowe ChatBot. First time start will have empty configuration; future runs will not replace it."
+
 exports.license = license;
+exports.runChat = runChat;
