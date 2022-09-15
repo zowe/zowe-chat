@@ -99,10 +99,11 @@ const runChat: ITaskFunction = (done: (err: Error) => void) => {
 
 
     child_process.execSync(`rsync -r --ignore-existing packages/chat/resources/* ${localRunDir}/chatbot/configuration`)
+    child_process.execSync(`rsync -r --ignore-existing packages/chat/resources/plugin.yaml ${localRunDir}/chatbot/plugins`)
     child_process.execSync(`rsync -r packages/chat/dist/* ${localRunDir}/chatbot/chat`)
     child_process.execSync(`rsync -r packages/zos/dist/* ${localRunDir}/chatbot/plugins/@zowe/zos`)
     child_process.execSync(`rsync -r packages/clicmd/dist/* ${localRunDir}/chatbot/plugins/@zowe/clicmd`)
-   // child_process.execSync(`rsync -r packages/commonbot/dist/* ${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
+    // child_process.execSync(`rsync -r packages/commonbot/dist/* ${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
     try {
 
         child_process.execSync(`node chatbot/chat/main.js`, {
