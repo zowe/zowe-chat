@@ -79,5 +79,6 @@ The following information is critical to working with the code, running/writing/
   * Link `@zowe/chat` library
     * Go to each directory of Zowe Chat plugin
     * Run the command `npm link ZOWE_CHAT_PLUGIN_HOME` to link `@zowe/chat` library
+    * Run the command `npm link ZOWE_CHAT_PLUGIN_HOME/node_modules/i18next` to link `i18next` library
   **Note:** you must restart Zowe Chat server to make sure your changes to plugin work
 

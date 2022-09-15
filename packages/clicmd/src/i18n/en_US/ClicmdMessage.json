@@ -1,6 +1,8 @@
 {
-    "zowe": {
-        "execution": "@{{executorName}}, I have executed the Zowe CLI command for you. Please see the below for the result!",
-        "truncationIndicator": "<<<TRUNCATED DUE TO THE COMMAND OUTPUT IS TOO LONG>>>"
+    "command": {
+        "zowe": {
+            "execution": "@{{executorName}}, I have executed the Zowe CLI command for you. Please see the below for the result!",
+            "truncationIndicator": "<<<TRUNCATED DUE TO THE COMMAND OUTPUT IS TOO LONG>>>"
+        }
     }
 }

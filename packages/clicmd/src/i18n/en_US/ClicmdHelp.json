@@ -1,12 +1,7 @@
 {
-    "zowe": {
-        "resource": {
-            "verb": {
-                "object": {
-                    "translationA": "Translation A",
-                    "translationB": "Translation B"
-                }
-            }
+    "command": {
+        "zowe": {
+            "description": "Execute Zowe CLI command directly from chat tool channels"
         }
     }
 }
