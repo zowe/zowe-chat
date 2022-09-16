@@ -10,7 +10,6 @@
 
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
-import { EnvVars } from "../const/EnvVars";
 import { AppConfig, MattermostConfig, MsteamsConfig, SlackConfig } from "./base/AppConfig";
 
 export class AppConfigLoader {
@@ -20,7 +19,7 @@ export class AppConfigLoader {
     public static loadAppConfig(): AppConfig {
 
         if (AppConfigLoader.appConfig == null) {
-            let cfgDir = EnvVars.ZOWE_CHAT_CONFIG_DIR
+            let cfgDir = process.env.ZOWE_CHAT_CONFIG_DIR
             let cfgFilePath = ""
             if (cfgDir === undefined) {
                 cfgDir = "./"

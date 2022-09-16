@@ -17,14 +17,6 @@ export class EnvVars {
     public static ZOWE_CHAT_DEPLOY_UI: boolean = EnvVars.getEnvBool('ZOWE_CHAT_DEPLOY_UI', true)
     /** Where the react UI static elements are located. */
     public static ZOWE_CHAT_STATIC_DIR: string = EnvVars.getEnvStr('ZOWE_CHAT_WEB_DIR', `${process.cwd()}/static`)
-    /** Log file path */
-    public static ZOWE_CHAT_LOG_FILE_PATH: string = EnvVars.getEnvStr('ZOWE_CHAT_LOG_FILE_PATH', `./log/zoweChatServer.log`)
-    /** Chat log level, which overrides value present in application.yaml */
-    public static ZOWE_CHAT_LOG_LEVEL: string = EnvVars.getEnvStr('ZOWE_CHAT_LOG_LEVEL')
-    /** Maximum log file size, which overrides any value present in application.yaml */
-    public static ZOWE_CHAT_LOG_MAX_SIZE: string = EnvVars.getEnvStr('ZOWE_CHAT_LOG_MAX_SIZE')
-    /** Maximum log file count, which overrides any value present in application.yaml */
-    public static ZOWE_CHAT_LOG_MAX_FILES: number = EnvVars.getEnvNumber('ZOWE_CHAT_LOG_MAX_FILES')
 
 
     /**

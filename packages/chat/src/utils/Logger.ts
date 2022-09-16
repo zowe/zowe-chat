@@ -13,8 +13,10 @@ import path from "path";
 import * as winston from "winston";
 import { AppConfigLoader } from "../config/AppConfigLoader";
 import { AppConfig, LogLevel } from "../config/base/AppConfig";
-import { EnvVars } from "../const/EnvVars";
 
+/**
+ * This class uses console.log and process.env, as classes which assist with those functions require the logger
+ */
 export class Logger {
 
     private static instance: Logger;
@@ -29,20 +31,22 @@ export class Logger {
 
         // override values in appConfig if we have environment variables setup
         try {
-            this.logFile = EnvVars.ZOWE_CHAT_LOG_FILE_PATH
+            this.logFile = process.env.ZOWE_CHAT_LOG_FILE_PATH || `./log/zoweChatServer.log`
             fs.ensureFileSync(this.logFile)
-            if (EnvVars.ZOWE_CHAT_LOG_LEVEL != undefined) {
-                if ((Object.values<string>(LogLevel)).includes(EnvVars.ZOWE_CHAT_LOG_LEVEL)) {
-                    this.appConfig.app.log.level = <LogLevel>EnvVars.ZOWE_CHAT_LOG_LEVEL;
+            if (process.env.ZOWE_CHAT_LOG_LEVEL != undefined) {
+                if ((Object.values<string>(LogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
+                    this.appConfig.app.log.level = <LogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
                 } else {
                     console.error('Unsupported value specified in the variable ZOWE_CHAT_LOG_LEVEL!');
                 }
             }
-            if (EnvVars.ZOWE_CHAT_LOG_MAX_SIZE != undefined) {
-                this.appConfig.app.log.maximumSize = EnvVars.ZOWE_CHAT_LOG_MAX_SIZE
+            if (process.env.ZOWE_CHAT_LOG_MAX_SIZE != undefined) {
+                this.appConfig.app.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE
             }
-            if (EnvVars.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
-                this.appConfig.app.log.maximumFiles = EnvVars.ZOWE_CHAT_LOG_MAX_FILES
+            if (process.env.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
+                if (+process.env.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
+                    this.appConfig.app.log.maximumFiles = +process.env.ZOWE_CHAT_LOG_MAX_FILES
+                }
             }
         } catch (error) {
             console.error(`Failed to config the log!`);
@@ -223,6 +227,10 @@ export class Logger {
 
             return stack2.join('\n');
         }
+    }
+
+    public silly(log: string) {
+        this.log.silly(log)
     }
 
     public debug(log: string) {

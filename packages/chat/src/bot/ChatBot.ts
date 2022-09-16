@@ -67,7 +67,7 @@ export class ChatBot {
      * Private constructor for ChatBot object initialization, only intended for use by {@link getInstance()}  
      * 
      * Requires {@link AppConfig} and {@link Logger} in order to complete initialization. This constructor will
-     * initialize all parts of Zowe Chat, i.e. the CommonBot framework, Zowe Chat plugins, the UI, REST, and Messaging Server,
+     * initialize all major components of Zowe Chat, i.e. the CommonBot framework, Zowe Chat plugins, the UI, REST, and Messaging Server,
      * 
      * {@link run()} must be run by the caller after receiving an instance to begin listening for chat messages and events
      * 
@@ -78,55 +78,49 @@ export class ChatBot {
 
         this.log = log
         this.appConfig = chatConfig
-
         this.pluginHome = EnvVars.ZOWE_CHAT_PLUGINS_DIR
 
         try {
-            this.log.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
+            this.log.silly(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
 
+            // built-in config schemas and security manager. future: add plugin config schemas, if present
             let blockConfigList = [SecurityConfigSchema]
             this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
             this.security = new SecurityManager(this.appConfig, this.configManager, log)
-            this.log.info("Admin configuration and security facility initialized")
+            this.log.debug("Admin configuration and security facility initialized")
 
+            // Messaging app
+            this.log.debug("Init messaging app")
             this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
+            this.log.debug("Completed messaging app init")
+
+            // Commonbot
             let cBotOpts: IBotOption = this.generateBotOpts(this.app);
             this.botMessageListener = new BotMessageListener(this.appConfig, this.security, this.app, this.log);
             this.botEventListener = new BotEventListener(this.appConfig, this.security, this.app, this.log);
             this.log.info("Creating CommonBot ...");
-            // TODO: Fix casting, circular dependency between config and commonbot
             this.bot = new CommonBot(cBotOpts);
-            this.log.info("Bot initialized")
+            this.log.info("CommonBot initialized")
+
+            // Plugins / listeners
             this.setBotListeners()
             this.plugins = [];
             this.loadPlugins();
             this.log.info("Plugins initialized")
 
-
-            for (let plugin of this.plugins) {
-                // TODO: Build plugin configuration interface, other plugin initialization APIs?
-                /**
-                  *    if (plugin.getConfigSchema() !== undefined) {
-                  *        admConfigList.push(plugin.configSchema);
-                  *    }
-                  */
-            }
-
         } catch (error) {
-
             this.log.error(this.log.getErrorStack(new Error(`Failed to create chat bot!`), error))
             process.exit(1);
         }
     }
 
-    // Run chat bot
+    /**
+     *  Begin execution of the Zowe ChatBot. This 
+     */
     public run(): void {
         // Print start log
         this.log.start(this.run, this);
         try {
-            // Load plugins
-            this.log.info('Load Zowe Chat plugins ...');
-
 
             // Start server
             const app = this.app
@@ -146,7 +140,7 @@ export class ChatBot {
             // // Load translation resource
             // this.log.info('Load translations ...');
         } catch (error) {
-            this.log.error(`Failed to run Zowe chat bot!`);
+            this.log.error(this.log.getErrorStack(new Error(`Failed to run Zowe chat bot!`), error));
             this.log.error(`${error}`);
             process.exit(2);
         } finally {
