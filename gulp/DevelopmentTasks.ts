@@ -113,12 +113,13 @@ const runChat: ITaskFunction = (done: (err: Error) => void) => {
             cwd: `${localRunDir}`,
             stdio: [process.stdout, process.stderr],
             env: {
+                ...process.env,
                 PATH: process.env.PATH,
                 ZOWE_CHAT_CONFIG_DIR: `${localRunDir}/chatbot/configuration`,
                 NODE_ENV: `development`,
                 ZOWE_CHAT_PLUGINS_DIR: `${localRunDir}/chatbot/plugins`,
                 NODE_PATH: `${projRoot}/packages/chat/node_modules`,
-                ZOWE_CHAT_WEB_DIR: `${localRunDir}/chatbot/static`
+                ZOWE_CHAT_STATIC_DIR: `${localRunDir}/chatbot/static`
             }
         })
     }

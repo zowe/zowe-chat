@@ -13,16 +13,17 @@ import cors from "cors";
 import crypto from "crypto";
 import type { Application } from 'express';
 import express from "express";
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import helmet from 'helmet';
 import http from "http";
 import https from "https";
 import path from "path";
 import { ServerOptions } from '../config/base/AppConfig';
+import { EnvVars } from "../const/EnvVars";
 import { SecurityManager } from '../security/SecurityManager';
 import { CredentialType } from "../security/user/ChatCredential";
-import { ChatPrincipal } from '../security/user/ChatPrincipal';
-import { ChatUser } from '../security/user/ChatUser';
+import { ChatPrincipal } from "../security/user/ChatPrincipal";
+import { ChatUser } from "../security/user/ChatUser";
 import { Logger } from '../utils/Logger';
 
 export class MessagingApp {
@@ -49,10 +50,10 @@ export class MessagingApp {
 
         this.setApiRoutes()
 
-        if (process.env.ZOWE_CHAT_NO_WEB_DEPLOY) {
+        if (!EnvVars.ZOWE_CHAT_DEPLOY_UI) {
             this.log.info("Not deploying static frontend elements. Intended for use by developers")
         } else {
-            const staticFiles = (process.env.ZOWE_CHAT_WEB_DIR == undefined) ? "../static" : process.env.ZOWE_CHAT_WEB_DIR
+            const staticFiles = EnvVars.ZOWE_CHAT_STATIC_DIR
 
             this.app.use(express.static(staticFiles));
             const rootRoute = express.Router();
@@ -73,7 +74,13 @@ export class MessagingApp {
             user: user,
             onDone: onDone,
         })
-        return `${this.option.protocol}://${this.option.hostName}:3000/login?__key=${challengeString}`
+        let port = this.option.port
+
+        // if we're in development mode
+        if (!EnvVars.ZOWE_CHAT_DEPLOY_UI && process.env.NODE_ENV == "development") {
+            port = 3000
+        }
+        return `${this.option.protocol}://${this.option.hostName}:${port}/login?__key=${challengeString}`
 
     }
 
@@ -215,7 +222,7 @@ export class MessagingApp {
         const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
         `${this.option.protocol}://${this.option.hostName}:${this.option.port}`]
 
-        if (process.env.ZOWE_CHAT_NO_WEB_DEPLOY ||
+        if (!EnvVars.ZOWE_CHAT_DEPLOY_UI ||
             process.env.NODE_ENV == "development") {
             whitelist.push("http://localhost", "http://localhost:3000")
         }

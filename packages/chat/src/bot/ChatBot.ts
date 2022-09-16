@@ -15,6 +15,7 @@ import * as path from "path";
 import { AppConfigLoader } from '../config/AppConfigLoader';
 import { AppConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
+import { EnvVars } from '../const/EnvVars';
 import { LogoutMessageListener } from '../listeners/bot/LogoutMessageListener';
 import { BotEventListener } from '../listeners/BotEventListener';
 import { BotMessageListener } from '../listeners/BotMessageListener';
@@ -25,9 +26,31 @@ import { Logger } from '../utils/Logger';
 import Util from "../utils/Util";
 import { MessagingApp } from './MessagingApp';
 
+/**
+ *  The entrypoint class for the Zowe ChatBot. 
+ * 
+ *  @export
+ *  @class ChatBot
+ * 
+ *  @example <caption>Initializing ChatBot</caption>
+ *  // Zowe ChatBot requires {@linkcode AppConfig} configuration and a {@linkcode Logger} in order to load.
+ *  // Run these commands in order first to make ensure configuration and loggers are available. 
+ *  // If you do not run these commands, ChatBot will run them as part of startup anyway. 
+ *  const appConfig = AppConfigLoader.loadAppConfig()
+ *  const log = Logger.getInstance()
+ *  // Get ChatBot instance
+ *  const chatBot = ChatBot.getInstance()
+ *  // If there is an error during bot initialization, the process will quit with error information.
+ *  // There is no way to catch this error. If there is no error, continue..
+ *  // Kick off the chat bot
+ *  chatBot.run()
+ */
 export class ChatBot {
 
+    // Singleton representing the running server
     private static instance: ChatBot;
+
+    // Capabilities required by the ChatBot to run, all initialized in constructor
     private readonly security: SecurityManager
     private readonly log: Logger;
     private readonly appConfig: AppConfig;
@@ -36,16 +59,28 @@ export class ChatBot {
     private readonly pluginHome: string;
     private readonly bot: CommonBot;
     private readonly plugins: IChatPlugin[] = [];
-    private botMessageListener: BotMessageListener;
-    private botEventListener: BotEventListener;
+    private readonly botMessageListener: BotMessageListener;
+    private readonly botEventListener: BotEventListener;
 
 
-    // TODO: Can we cleanup or clarify the initialization logic? For some steps, ordering is required but not explicit enough?
+    /**
+     * Private constructor for ChatBot object initialization, only intended for use by {@link getInstance()}  
+     * 
+     * Requires {@link AppConfig} and {@link Logger} in order to complete initialization. This constructor will
+     * initialize all parts of Zowe Chat, i.e. the CommonBot framework, Zowe Chat plugins, the UI, REST, and Messaging Server,
+     * 
+     * {@link run()} must be run by the caller after receiving an instance to begin listening for chat messages and events
+     * 
+     * @param chatConfig 
+     * @param log 
+     */
     private constructor(chatConfig: AppConfig, log: Logger) {
-        // App Config and Log are used in multiple methods within the constructor.
+
         this.log = log
         this.appConfig = chatConfig
-        this.pluginHome = (process.env.ZOWE_CHAT_PLUGINS_DIR != undefined) ? process.env.ZOWE_CHAT_PLUGINS_DIR : process.cwd() + "/plugins"
+
+        this.pluginHome = EnvVars.ZOWE_CHAT_PLUGINS_DIR
+
         try {
             this.log.debug(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
 

@@ -13,45 +13,43 @@ import path from "path";
 import * as winston from "winston";
 import { AppConfigLoader } from "../config/AppConfigLoader";
 import { AppConfig, LogLevel } from "../config/base/AppConfig";
+import { EnvVars } from "../const/EnvVars";
 
 export class Logger {
 
     private static instance: Logger;
     private readonly log: winston.Logger;
     private readonly appConfig: AppConfig;
+
     // TODO: move into constructor
     private logFile: string;
 
-
     private constructor(appConfig: AppConfig) {
         this.appConfig = appConfig
-        // TODO: Don't update the mConfig object? Keep computed properties separate?
+
+        // override values in appConfig if we have environment variables setup
         try {
-            // Handle environment variables
-            if (process.env.ZOWE_CHAT_LOG_FILE_PATH !== undefined && process.env.ZOWE_CHAT_LOG_FILE_PATH.trim() !== '') {
-                this.logFile = process.env.ZOWE_CHAT_LOG_FILE_PATH; // Set log file
-            } else {
-                this.logFile = `./log/zoweChatServer.log`;
-            }
+            this.logFile = EnvVars.ZOWE_CHAT_LOG_FILE_PATH
             fs.ensureFileSync(this.logFile)
-            if (process.env.ZOWE_CHAT_LOG_LEVEL !== undefined && process.env.ZOWE_CHAT_LOG_LEVEL.trim() !== '') {
-                if ((Object.values<string>(LogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
-                    this.appConfig.app.log.level = <LogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
+            if (EnvVars.ZOWE_CHAT_LOG_LEVEL != undefined) {
+                if ((Object.values<string>(LogLevel)).includes(EnvVars.ZOWE_CHAT_LOG_LEVEL)) {
+                    this.appConfig.app.log.level = <LogLevel>EnvVars.ZOWE_CHAT_LOG_LEVEL;
                 } else {
                     console.error('Unsupported value specified in the variable ZOWE_CHAT_LOG_LEVEL!');
                 }
             }
-            if (process.env.ZOWE_CHAT_LOG_MAX_SIZE !== undefined && process.env.ZOWE_CHAT_LOG_MAX_SIZE.trim() !== '') {
-                this.appConfig.app.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE;
+            if (EnvVars.ZOWE_CHAT_LOG_MAX_SIZE != undefined) {
+                this.appConfig.app.log.maximumSize = EnvVars.ZOWE_CHAT_LOG_MAX_SIZE
             }
-            if (process.env.ZOWE_CHAT_LOG_MAX_FILES !== undefined && process.env.ZOWE_CHAT_LOG_MAX_FILES.trim() !== '') {
-                this.appConfig.app.log.maximumFiles = Number.parseInt(process.env.ZOWE_CHAT_LOG_MAX_FILES);
+            if (EnvVars.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
+                this.appConfig.app.log.maximumFiles = EnvVars.ZOWE_CHAT_LOG_MAX_FILES
             }
         } catch (error) {
             console.error(`Failed to config the log!`);
             console.error(error.stack);
             process.exit(3);
         }
+        // end override
 
         // const {combine, timestamp, colorize, label, printf} = winston.format;
         const { combine, timestamp, printf } = winston.format;
@@ -200,7 +198,6 @@ export class Logger {
         }
     }
 
-    // TODO: Marked private, see what breaks.
     // Get error stack with current file name and line number
     public getErrorStack(newError: Error, caughtError: Error) {
         if (newError.stack === undefined && caughtError.stack === undefined) {

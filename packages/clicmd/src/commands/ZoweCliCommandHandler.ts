@@ -52,8 +52,10 @@ class ZoweCliCommandHandler extends ChatHandler {
                     cmdTimeout = Number(process.env.ZOWE_CLI_EXECUTION_TIME_OUT);
                 }
 
+
+
                 // TODO: must run using executors' own profile
-                logger.info(`Zowe CLI command to be executed: ${command.extraData.zoweCliCommand}`);
+                logger.info(`Zowe CLI command to be executed: ${command.extraData.zoweCliCommand} --user ${}`);
                 cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, {cwd: os.homedir(), timeout: cmdTimeout, windowsHide: true}).toString();
             } catch (error) {
                 logger.debug(`status: ${error.status}`);
