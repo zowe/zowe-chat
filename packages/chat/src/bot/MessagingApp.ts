@@ -17,6 +17,7 @@ import * as fs from "fs";
 import helmet from 'helmet';
 import http from "http";
 import https from "https";
+import path from "path";
 import { ServerOptions } from '../config/base/AppConfig';
 import { SecurityManager } from '../security/SecurityManager';
 import { CredentialType } from "../security/user/ChatCredential";
@@ -30,7 +31,7 @@ export class MessagingApp {
     private readonly option: ServerOptions;
     private readonly app: Application;
     private readonly securityFacility: SecurityManager;
-    private readonly activeChallenges: Map<string, IUser>;
+    private readonly activeChallenges: Map<string, ChallengeComplete>;
     private server: https.Server | http.Server;
 
     constructor(option: ServerOptions, securityFac: SecurityManager, log: Logger) {
@@ -38,38 +39,46 @@ export class MessagingApp {
         this.option = option;
         this.log = log;
         this.securityFacility = securityFac;
-        this.activeChallenges = new Map<string, IUser>()
+        this.activeChallenges = new Map<string, ChallengeComplete>()
         // Create express app
         this.app = express();
         this.app.use(cors(this.corsOptions()))
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(helmet()); // Secure Express apps with various HTTP headers
-        const staticFiles = (process.env.ZOWE_CHAT_WEB_DIR == undefined) ? "../chat-react-ui/build/" : process.env.ZOWE_CHAT_WEB_DIR
 
-        //  this.app.use(express.static(staticFiles));
-        this.setRoutes()
-        const rootRoute = express.Router();
-        //  rootRoute.get('(/*)?', (req, res) => {
-        //     res.sendFile(path.resolve(staticFiles, "index.html"));
-        //   });
-        this.app.use(rootRoute)
+        this.setApiRoutes()
+
+        if (process.env.ZOWE_CHAT_NO_WEB_DEPLOY) {
+            this.log.info("Not deploying static frontend elements. Intended for use by developers")
+        } else {
+            const staticFiles = (process.env.ZOWE_CHAT_WEB_DIR == undefined) ? "../static" : process.env.ZOWE_CHAT_WEB_DIR
+
+            this.app.use(express.static(staticFiles));
+            const rootRoute = express.Router();
+            rootRoute.get('(/*)?', (req, res) => {
+                res.sendFile(path.resolve(staticFiles, "index.html"));
+            });
+            this.app.use(rootRoute)
+
+        }
+
+
     }
 
-    public generateChallenge(user: IUser) {
+    public generateChallenge(user: IUser, onDone: () => void) {
         let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64')
         //  return `${this.option.protocol}://${this.option.hostName}:${this.option.port}/login/${challengeString}`
-        this.activeChallenges.set(challengeString, user)
+        this.activeChallenges.set(challengeString, {
+            user: user,
+            onDone: onDone,
+        })
         return `${this.option.protocol}://${this.option.hostName}:3000/login?__key=${challengeString}`
 
     }
 
-    private getUser(userId: number) {
-        return true
-    }
+    private setApiRoutes() {
 
-    private setRoutes() {
-        this.app.get('/api/v1/auth/user/:userId', this.getUser.bind(this));
         this.app.post('/api/v1/auth/login', async (req, res) => {
             try {
 
@@ -78,18 +87,19 @@ export class MessagingApp {
                 let user: string = req.body.user;
                 let password: string = req.body.password;
 
-                let iUser = this.activeChallenges.get(challenge)
-                if (challenge == undefined || iUser == undefined) {
+                let storedChallenge = this.activeChallenges.get(challenge)
+                if (challenge == undefined || storedChallenge == undefined) {
                     res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.')
                     return
                 }
-                let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(iUser.name, user), {
+                let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(storedChallenge.user.name, user), {
                     type: CredentialType.PASSWORD,
                     value: password
                 }));
                 if (authN) {
                     this.activeChallenges.delete(challenge)
                     res.status(200).send('OK')
+                    storedChallenge.onDone()
                 } else {
                     res.status(401).send('Unauthorized')
                 }
@@ -202,9 +212,13 @@ export class MessagingApp {
     }
 
     private corsOptions(): any {
+        const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
+        `${this.option.protocol}://${this.option.hostName}:${this.option.port}`]
 
-        const whitelist: string[] = ["http://localhost", "http://localhost:8081", "http://localhost:3000"];
-
+        if (process.env.ZOWE_CHAT_NO_WEB_DEPLOY ||
+            process.env.NODE_ENV == "development") {
+            whitelist.push("http://localhost", "http://localhost:3000")
+        }
         return {
             origin: (origin: string, callback: Function) => {
                 if (whitelist.indexOf(origin) !== -1 || (origin == null || origin == undefined)) {
@@ -217,4 +231,9 @@ export class MessagingApp {
         };
     }
 
+}
+
+type ChallengeComplete = {
+    user: IUser,
+    onDone: () => void
 }

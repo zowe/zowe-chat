@@ -143,7 +143,9 @@ export class BotMessageListener extends BotListener {
         let user = chatContextData.context.chatting.user
 
         if (!this.securityFacility.isAuthenticated(chatContextData)) {
-            let redirect = this.webapp.generateChallenge(user)
+            let redirect = this.webapp.generateChallenge(user, () => {
+                this.processMessage(chatContextData)
+            })
             this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
 
             await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
@@ -158,8 +160,9 @@ export class BotMessageListener extends BotListener {
 
                 let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
                 if (principal == undefined) {
-                    let redirect = this.webapp.generateChallenge(user)
-
+                    let redirect = this.webapp.generateChallenge(user, () => {
+                        this.processMessage(chatContextData)
+                    })
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
                         type: IMessageType.PLAIN_TEXT
@@ -198,8 +201,9 @@ export class BotMessageListener extends BotListener {
                 }
 
                 if (pluginUnauth) {
-                    let redirect = this.webapp.generateChallenge(user)
+                    let redirect = this.webapp.generateChallenge(user, () => {
 
+                    })
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, it looks like your login expired. Please visit ${redirect} to login again,`,
                         type: IMessageType.PLAIN_TEXT

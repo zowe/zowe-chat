@@ -88,7 +88,7 @@ export class ZosmfLogin {
                 resource: "/zosmf/restjobs/jobs"
             })
         } catch (error) {
-            console.log(error)
+            // TODO: Add Logger? console.log(error)
             if (client.response.statusCode === 401 || client.response.statusCode == 403) {
                 return {
                     type: CredentialType.UNDEFINED,

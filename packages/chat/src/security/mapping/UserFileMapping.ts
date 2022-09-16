@@ -70,9 +70,9 @@ export class UserFileMapping implements IUserMapping {
     }
 
     public mapUser(distUser: string, mfUser: string): boolean {
-        console.log(`Mapping ${distUser} to ${mfUser}`)
+        this.log.debug(`Mapping ${distUser} to ${mfUser}`)
         let output = this.userMap[distUser] = mfUser;
-        console.log(JSON.stringify(output))
+       // this.log.silly(JSON.stringify(output))
         this.writeMappingFile();
         return true
     }

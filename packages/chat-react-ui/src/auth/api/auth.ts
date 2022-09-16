@@ -26,7 +26,6 @@ const chatAuthProvider = {
       user: user,
       password: password,
     }).then((response) => {
-      console.log(response)
       if (response.status == 200) {
         chatAuthProvider.isAuthenticated = true;
         callback({
@@ -41,7 +40,6 @@ const chatAuthProvider = {
         })
       }
     }).catch((error) => {
-      console.log(error)
       chatAuthProvider.isAuthenticated = false;
       callback({
         success: false,

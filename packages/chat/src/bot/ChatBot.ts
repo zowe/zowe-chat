@@ -78,10 +78,8 @@ export class ChatBot {
             }
 
         } catch (error) {
-            console.log(error)
-            this.log.error(`Failed to create chat bot!`);
-            this.log.error(`Error details: ${error}`);
-            this.log.debug(`Error stack: ${error.stack}`)
+
+            this.log.error(this.log.getErrorStack(new Error(`Failed to create chat bot!`), error))
             process.exit(1);
         }
     }

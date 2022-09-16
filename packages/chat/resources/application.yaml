@@ -5,11 +5,13 @@ security:
     rejectUnauthorized: false
     port: 443
   # one of: token, password
-  authMode: token
-  # If you prefer all bot requests against mainframe services to use a single service account
+  authMode: password
+  # If you prefer all bot requests against mainframe services to use a single service account, set to true
+  useServiceAccount: false
+  # Service account information. if useServiceAccount is true, this information is required.
   serviceAccount:
     user: <Service account ID>
-    password:  <Service account password>
+    password: <Service account password>
 
 app:
   # Specify the type of chat tool, the value can be mattermost, slack or msteams.

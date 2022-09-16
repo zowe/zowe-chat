@@ -29,7 +29,7 @@ export class AppConfigLoader {
             }
 
             // TODO: re-use readYaml from ChatBot.ts? 
-            // the console.log is unique here though, we don't have logs configured until initial config load completes.
+            // the console.log is unique here, we don't have logs configured until initial config load completes.
             if (!fs.existsSync(cfgFilePath)) {
                 console.log(`TBD002E: Config file ${cfgFilePath} does not exist. Please create  or use the ZOWE_CHAT_CONFIG_DIR environment variable to specify the path.`);
                 throw new Error(`TBD002E: Config file ${cfgFilePath} does not exist. Please create this or use the ZOWE_CHAT_CONFIG_DIR environment variable to specify the path.`);

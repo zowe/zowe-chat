@@ -72,7 +72,9 @@ export class BotEventListener extends BotListener {
             const contexts: IChatContextData[] = [];
 
             if (!this.securityFacility.isAuthenticated(chatContextData)) {
-                let redirect = this.webapp.generateChallenge(user)
+                let redirect = this.webapp.generateChallenge(user, () => {
+                    this.matchEvent(chatContextData)
+                })
                 this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
 
                 await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{

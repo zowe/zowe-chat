@@ -93,6 +93,7 @@ const runChat: ITaskFunction = (done: (err: Error) => void) => {
 
     fs.mkdirpSync(`${localRunDir}/chatbot/configuration`)
     fs.mkdirpSync(`${localRunDir}/chatbot/chat`)
+    fs.mkdirpSync(`${localRunDir}/chatbot/static`)
     fs.mkdirpSync(`${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
     fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/clicmd`)
     fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/zos`)
@@ -103,6 +104,8 @@ const runChat: ITaskFunction = (done: (err: Error) => void) => {
     child_process.execSync(`rsync -r packages/chat/dist/* ${localRunDir}/chatbot/chat`)
     child_process.execSync(`rsync -r packages/zos/dist/* ${localRunDir}/chatbot/plugins/@zowe/zos`)
     child_process.execSync(`rsync -r packages/clicmd/dist/* ${localRunDir}/chatbot/plugins/@zowe/clicmd`)
+    child_process.execSync(`rsync -r packages/chat-react-ui/build/* ${localRunDir}/chatbot/static`)
+
     // child_process.execSync(`rsync -r packages/commonbot/dist/* ${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
     try {
 
@@ -114,7 +117,8 @@ const runChat: ITaskFunction = (done: (err: Error) => void) => {
                 ZOWE_CHAT_CONFIG_DIR: `${localRunDir}/chatbot/configuration`,
                 NODE_ENV: `development`,
                 ZOWE_CHAT_PLUGINS_DIR: `${localRunDir}/chatbot/plugins`,
-                NODE_PATH: `${projRoot}/packages/chat/node_modules`
+                NODE_PATH: `${projRoot}/packages/chat/node_modules`,
+                ZOWE_CHAT_WEB_DIR: `${localRunDir}/chatbot/static`
             }
         })
     }

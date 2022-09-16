@@ -68,8 +68,6 @@ export class LogoutMessageListener extends ChatMessageListener {
         let msgs: IMessage[] = [];
         try {
 
-            console.log(Object.keys(chatContextData.extraData))
-
             // Process command
             this.security.logoutUser(this.security.getChatUser(chatContextData))
 
