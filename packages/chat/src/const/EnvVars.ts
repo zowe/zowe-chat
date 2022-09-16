@@ -16,7 +16,7 @@ export class EnvVars {
     /** Determines if Zowe Chat should deploy it's static web elements, i.e. WebUI. True by default. */
     public static ZOWE_CHAT_DEPLOY_UI: boolean = EnvVars.getEnvBool('ZOWE_CHAT_DEPLOY_UI', true)
     /** Where the react UI static elements are located. */
-    public static ZOWE_CHAT_STATIC_DIR: string = EnvVars.getEnvStr('ZOWE_CHAT_WEB_DIR', `${process.cwd()}/static`)
+    public static ZOWE_CHAT_STATIC_DIR: string = EnvVars.getEnvStr('ZOWE_CHAT_STATIC_DIR', `${process.cwd()}/static`)
 
 
     /**
