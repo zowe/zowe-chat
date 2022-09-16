@@ -17,7 +17,7 @@ const license: ITaskFunction = (done: (err: Error) => void) => {
     // process all typescript files
     require("glob")(
         "{__mocks__,packages,__tests__,jenkins}{/**/*.js,/**/*.ts}",
-        { "ignore": ['**/node_modules/**', '**/lib/**', '**/gulp/**'] },
+        { "ignore": ['**/node_modules/**', '**/lib/**', '**/dist/**', '**/.build/**', '**/build/**', '**/gulp/**'] },
         (globErr: any, filePaths: string[]) => {
             if (globErr) {
                 done(globErr);
