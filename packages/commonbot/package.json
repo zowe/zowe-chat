@@ -12,7 +12,7 @@
         "build": "gulp build",
         "packaging": "gulp packaging",
         "lint": "gulp lint",
-        "madge": "madge --circular --extensions ts ."
+        "circularDependencyCheck": "madge -c dist"
 
     },
     "dependencies": {

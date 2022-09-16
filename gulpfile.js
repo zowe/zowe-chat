@@ -16,7 +16,7 @@ require('ts-node/register');
  * Development related tasks
  */
 const developmentTasks = require("./gulp/DevelopmentTasks");
-//gulp.task("lint", developmentTasks.lint);
+
 gulp.task("updateLicense", developmentTasks.license);
 gulp.task("runChat", developmentTasks.runChat)
 //gulp.task('doc', developmentTasks.doc);

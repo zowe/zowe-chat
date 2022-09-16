@@ -7,21 +7,21 @@
   "scripts": {
     "build": "gulp build",
     "packaging": "gulp packaging",
-    "start": "node index.js",
+    "start": "node main.js",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
     "lint": "gulp lint",
-    "madge": "madge --circular --extensions js ./dist",
-    "dpdm": "dpdm dist/"
+    "circularDependencyCheck": "madge -c dist"
+
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/zowe/zowe-chat.git"
   },
   "keywords": [
-    "Zowe",
-    "Chat"
+    "zowe",
+    "chat"
   ],
-  "author": "Zowe",
+  "author": "zowe",
   "license": "EPL-2.0",
   "bugs": {
     "url": "https://github.com/zowe/zowe-chat/issues"
@@ -59,8 +59,5 @@
   ],
   "engines": {
     "node": ">=16.13.2"
-  },
-  "bundleDependencies": [
-    "@zowe/commonbot"
-  ]
+  }
 }

@@ -9,7 +9,9 @@
     "build": "gulp build",
     "packaging": "gulp packaging",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-    "lint": "gulp lint"
+    "lint": "gulp lint",
+    "circularDependencyCheck": "madge -c dist"
+
   },
   "repository": {
     "type": "git",
