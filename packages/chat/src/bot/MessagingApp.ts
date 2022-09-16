@@ -26,6 +26,12 @@ import { ChatPrincipal } from "../security/user/ChatPrincipal";
 import { ChatUser } from "../security/user/ChatUser";
 import { Logger } from '../utils/Logger';
 
+/**
+ *  This class contains server-side endpoints and static web elements, serviced under-the-hood by an express application.
+ *  This class is capable of generating a one-time user challenge link, which users can visit to authenticate against Zowe ChatBot.
+ * 
+ *  There should only be one instance of the class active at a time.
+ */
 export class MessagingApp {
 
     private readonly log: Logger;
@@ -33,8 +39,17 @@ export class MessagingApp {
     private readonly app: Application;
     private readonly securityFacility: SecurityManager;
     private readonly activeChallenges: Map<string, ChallengeComplete>;
+    // server is readonly, but set outside the class constructor
     private server: https.Server | http.Server;
 
+    /**
+     * Creates a new instance of the MessagingApp based on Zowe ChatBot's server options. 
+     * Sets express API routes and serves the frontend web deployment. 
+     * 
+     * @param option 
+     * @param securityFac used to generate challenge links and authenticate users
+     * @param log 
+     */
     constructor(option: ServerOptions, securityFac: SecurityManager, log: Logger) {
         // Set app option
         this.option = option;
@@ -50,40 +65,54 @@ export class MessagingApp {
 
         this.setApiRoutes()
 
-        if (!EnvVars.ZOWE_CHAT_DEPLOY_UI) {
-            this.log.info("Not deploying static frontend elements. Intended for use by developers")
-        } else {
+        if (EnvVars.ZOWE_CHAT_DEPLOY_UI) {
             const staticFiles = EnvVars.ZOWE_CHAT_STATIC_DIR
-
             this.app.use(express.static(staticFiles));
             const rootRoute = express.Router();
             rootRoute.get('(/*)?', (req, res) => {
                 res.sendFile(path.resolve(staticFiles, "index.html"));
             });
             this.app.use(rootRoute)
-
+        } else {
+            this.log.warn("Not deploying static frontend elements. This is intended for use by developers")
         }
-
 
     }
 
-    public generateChallenge(user: IUser, onDone: () => void) {
+    /**
+     * Generates a challenge link users can visit to authenticate against Zowe ChatBot. This challenge link leads to the 
+     * Zowe ChatBot Web UI, which is served from the same express application as its REST APIs. After a user successfully logs
+     * in, the challenge link is expired. 
+     * 
+     * @future The challenge link should expire after a period of time, even if the user does not log in.
+     * 
+     * @param user the user who will authenticate against the link
+     * @param onDone an action the caller can take after a successful authentication, such as sending a follow up message
+     * @returns the fully qualified challenge link
+     */
+    public generateChallenge(user: IUser, onDone: () => void): string {
+
+        // challenge string is base64 encoded - username:email:id:randombytes 
         let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64')
-        //  return `${this.option.protocol}://${this.option.hostName}:${this.option.port}/login/${challengeString}`
         this.activeChallenges.set(challengeString, {
             user: user,
             onDone: onDone,
         })
-        let port = this.option.port
 
-        // if we're in development mode
+        let port = this.option.port
+        // if we're in development mode and not serving static elements, use the local react development port
         if (!EnvVars.ZOWE_CHAT_DEPLOY_UI && process.env.NODE_ENV == "development") {
             port = 3000
         }
         return `${this.option.protocol}://${this.option.hostName}:${port}/login?__key=${challengeString}`
-
     }
 
+    /**
+     * Defines Express REST API Routes. 
+     * 
+     * - POST /api/v1/auth/login 
+     *    - used to authenticate a user and requires a valid challenge link as part of the POST body.
+     */
     private setApiRoutes() {
 
         this.app.post('/api/v1/auth/login', async (req, res) => {
@@ -100,7 +129,7 @@ export class MessagingApp {
                     return
                 }
                 let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(storedChallenge.user.name, user), {
-                    type: CredentialType.PASSWORD,
+                    type: CredentialType.PASSWORD, // always considered a password, even if using MFA credential
                     value: password
                 }));
                 if (authN) {
@@ -119,12 +148,19 @@ export class MessagingApp {
         })
     }
 
-    // Get messaging application
+    /**
+     * This function should not be used by most callers. The CommonBot framework requires access to this app.
+     * 
+     * @returns the underlying express application
+     */
     getApplication(): Application {
         return this.app;
     }
 
-    // Start messaging application server
+    /**
+     * Configures and creates the http/https server underlying the express application, and then starts it.
+     * 
+     */
     startServer(): void {
         try {
             // Set port
@@ -163,7 +199,10 @@ export class MessagingApp {
         }
     }
 
-    // Normalize a port into a number, string, or false.
+    // TODO: is there a place where port will be NaN and the app should not fail? named pipes?
+    /** 
+     * Normalize a port into a number, string, or false.
+     */
     private normalizePort(val: string) {
         const port = parseInt(val, 10);
 
@@ -180,7 +219,9 @@ export class MessagingApp {
         return false;
     }
 
-    // Event listener for error event.
+    /**
+     * Event listener for error event. 
+     */
     private onError(port: string | number | boolean) {
         return function (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             if (error.syscall !== 'listen') {
@@ -209,7 +250,12 @@ export class MessagingApp {
         };
     }
 
-    // Event listener for listening event
+    /**
+     * Event listener for listening event
+     * 
+     * @param server 
+     * @returns 
+     */
     private onListening(server: https.Server | http.Server) {
         return function () {
             const addr = server.address();
@@ -218,6 +264,12 @@ export class MessagingApp {
         };
     }
 
+    /**
+     * Sets Cross-Origin-Request-Forgery options for the express server.
+     * 
+     * @returns 
+     * 
+     */
     private corsOptions(): any {
         const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
         `${this.option.protocol}://${this.option.hostName}:${this.option.port}`]
@@ -240,6 +292,9 @@ export class MessagingApp {
 
 }
 
+/**
+ * Type used as part of tracking login challenges.
+ */
 type ChallengeComplete = {
     user: IUser,
     onDone: () => void
