@@ -77,9 +77,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
 function Layout(props: any) {
-    console.log("props" + JSON.stringify(props))
     let login = useAuth()
-    console.log("Login State: " + JSON.stringify(login));
     let location = useLocation();
     if (login.user !== null) {
         return <Navigate to={AppRoutes.Management} state={{ from: location }} replace />;
