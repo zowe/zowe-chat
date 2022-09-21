@@ -1,0 +1,62 @@
+[
+    {
+        "name": "admin",
+        "password": "CyUU55E5yRTegSP1V3s4IzNm3QqtfI9LO3XsX88zuJrr32/Tj2Z0wR8sQoLPj40etYdc4V2HeXgULeO5kGFLdQ==",
+        "salt": "GREtA7jdvCIVJfukh2oGDM/0Gi3l9hyu0glbsljfM3KYRSwHCSRTds75gvHP8SijGehO3sVe0an9Ho9sJEDc8g==",
+        "tokenValidTimePeriod": 0,
+        "status": "OPEN",
+        "role": "ADMIN",
+        "createdDate": "2021-04-12T03:16:26.26Z",
+        "modifiedDate": "",
+        "lockedDate": "",
+        "expiredDate": ""
+    },
+    {
+        "name": "izoa",
+        "password": "FJ0Qqhey4Ws5C7rYU/ZnyB+JhdtXYKhSlLKXtk4ek2KUpaEIhU8U+6rO/11PDTY3RDf8c3zkO+dUGZcM64iXMQ==",
+        "salt": "DD2KJW91zuRny6p/mDEiDuMDTtagQjGoqatzEgpvsT/Dq9mmDvGcfU7s2+WofpDt3YmrnrMOP2/CjEb38CAhNQ==",
+        "tokenValidTimePeriod": 0,
+        "status": "OPEN",
+        "role": "INTEGRATOR",
+        "createdDate": "2021-04-12T03:16:26.26Z",
+        "modifiedDate": "",
+        "lockedDate": "",
+        "expiredDate": ""
+    },
+    {
+        "name": "zsa",
+        "password": "2eeXmqv7RNWVUn14rTtzSm9OiNTjFD3CCpq38oY+cgNVtyj8OWNwa3Aqy9+ReN2zS1UBN8nYIqpN2xVWXbtTiQ==",
+        "salt": "71HuUnxORMhqu5+H5lYTAEipWWu/0t4cp8ruOUG7iPXg7ujvdl9pXR2rbgqvsIyYKts7B31GwhlXlMf7Z5wNXg==",
+        "tokenValidTimePeriod": 0,
+        "status": "OPEN",
+        "role": "INTEGRATOR",
+        "createdDate": "2021-04-12T03:16:26.26Z",
+        "modifiedDate": "",
+        "lockedDate": "",
+        "expiredDate": ""
+    },
+    {
+        "name": "omegamon",
+        "password": "TPO33+cuqP3M3hVHWQqo2XsrhRHJCSG9vVc7IXJJmwjg8HmrxSEpAz0OczfFYHm4uFUa2PI3XKgaqyrdIJmXig==",
+        "salt": "NRGJSj2/nQhaCJcUPetf+d+Ekd7D/ytoQ9KgXcXugqNSJBYiGuNtBZiO3E9t0LMKxHK3tySge/9hRiJfB9y79A==",
+        "tokenValidTimePeriod": 0,
+        "status": "OPEN",
+        "role": "INTEGRATOR",
+        "createdDate": "2021-04-12T03:16:26.26Z",
+        "modifiedDate": "",
+        "lockedDate": "",
+        "expiredDate": ""
+    },
+    {
+        "name": "bnzsvr",
+        "password": "YPW+NR5ekDsm0a2HfNpoGsAEhaBGktb9GkQqzTHGTNWuQRCA8dp2sXrvNReYl1Ln3RFU+jRbM8qZZ/zqToxHTQ==",
+        "salt": "U/YZCCpypuyq42v30D8LC0lj8qpCPjarW0uNsxay6yV3iBHRJH/iJuDEs+xSfB8INumKTgSR1AHXhOnHh+EO5g==",
+        "tokenValidTimePeriod": 0,
+        "status": "OPEN",
+        "role": "USER",
+        "createdDate": "2021-04-12T03:16:26.26Z",
+        "modifiedDate": "",
+        "lockedDate": "",
+        "expiredDate": ""
+    }
+]

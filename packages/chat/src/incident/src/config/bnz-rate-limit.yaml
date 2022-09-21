@@ -1,0 +1,47 @@
+# Licensed material - Property of IBM
+# © Copyright IBM Corporation 2022.
+# This file controls the service accessing count and limit configuration of IBM Z ChatOps server to protect it from DDoS and brute force attacks at any scale.
+
+# Configure the limit of requests submitted from the same IP address
+request:
+  # Specify the maximum number of requests can be submitted over the specified duration
+  # The default value is 10.
+  point: 10
+
+  # Specify the duration in second to count the number of submitted requests
+  # The default value is 1.
+  duration: 1
+
+  # Specify the duration in second to block further accessing when the request limit reaches
+  # The default value is 60, i.e. 1 minute.
+  blockDuration: 60
+
+# Configure the limit of login failures from the same IP address and user
+login:
+  # Configure the limit of login failures allowed by the same IP address
+  ip: 
+    # Specify the maximum number of login failures allowed over the specified duration
+    # The default value is 100.
+    point: 100
+
+    # Specify the duration in second to count the number of login failures
+    # The default value is 3600, i.e. 1 hour.
+    duration: 3600
+
+    # Specify the duration in second to block further login attempts when the login limit reaches
+    # The default value is 86400, i.e. 1 day.
+    blockDuration: 86400
+  
+  # Configure the maximum consecutive login failures allowed by the same user from the same IP address
+  user:
+    # Specify the maximum number of login failures allowed over the specified duration
+    # The default value is 5.
+    point: 5
+
+    # Specify the duration in second to count the number of login failures
+    # The default value is 60, i.e. 1 minute.
+    duration: 60
+
+    # Specify the duration in second to block further login attempts when the login limit reaches
+    # The default value is 300, i.e. 5 minutes.
+    blockDuration: 300
