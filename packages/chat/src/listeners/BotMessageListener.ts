@@ -12,7 +12,7 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ from "lodash";
 
-import { IChatContextData, IChattingType, IChatToolType, IMessageType, IPayloadType } from '@zowe/commonbot';
+import { IChatContextData, IChatToolType, IMessageType, IPayloadType } from '@zowe/commonbot';
 import { MessagingApp } from '../bot/MessagingApp';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityManager } from '../security/SecurityManager';
@@ -147,7 +147,6 @@ export class BotMessageListener extends BotListener {
                 this.processMessage(chatContextData)
             })
             this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
-            chatContextData.context.chatting.type = IChattingType.PERSONAL // switch to dm
             await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                 message: `Hello @${user.name}, you are not currently logged in to the backend system. Please visit ${redirect} to login`,
                 type: IMessageType.PLAIN_TEXT

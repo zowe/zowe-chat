@@ -71,66 +71,51 @@ export class BotEventListener extends BotListener {
             const listeners: IChatListenerRegistryEntry[] = [];
             const contexts: IChatContextData[] = [];
 
-            if (!this.securityFacility.isAuthenticated(chatContextData)) {
-                let redirect = this.webapp.generateChallenge(user, () => {
-                    this.matchEvent(chatContextData)
-                })
-                this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
-
-                await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
-                    message: `Hello @${user.name}, you are not currently logged in to the backend system. Please visit ${redirect} to login`,
-                    type: IMessageType.PLAIN_TEXT
-                }])
-                this.log.end(this.matchEvent, this);
-            }
-
-            else {
-
-                // Check payload type
-                this.log.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
-                if (chatContextData.payload.type === IPayloadType.EVENT) {
-                    // Find matched listeners
-                    const event: IEvent = <IEvent>chatContextData.payload.data;
-                    for (const listener of this.chatListeners) {
-                        if (event.pluginId === listener.chatPlugin.package) {
-                            const contextData: IChatContextData = _.cloneDeep(chatContextData);
-                            if (contextData.extraData === undefined || contextData.extraData === null) {
-                                contextData.extraData = {
-                                    'chatPlugin': listener.chatPlugin,
-                                };
-                            } else {
-                                contextData.extraData.chatPlugin = listener.chatPlugin;
-                            }
-                            if ((<IEventListener>listener.listenerInstance).matchEvent(contextData)) {
-                                listeners.push(listener);
-                                contexts.push(contextData);
-                            }
+            // Check payload type
+            this.log.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
+            if (chatContextData.payload.type === IPayloadType.EVENT) {
+                // Find matched listeners
+                const event: IEvent = <IEvent>chatContextData.payload.data;
+                for (const listener of this.chatListeners) {
+                    if (event.pluginId === listener.chatPlugin.package) {
+                        const contextData: IChatContextData = _.cloneDeep(chatContextData);
+                        if (contextData.extraData === undefined || contextData.extraData === null) {
+                            contextData.extraData = {
+                                'chatPlugin': listener.chatPlugin,
+                            };
+                        } else {
+                            contextData.extraData.chatPlugin = listener.chatPlugin;
+                        }
+                        if ((<IEventListener>listener.listenerInstance).matchEvent(contextData)) {
+                            listeners.push(listener);
+                            contexts.push(contextData);
                         }
                     }
-                } else {
-                    this.log.error(`Wrong payload type: ${chatContextData.payload.type}`);
                 }
-
-                // Set listener and context pool
-                if (chatContextData.extraData === undefined || chatContextData.extraData === null) {
-                    chatContextData.extraData = {
-                        'listeners': listeners,
-                        'contexts': contexts,
-                    };
-                } else {
-                    chatContextData.extraData.listeners = listeners;
-                    chatContextData.extraData.contexts = contexts;
-                }
-                this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
-                this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
-
-                // Set return result
-                if (chatContextData.extraData.listeners.length > 0) {
-                    return true;
-                } else {
-                    return false;
-                }
+            } else {
+                this.log.error(`Wrong payload type: ${chatContextData.payload.type}`);
             }
+
+            // Set listener and context pool
+            if (chatContextData.extraData === undefined || chatContextData.extraData === null) {
+                chatContextData.extraData = {
+                    'listeners': listeners,
+                    'contexts': contexts,
+                };
+            } else {
+                chatContextData.extraData.listeners = listeners;
+                chatContextData.extraData.contexts = contexts;
+            }
+            this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
+            this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
+
+            // Set return result
+            if (chatContextData.extraData.listeners.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
+
         } catch (error) {
             // Print exception stack
             //this.log.error(this.log.getErrorStack(new Error(error.name), error));
@@ -153,7 +138,6 @@ export class BotEventListener extends BotListener {
 
             // Process event
             if (matched) {
-
 
                 let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
                 if (principal == undefined) {
