@@ -8,8 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatSlackView, IExecutor, Logger } from '@zowe/chat';
-import { IBotOption, IMessage, IMessageType, ISlackBotLimit } from '@zowe/commonbot';
+import { ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit, Logger } from '@zowe/chat';
 const logger = Logger.getInstance();
 
 class ZoweCliCommandSlackView extends ChatSlackView {

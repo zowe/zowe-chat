@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+export * from "@zowe/commonbot";
 export * from "./config/AppConfigLoader";
 export * from "./config/base/AppConfig";
 export * from "./dispatchers/ChatDispatcher";

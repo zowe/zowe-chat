@@ -8,17 +8,12 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatContextData, IMessage } from "@zowe/commonbot";
+import { IChatContextData, IMessage, IName } from "@zowe/commonbot";
 import { ChatPrincipal } from "../security/user/ChatPrincipal";
 
 export type ChatContext = {
     context: IChatContextData;
     principal?: ChatPrincipal
-}
-
-export interface IName {
-    id: string;
-    name: string;
 }
 
 export interface IExecutor extends IName {

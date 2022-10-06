@@ -8,8 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatDispatcher, ICommand, IExecutor, Logger } from '@zowe/chat';
-import { IBotLimit, IBotOption, IMessage, IMessageType } from '@zowe/commonbot';
+import { ChatDispatcher, IBotLimit, IBotOption, ICommand, IExecutor, IMessage, IMessageType, Logger } from '@zowe/chat';
 import ZosJobHandler from './job/list/ZosJobListHandler';
 const i18nJsonData = require('../i18n/jobDisplay.json');
 
@@ -34,7 +33,7 @@ class ZosCommandDispatcher extends ChatDispatcher {
                         const handler = new ZosJobHandler(this.botOption, this.botLimit);
                         messages = await handler.getJob(command, executor);
                     } else {
-                        messages= [{
+                        messages = [{
                             type: IMessageType.PLAIN_TEXT,
                             message: i18nJsonData.error.unknownObject,
                         }];

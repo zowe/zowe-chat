@@ -10,8 +10,7 @@
 
 import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import { ChatMsteamsView, ICommand, IExecutor } from '@zowe/chat';
-import { IBotOption, IMessage, IMessageType, IMsteamsBotLimit } from '@zowe/commonbot';
+import { ChatMsteamsView, IBotOption, ICommand, IExecutor, IMessage, IMessageType, IMsteamsBotLimit } from '@zowe/chat';
 
 const i18nJsonData = require('../../../i18n/jobDisplay.json');
 

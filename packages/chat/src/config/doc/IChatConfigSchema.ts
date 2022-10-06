@@ -10,7 +10,13 @@
 
 import { IConfigBlockDefinition } from "./IConfigBlockDefinition";
 
+/**
+ * The complete schema for configuration managed through Chat's admin interface.
+ */
 export interface IChatConfigSchema {
 
+    /**
+     * Individual sections, or blocks, within the broader schema. For example, there may be one configuration block per Zowe Chat plugin.
+     */
     sections: IConfigBlockDefinition[];
 }

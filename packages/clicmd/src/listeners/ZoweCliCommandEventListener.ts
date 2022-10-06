@@ -8,8 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatEventListener, Logger } from "@zowe/chat";
-import { IChatContextData, IMessage } from '@zowe/commonbot';
+import { ChatEventListener, IChatContextData, IMessage, Logger } from "@zowe/chat";
 
 const logger = Logger.getInstance();
 

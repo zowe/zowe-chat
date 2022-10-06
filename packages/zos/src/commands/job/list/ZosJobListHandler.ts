@@ -8,8 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { AppConfig, AppConfigLoader, ChatHandler, ICommand, IExecutor, Logger } from '@zowe/chat';
-import { IBotLimit, IBotOption, IChatToolType, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit } from '@zowe/commonbot';
+import { AppConfig, AppConfigLoader, ChatHandler, IBotLimit, IBotOption, IChatToolType, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger, ZosmfServerConfig } from '@zowe/chat';
+import { ChatPrincipal } from '@zowe/chat/dist/security/user/ChatPrincipal';
 import { ISession, SessConstants, Session } from '@zowe/imperative';
 import { GetJobs, IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
@@ -30,11 +30,11 @@ class ZosJobHandler extends ChatHandler {
         this.getJob = this.getJob.bind(this);
 
         if (botOption.chatTool === IChatToolType.SLACK) {
-            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit);
+            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit>botLimit);
         } else if (botOption.chatTool === IChatToolType.MATTERMOST) {
-            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit);
+            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit>botLimit);
         } else if (botOption.chatTool === IChatToolType.MSTEAMS) {
-            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit);
+            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
         }
     }
 
@@ -46,7 +46,8 @@ class ZosJobHandler extends ChatHandler {
         let messages: IMessage[] = [];
         try {
             const options = command.adjective.option;
-
+            const auth: ChatPrincipal = <ChatPrincipal>command.extraData.principal
+            const zosmf: ZosmfServerConfig = <ZosmfServerConfig>command.extraData.zosmf
             // Get option job id -- Optional
             let id: string = null;
             if (options['id'] !== undefined) {
@@ -85,7 +86,7 @@ class ZosJobHandler extends ChatHandler {
 
             // Check if limit value is valid.
             if (limit === null || limit === undefined
-                || limit.trim() === '' || isNaN(Number(limit))) {
+                || ("" + limit).trim() === '' || isNaN(Number(limit))) {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: 'Invalid adjective limit!',
@@ -93,11 +94,14 @@ class ZosJobHandler extends ChatHandler {
             }
 
             // TODO: Will integrate with Authentication functionality later.
-            /* let hostName: string = null;
-            if (adjectives['host'] !== undefined) {
-                hostName = adjectives['host'];
-            } else if (adjectives['h'] !== undefined) {
-                hostName = adjectives['h'];
+            let hostName: string = null;
+            if (zosmf?.host !== undefined) {
+                hostName = zosmf.host
+            }
+            else if (options['host'] !== undefined) {
+                hostName = options['host'];
+            } else if (options['h'] !== undefined) {
+                hostName = options['h'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -106,8 +110,10 @@ class ZosJobHandler extends ChatHandler {
             }
 
             let port: string = null;
-            if (adjectives['port'] !== undefined) {
-                port = adjectives['port'];
+            if (zosmf?.port !== undefined) {
+                port = zosmf.port + ""
+            } else if (options['port'] !== undefined) {
+                port = options['port'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -116,10 +122,13 @@ class ZosJobHandler extends ChatHandler {
             }
 
             let user: string = null;
-            if (adjectives['user'] !== undefined) {
-                user = adjectives['user'];
-            } else if (adjectives['u'] !== undefined) {
-                user = adjectives['u'];
+            if (auth?.getUser() !== undefined) {
+                user = auth.getUser().getMainframeUser()
+            }
+            else if (options['user'] !== undefined) {
+                user = options['user'];
+            } else if (options['u'] !== undefined) {
+                user = options['u'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -128,27 +137,32 @@ class ZosJobHandler extends ChatHandler {
             }
 
             let password: string = null;
-            if (adjectives['password'] !== undefined) {
-                password = adjectives['password'];
+            if (auth?.getCredentials() !== undefined) {
+                password = auth.getCredentials().value
+            }
+            else if (options['password'] !== undefined) {
+                password = options['password'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: 'Please specify password using --password.',
                 }];
-            } */
+            }
+
+            let ru: boolean = true
+            if (zosmf?.rejectUnauthorized !== undefined) {
+                ru = zosmf.rejectUnauthorized
+            }
 
             // session to connect Zosmf REST API.
             const sessionInfo: ISession = {
-                hostname: '',
-                // hostname: hostName,
-                port: 443,
-                // port: Number(port).valueOf(),
-                user: '',
-                password: '',
-                // user: user,
-                // password: password,
+
+                hostname: hostName,
+                port: Number(port).valueOf(),
+                user: user,
+                password: password,
                 type: SessConstants.AUTH_TYPE_BASIC,
-                rejectUnauthorized: false,
+                rejectUnauthorized: ru,
             };
             const session = new Session(sessionInfo);
 
@@ -160,7 +174,7 @@ class ZosJobHandler extends ChatHandler {
 
             // Get the list of jobs
             const jobs: IJob[] = await GetJobs.getJobsCommon(session,
-                    {owner: owner, prefix: prefix, jobid: id, execData: true, maxJobs: Number(limit).valueOf()});
+                { owner: owner, prefix: prefix, jobid: id, execData: true, maxJobs: Number(limit).valueOf() });
             logger.debug(`Got ${jobs.length} job.`);
 
 

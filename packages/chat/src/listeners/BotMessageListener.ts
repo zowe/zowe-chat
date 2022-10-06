@@ -190,6 +190,8 @@ export class BotMessageListener extends BotListener {
                 for (let i = 0; i < pluginLimit; i++) {
                     // Process message
                     listenerContexts[i].extraData.principal = principal
+                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf
+
                     const msgs = await (<IMessageListener>matchedListeners[i].listenerInstance).processMessage(listenerContexts[i]);
                     this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 

@@ -12,6 +12,9 @@ import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import { AppConfig, MattermostConfig, MsteamsConfig, SlackConfig } from "./base/AppConfig";
 
+/**
+ * Class which reads the application configuration file (YAML)
+ */
 export class AppConfigLoader {
 
     private static appConfig: AppConfig;

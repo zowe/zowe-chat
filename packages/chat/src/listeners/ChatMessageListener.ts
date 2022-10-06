@@ -102,7 +102,7 @@ export abstract class ChatMessageListener extends ChatListener {
             this.log.debug(`Command: ${JSON.stringify(command, null, 4)}`);
         } catch (error) {
             // Print exception stack
-            // this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
             this.log.error(error)
         } finally {
             // Print end log

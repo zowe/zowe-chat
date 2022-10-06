@@ -10,8 +10,7 @@
 
 import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import { ChatSlackView, ICommand, IExecutor } from '@zowe/chat';
-import { IBotOption, IMessage, IMessageType, ISlackBotLimit } from '@zowe/commonbot';
+import { ChatSlackView, IBotOption, ICommand, IExecutor, IMessage, IMessageType, ISlackBotLimit } from '@zowe/chat';
 const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
 

@@ -14,7 +14,7 @@ import Logger from '../../utils/Logger';
 
 class Receiver extends ExpressReceiver {
 
-    private mLog: Logger
+    private log: Logger
 
     constructor(expressReceiverOptions: ExpressReceiverOptions) {
         super(expressReceiverOptions);
@@ -22,16 +22,16 @@ class Receiver extends ExpressReceiver {
 
     // Replace the default app and use the router
     setApp(messagingApp: Application): void {
-        this.mLog.start(this.setApp, this);
+        this.log.start(this.setApp, this);
         try {
             this.app = messagingApp;
             this.app.use(this.router);
         } catch (err) {
             // Print exception stack
-            this.mLog.error(this.mLog.getErrorStack(new Error(err.name), err));
+            this.log.error(this.log.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.mLog.end(this.setApp, this);
+            this.log.end(this.setApp, this);
         }
     }
 }

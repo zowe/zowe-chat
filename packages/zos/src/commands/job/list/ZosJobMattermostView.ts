@@ -10,8 +10,7 @@
 
 import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import { ChatMattermostView, ICommand, IExecutor } from '@zowe/chat';
-import { IBotOption, IMattermostBotLimit, IMessage, IMessageType } from '@zowe/commonbot';
+import { ChatMattermostView, IBotOption, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType } from '@zowe/chat';
 const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
 export class ZosJobMattermostView extends ChatMattermostView {

@@ -55,13 +55,24 @@ export interface IConfigProperty {
     // secure?: boolean;
 }
 
+/**
+ * An option that can be set as a potential value for a given configuration property, as opposed to arbitrary user input
+ */
 export interface IConfigPropertyOption {
 
+    /**
+     * A description of what this value does
+     */
     description: string;
 
+    /**
+     * The value itself
+     */
     value: any;
 
-    // Nested properties specific to configuration options.
+    /**
+     * Sub-properties within this value. It is recommended to avoid using this capability.
+     */
     properties?: IConfigProperty
 
 }

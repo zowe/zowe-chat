@@ -145,6 +145,7 @@ export class BotEventListener extends BotListener {
     async processEvent(chatContextData: IChatContextData): Promise<void> {
         // Print start log
         this.log.start(this.processEvent, this);
+        let user = chatContextData.context.chatting.user
 
         try {
             // Match event
@@ -152,6 +153,21 @@ export class BotEventListener extends BotListener {
 
             // Process event
             if (matched) {
+
+
+                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
+                if (principal == undefined) {
+                    let redirect = this.webapp.generateChallenge(user, () => {
+                        this.processEvent(chatContextData)
+                    })
+                    await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                        message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
+                        type: IMessageType.PLAIN_TEXT
+                    }])
+                    this.log.end(this.processEvent, this);
+                    return
+                }
+
                 // Get matched listener and contexts
                 const matchedListeners: IChatListenerRegistryEntry[] = chatContextData.extraData.listeners;
                 const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
@@ -168,6 +184,8 @@ export class BotEventListener extends BotListener {
                 const event: IEvent = <IEvent>chatContextData.payload.data;
                 for (let i = 0; i < pluginLimit; i++) {
                     // Handle event
+                    listenerContexts[i].extraData.principal = principal
+                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf
                     const msgs = await (<IEventListener>matchedListeners[i].listenerInstance).processEvent(listenerContexts[i]);
                     this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 

@@ -8,10 +8,10 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatToolType as ChatToolType, IProtocol } from "@zowe/commonbot";
+import { IChatToolType as ChatToolType, IProtocol, ISlackConfigHttpEndpoint, ISlackConfigSocketMode } from "@zowe/commonbot";
 
 /**
- * 
+ *  The top-level configuration object used by Zowe Chat.
  */
 export type AppConfig = {
     security: SecurityConfig;
@@ -21,17 +21,26 @@ export type AppConfig = {
     msteams: MsteamsConfig;
 }
 
+/** 
+ *  This configuration is required in order for users to authenticate succesfully against Zowe Chat.
+ */
 export type SecurityConfig = {
     zosmf: ZosmfServerConfig;
     authMode: AuthType
     serviceAccount: ServiceAccount
 }
 
+/**
+ * Service account ID and password (or other opaque credential) which can be used on behalf of a calling  user
+ */
 export type ServiceAccount = {
     user: string;
     password: string;
 }
 
+/**
+ * Standard z/OSMF Server Configuration object
+ */
 export type ZosmfServerConfig = {
     host: string,
     protocol: string,
@@ -39,6 +48,9 @@ export type ZosmfServerConfig = {
     rejectUnauthorized: boolean
 }
 
+/**
+ * Configuration for Zowe Chat's features - which chat to connect to, where the express server should runm, log options, etc.
+ */
 export type ChatAppConfig = {
     chatToolType: ChatToolType
     server: ServerOptions
@@ -46,9 +58,12 @@ export type ChatAppConfig = {
     recordLimit: number;
     pluginLimit: number;
     extendedConfigDir: string;
- 
+
 }
 
+/**
+ * Configuration for Zowe Chat's logger
+ */
 export type LogOption = {
     filePath: string,
     level: LogLevel,
@@ -56,7 +71,9 @@ export type LogOption = {
     maximumFiles: number
 }
 
-
+/**
+ * Configuration for Mattermost  connection
+ */
 export type MattermostConfig = {
     protocol: IProtocol;
     hostName: string;
@@ -69,6 +86,9 @@ export type MattermostConfig = {
     messagingApp: ServerOptions;
 }
 
+/**
+ * Configuration for a slack connection
+ */
 export type SlackConfig = {
     botUserName: string;
     signingSecret: string;
@@ -77,16 +97,10 @@ export type SlackConfig = {
     httpEndpoint: ISlackConfigHttpEndpoint;
 }
 
-export type ISlackConfigSocketMode = {
-    enabled: boolean;
-    appToken: string;
-}
 
-export type ISlackConfigHttpEndpoint = {
-    enabled: boolean;
-    messagingApp: ServerOptions;
-}
-
+/**
+ * Configuration for Microsoft Teams. MessagingApp is required.
+ */
 export type MsteamsConfig = {
     botUserName: string;
     botId: string;
@@ -94,7 +108,9 @@ export type MsteamsConfig = {
     messagingApp: ServerOptions;
 }
 
-
+/**
+ * Configuration options for the express server within Zowe Chat
+ */
 export type ServerOptions = {
     protocol: IProtocol;
     hostName: string;
@@ -105,6 +121,9 @@ export type ServerOptions = {
 }
 
 
+/**
+ * Zowe Chat's supported log levels
+ */
 export enum LogLevel {
     ERROR = 'error',
     WARN = 'warn',
@@ -114,6 +133,9 @@ export enum LogLevel {
     SILLY = 'silly'
 }
 
+/**
+ * authN/authZ modes supported by Zowe chat out of the box for use in downstream API calls
+ */
 export enum AuthType {
     TOKEN = 'token',
     PASSWORD = 'password',

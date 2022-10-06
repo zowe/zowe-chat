@@ -14,7 +14,6 @@ import crypto from "crypto";
 import type { Application } from 'express';
 import express from "express";
 import * as fs from "fs-extra";
-import helmet from 'helmet';
 import http from "http";
 import https from "https";
 import path from "path";
@@ -61,12 +60,20 @@ export class MessagingApp {
         this.app.use(cors(this.corsOptions()))
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
-        this.app.use(helmet()); // Secure Express apps with various HTTP headers
 
         this.setApiRoutes()
 
         if (EnvVars.ZOWE_CHAT_DEPLOY_UI) {
             const staticFiles = EnvVars.ZOWE_CHAT_STATIC_DIR
+
+            fs.writeFileSync(path.resolve(staticFiles, "env.js"),
+                `
+            window.env = {
+                API_HOST: '${this.option.protocol}://${this.option.hostName}:${this.option.port}'
+            };
+            `, { flag: 'w' }
+            )
+
             this.app.use(express.static(staticFiles));
             const rootRoute = express.Router();
             rootRoute.get('(/*)?', (req, res) => {

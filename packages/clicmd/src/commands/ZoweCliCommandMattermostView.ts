@@ -8,8 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMattermostView, IExecutor, Logger } from "@zowe/chat";
-import { IBotOption, IMattermostBotLimit, IMessage, IMessageType } from '@zowe/commonbot';
+import { ChatMattermostView, IBotOption, IExecutor, IMattermostBotLimit, IMessage, IMessageType, Logger } from "@zowe/chat";
 
 
 const logger = Logger.getInstance();

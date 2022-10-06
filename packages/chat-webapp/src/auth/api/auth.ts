@@ -21,7 +21,7 @@ const chatAuthProvider = {
   isAuthenticated: false,
   signin(challenge: string, user: string, password: string, callback: (response: LoginResponse) => void) {
     // use axios to authenticate
-    axios.default.post(`http://localhost:7701/api/v1/auth/login`, {
+    axios.default.post(`/api/v1/auth/login`, {
       challenge: challenge,
       user: user,
       password: password,

@@ -11,8 +11,7 @@
 import childProcess from 'child_process';
 import os from 'os';
 
-import { ChatHandler, ICommand, IExecutor, Logger } from "@zowe/chat";
-import { IBotLimit, IBotOption, IChatToolType, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit } from '@zowe/commonbot';
+import { ChatHandler, IBotLimit, IBotOption, IChatToolType, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger } from "@zowe/chat";
 
 import ZoweCliCommandMattermostView from './ZoweCliCommandMattermostView';
 import ZoweCliCommandMsteamsView from './ZoweCliCommandMsteamsView';
@@ -52,11 +51,9 @@ class ZoweCliCommandHandler extends ChatHandler {
                     cmdTimeout = Number(process.env.ZOWE_CLI_EXECUTION_TIME_OUT);
                 }
 
-
-
                 // TODO: must run using executors' own profile
-                logger.info(`Zowe CLI command to be executed: ${command.extraData.zoweCliCommand} --user ${}`);
-                cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, {cwd: os.homedir(), timeout: cmdTimeout, windowsHide: true}).toString();
+                logger.info(`Zowe CLI command to be executed: ${command.extraData.zoweCliCommand}`);
+                cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, { cwd: os.homedir(), timeout: cmdTimeout, windowsHide: true }).toString();
             } catch (error) {
                 logger.debug(`status: ${error.status}`);
                 logger.debug(`message: ${error.message}`);

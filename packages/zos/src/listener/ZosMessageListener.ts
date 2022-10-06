@@ -8,8 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMessageListener, ICommand, IExecutor } from '@zowe/chat';
-import { IChatContextData, IChatToolType, IMessage, IMessageType } from '@zowe/commonbot';
+import { ChatMessageListener, IChatContextData, IChatToolType, ICommand, IExecutor, IMessage, IMessageType } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
 const i18nJsonData = require('../i18n/jobDisplay.json');
@@ -99,6 +98,8 @@ class ZosMessageListener extends ChatMessageListener {
             this.log.debug(`Incoming command is ${JSON.stringify(this.command)}`);
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
+            this.command.extraData.zosmf = chatContextData.extraData.zosmf
+            this.command.extraData.principal = chatContextData.extraData.principal
             return await dispatcher.dispatch(this.command, executor);
         } catch (error) {
             // Print exception stack
