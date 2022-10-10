@@ -21,7 +21,7 @@ socketMode: # Configure the private WebSocket for Slack to communicate with your
 
   # Specify the app level token of your chatbot Slack app.
   # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-  appToken: <Your app token>
+  appToken: <Your app level token>
 
 # Configure the messaging application which Slack will communicate with when some user clicking actions occur.
 httpEndpoint:
