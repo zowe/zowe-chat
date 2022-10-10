@@ -9,7 +9,7 @@
 */
 
 import {
-    IBotOption, IChatContextData, IChatToolType, IMattermostBotLimit, IMessage, IMessageHandlerFunction, IMessageMatcherFunction,
+    IBotOption, IChatContextData, IChatTool, IMattermostBotLimit, IMessage, IMessageHandlerFunction, IMessageMatcherFunction,
     IMsteamsBotLimit, IRouteHandlerFunction, ISlackBotLimit
 } from './types';
 import Logger from './utils/Logger';
@@ -39,11 +39,11 @@ export class CommonBot {
         this.logger.info(`Bot option: ${JSON.stringify(this.option, null, 4)}`);
 
         // Create Limit instance
-        if (this.option.chatTool === IChatToolType.MATTERMOST) {
+        if (this.option.chatTool === IChatTool.MATTERMOST) {
             this.limit = new MattermostBotLimit();
-        } else if (this.option.chatTool === IChatToolType.SLACK) {
+        } else if (this.option.chatTool === IChatTool.SLACK) {
             this.limit = new SlackBotLimit();
-        } else if (this.option.chatTool === IChatToolType.MSTEAMS) {
+        } else if (this.option.chatTool === IChatTool.MSTEAMS) {
             this.limit = new MsteamsBotLimit();
         } else {
             this.limit = null;

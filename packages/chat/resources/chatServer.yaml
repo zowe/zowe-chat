@@ -1,3 +1,10 @@
+# Specify the type of chat tool. Currently, 'mattermost', 'slack' or 'msteams' are the supported values.
+# The default value is mattermost.
+chatToolType: mattermost
+
+# Specify your chat tool's configuration here. By default, sample configuration files will be in the "chatTools" sub-directory.
+chatToolConfiguration: ./chatTools/mattermost.yaml
+
 security:
   zosmf:
     host: <Your zOSMF Host>
@@ -14,10 +21,6 @@ security:
     password: <Service account password>
 
 app:
-  # Specify the type of chat tool, the value can be mattermost, slack or msteams.
-  # The default value is mattermost.
-  chatToolType: mattermost
-
   # Configure logging
   log:
     # Specify the level of logs, the value can be error, warn, info, verbose, debug or silly.
@@ -61,12 +64,3 @@ app:
 
     # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
     tlsCert: <Your absolute TLS cert file path of your messaging server>
-
-# Specify your Slack configuration here, if you set chatToolType to Slack.
-slack: ./chatTools/slack.yaml
-
-# Specify your Mattermost configuration here, if you set chatToolType to Slack.
-mattermost: ./chatTools/mattermost.yaml
-
-# Specify your MSTeams configuration here, if you set chatToolType to Slack.
-msteams: ./chatTools/msteams.yaml

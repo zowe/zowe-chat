@@ -18,7 +18,7 @@ import http from "http";
 import https from "https";
 import path from "path";
 import { ServerOptions } from '../config/base/AppConfig';
-import { EnvVars } from "../const/EnvVars";
+import { EnvironmentVariables } from "../const/EnvironmentVariables";
 import { SecurityManager } from '../security/SecurityManager';
 import { CredentialType } from "../security/user/ChatCredential";
 import { ChatPrincipal } from "../security/user/ChatPrincipal";
@@ -63,8 +63,8 @@ export class MessagingApp {
 
         this.setApiRoutes()
 
-        if (EnvVars.ZOWE_CHAT_DEPLOY_UI) {
-            const staticFiles = EnvVars.ZOWE_CHAT_STATIC_DIR
+        if (EnvironmentVariables.ZOWE_CHAT_DEPLOY_UI) {
+            const staticFiles = EnvironmentVariables.ZOWE_CHAT_STATIC_DIR
 
             fs.writeFileSync(path.resolve(staticFiles, "env.js"),
                 `
@@ -108,7 +108,7 @@ export class MessagingApp {
 
         let port = this.option.port
         // if we're in development mode and not serving static elements, use the local react development port
-        if (!EnvVars.ZOWE_CHAT_DEPLOY_UI && process.env.NODE_ENV == "development") {
+        if (!EnvironmentVariables.ZOWE_CHAT_DEPLOY_UI && process.env.NODE_ENV == "development") {
             port = 3000
         }
         return `${this.option.protocol}://${this.option.hostName}:${port}/login?__key=${challengeString}`
@@ -281,7 +281,7 @@ export class MessagingApp {
         const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
         `${this.option.protocol}://${this.option.hostName}:${this.option.port}`]
 
-        if (!EnvVars.ZOWE_CHAT_DEPLOY_UI ||
+        if (!EnvironmentVariables.ZOWE_CHAT_DEPLOY_UI ||
             process.env.NODE_ENV == "development") {
             whitelist.push("http://localhost", "http://localhost:3000")
         }

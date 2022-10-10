@@ -9,7 +9,7 @@
 */
 
 
-import { IChatContextData, IMessage, IMessageType } from '@zowe/commonbot';
+import { IChatContextData, IMessage, IMessageType, IUser } from '@zowe/commonbot';
 import { SecurityManager } from '../../security/SecurityManager';
 import { Logger } from "../../utils/Logger";
 import { ChatMessageListener } from '../ChatMessageListener';
@@ -63,13 +63,13 @@ export class LogoutMessageListener extends ChatMessageListener {
     async processMessage(chatContextData: IChatContextData): Promise<IMessage[]> {
         // Print start log
         this.logger.start(this.processMessage, this);
-
+        let user: IUser = chatContextData.context.chatting.user
         // Process message
         let msgs: IMessage[] = [];
         try {
 
             // Process command
-            this.security.logoutUser(this.security.getChatUser(chatContextData))
+            this.security.logoutUser(this.security.getChatUser(user))
 
             msgs.push({
                 type: IMessageType.PLAIN_TEXT,

@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatContextData } from "@zowe/commonbot";
+import { IUser } from "@zowe/commonbot";
 import * as crypto from "crypto";
 import { AppConfig, AuthType } from "../config/base/AppConfig";
 import { UserConfigManager } from "../config/UserConfigManager";
@@ -124,17 +124,17 @@ export class SecurityManager {
         this.userMap.removeUser(user.getDistributedUser())
     }
 
-    public isAuthenticated(chatCtx: IChatContextData): boolean {
-        let user = this.getChatUser(chatCtx);
+    public isAuthenticated(chatUsr: IUser): boolean {
+        let user = this.getChatUser(chatUsr);
         if (user === undefined) {
-            this.log.debug("TBD001D: Could not find stored value for user: " + chatCtx.context.chatting.user.name + " Returning 'not authenticated'.");
+            this.log.debug("TBD001D: Could not find stored value for user: " + chatUsr + " Returning 'not authenticated'.");
             return false
         }
         return true
     }
 
 
-    // TODO: return a boolean? what happens during failure conditions? retry?
+    // TODO: what happens during failure conditions? retry?
     private writeConfig(): void {
         this.configManager.updateConfig(SecurityConfigSchema, this.securityConfig);
     }
@@ -152,15 +152,15 @@ export class SecurityManager {
     }
 
     // TODO: rename to getmainframeuser?
-    public getChatUser(chatCtx: IChatContextData): ChatUser | undefined {
-        let uid: string = chatCtx.context.chatting.user.name
+    public getChatUser(user: IUser): ChatUser | undefined {
+        let uid: string = user.name
         let principal: string | undefined = this.userMap.getUser(uid);
         if (principal === undefined) {
-            uid = chatCtx.context.chatting.user.email;
+            uid = user.email;
             principal = this.userMap.getUser(uid);
         }
         if (principal === undefined || principal.trim().length == 0) {
-            this.log.debug("User not found in user map: " + chatCtx.context.chatting.user.name);
+            this.log.debug("User not found in user map: " + user.name);
             return undefined;
         }
         return new ChatUser(uid, principal);

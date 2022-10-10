@@ -249,6 +249,7 @@ export class Logger {
         this.log.info(log);
     }
 
+
     public static getInstance(): Logger {
         if (!Logger.instance) {
             Logger.instance = new Logger(AppConfigLoader.loadAppConfig());

@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatEventListener, IActionType, IChatContextData, IChatToolType, ICommand, IEvent, IExecutor, IMessage, IMessageType, Logger } from '@zowe/chat';
+import { ChatEventListener, IActionType, IChatContextData, IChatTool, ICommand, IEvent, IExecutor, IMessage, IMessageType, Logger } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
 const i18nJsonData = require('../i18n/jobDisplay.json');
@@ -34,13 +34,13 @@ class ZosEventListener extends ChatEventListener {
             const botOption = chatContextData.context.chatting.bot.getOption();
             let eventMessage = '';
             let botName: string;
-            if (botOption.chatTool === IChatToolType.MATTERMOST) {
+            if (botOption.chatTool === IChatTool.MATTERMOST) {
                 eventMessage = this.getMattermostEvent(chatContextData);
                 botName = botOption.mattermost.botUserName
-            } else if (botOption.chatTool === IChatToolType.SLACK) {
+            } else if (botOption.chatTool === IChatTool.SLACK) {
                 eventMessage = this.getSlackEvent(chatContextData);
                 botName = botOption.slack.botUserName
-            } else if (botOption.chatTool === IChatToolType.MSTEAMS) {
+            } else if (botOption.chatTool === IChatTool.MSTEAMS) {
                 eventMessage = this.getMsteamsEvent(chatContextData);
                 botName = botOption.msteams.botUserName
             } else {
@@ -181,9 +181,9 @@ class ZosEventListener extends ChatEventListener {
             };
 
             const botOption = chatContextData.context.chatting.bot.getOption();
-            if (botOption.chatTool !== IChatToolType.MATTERMOST
-                && botOption.chatTool !== IChatToolType.SLACK
-                && botOption.chatTool !== IChatToolType.MSTEAMS) {
+            if (botOption.chatTool !== IChatTool.MATTERMOST
+                && botOption.chatTool !== IChatTool.SLACK
+                && botOption.chatTool !== IChatTool.MSTEAMS) {
                 return [{
                     type: IMessageType.PLAIN_TEXT,
                     message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,

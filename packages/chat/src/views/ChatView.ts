@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IBotOption, IChatToolType } from '@zowe/commonbot';
+import { IBotOption, IChatTool } from '@zowe/commonbot';
 import { Logger } from '../utils/Logger';
 
 export class ChatView {
@@ -21,13 +21,13 @@ export class ChatView {
         this.botOption = botOption;
         this.log = Logger.getInstance()
         switch (botOption.chatTool) {
-            case IChatToolType.MATTERMOST:
+            case IChatTool.MATTERMOST:
                 this.botName = botOption.mattermost.botUserName
                 break;
-            case IChatToolType.MSTEAMS:
+            case IChatTool.MSTEAMS:
                 this.botName = botOption.msteams.botUserName
                 break;
-            case IChatToolType.SLACK:
+            case IChatTool.SLACK:
                 this.botName = botOption.slack.botUserName
                 break;
         }

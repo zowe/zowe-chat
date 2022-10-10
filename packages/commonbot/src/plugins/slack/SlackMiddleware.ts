@@ -11,7 +11,7 @@
 import type { AllMiddlewareArgs, AppOptions, SlackActionMiddlewareArgs, SlackEventMiddlewareArgs, SlackViewMiddlewareArgs } from '@slack/bolt';
 import { App, ExpressReceiverOptions, LogLevel } from '@slack/bolt';
 import { WebClient } from '@slack/web-api';
-import { IActionType, IChannel, IChatContextData, IChattingType, IChatToolType, IEvent, ILogLevel, IMessage, IMessageType, IPayloadType, ISlackOption, IUser } from '../../types';
+import { IActionType, IChannel, IChatContextData, IChattingType, IChatTool, IEvent, ILogLevel, IMessage, IMessageType, IPayloadType, ISlackOption, IUser } from '../../types';
 
 import { CommonBot } from '../../CommonBot';
 import Middleware = require('../../Middleware');
@@ -32,7 +32,7 @@ class SlackMiddleware extends Middleware {
         this.users = new Map<string, IUser>();
         this.channels = new Map<string, IChannel>();
         const option = this.bot.getOption();
-        if (option.chatTool !== IChatToolType.SLACK) {
+        if (option.chatTool !== IChatTool.SLACK) {
             this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
             throw new Error(`Wrong chat tool type`);
         }

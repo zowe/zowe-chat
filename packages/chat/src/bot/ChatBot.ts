@@ -8,14 +8,13 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { CommonBot, IBotOption, IChatToolType, IMattermostOption, ISlackOption } from '@zowe/commonbot';
+import { CommonBot, IBotOption, IChatTool, IMattermostOption, ISlackOption } from '@zowe/commonbot';
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import * as path from "path";
-import { AppConfigLoader } from '../config/AppConfigLoader';
-import { AppConfig } from '../config/base/AppConfig';
+import { AppConfig, MattermostConfig, MsteamsConfig, SlackConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
-import { EnvVars } from '../const/EnvVars';
+import { EnvironmentVariables } from '../const/EnvironmentVariables';
 import { LogoutMessageListener } from '../listeners/bot/LogoutMessageListener';
 import { BotEventListener } from '../listeners/BotEventListener';
 import { BotMessageListener } from '../listeners/BotMessageListener';
@@ -78,7 +77,7 @@ export class ChatBot {
 
         this.log = log
         this.appConfig = chatConfig
-        this.pluginHome = EnvVars.ZOWE_CHAT_PLUGINS_DIR
+        this.pluginHome = EnvironmentVariables.ZOWE_CHAT_PLUGINS_DIR
 
         try {
             this.log.silly(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
@@ -103,7 +102,7 @@ export class ChatBot {
             this.log.info("CommonBot initialized")
 
             // Plugins / listeners
-            this.setBotListeners()
+            this.loadInternalMessageListeners()
             this.plugins = [];
             this.loadPlugins();
             this.log.info("Plugins initialized")
@@ -152,8 +151,8 @@ export class ChatBot {
     /**
      * Sets listeners which are part of the core Zowe Chat service.
      */
-    private setBotListeners(): void {
-        this.log.start(this.setBotListeners, this)
+    private loadInternalMessageListeners(): void {
+        this.log.start(this.loadInternalMessageListeners, this)
 
         this.botMessageListener.registerChatListener({
             listenerName: "LogoutListener",
@@ -168,7 +167,7 @@ export class ChatBot {
             },
         })
 
-        this.log.end(this.setBotListeners, this)
+        this.log.end(this.loadInternalMessageListeners, this)
     }
 
     /**
@@ -313,53 +312,55 @@ export class ChatBot {
         let botOpts: IBotOption;
         try {
             // Read chat tool configuration
-            if (appConfig.app.chatToolType === IChatToolType.MATTERMOST) {
+            if (appConfig.chatToolType === IChatTool.MATTERMOST) {
                 // Read Mattermost configuration file
                 this.log.debug(`mattermost configuration: `);
-                this.log.debug(JSON.stringify(appConfig.mattermost, null, 4));
+                this.log.debug(JSON.stringify(appConfig.chatToolConfig, null, 4));
 
                 // Get Mattermost option
-                // TODO: Fix casting, circular dependency between config and commonbot
-                const option: IMattermostOption = { ...appConfig.mattermost };
+                const mmConfig = appConfig.chatToolConfig as MattermostConfig
+                const option: IMattermostOption = { ...mmConfig };
                 botOpts = {
                     messagingApp: {
                         option: appConfig.app.server,
                         app: messageApp.getApplication(),
                     },
-                    chatTool: IChatToolType.MATTERMOST,
+                    chatTool: IChatTool.MATTERMOST,
                     mattermost: option,
                 };
 
+
                 // Read certificate
-                if (appConfig.mattermost.protocol === "https") {
-                    if (fs.existsSync(appConfig.mattermost.tlsCertificate)) {
-                        botOpts.mattermost.tlsCertificate = fs.readFileSync(appConfig.mattermost.tlsCertificate, 'utf8');
+                if (mmConfig.protocol === "https") {
+                    if (fs.existsSync(mmConfig.tlsCertificate)) {
+                        botOpts.mattermost.tlsCertificate = fs.readFileSync(mmConfig.tlsCertificate, 'utf8');
                     } else {
-                        this.log.error(`The TLS certificate file ${appConfig.mattermost.tlsCertificate} does not exist!`);
+                        this.log.error(`The TLS certificate file ${mmConfig.tlsCertificate} does not exist!`);
                         process.exit(4);
                     }
                 }
 
                 // Create messaging app
 
-            } else if (appConfig.app.chatToolType === IChatToolType.SLACK) {
+            } else if (appConfig.chatToolType === IChatTool.SLACK) {
                 // Read Slack configuration file
                 console.info(`slack.configuration: `);
-                console.info(JSON.stringify(appConfig.slack, null, 4));
+                console.info(JSON.stringify(appConfig.chatToolConfig, null, 4));
 
+                const slackConfig = appConfig.chatToolConfig as SlackConfig
                 // Get slack option
                 const option: ISlackOption = {
-                    botUserName: appConfig.slack.botUserName,
-                    signingSecret: appConfig.slack.signingSecret,
+                    botUserName: slackConfig.botUserName,
+                    signingSecret: slackConfig.signingSecret,
                     endpoints: '',
                     receiver: null,
-                    token: appConfig.slack.token,
+                    token: slackConfig.token,
                     logLevel: appConfig.app.log.level,
                     socketMode: true,
                     appToken: null,
                 };
-                if (appConfig.slack.socketMode.enabled === false && appConfig.slack.httpEndpoint.enabled === true) { // Http endpoint mode
-                    option.endpoints = appConfig.slack.httpEndpoint.messagingApp.basePath;
+                if (slackConfig.socketMode.enabled === false && slackConfig.httpEndpoint.enabled === true) { // Http endpoint mode
+                    option.endpoints = slackConfig.httpEndpoint.messagingApp.basePath;
                     option.receiver = null; // The value will be updated by Common Bot Framework
                     option.socketMode = false;
                     // TODO: Fix casting, circular dependency between config and commonbot
@@ -369,7 +370,7 @@ export class ChatBot {
                             option: appConfig.app.server,
                             app: messageApp.getApplication(),
                         },
-                        chatTool: IChatToolType.SLACK,
+                        chatTool: IChatTool.SLACK,
                         slack: option,
                     };
 
@@ -377,22 +378,24 @@ export class ChatBot {
                 } else { // Socket mode
                     // TODO: Fix casting, circular dependency between config and commonbot
 
-                    option.appToken = appConfig.slack.socketMode.appToken;
+                    option.appToken = slackConfig.socketMode.appToken;
 
                     botOpts = {
                         messagingApp: {
                             option: appConfig.app.server,
                             app: messageApp.getApplication(),
                         },
-                        chatTool: IChatToolType.SLACK,
+                        chatTool: IChatTool.SLACK,
                         slack: option,
 
                     };
                 }
-            } else if (appConfig.app.chatToolType === IChatToolType.MSTEAMS) {
+            } else if (appConfig.chatToolType === IChatTool.MSTEAMS) {
                 // Read Microsoft Teams configuration file
                 console.info(`msteams.yaml: `);
-                console.info(JSON.stringify(appConfig.msteams, null, 4));
+                console.info(JSON.stringify(appConfig.chatToolConfig, null, 4));
+
+                const mstConfig: MsteamsConfig = appConfig.chatToolConfig as MsteamsConfig
                 // TODO: Fix casting, circular dependency between config and commonbot
                 // Get Microsoft Teams option
                 botOpts = {
@@ -400,17 +403,15 @@ export class ChatBot {
                         option: appConfig.app.server,
                         app: messageApp.getApplication(),
                     },
-                    chatTool: IChatToolType.MSTEAMS,
+                    chatTool: IChatTool.MSTEAMS,
                     msteams: {
-                        'botUserName': appConfig.msteams.botUserName,
-                        'botId': appConfig.msteams.botId,
-                        'botPassword': appConfig.msteams.botPassword,
+                        'botUserName': mstConfig.botUserName,
+                        'botId': mstConfig.botId,
+                        'botPassword': mstConfig.botPassword,
                     },
-
                 };
-
             } else {
-                this.log.error(`Unsupported chat tool: ${appConfig.app.chatToolType}`);
+                this.log.error(`Unsupported chat tool: ${appConfig.chatToolType}`);
                 process.exit(5);
             }
         } catch (error) {
@@ -427,9 +428,9 @@ export class ChatBot {
      * 
      * @returns ChatBot
      */
-    public static getInstance(): ChatBot {
+    public static getInstance(appConfig: AppConfig, logger: Logger): ChatBot {
         if (!ChatBot.instance) {
-            ChatBot.instance = new ChatBot(AppConfigLoader.loadAppConfig(), Logger.getInstance());
+            ChatBot.instance = new ChatBot(appConfig, logger);
         }
         return ChatBot.instance;
     }

@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+import { IChatTool } from "@zowe/commonbot";
 import * as fs from "fs-extra";
 import * as yaml from "js-yaml";
 import { AppConfig, MattermostConfig, MsteamsConfig, SlackConfig } from "./base/AppConfig";
@@ -40,17 +41,22 @@ export class AppConfigLoader {
 
             try {
                 let rawConfig: any = yaml.load(fs.readFileSync(cfgFilePath).toString(), {})
-                let slackConfig = `${cfgDir}/${rawConfig.slack}`
-                let mattermostConfig = `${cfgDir}/${rawConfig.mattermost}`
-                let mstConfig = `${cfgDir}/${rawConfig.msteams}`
-                if (fs.existsSync(slackConfig)) {
-                    rawConfig.slack = yaml.load(fs.readFileSync(slackConfig).toString(), {}) as SlackConfig
-                }
-                if (fs.existsSync(mattermostConfig)) {
-                    rawConfig.mattermost = yaml.load(fs.readFileSync(mattermostConfig).toString(), {}) as MattermostConfig
-                }
-                if (fs.existsSync(mstConfig)) {
-                    rawConfig.msteams = yaml.load(fs.readFileSync(mstConfig).toString(), {}) as MsteamsConfig
+                let toolConfig = `${cfgDir}/${rawConfig.chatToolConfiguration}`
+                if (fs.existsSync(toolConfig)) {
+                    let loadedToolConfig = yaml.load(fs.readFileSync(toolConfig).toString(), {})
+                    switch (rawConfig.chatToolType) {
+                        case IChatTool.MATTERMOST:
+                            rawConfig.chatToolConfig = loadedToolConfig as MattermostConfig
+                            break;
+                        case IChatTool.MSTEAMS:
+                            rawConfig.chatToolConfig = loadedToolConfig as MsteamsConfig
+                            break;
+                        case IChatTool.SLACK:
+                            rawConfig.chatToolConfig = loadedToolConfig as SlackConfig
+                            break;
+                        default:
+                            throw new Error("TBD001E: Unknown chat tool type '" + rawConfig.chatToolType + "' selected.")
+                    }
                 }
                 AppConfigLoader.appConfig = rawConfig as AppConfig;
             } catch (err) {

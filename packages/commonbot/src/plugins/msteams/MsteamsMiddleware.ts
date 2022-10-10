@@ -9,7 +9,7 @@
 */
 
 import type { Request, Response } from 'express';
-import { IChatContextData, IChatToolType, IMessage, IMessageType, IMsteamsOption } from '../../types';
+import { IChatContextData, IChatTool, IMessage, IMessageType, IMsteamsOption } from '../../types';
 
 import { Activity, Attachment, BotFrameworkAdapter, CardFactory, ConversationAccount, ConversationParameters, Entity, MessageFactory, TurnContext } from 'botbuilder';
 import { CommonBot } from '../../CommonBot';
@@ -32,7 +32,7 @@ class MsteamsMiddleware extends Middleware {
 
         // Get option
         const option = this.bot.getOption();
-        if (option.chatTool !== IChatToolType.MSTEAMS) {
+        if (option.chatTool !== IChatTool.MSTEAMS) {
             this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
             throw new Error(`Wrong chat tool type`);
         }

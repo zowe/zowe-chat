@@ -12,7 +12,7 @@ import { IChatListenerRegistryEntry, IMessageListener } from '../types';
 
 import _ from "lodash";
 
-import { IChatContextData, IChatToolType, IMessageType, IPayloadType } from '@zowe/commonbot';
+import { IChatContextData, IChatTool, IMessageType, IPayloadType, IUser } from '@zowe/commonbot';
 import { MessagingApp } from '../bot/MessagingApp';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityManager } from '../security/SecurityManager';
@@ -32,15 +32,15 @@ export class BotMessageListener extends BotListener {
     constructor(config: AppConfig, securityFac: SecurityManager, webapp: MessagingApp, log: Logger) {
         super();
         this.webapp = webapp
-        switch (config.app.chatToolType) {
-            case IChatToolType.MATTERMOST:
-                this.botName = config.mattermost.botUserName
+        switch (config.chatToolType) {
+            case IChatTool.MATTERMOST:
+                this.botName = config.chatToolConfig.botUserName
                 break;
-            case IChatToolType.MSTEAMS:
-                this.botName = config.msteams.botUserName
+            case IChatTool.MSTEAMS:
+                this.botName = config.chatToolConfig.botUserName
                 break;
-            case IChatToolType.SLACK:
-                this.botName = config.slack.botUserName
+            case IChatTool.SLACK:
+                this.botName = config.chatToolConfig.botUserName
                 break;
         }
         this.chatListeners = [];
@@ -140,9 +140,9 @@ export class BotMessageListener extends BotListener {
     async processMessage(chatContextData: IChatContextData): Promise<void> {
         // Print start log
         this.log.start(this.processMessage, this);
-        let user = chatContextData.context.chatting.user
+        let user: IUser = chatContextData.context.chatting.user
 
-        if (!this.securityFacility.isAuthenticated(chatContextData)) {
+        if (!this.securityFacility.isAuthenticated(user)) {
             let redirect = this.webapp.generateChallenge(user, () => {
                 this.processMessage(chatContextData)
             })
@@ -157,7 +157,7 @@ export class BotMessageListener extends BotListener {
         else {
             try {
 
-                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
+                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user))
                 if (principal == undefined) {
                     let redirect = this.webapp.generateChallenge(user, () => {
                         this.processMessage(chatContextData)

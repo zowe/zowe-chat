@@ -11,7 +11,7 @@
 import childProcess from 'child_process';
 import os from 'os';
 
-import { ChatHandler, IBotLimit, IBotOption, IChatToolType, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger } from "@zowe/chat";
+import { ChatHandler, IBotLimit, IBotOption, IChatTool, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger } from "@zowe/chat";
 
 import ZoweCliCommandMattermostView from './ZoweCliCommandMattermostView';
 import ZoweCliCommandMsteamsView from './ZoweCliCommandMsteamsView';
@@ -26,11 +26,11 @@ class ZoweCliCommandHandler extends ChatHandler {
         super(botOption, botLimit);
 
         // Create view
-        if (botOption.chatTool === IChatToolType.MATTERMOST) {
+        if (botOption.chatTool === IChatTool.MATTERMOST) {
             this.view = new ZoweCliCommandMattermostView(botOption, <IMattermostBotLimit>botLimit);
-        } else if (botOption.chatTool === IChatToolType.SLACK) {
+        } else if (botOption.chatTool === IChatTool.SLACK) {
             this.view = new ZoweCliCommandSlackView(botOption, <ISlackBotLimit>botLimit);
-        } else if (botOption.chatTool === IChatToolType.MSTEAMS) {
+        } else if (botOption.chatTool === IChatTool.MSTEAMS) {
             this.view = new ZoweCliCommandMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
         }
     }

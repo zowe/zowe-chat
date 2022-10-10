@@ -8,17 +8,16 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatToolType as ChatToolType, IProtocol, ISlackConfigHttpEndpoint, ISlackConfigSocketMode } from "@zowe/commonbot";
+import { IChatTool as ChatToolType, IProtocol, ISlackConfigHttpEndpoint, ISlackConfigSocketMode } from "@zowe/commonbot";
 
 /**
  *  The top-level configuration object used by Zowe Chat.
  */
 export type AppConfig = {
+    chatToolType: ChatToolType
+    chatToolConfig: MattermostConfig | SlackConfig | MsteamsConfig
     security: SecurityConfig;
     app: ChatAppConfig;
-    mattermost: MattermostConfig;
-    slack: SlackConfig;
-    msteams: MsteamsConfig;
 }
 
 /** 
@@ -52,7 +51,7 @@ export type ZosmfServerConfig = {
  * Configuration for Zowe Chat's features - which chat to connect to, where the express server should runm, log options, etc.
  */
 export type ChatAppConfig = {
-    chatToolType: ChatToolType
+
     server: ServerOptions
     log: LogOption;
     recordLimit: number;

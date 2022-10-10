@@ -32,7 +32,7 @@ export const enum ILogLevel {
     SILLY = 'silly'
 }
 
-export const enum IChatToolType {
+export const enum IChatTool {
     MATTERMOST = 'mattermost',
     SLACK = 'slack',
     MSTEAMS = 'msteams'
@@ -149,7 +149,7 @@ export interface IMessage {
 
 export type IBotOption = {
     messagingApp: IMessagingApp,
-    chatTool: IChatToolType,
+    chatTool: IChatTool,
     mattermost?: IMattermostOption;
     slack?: ISlackOption;
     msteams?: IMsteamsOption;

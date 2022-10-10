@@ -8,8 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { AppConfig, AppConfigLoader, ChatHandler, IBotLimit, IBotOption, IChatToolType, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger, ZosmfServerConfig } from '@zowe/chat';
-import { ChatPrincipal } from '@zowe/chat/dist/security/user/ChatPrincipal';
+import { AppConfig, AppConfigLoader, ChatHandler, ChatPrincipal, IBotLimit, IBotOption, IChatTool, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger, ZosmfServerConfig } from '@zowe/chat';
 import { ISession, SessConstants, Session } from '@zowe/imperative';
 import { GetJobs, IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
@@ -29,11 +28,11 @@ class ZosJobHandler extends ChatHandler {
 
         this.getJob = this.getJob.bind(this);
 
-        if (botOption.chatTool === IChatToolType.SLACK) {
+        if (botOption.chatTool === IChatTool.SLACK) {
             this.view = new ZosJobSlackView(botOption, <ISlackBotLimit>botLimit);
-        } else if (botOption.chatTool === IChatToolType.MATTERMOST) {
+        } else if (botOption.chatTool === IChatTool.MATTERMOST) {
             this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit>botLimit);
-        } else if (botOption.chatTool === IChatToolType.MSTEAMS) {
+        } else if (botOption.chatTool === IChatTool.MSTEAMS) {
             this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
         }
     }

@@ -139,7 +139,7 @@ export class BotEventListener extends BotListener {
             // Process event
             if (matched) {
 
-                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(chatContextData))
+                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user))
                 if (principal == undefined) {
                     let redirect = this.webapp.generateChallenge(user, () => {
                         this.processEvent(chatContextData)

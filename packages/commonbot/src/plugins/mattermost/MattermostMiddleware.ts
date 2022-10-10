@@ -9,7 +9,7 @@
 */
 
 import { CommonBot } from '../../CommonBot';
-import { IChannel, IChatContextData, IChattingType, IChatToolType, IMattermostOption, IMessage, IMessageType, IPayloadType, IUser } from '../../types';
+import { IChannel, IChatContextData, IChattingType, IChatTool, IMattermostOption, IMessage, IMessageType, IPayloadType, IUser } from '../../types';
 import Middleware = require('../../Middleware');
 import MattermostClient = require('./MattermostClient');
 import Util = require('../../utils/Util');
@@ -39,7 +39,7 @@ class MattermostMiddleware extends Middleware {
 
         // Get option
         const option = this.bot.getOption();
-        if (option.chatTool !== IChatToolType.MATTERMOST) {
+        if (option.chatTool !== IChatTool.MATTERMOST) {
             this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
             throw new Error(`Wrong chat tool type`);
         }

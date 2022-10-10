@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMessageListener, IChatContextData, IChatToolType, ICommand, IExecutor, IMessage, IMessageType } from '@zowe/chat';
+import { ChatMessageListener, IChatContextData, IChatTool, ICommand, IExecutor, IMessage, IMessageType } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
 const i18nJsonData = require('../i18n/jobDisplay.json');
@@ -33,13 +33,13 @@ class ZosMessageListener extends ChatMessageListener {
             const botOption = chatContextData.context.chatting.bot.getOption();
             let botName: string;
             switch (botOption.chatTool) {
-                case IChatToolType.MATTERMOST:
+                case IChatTool.MATTERMOST:
                     botName = botOption.mattermost.botUserName
                     break;
-                case IChatToolType.MSTEAMS:
+                case IChatTool.MSTEAMS:
                     botName = botOption.msteams.botUserName
                     break;
-                case IChatToolType.SLACK:
+                case IChatTool.SLACK:
                     botName = botOption.slack.botUserName
                     break;
             }
@@ -86,9 +86,9 @@ class ZosMessageListener extends ChatMessageListener {
             };
 
             const botOption = chatContextData.context.chatting.bot.getOption();
-            if (botOption.chatTool !== IChatToolType.MATTERMOST
-                && botOption.chatTool !== IChatToolType.SLACK
-                && botOption.chatTool !== IChatToolType.MSTEAMS) {
+            if (botOption.chatTool !== IChatTool.MATTERMOST
+                && botOption.chatTool !== IChatTool.SLACK
+                && botOption.chatTool !== IChatTool.MSTEAMS) {
                 return [{
                     type: IMessageType.PLAIN_TEXT,
                     message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
