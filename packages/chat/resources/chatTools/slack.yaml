@@ -8,7 +8,7 @@ signingSecret: <Your slack signing secret>
 
 # Specify the bot user OAuth token of your chatbot Slack app
 # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-token: <Your slack oauth token>
+token: <Your bot user oauth token>
 
 # Specify the protocol to connect to Slack for your chatbot Slack app to receive app payloads.
 # You can see more details in https://api.slack.com/apis/connections.
