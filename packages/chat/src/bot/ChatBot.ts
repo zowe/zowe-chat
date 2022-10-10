@@ -14,7 +14,7 @@ import * as yaml from "js-yaml";
 import * as path from "path";
 import { AppConfig, MattermostConfig, MsteamsConfig, SlackConfig } from '../config/base/AppConfig';
 import { UserConfigManager } from '../config/UserConfigManager';
-import { EnvironmentVariables } from '../const/EnvironmentVariables';
+import { EnvironmentVariable } from '../const/EnvironmentVariable';
 import { LogoutMessageListener } from '../listeners/bot/LogoutMessageListener';
 import { BotEventListener } from '../listeners/BotEventListener';
 import { BotMessageListener } from '../listeners/BotMessageListener';
@@ -77,7 +77,7 @@ export class ChatBot {
 
         this.log = log;
         this.appConfig = chatConfig;
-        this.pluginHome = EnvironmentVariables.ZOWE_CHAT_PLUGINS_DIR;
+        this.pluginHome = EnvironmentVariable.ZOWE_CHAT_PLUGINS_DIR;
 
         try {
             this.log.silly(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
