@@ -13,8 +13,8 @@ import { ChatPrincipal } from "../security/user/ChatPrincipal";
 
 export type ChatContext = {
     context: IChatContextData;
-    principal?: ChatPrincipal
-}
+    principal?: ChatPrincipal;
+};
 
 export interface IExecutor extends IName {
     team: IName;

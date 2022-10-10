@@ -103,7 +103,7 @@ export abstract class ChatMessageListener extends ChatListener {
         } catch (error) {
             // Print exception stack
             this.log.error(this.log.getErrorStack(new Error(error.name), error));
-            this.log.error(error)
+            this.log.error(error);
         } finally {
             // Print end log
             this.log.end(this.parseMessage, this);

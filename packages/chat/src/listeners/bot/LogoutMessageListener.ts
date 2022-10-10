@@ -22,8 +22,8 @@ export class LogoutMessageListener extends ChatMessageListener {
 
     constructor(securityManager: SecurityManager, log: Logger) {
         super();
-        this.logger = log
-        this.security = securityManager
+        this.logger = log;
+        this.security = securityManager;
         this.matchMessage = this.matchMessage.bind(this);
         this.processMessage = this.processMessage.bind(this);
     }
@@ -63,18 +63,18 @@ export class LogoutMessageListener extends ChatMessageListener {
     async processMessage(chatContextData: IChatContextData): Promise<IMessage[]> {
         // Print start log
         this.logger.start(this.processMessage, this);
-        let user: IUser = chatContextData.context.chatting.user
+        let user: IUser = chatContextData.context.chatting.user;
         // Process message
         let msgs: IMessage[] = [];
         try {
 
             // Process command
-            this.security.logoutUser(this.security.getChatUser(user))
+            this.security.logoutUser(this.security.getChatUser(user));
 
             msgs.push({
                 type: IMessageType.PLAIN_TEXT,
                 message: `Successfully logged out user ${chatContextData.context.chatting.user.name}`,
-            })
+            });
 
         } catch (error) {
             // Print exception stack

@@ -35,7 +35,7 @@ export class CommonBot {
     // Constructor
     constructor(option: IBotOption) {
         this.option = option;
-        this.logger = Logger.getInstance()
+        this.logger = Logger.getInstance();
         this.logger.info(`Bot option: ${JSON.stringify(this.option, null, 4)}`);
 
         // Create Limit instance

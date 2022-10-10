@@ -18,7 +18,7 @@ class Middleware {
 
     // Constructor
     constructor(bot: CommonBot) {
-        this.logger = Logger.getInstance()
+        this.logger = Logger.getInstance();
         this.bot = bot;
     }
 

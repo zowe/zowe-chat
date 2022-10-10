@@ -11,9 +11,9 @@
 
 // ChatCredential to disambiguate from internal node Credential type
 export type ChatCredential = {
-    type: CredentialType
-    value: string
-}
+    type: CredentialType;
+    value: string;
+};
 
 export enum CredentialType {
     TOKEN_LTPA = "token_ltpa",

@@ -73,6 +73,6 @@ export interface IConfigPropertyOption {
     /**
      * Sub-properties within this value. It is recommended to avoid using this capability.
      */
-    properties?: IConfigProperty
+    properties?: IConfigProperty;
 
 }

@@ -8,9 +8,9 @@ export function LoginPage() {
     let navigate = useNavigate();
     let location = useLocation();
     let auth = useAuth();
-    let alertState
-    let loginForm
-    const [searchParams, setSearchParams] = useSearchParams()
+    let alertState;
+    let loginForm;
+    const [searchParams, setSearchParams] = useSearchParams();
 
     // @ts-ignore - the 'state' is type unknown which typescript complains about
     let from = location.state?.from?.pathname || "/";
@@ -19,7 +19,7 @@ export function LoginPage() {
         event.preventDefault();
 
         let formData = new FormData(event.currentTarget);
-        let challengeKey = searchParams.get('__key')
+        let challengeKey = searchParams.get('__key');
         let username = formData.get("username") as string;
         let password = formData.get("password") as string;
 
@@ -42,24 +42,24 @@ export function LoginPage() {
         }
     */
 
-    let loginHint
+    let loginHint;
 
 
     if (!auth.user) {
 
-        let loginHash = searchParams.get('__key')
+        let loginHash = searchParams.get('__key');
 
         if (loginHash == undefined || loginHash.trim().length == 0) {
-            loginHint = <Alert severity="warning">You are logging in without being sent here by Zowe ChatBot. Please use a link provided by the Bot.</Alert>
+            loginHint = <Alert severity="warning">You are logging in without being sent here by Zowe ChatBot. Please use a link provided by the Bot.</Alert>;
         }
         else {
-            let userInfo = Buffer.from(loginHash, "base64").toString().split(":")
-            loginHint = <p text-align="center">Welcome, {userInfo[0]}. <br /><br />Please login with your Mainframe ID to authenticate your use of Zowe ChatBot.</p>
+            let userInfo = Buffer.from(loginHash, "base64").toString().split(":");
+            loginHint = <p text-align="center">Welcome, {userInfo[0]}. <br /><br />Please login with your Mainframe ID to authenticate your use of Zowe ChatBot.</p>;
         }
 
         if (auth.errorResponse) {
-            loginHint = ""
-            alertState = <Alert severity="error">Encoutered an error logging in. Please check your input and try again.</Alert>
+            loginHint = "";
+            alertState = <Alert severity="error">Encoutered an error logging in. Please check your input and try again.</Alert>;
         }
 
         loginForm = <form onSubmit={handleSubmit}>
@@ -83,10 +83,10 @@ export function LoginPage() {
             <div>
                 <Button variant="contained" type="submit">Login</Button>
             </div>
-        </form>
+        </form>;
     } else {
-        loginForm = ""
-        alertState = <Alert severity="success">You have been logged in. You may return to Zowe ChatBot!</Alert>
+        loginForm = "";
+        alertState = <Alert severity="success">You have been logged in. You may return to Zowe ChatBot!</Alert>;
     }
 
 

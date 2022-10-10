@@ -19,7 +19,7 @@ import { IUserMapping } from "./IUserMapping";
  */
 export class UserFileMapping implements IUserMapping {
 
-    private readonly encryptAlgorithm: string = "aes-256-cbc"
+    private readonly encryptAlgorithm: string = "aes-256-cbc";
     private readonly encryptIv: Buffer;
     private readonly encryptKey: Buffer;
     private readonly log: Logger;
@@ -32,7 +32,7 @@ export class UserFileMapping implements IUserMapping {
         this.log = logger;
         this.encryptIv = encryptionIv;
         this.encryptKey = encryptionKey;
-        this.mappingFile = mappingFile
+        this.mappingFile = mappingFile;
         try {
             fs.ensureFileSync(this.mappingFile);
         } catch (err) {
@@ -42,13 +42,13 @@ export class UserFileMapping implements IUserMapping {
         }
         let encryptedText = Buffer.from(fs.readFileSync(this.mappingFile).toString(), 'hex');
         let decipher = crypto.createDecipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
-        this.userMap = {}
+        this.userMap = {};
         if (encryptedText == undefined || encryptedText.length == 0) {
-            this.writeMappingFile()
+            this.writeMappingFile();
         } else {
-            const jsonFormat: Object = JSON.parse(Buffer.concat([decipher.update(encryptedText), decipher.final()]).toString())
+            const jsonFormat: Object = JSON.parse(Buffer.concat([decipher.update(encryptedText), decipher.final()]).toString());
             for (let [key, value] of Object.entries(jsonFormat)) {
-                this.userMap[key] = value
+                this.userMap[key] = value;
             }
         }
         this.log.info("User mapping service initialized");
@@ -56,9 +56,9 @@ export class UserFileMapping implements IUserMapping {
     }
 
     public removeUser(distUser: string): boolean {
-        delete this.userMap[distUser]
-        this.writeMappingFile()
-        return true
+        delete this.userMap[distUser];
+        this.writeMappingFile();
+        return true;
     }
 
     public userExists(distUser: string): boolean {
@@ -70,17 +70,17 @@ export class UserFileMapping implements IUserMapping {
     }
 
     public mapUser(distUser: string, mfUser: string): boolean {
-        this.log.debug(`Mapping ${distUser} to ${mfUser}`)
+        this.log.debug(`Mapping ${distUser} to ${mfUser}`);
         let output = this.userMap[distUser] = mfUser;
-       // this.log.silly(JSON.stringify(output))
+        // this.log.silly(JSON.stringify(output))
         this.writeMappingFile();
-        return true
+        return true;
     }
 
     private writeMappingFile(): void {
-        this.log.debug("Writing to user mapping file")
+        this.log.debug("Writing to user mapping file");
         let cipher = crypto.createCipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
-        let encryptedOut = Buffer.concat([cipher.update(JSON.stringify(this.userMap)), cipher.final()])
+        let encryptedOut = Buffer.concat([cipher.update(JSON.stringify(this.userMap)), cipher.final()]);
         fs.writeFileSync(this.mappingFile, encryptedOut.toString('hex'), { flag: 'w' });
     }
 }

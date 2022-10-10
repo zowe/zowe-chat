@@ -14,20 +14,20 @@ import { IChatTool as ChatToolType, IProtocol, ISlackConfigHttpEndpoint, ISlackC
  *  The top-level configuration object used by Zowe Chat.
  */
 export type AppConfig = {
-    chatToolType: ChatToolType
-    chatToolConfig: MattermostConfig | SlackConfig | MsteamsConfig
+    chatToolType: ChatToolType;
+    chatToolConfig: MattermostConfig | SlackConfig | MsteamsConfig;
     security: SecurityConfig;
     app: ChatAppConfig;
-}
+};
 
 /** 
  *  This configuration is required in order for users to authenticate succesfully against Zowe Chat.
  */
 export type SecurityConfig = {
     zosmf: ZosmfServerConfig;
-    authMode: AuthType
-    serviceAccount: ServiceAccount
-}
+    authMode: AuthType;
+    serviceAccount: ServiceAccount;
+};
 
 /**
  * Service account ID and password (or other opaque credential) which can be used on behalf of a calling  user
@@ -35,7 +35,7 @@ export type SecurityConfig = {
 export type ServiceAccount = {
     user: string;
     password: string;
-}
+};
 
 /**
  * Standard z/OSMF Server Configuration object
@@ -44,21 +44,21 @@ export type ZosmfServerConfig = {
     host: string,
     protocol: string,
     port: number,
-    rejectUnauthorized: boolean
-}
+    rejectUnauthorized: boolean;
+};
 
 /**
  * Configuration for Zowe Chat's features - which chat to connect to, where the express server should runm, log options, etc.
  */
 export type ChatAppConfig = {
 
-    server: ServerOptions
+    server: ServerOptions;
     log: LogOption;
     recordLimit: number;
     pluginLimit: number;
     extendedConfigDir: string;
 
-}
+};
 
 /**
  * Configuration for Zowe Chat's logger
@@ -67,8 +67,8 @@ export type LogOption = {
     filePath: string,
     level: LogLevel,
     maximumSize: string,
-    maximumFiles: number
-}
+    maximumFiles: number;
+};
 
 /**
  * Configuration for Mattermost  connection
@@ -83,7 +83,7 @@ export type MattermostConfig = {
     botUserName: string;
     botAccessToken: string;
     messagingApp: ServerOptions;
-}
+};
 
 /**
  * Configuration for a slack connection
@@ -94,7 +94,7 @@ export type SlackConfig = {
     token: string;
     socketMode: ISlackConfigSocketMode;
     httpEndpoint: ISlackConfigHttpEndpoint;
-}
+};
 
 
 /**
@@ -105,7 +105,7 @@ export type MsteamsConfig = {
     botId: string;
     botPassword: string;
     messagingApp: ServerOptions;
-}
+};
 
 /**
  * Configuration options for the express server within Zowe Chat
@@ -117,7 +117,7 @@ export type ServerOptions = {
     basePath: string;
     tlsKey: string;
     tlsCert: string;
-}
+};
 
 
 /**

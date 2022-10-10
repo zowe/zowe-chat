@@ -27,12 +27,12 @@ export class Logger {
     private logFile: string;
 
     private constructor(appConfig: AppConfig) {
-        this.appConfig = appConfig
+        this.appConfig = appConfig;
 
         // override values in appConfig if we have environment variables setup
         try {
-            this.logFile = process.env.ZOWE_CHAT_LOG_FILE_PATH || `./log/zoweChatServer.log`
-            fs.ensureFileSync(this.logFile)
+            this.logFile = process.env.ZOWE_CHAT_LOG_FILE_PATH || `./log/zoweChatServer.log`;
+            fs.ensureFileSync(this.logFile);
             if (process.env.ZOWE_CHAT_LOG_LEVEL != undefined) {
                 if ((Object.values<string>(LogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
                     this.appConfig.app.log.level = <LogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
@@ -41,11 +41,11 @@ export class Logger {
                 }
             }
             if (process.env.ZOWE_CHAT_LOG_MAX_SIZE != undefined) {
-                this.appConfig.app.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE
+                this.appConfig.app.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE;
             }
             if (process.env.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
                 if (+process.env.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
-                    this.appConfig.app.log.maximumFiles = +process.env.ZOWE_CHAT_LOG_MAX_FILES
+                    this.appConfig.app.log.maximumFiles = +process.env.ZOWE_CHAT_LOG_MAX_FILES;
                 }
             }
         } catch (error) {
@@ -80,9 +80,9 @@ export class Logger {
             maxFiles: this.appConfig.app.log.maximumFiles,
             format: combine(timestamp(), bnzFormat),
             options: { flags: 'a' }
-        })
+        });
 
-        this.log.add(fileTransport)
+        this.log.add(fileTransport);
 
         // TODO: this is an express env, should we use something else more specific? ZOWE_CHAT_DEV_MODE?
         // Only use console logger in development mode.
@@ -92,11 +92,11 @@ export class Logger {
 
         process.on("beforeExit", (code) => {
             this.log.clear();
-        })
+        });
 
         process.on("exit", (code) => {
             this.log.end();
-        })
+        });
 
     }
 
@@ -230,7 +230,7 @@ export class Logger {
     }
 
     public silly(log: string) {
-        this.log.silly(log)
+        this.log.silly(log);
     }
 
     public debug(log: string) {
@@ -254,7 +254,7 @@ export class Logger {
         if (!Logger.instance) {
             Logger.instance = new Logger(AppConfigLoader.loadAppConfig());
         }
-        return Logger.instance
+        return Logger.instance;
     }
 
 

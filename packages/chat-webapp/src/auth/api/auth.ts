@@ -31,26 +31,26 @@ const chatAuthProvider = {
         callback({
           success: true,
           serverResponse: ""
-        })
+        });
       } else {
         chatAuthProvider.isAuthenticated = false;
         callback({
           success: false,
           serverResponse: (response.data != undefined) ? response.data : "There was an error logging in."
-        })
+        });
       }
     }).catch((error) => {
       chatAuthProvider.isAuthenticated = false;
       callback({
         success: false,
         serverResponse: (error?.response.data != undefined) ? error?.response.data : "There was an unknown error logging in."
-      })
+      });
     });
   },
   signout(callback: VoidFunction) {
     chatAuthProvider.isAuthenticated = false;
-    callback()
+    callback();
   }
-}
+};
 
 export { chatAuthProvider };

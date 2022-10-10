@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import type {IMessageMatcher, IMessageMatcherFunction, IMessageHandlerFunction, IMessageHandlerIndex} from './types';
+import type { IMessageHandlerFunction, IMessageHandlerIndex, IMessageMatcher, IMessageMatcherFunction } from './types';
 
 // import logger = require('./utils/Logger');
 

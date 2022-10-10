@@ -545,11 +545,11 @@ class SlackMiddleware extends Middleware {
     addUser(id: string, user: IUser): boolean {
 
         if (id === undefined || id.trim() === '') {
-            return false
+            return false;
         }
 
         this.users.set(id, user);
-        return true
+        return true;
     }
 
     // get channel by id

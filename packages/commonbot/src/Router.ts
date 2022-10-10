@@ -16,11 +16,11 @@ import Logger from './utils/Logger';
 class Router {
     protected bot: CommonBot;
     protected router: IRoute;
-    protected logger: Logger
+    protected logger: Logger;
 
     // Constructor
     constructor(bot: CommonBot) {
-        this.logger = Logger.getInstance()
+        this.logger = Logger.getInstance();
         this.bot = bot;
 
         this.router = null;

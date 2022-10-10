@@ -23,10 +23,10 @@ export class AppConfigLoader {
     public static loadAppConfig(): AppConfig {
 
         if (AppConfigLoader.appConfig == null) {
-            let cfgDir = process.env.ZOWE_CHAT_CONFIG_DIR
-            let cfgFilePath = ""
+            let cfgDir = process.env.ZOWE_CHAT_CONFIG_DIR;
+            let cfgFilePath = "";
             if (cfgDir === undefined) {
-                cfgDir = "./"
+                cfgDir = "./";
                 cfgFilePath = cfgDir + "application.yaml";
             } else {
                 cfgFilePath = `${cfgDir}/application.yaml`;
@@ -40,33 +40,33 @@ export class AppConfigLoader {
             }
 
             try {
-                let rawConfig: any = yaml.load(fs.readFileSync(cfgFilePath).toString(), {})
-                let toolConfig = `${cfgDir}/${rawConfig.chatToolConfiguration}`
+                let rawConfig: any = yaml.load(fs.readFileSync(cfgFilePath).toString(), {});
+                let toolConfig = `${cfgDir}/${rawConfig.chatToolConfiguration}`;
                 if (fs.existsSync(toolConfig)) {
-                    let loadedToolConfig = yaml.load(fs.readFileSync(toolConfig).toString(), {})
+                    let loadedToolConfig = yaml.load(fs.readFileSync(toolConfig).toString(), {});
                     switch (rawConfig.chatToolType) {
                         case IChatTool.MATTERMOST:
-                            rawConfig.chatToolConfig = loadedToolConfig as MattermostConfig
+                            rawConfig.chatToolConfig = loadedToolConfig as MattermostConfig;
                             break;
                         case IChatTool.MSTEAMS:
-                            rawConfig.chatToolConfig = loadedToolConfig as MsteamsConfig
+                            rawConfig.chatToolConfig = loadedToolConfig as MsteamsConfig;
                             break;
                         case IChatTool.SLACK:
-                            rawConfig.chatToolConfig = loadedToolConfig as SlackConfig
+                            rawConfig.chatToolConfig = loadedToolConfig as SlackConfig;
                             break;
                         default:
-                            throw new Error("TBD001E: Unknown chat tool type '" + rawConfig.chatToolType + "' selected.")
+                            throw new Error("TBD001E: Unknown chat tool type '" + rawConfig.chatToolType + "' selected.");
                     }
                 }
                 AppConfigLoader.appConfig = rawConfig as AppConfig;
             } catch (err) {
                 console.log(`TBD003E: Error parsing the content for file ${cfgFilePath}. Please make sure the file is valid YAML.`);
-                console.log(err)
+                console.log(err);
                 throw new Error(`TBD003E: Error parsing the content for file ${cfgFilePath}. Please make sure the file is valid YAML.`);
             }
         }
 
-        return AppConfigLoader.appConfig
+        return AppConfigLoader.appConfig;
 
     }
 

@@ -13,7 +13,7 @@ export interface JsonSchema {
     $version: string;
     type: string;
     description: string;
-    properties: { [key: string]: any };
+    properties: { [key: string]: any; };
 }
 
 export interface JsonSchemaInfo {

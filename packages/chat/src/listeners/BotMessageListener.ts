@@ -24,23 +24,23 @@ export class BotMessageListener extends BotListener {
 
     private chatListeners: IChatListenerRegistryEntry[];
     private readonly botName: string;
-    private readonly log: Logger
-    private readonly config: AppConfig
+    private readonly log: Logger;
+    private readonly config: AppConfig;
     private readonly securityFacility: SecurityManager;
-    private readonly webapp: MessagingApp
+    private readonly webapp: MessagingApp;
 
     constructor(config: AppConfig, securityFac: SecurityManager, webapp: MessagingApp, log: Logger) {
         super();
-        this.webapp = webapp
+        this.webapp = webapp;
         switch (config.chatToolType) {
             case IChatTool.MATTERMOST:
-                this.botName = config.chatToolConfig.botUserName
+                this.botName = config.chatToolConfig.botUserName;
                 break;
             case IChatTool.MSTEAMS:
-                this.botName = config.chatToolConfig.botUserName
+                this.botName = config.chatToolConfig.botUserName;
                 break;
             case IChatTool.SLACK:
-                this.botName = config.chatToolConfig.botUserName
+                this.botName = config.chatToolConfig.botUserName;
                 break;
         }
         this.chatListeners = [];
@@ -129,7 +129,7 @@ export class BotMessageListener extends BotListener {
         } catch (error) {
             // Print exception stack
             //this.log.error(this.log.getErrorStack(new Error(error.name), error));
-            this.log.error(error)
+            this.log.error(error);
         } finally {
             // Print end log
             this.log.end(this.matchMessage, this);
@@ -140,34 +140,34 @@ export class BotMessageListener extends BotListener {
     async processMessage(chatContextData: IChatContextData): Promise<void> {
         // Print start log
         this.log.start(this.processMessage, this);
-        let user: IUser = chatContextData.context.chatting.user
+        let user: IUser = chatContextData.context.chatting.user;
 
         if (!this.securityFacility.isAuthenticated(user)) {
             let redirect = this.webapp.generateChallenge(user, () => {
-                this.processMessage(chatContextData)
-            })
-            this.log.debug("Creating challenge link " + redirect + " for user " + user.name)
+                this.processMessage(chatContextData);
+            });
+            this.log.debug("Creating challenge link " + redirect + " for user " + user.name);
             await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                 message: `Hello @${user.name}, you are not currently logged in to the backend system. Please visit ${redirect} to login`,
                 type: IMessageType.PLAIN_TEXT
-            }])
+            }]);
             this.log.end(this.processMessage, this);
         }
 
         else {
             try {
 
-                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user))
+                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user));
                 if (principal == undefined) {
                     let redirect = this.webapp.generateChallenge(user, () => {
-                        this.processMessage(chatContextData)
-                    })
+                        this.processMessage(chatContextData);
+                    });
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
                         type: IMessageType.PLAIN_TEXT
-                    }])
+                    }]);
                     this.log.end(this.processMessage, this);
-                    return
+                    return;
                 }
 
 
@@ -183,19 +183,19 @@ export class BotMessageListener extends BotListener {
                 }
                 this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched message!`);
 
-                let pluginUnauth: boolean = false
+                let pluginUnauth: boolean = false;
 
                 // Process matched messages
                 for (let i = 0; i < pluginLimit; i++) {
                     // Process message
-                    listenerContexts[i].extraData.principal = principal
-                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf
+                    listenerContexts[i].extraData.principal = principal;
+                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf;
 
                     const msgs = await (<IMessageListener>matchedListeners[i].listenerInstance).processMessage(listenerContexts[i]);
                     this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
                     if (listenerContexts[i].extraData.unauthorized) {
-                        pluginUnauth = true
+                        pluginUnauth = true;
                     }
                     // Send response
                     await chatContextData.context.chatting.bot.send(listenerContexts[i], msgs);
@@ -204,19 +204,19 @@ export class BotMessageListener extends BotListener {
                 if (pluginUnauth) {
                     let redirect = this.webapp.generateChallenge(user, () => {
 
-                    })
+                    });
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, it looks like your login expired. Please visit ${redirect} to login again,`,
                         type: IMessageType.PLAIN_TEXT
-                    }])
+                    }]);
                     this.log.end(this.processMessage, this);
-                    return
+                    return;
                 }
 
             } catch (error) {
                 // Print exception stack
                 this.log.error(this.log.getErrorStack(new Error(error.name), error));
-                this.log.error(error)
+                this.log.error(error);
             } finally {
                 // Print end log
                 this.log.end(this.processMessage, this);

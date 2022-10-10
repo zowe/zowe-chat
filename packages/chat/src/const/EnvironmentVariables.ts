@@ -17,16 +17,16 @@ import { Logger } from "../utils/Logger";
  */
 export class EnvironmentVariables {
 
-    private static log: Logger = Logger.getInstance()
+    private static log: Logger = Logger.getInstance();
 
     /** The directory with Zowe Chat's plugin configuration file and any plugin installations */
     public static ZOWE_CHAT_PLUGINS_DIR: string = EnvironmentVariables.getEnvStr('ZOWE_CHAT_PLUGINS_DIR', `${process.cwd()}/plugins`);
     /** The directory with Zowe Chat's core configuration - application.yaml and chat client YAML files */
     public static ZOWE_CHAT_CONFIG_DIR: string = EnvironmentVariables.getEnvStr('ZOWE_CHAT_CONFIG_DIR', `${process.cwd()}/config`);
     /** Determines if Zowe Chat should deploy it's static web elements, i.e. WebUI. True by default. */
-    public static ZOWE_CHAT_DEPLOY_UI: boolean = EnvironmentVariables.getEnvBool('ZOWE_CHAT_DEPLOY_UI', true)
+    public static ZOWE_CHAT_DEPLOY_UI: boolean = EnvironmentVariables.getEnvBool('ZOWE_CHAT_DEPLOY_UI', true);
     /** Where the react UI static elements are located. */
-    public static ZOWE_CHAT_STATIC_DIR: string = EnvironmentVariables.getEnvStr('ZOWE_CHAT_STATIC_DIR', `${process.cwd()}/static`)
+    public static ZOWE_CHAT_STATIC_DIR: string = EnvironmentVariables.getEnvStr('ZOWE_CHAT_STATIC_DIR', `${process.cwd()}/static`);
 
 
     /**

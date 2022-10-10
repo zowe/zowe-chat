@@ -24,17 +24,17 @@ export class BotEventListener extends BotListener {
 
     private readonly chatListeners: IChatListenerRegistryEntry[];
     private readonly log: Logger;
-    private readonly config: AppConfig
+    private readonly config: AppConfig;
     private readonly webapp: MessagingApp;
     private readonly securityFacility: SecurityManager;
 
     constructor(config: AppConfig, security: SecurityManager, webapp: MessagingApp, log: Logger) {
-        super()
+        super();
         this.chatListeners = [];
         this.log = log;
         this.securityFacility = security;
         this.config = config;
-        this.webapp = webapp
+        this.webapp = webapp;
         this.matchEvent = this.matchEvent.bind(this);
         this.processEvent = this.processEvent.bind(this);
     }
@@ -64,7 +64,7 @@ export class BotEventListener extends BotListener {
         // Print start log
         this.log.start(this.matchEvent, this);
 
-        let user = chatContextData.context.chatting.user
+        let user = chatContextData.context.chatting.user;
 
         try {
             // Initialize listener and context pool
@@ -130,7 +130,7 @@ export class BotEventListener extends BotListener {
     async processEvent(chatContextData: IChatContextData): Promise<void> {
         // Print start log
         this.log.start(this.processEvent, this);
-        let user = chatContextData.context.chatting.user
+        let user = chatContextData.context.chatting.user;
 
         try {
             // Match event
@@ -139,17 +139,17 @@ export class BotEventListener extends BotListener {
             // Process event
             if (matched) {
 
-                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user))
+                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user));
                 if (principal == undefined) {
                     let redirect = this.webapp.generateChallenge(user, () => {
-                        this.processEvent(chatContextData)
-                    })
+                        this.processEvent(chatContextData);
+                    });
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
                         type: IMessageType.PLAIN_TEXT
-                    }])
+                    }]);
                     this.log.end(this.processEvent, this);
-                    return
+                    return;
                 }
 
                 // Get matched listener and contexts
@@ -168,8 +168,8 @@ export class BotEventListener extends BotListener {
                 const event: IEvent = <IEvent>chatContextData.payload.data;
                 for (let i = 0; i < pluginLimit; i++) {
                     // Handle event
-                    listenerContexts[i].extraData.principal = principal
-                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf
+                    listenerContexts[i].extraData.principal = principal;
+                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf;
                     const msgs = await (<IEventListener>matchedListeners[i].listenerInstance).processEvent(listenerContexts[i]);
                     this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
@@ -192,7 +192,7 @@ export class BotEventListener extends BotListener {
         } catch (error) {
             // Print exception stack
             // this.log.error(this.log.getErrorStack(new Error(error.name), error));
-            this.log.error(error)
+            this.log.error(error);
         } finally {
             // Print end log
             this.log.end(this.processEvent, this);

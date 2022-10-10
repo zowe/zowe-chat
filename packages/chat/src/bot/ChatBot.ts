@@ -50,10 +50,10 @@ export class ChatBot {
     private static instance: ChatBot;
 
     // Capabilities required by the ChatBot to run, all initialized in constructor
-    private readonly security: SecurityManager
+    private readonly security: SecurityManager;
     private readonly log: Logger;
     private readonly appConfig: AppConfig;
-    private readonly configManager: UserConfigManager
+    private readonly configManager: UserConfigManager;
     private readonly app: MessagingApp;
     private readonly pluginHome: string;
     private readonly bot: CommonBot;
@@ -75,23 +75,23 @@ export class ChatBot {
      */
     private constructor(chatConfig: AppConfig, log: Logger) {
 
-        this.log = log
-        this.appConfig = chatConfig
-        this.pluginHome = EnvironmentVariables.ZOWE_CHAT_PLUGINS_DIR
+        this.log = log;
+        this.appConfig = chatConfig;
+        this.pluginHome = EnvironmentVariables.ZOWE_CHAT_PLUGINS_DIR;
 
         try {
             this.log.silly(`Zowe Chat Config: \n ${JSON.stringify(this.appConfig, null, 4)}`);
 
             // built-in config schemas and security manager. future: add plugin config schemas, if present
-            let blockConfigList = [SecurityConfigSchema]
+            let blockConfigList = [SecurityConfigSchema];
             this.configManager = new UserConfigManager(this.appConfig, { sections: blockConfigList }, log);
-            this.security = new SecurityManager(this.appConfig, this.configManager, log)
-            this.log.debug("Admin configuration and security facility initialized")
+            this.security = new SecurityManager(this.appConfig, this.configManager, log);
+            this.log.debug("Admin configuration and security facility initialized");
 
             // Messaging app
-            this.log.debug("Init messaging app")
+            this.log.debug("Init messaging app");
             this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
-            this.log.debug("Completed messaging app init")
+            this.log.debug("Completed messaging app init");
 
             // Commonbot
             let cBotOpts: IBotOption = this.generateBotOpts(this.appConfig, this.app);
@@ -99,16 +99,16 @@ export class ChatBot {
             this.botEventListener = new BotEventListener(this.appConfig, this.security, this.app, this.log);
             this.log.info("Creating CommonBot ...");
             this.bot = new CommonBot(cBotOpts);
-            this.log.info("CommonBot initialized")
+            this.log.info("CommonBot initialized");
 
             // Plugins / listeners
-            this.loadInternalMessageListeners()
+            this.loadInternalMessageListeners();
             this.plugins = [];
             this.loadPlugins();
-            this.log.info("Plugins initialized")
+            this.log.info("Plugins initialized");
 
         } catch (error) {
-            this.log.error(this.log.getErrorStack(new Error(`Failed to create chat bot!`), error))
+            this.log.error(this.log.getErrorStack(new Error(`Failed to create chat bot!`), error));
             process.exit(1);
         }
     }
@@ -122,7 +122,7 @@ export class ChatBot {
         try {
 
             // Start server
-            const app = this.app
+            const app = this.app;
             if (app !== null) {
                 this.log.info('Start messaging server ...');
                 app.startServer();
@@ -152,7 +152,7 @@ export class ChatBot {
      * Sets listeners which are part of the core Zowe Chat service.
      */
     private loadInternalMessageListeners(): void {
-        this.log.start(this.loadInternalMessageListeners, this)
+        this.log.start(this.loadInternalMessageListeners, this);
 
         this.botMessageListener.registerChatListener({
             listenerName: "LogoutListener",
@@ -165,9 +165,9 @@ export class ChatBot {
                 version: 1,
                 priority: 1,
             },
-        })
+        });
 
-        this.log.end(this.loadInternalMessageListeners, this)
+        this.log.end(this.loadInternalMessageListeners, this);
     }
 
     /**
@@ -199,7 +199,7 @@ export class ChatBot {
             }
 
             // Read Zowe Chat plugins configuration file
-            let pluginList = <IChatPlugin[]>this.readYamlFile(pluginYamlFilePath)
+            let pluginList = <IChatPlugin[]>this.readYamlFile(pluginYamlFilePath);
             this.log.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Sort plugin per priority in ascend order: Priority 1 (Urgent) · Priority 2 (High) · Priority 3 (Medium) · Priority 4 (Low)
@@ -243,7 +243,7 @@ export class ChatBot {
 
                         // Load plugin
                         const ZoweChatPlugin = require(pluginPath);
-                        console.log(ZoweChatPlugin)
+                        console.log(ZoweChatPlugin);
 
                         this.botMessageListener.registerChatListener({
                             'listenerName': listenerName,
@@ -269,7 +269,7 @@ export class ChatBot {
                 }
 
                 this.log.debug(`Loading plugin ${plugin.package} complete`);
-                this.plugins.push(plugin)
+                this.plugins.push(plugin);
             }
         } catch (error) {
             // Print exception stack
@@ -296,7 +296,7 @@ export class ChatBot {
             return yaml.load(fs.readFileSync(filePath).toString(), {});
         } catch (err) {
             this.log.info(`TBD003E: Error parsing the content for file ${filePath}. Please make sure the file is valid YAML.`);
-            this.log.info(err)
+            this.log.info(err);
             throw new Error(`TBD003E: Error parsing the content for file ${filePath}. Please make sure the file is valid YAML.`);
         }
     }
@@ -318,7 +318,7 @@ export class ChatBot {
                 this.log.debug(JSON.stringify(appConfig.chatToolConfig, null, 4));
 
                 // Get Mattermost option
-                const mmConfig = appConfig.chatToolConfig as MattermostConfig
+                const mmConfig = appConfig.chatToolConfig as MattermostConfig;
                 const option: IMattermostOption = { ...mmConfig };
                 botOpts = {
                     messagingApp: {
@@ -347,7 +347,7 @@ export class ChatBot {
                 console.info(`slack.configuration: `);
                 console.info(JSON.stringify(appConfig.chatToolConfig, null, 4));
 
-                const slackConfig = appConfig.chatToolConfig as SlackConfig
+                const slackConfig = appConfig.chatToolConfig as SlackConfig;
                 // Get slack option
                 const option: ISlackOption = {
                     botUserName: slackConfig.botUserName,
@@ -395,7 +395,7 @@ export class ChatBot {
                 console.info(`msteams.yaml: `);
                 console.info(JSON.stringify(appConfig.chatToolConfig, null, 4));
 
-                const mstConfig: MsteamsConfig = appConfig.chatToolConfig as MsteamsConfig
+                const mstConfig: MsteamsConfig = appConfig.chatToolConfig as MsteamsConfig;
                 // TODO: Fix casting, circular dependency between config and commonbot
                 // Get Microsoft Teams option
                 botOpts = {
@@ -420,7 +420,7 @@ export class ChatBot {
             process.exit(5);
         }
 
-        return botOpts
+        return botOpts;
     }
 
     /**

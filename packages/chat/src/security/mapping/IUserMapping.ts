@@ -11,12 +11,12 @@
 
 export interface IUserMapping {
 
-    userExists(distUser: string): boolean
+    userExists(distUser: string): boolean;
 
-    getUser(distUser: string): string
+    getUser(distUser: string): string;
 
-    mapUser(distUser: string, mfUser: string): boolean
+    mapUser(distUser: string, mfUser: string): boolean;
 
-    removeUser(distUser: string): boolean
+    removeUser(distUser: string): boolean;
 
 }

@@ -48,7 +48,7 @@ export type IMattermostConfig = {
     botUserName: string;
     botAccessToken: string;
     messagingApp: IAppOption;
-}
+};
 
 export type ISlackConfig = {
     botUserName: string;
@@ -56,28 +56,28 @@ export type ISlackConfig = {
     token: string;
     socketMode: ISlackConfigSocketMode;
     httpEndpoint: ISlackConfigHttpEndpoint;
-}
+};
 
 export type ISlackConfigSocketMode = {
     enabled: boolean;
     appToken: string;
-}
+};
 
 export type ISlackConfigHttpEndpoint = {
     enabled: boolean;
     messagingApp: IAppOption;
-}
+};
 
 export type IMsteamsConfig = {
     botUserName: string;
     botId: string;
     botPassword: string;
     messagingApp: IAppOption;
-}
+};
 
 export interface IAppOption extends IHttpEndpoint {
     tlsKey: string,
-    tlsCert: string
+    tlsCert: string;
 }
 
 
@@ -153,30 +153,30 @@ export type IBotOption = {
     mattermost?: IMattermostOption;
     slack?: ISlackOption;
     msteams?: IMsteamsOption;
-}
+};
 
 export interface ILogOption {
     filePath: string,
     level: ILogLevel,
     maximumSize: string,
-    maximumFiles: string
+    maximumFiles: string;
 }
 
 export interface IAppOption extends IHttpEndpoint {
     tlsKey: string,
-    tlsCert: string
+    tlsCert: string;
 }
 
 export interface IHttpEndpoint {
     protocol: IProtocol,
     hostName: string,
     port: number,
-    basePath: string
+    basePath: string;
 }
 
 export interface IMessagingApp {
     option: IAppOption,
-    app: Application
+    app: Application;
 }
 
 // # Mattermost Variable         Required  Description
@@ -306,30 +306,30 @@ export interface IMsteamsOption {
 }
 
 export interface IMessageMatcherFunction {
-    (chatContextData: IChatContextData): boolean
+    (chatContextData: IChatContextData): boolean;
 }
 
 export interface IMessageHandlerFunction {
-    (chatContextData: IChatContextData): Promise<void>
+    (chatContextData: IChatContextData): Promise<void>;
 }
 
 export interface IMessageMatcher {
     matcher: IMessageMatcherFunction,
-    handlers: IMessageHandlerFunction[]
+    handlers: IMessageHandlerFunction[];
 }
 
 export interface IMessageHandlerIndex {
     matcherIndex: number,
-    handlerIndex: number
+    handlerIndex: number;
 }
 
 export interface IRoute {
     path: string,
-    handler: IRouteHandlerFunction
+    handler: IRouteHandlerFunction;
 }
 
 export interface IRouteHandlerFunction {
-    (chatContextData: IChatContextData): Promise<void | Record<string, any>> // eslint-disable-line @typescript-eslint/no-explicit-any
+    (chatContextData: IChatContextData): Promise<void | Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export interface IUser {

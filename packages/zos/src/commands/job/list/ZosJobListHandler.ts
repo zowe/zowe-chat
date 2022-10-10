@@ -45,8 +45,8 @@ class ZosJobHandler extends ChatHandler {
         let messages: IMessage[] = [];
         try {
             const options = command.adjective.option;
-            const auth: ChatPrincipal = <ChatPrincipal>command.extraData.principal
-            const zosmf: ZosmfServerConfig = <ZosmfServerConfig>command.extraData.zosmf
+            const auth: ChatPrincipal = <ChatPrincipal>command.extraData.principal;
+            const zosmf: ZosmfServerConfig = <ZosmfServerConfig>command.extraData.zosmf;
             // Get option job id -- Optional
             let id: string = null;
             if (options['id'] !== undefined) {
@@ -95,7 +95,7 @@ class ZosJobHandler extends ChatHandler {
             // TODO: Will integrate with Authentication functionality later.
             let hostName: string = null;
             if (zosmf?.host !== undefined) {
-                hostName = zosmf.host
+                hostName = zosmf.host;
             }
             else if (options['host'] !== undefined) {
                 hostName = options['host'];
@@ -110,7 +110,7 @@ class ZosJobHandler extends ChatHandler {
 
             let port: string = null;
             if (zosmf?.port !== undefined) {
-                port = zosmf.port + ""
+                port = zosmf.port + "";
             } else if (options['port'] !== undefined) {
                 port = options['port'];
             } else {
@@ -122,7 +122,7 @@ class ZosJobHandler extends ChatHandler {
 
             let user: string = null;
             if (auth?.getUser() !== undefined) {
-                user = auth.getUser().getMainframeUser()
+                user = auth.getUser().getMainframeUser();
             }
             else if (options['user'] !== undefined) {
                 user = options['user'];
@@ -137,7 +137,7 @@ class ZosJobHandler extends ChatHandler {
 
             let password: string = null;
             if (auth?.getCredentials() !== undefined) {
-                password = auth.getCredentials().value
+                password = auth.getCredentials().value;
             }
             else if (options['password'] !== undefined) {
                 password = options['password'];
@@ -148,9 +148,9 @@ class ZosJobHandler extends ChatHandler {
                 }];
             }
 
-            let ru: boolean = true
+            let ru: boolean = true;
             if (zosmf?.rejectUnauthorized !== undefined) {
-                ru = zosmf.rejectUnauthorized
+                ru = zosmf.rejectUnauthorized;
             }
 
             // session to connect Zosmf REST API.

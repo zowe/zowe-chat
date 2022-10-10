@@ -14,7 +14,7 @@ import Logger from '../../utils/Logger';
 
 class Receiver extends ExpressReceiver {
 
-    private log: Logger
+    private log: Logger;
 
     constructor(expressReceiverOptions: ExpressReceiverOptions) {
         super(expressReceiverOptions);

@@ -16,7 +16,7 @@ import MsteamsMiddleware = require('./MsteamsMiddleware');
 
 class MsteamsRouter extends Router {
 
-    
+
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
@@ -32,7 +32,7 @@ class MsteamsRouter extends Router {
 
         try {
             // Check and set middleware
-            let middleware = <MsteamsMiddleware> this.bot.getMiddleware();
+            let middleware = <MsteamsMiddleware>this.bot.getMiddleware();
             if (middleware === null) {
                 middleware = new MsteamsMiddleware(this.bot);
                 this.bot.setMiddleware(middleware);

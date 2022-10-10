@@ -236,8 +236,8 @@ export class Logger {
     }
 
     public static getInstance(): Logger {
-        return Logger.instance
+        return Logger.instance;
     }
 }
 
-export default Logger
+export default Logger;

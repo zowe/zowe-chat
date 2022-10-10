@@ -17,12 +17,12 @@ import MessageMatcher = require('./MessageMatcher');
 class Listener {
     protected bot: CommonBot;
     protected messageMatcher: MessageMatcher;
-    protected logger: Logger
+    protected logger: Logger;
 
     // Constructor
     constructor(bot: CommonBot) {
         this.bot = bot;
-        this.logger = Logger.getInstance()
+        this.logger = Logger.getInstance();
         this.messageMatcher = new MessageMatcher();
 
         this.listen = this.listen.bind(this);

@@ -13,7 +13,7 @@ import { ChatUser } from "../user/ChatUser";
 
 export interface ICredentialProvider {
 
-    getCredential(chatUser: ChatUser): ChatCredential | undefined
+    getCredential(chatUser: ChatUser): ChatCredential | undefined;
 
     /**
      * Exchange Credential is a function which may be optionally implemented by Credential Providers 
@@ -27,13 +27,13 @@ export interface ICredentialProvider {
      * 
      * @returns true if login succeeded, false otherwise.
      */
-    exchangeCredential(chatUser: ChatUser, credential: string): Promise<boolean>
+    exchangeCredential(chatUser: ChatUser, credential: string): Promise<boolean>;
 
     /**
      * Logs out a chat user, if applicable.
      * 
      * @param chatUser 
      */
-    logout(chatUser: ChatUser): void
+    logout(chatUser: ChatUser): void;
 
 }

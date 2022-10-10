@@ -34,13 +34,13 @@ class ZosMessageListener extends ChatMessageListener {
             let botName: string;
             switch (botOption.chatTool) {
                 case IChatTool.MATTERMOST:
-                    botName = botOption.mattermost.botUserName
+                    botName = botOption.mattermost.botUserName;
                     break;
                 case IChatTool.MSTEAMS:
-                    botName = botOption.msteams.botUserName
+                    botName = botOption.msteams.botUserName;
                     break;
                 case IChatTool.SLACK:
-                    botName = botOption.slack.botUserName
+                    botName = botOption.slack.botUserName;
                     break;
             }
             this.command = super.parseMessage(chatContextData);
@@ -98,8 +98,8 @@ class ZosMessageListener extends ChatMessageListener {
             this.log.debug(`Incoming command is ${JSON.stringify(this.command)}`);
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
-            this.command.extraData.zosmf = chatContextData.extraData.zosmf
-            this.command.extraData.principal = chatContextData.extraData.principal
+            this.command.extraData.zosmf = chatContextData.extraData.zosmf;
+            this.command.extraData.principal = chatContextData.extraData.principal;
             return await dispatcher.dispatch(this.command, executor);
         } catch (error) {
             // Print exception stack

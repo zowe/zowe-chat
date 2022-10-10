@@ -19,7 +19,7 @@ class SlackListener extends Listener {
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
-        
+
         this.listen = this.listen.bind(this);
     }
 

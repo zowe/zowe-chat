@@ -19,14 +19,14 @@ export class UserConfigManager {
 
     // TODO: Drop config schema as a member variable? Is it only needed during init?
     private readonly configSchema: IChatConfigSchema;
-    private readonly configData: any
-    private readonly configFilePath: string
+    private readonly configData: any;
+    private readonly configFilePath: string;
     private readonly log: Logger;
 
     constructor(appConfig: AppConfig, aggregateConfig: IChatConfigSchema, log: Logger) {
         this.log = log;
         this.configSchema = aggregateConfig;
-        let userConfigDir = appConfig.app.extendedConfigDir
+        let userConfigDir = appConfig.app.extendedConfigDir;
         if (userConfigDir === undefined) {
             userConfigDir = "./_config";
         }
@@ -46,20 +46,20 @@ export class UserConfigManager {
 
         let configContents = fs.readJSONSync(`${this.configFilePath}`, { throws: false });
         if (configContents == undefined) {
-            this.configData = this.generateConfig(this.configSchema)
+            this.configData = this.generateConfig(this.configSchema);
         } else {
-            this.configData = configContents
+            this.configData = configContents;
         }
-        this.validateConfig()
-        this.writeConfigFile()
+        this.validateConfig();
+        this.writeConfigFile();
     }
 
     private generateConfig(schema: IChatConfigSchema) {
-        let config: any = {}
+        let config: any = {};
         for (let block of schema.sections) {
-            config[block.key] = {}
+            config[block.key] = {};
         }
-        return config
+        return config;
     }
 
     public updateConfig(schemaBlock: IConfigBlockDefinition, config: any): void {
@@ -68,7 +68,7 @@ export class UserConfigManager {
     }
 
     public getConfigFromSchema(schemaBlock: IConfigBlockDefinition): any {
-        return this.configData[schemaBlock.key]
+        return this.configData[schemaBlock.key];
     }
 
     private writeConfigFile(): void {
@@ -85,15 +85,15 @@ export class UserConfigManager {
 
     // TODO: better type checking for properties
     private validateProperties(properties: any, accessPrefix: string[]): void {
-        let context = this.configData
+        let context = this.configData;
         for (let prefix of accessPrefix) {
-            context = context[`${prefix}`]
+            context = context[`${prefix}`];
         }
         for (let property of Object.keys(properties)) {
             if (context[property] === undefined) {
                 // check for sub-properties first
                 if (properties[property].type === "object" && properties[property].properties !== undefined) {
-                    context[property] = {}
+                    context[property] = {};
                     this.validateProperties(properties[property].properties, accessPrefix.concat([property]));
                 } else if (properties[property].default !== undefined) {
                     context[property] = properties[property].default;

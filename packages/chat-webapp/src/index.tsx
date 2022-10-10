@@ -6,8 +6,8 @@ import { BrowserRouter } from "react-router-dom";
 import theme from './theme';
 import ZoweChatApp from "./ZoweChatApp";
 
-const container = document.getElementById("root")
-const root = createRoot(container!)
+const container = document.getElementById("root");
+const root = createRoot(container!);
 root.render(
   <React.StrictMode>
     <BrowserRouter>

@@ -54,17 +54,17 @@ export class MessagingApp {
         this.option = option;
         this.log = log;
         this.securityFacility = securityFac;
-        this.activeChallenges = new Map<string, ChallengeComplete>()
+        this.activeChallenges = new Map<string, ChallengeComplete>();
         // Create express app
         this.app = express();
-        this.app.use(cors(this.corsOptions()))
+        this.app.use(cors(this.corsOptions()));
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
 
-        this.setApiRoutes()
+        this.setApiRoutes();
 
         if (EnvironmentVariables.ZOWE_CHAT_DEPLOY_UI) {
-            const staticFiles = EnvironmentVariables.ZOWE_CHAT_STATIC_DIR
+            const staticFiles = EnvironmentVariables.ZOWE_CHAT_STATIC_DIR;
 
             fs.writeFileSync(path.resolve(staticFiles, "env.js"),
                 `
@@ -72,16 +72,16 @@ export class MessagingApp {
                 API_HOST: '${this.option.protocol}://${this.option.hostName}:${this.option.port}'
             };
             `, { flag: 'w' }
-            )
+            );
 
             this.app.use(express.static(staticFiles));
             const rootRoute = express.Router();
             rootRoute.get('(/*)?', (req, res) => {
                 res.sendFile(path.resolve(staticFiles, "index.html"));
             });
-            this.app.use(rootRoute)
+            this.app.use(rootRoute);
         } else {
-            this.log.warn("Not deploying static frontend elements. This is intended for use by developers")
+            this.log.warn("Not deploying static frontend elements. This is intended for use by developers");
         }
 
     }
@@ -100,18 +100,18 @@ export class MessagingApp {
     public generateChallenge(user: IUser, onDone: () => void): string {
 
         // challenge string is base64 encoded - username:email:id:randombytes 
-        let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64')
+        let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64');
         this.activeChallenges.set(challengeString, {
             user: user,
             onDone: onDone,
-        })
+        });
 
-        let port = this.option.port
+        let port = this.option.port;
         // if we're in development mode and not serving static elements, use the local react development port
         if (!EnvironmentVariables.ZOWE_CHAT_DEPLOY_UI && process.env.NODE_ENV == "development") {
-            port = 3000
+            port = 3000;
         }
-        return `${this.option.protocol}://${this.option.hostName}:${port}/login?__key=${challengeString}`
+        return `${this.option.protocol}://${this.option.hostName}:${port}/login?__key=${challengeString}`;
     }
 
     /**
@@ -126,33 +126,33 @@ export class MessagingApp {
             try {
 
                 // add defensive block
-                let challenge: string = req.body.challenge
+                let challenge: string = req.body.challenge;
                 let user: string = req.body.user;
                 let password: string = req.body.password;
 
-                let storedChallenge = this.activeChallenges.get(challenge)
+                let storedChallenge = this.activeChallenges.get(challenge);
                 if (challenge == undefined || storedChallenge == undefined) {
-                    res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.')
-                    return
+                    res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.');
+                    return;
                 }
                 let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(storedChallenge.user.name, user), {
                     type: CredentialType.PASSWORD, // always considered a password, even if using MFA credential
                     value: password
                 }));
                 if (authN) {
-                    this.activeChallenges.delete(challenge)
-                    res.status(200).send('OK')
-                    storedChallenge.onDone()
+                    this.activeChallenges.delete(challenge);
+                    res.status(200).send('OK');
+                    storedChallenge.onDone();
                 } else {
-                    res.status(401).send('Unauthorized')
+                    res.status(401).send('Unauthorized');
                 }
             } catch (error) {
-                this.log.debug("Error trying to authenticate user " + req.body.user + ".")
-                this.log.debug("Error: " + error)
-                this.log.debug(error.getErrorStack())
-                res.status(500).send('Interal Server Error')
+                this.log.debug("Error trying to authenticate user " + req.body.user + ".");
+                this.log.debug("Error: " + error);
+                this.log.debug(error.getErrorStack());
+                res.status(500).send('Interal Server Error');
             }
-        })
+        });
     }
 
     /**
@@ -279,11 +279,11 @@ export class MessagingApp {
      */
     private corsOptions(): any {
         const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
-        `${this.option.protocol}://${this.option.hostName}:${this.option.port}`]
+        `${this.option.protocol}://${this.option.hostName}:${this.option.port}`];
 
         if (!EnvironmentVariables.ZOWE_CHAT_DEPLOY_UI ||
             process.env.NODE_ENV == "development") {
-            whitelist.push("http://localhost", "http://localhost:3000")
+            whitelist.push("http://localhost", "http://localhost:3000");
         }
         return {
             origin: (origin: string, callback: Function) => {
@@ -304,5 +304,5 @@ export class MessagingApp {
  */
 type ChallengeComplete = {
     user: IUser,
-    onDone: () => void
-}
+    onDone: () => void;
+};

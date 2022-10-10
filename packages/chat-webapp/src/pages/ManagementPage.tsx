@@ -5,6 +5,6 @@ export function ManagementPage() {
         <div>
             <p>Dummy Management Component</p>
         </div>
-    )
+    );
 
 }

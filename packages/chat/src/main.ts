@@ -14,12 +14,12 @@ import { AppConfigLoader } from "./config/AppConfigLoader";
 import { Logger } from "./utils/Logger";
 
 // App config must be loaded without error.
-const config = AppConfigLoader.loadAppConfig()
+const config = AppConfigLoader.loadAppConfig();
 // Logger must be initialized for future class initialization. Uses AppConfig.
-const appLog = Logger.getInstance()
+const appLog = Logger.getInstance();
 // Start chat bot. Requires AppConfig and Logger.
-appLog.info("Initializing Zowe Chat Bot")
-const chatBot = ChatBot.getInstance(config, appLog)
+appLog.info("Initializing Zowe Chat Bot");
+const chatBot = ChatBot.getInstance(config, appLog);
 chatBot.run();
 
 

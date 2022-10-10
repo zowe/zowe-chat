@@ -22,7 +22,7 @@ export class TokenProvider implements ICredentialProvider {
     private readonly tokenCache: Map<string, ChatCredential>;
     private readonly authHost: string;
     private readonly authPort: number;
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService;
     private readonly authProtocol: string;
     private readonly rejectUnauth: boolean;
 
@@ -31,26 +31,26 @@ export class TokenProvider implements ICredentialProvider {
     */
 
     constructor(config: SecurityConfig, log: Logger) {
-        let appConfig = AppConfigLoader.loadAppConfig()
-        this.authProtocol = appConfig.security.zosmf.protocol
-        this.authPort = appConfig.security.zosmf.port
-        this.authHost = appConfig.security.zosmf.host
-        this.tokenService = TokenService.ZOSMF
-        this.rejectUnauth = appConfig.security.zosmf.rejectUnauthorized
-        this.log = log
-        this.tokenCache = new Map<string, ChatCredential>()
+        let appConfig = AppConfigLoader.loadAppConfig();
+        this.authProtocol = appConfig.security.zosmf.protocol;
+        this.authPort = appConfig.security.zosmf.port;
+        this.authHost = appConfig.security.zosmf.host;
+        this.tokenService = TokenService.ZOSMF;
+        this.rejectUnauth = appConfig.security.zosmf.rejectUnauthorized;
+        this.log = log;
+        this.tokenCache = new Map<string, ChatCredential>();
     }
 
     private cacheKey(chatUser: ChatUser): string {
-        return `${chatUser.getDistributedUser()}:${chatUser.getMainframeUser()}`
+        return `${chatUser.getDistributedUser()}:${chatUser.getMainframeUser()}`;
     }
 
     private retrieveCredential(chatUser: ChatUser): ChatCredential {
-        return this.tokenCache.get(this.cacheKey(chatUser))
+        return this.tokenCache.get(this.cacheKey(chatUser));
     }
 
     private storeCredential(chatUser: ChatUser, cred: ChatCredential): void {
-        this.tokenCache.set(this.cacheKey(chatUser), cred)
+        this.tokenCache.set(this.cacheKey(chatUser), cred);
     }
 
     public async exchangeCredential(chatUser: ChatUser, password: string): Promise<boolean> {
@@ -59,31 +59,31 @@ export class TokenProvider implements ICredentialProvider {
             case TokenService.ZOSMF:
                 token = await ZosmfLogin.getZosmfToken({ host: this.authHost, port: this.authPort, protocol: this.authProtocol, rejectUnauthorized: this.rejectUnauth }, chatUser.getMainframeUser(), password);
                 if (token.type == CredentialType.UNDEFINED) {
-                    return false
+                    return false;
                 }
-                this.storeCredential(chatUser, token)
+                this.storeCredential(chatUser, token);
                 break;
             // TODO: Implement APIML support in a future story
             //        case TokenService.ZOWE_V1
             //       case TokenService.ZOWE_V2
         }
-        return true
+        return true;
     }
 
     public getCredential(chatUser: ChatUser): ChatCredential | undefined {
 
         try {
-            let cred = this.retrieveCredential(chatUser)
+            let cred = this.retrieveCredential(chatUser);
             if (cred === undefined || cred.value.length == 0) {
                 return {
                     type: CredentialType.UNDEFINED,
                     value: "",
-                }
+                };
             }
-            return cred
+            return cred;
         } catch (err) {
-            this.log.debug(err)
-            return undefined
+            this.log.debug(err);
+            return undefined;
         }
     }
 

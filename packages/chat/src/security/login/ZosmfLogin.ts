@@ -40,18 +40,18 @@ export class ZosmfLogin {
             }]
             , { autoStore: false, requestToken: false });
 
-        let client = new ZosmfRestClient(zosmfSession)
+        let client = new ZosmfRestClient(zosmfSession);
         try {
             await client.request({
                 request: "GET",
                 resource: "/zosmf/restjobs/jobs"
-            })
+            });
         } catch (error) {
             if (client.response.statusCode === 401 || client.response.statusCode == 403) {
-                return false
+                return false;
             }
         }
-        return true
+        return true;
     }
 
 
@@ -80,36 +80,36 @@ export class ZosmfLogin {
             }]
             , { autoStore: false, requestToken: false });
 
-        let client = new ZosmfRestClient(zosmfSession)
+        let client = new ZosmfRestClient(zosmfSession);
 
         try {
             await client.request({
                 request: "GET",
                 resource: "/zosmf/restjobs/jobs"
-            })
+            });
         } catch (error) {
             // TODO: Add Logger? console.log(error)
             if (client.response.statusCode === 401 || client.response.statusCode == 403) {
                 return {
                     type: CredentialType.UNDEFINED,
                     value: "",
-                }
+                };
             }
         }
 
         let ltpaToken;
-        let ltpaHeader = client.response.headers["set-cookie"]
+        let ltpaHeader = client.response.headers["set-cookie"];
 
         if (ltpaHeader instanceof Array) {
-            ltpaToken = ltpaHeader[0]
+            ltpaToken = ltpaHeader[0];
         } else {
-            ltpaToken = ltpaHeader
+            ltpaToken = ltpaHeader;
         }
 
         return {
             type: CredentialType.TOKEN_LTPA,
             value: ltpaToken
-        }
+        };
     }
 }
 
@@ -117,5 +117,5 @@ export type ZosmfHost = {
     host: string,
     port: number,
     protocol: string,
-    rejectUnauthorized: boolean
-}
+    rejectUnauthorized: boolean;
+};

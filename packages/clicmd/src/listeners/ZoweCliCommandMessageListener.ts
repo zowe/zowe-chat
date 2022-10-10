@@ -71,24 +71,24 @@ class ZoweCliCommandMessageListener extends ChatMessageListener {
                 'chattingType': chatContextData.context.chatting.type,
             };
 
-            let principals = chatContextData.extraData.principal as ChatPrincipal
-            let zosmf: ZosmfServerConfig = <ZosmfServerConfig>chatContextData.extraData.zosmf
+            let principals = chatContextData.extraData.principal as ChatPrincipal;
+            let zosmf: ZosmfServerConfig = <ZosmfServerConfig>chatContextData.extraData.zosmf;
 
 
             // Set Zowe CLI command
-            const command = chatContextData.extraData.command
-            let zoweCliCmd = command.extraData.rawMessage
+            const command = chatContextData.extraData.command;
+            let zoweCliCmd = command.extraData.rawMessage;
             if (!zoweCliCmd.includes("--host") && !zoweCliCmd.includes("-H")) {
-                zoweCliCmd += ` --host ${zosmf.host}`
+                zoweCliCmd += ` --host ${zosmf.host}`;
             }
             if (!zoweCliCmd.includes("--port") && !zoweCliCmd.includes("-P")) {
-                zoweCliCmd += ` --port ${zosmf.port}`
+                zoweCliCmd += ` --port ${zosmf.port}`;
             }
             if (!zoweCliCmd.includes("--ru") && !zoweCliCmd.includes("--reject-unauthorized")) {
-                zoweCliCmd += ` --ru ${zosmf.rejectUnauthorized}`
+                zoweCliCmd += ` --ru ${zosmf.rejectUnauthorized}`;
             }
             if (!zoweCliCmd.includes("--protocol")) {
-                zoweCliCmd += ` --protocol ${zosmf.protocol}`
+                zoweCliCmd += ` --protocol ${zosmf.protocol}`;
             }
             command.extraData.zoweCliCommand = zoweCliCmd.replace(`@${command.extraData.botUserName}`, '').trim() + ` --user ${principals.getUser().getMainframeUser()} --password ${principals.getCredentials().value}`;
             command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;

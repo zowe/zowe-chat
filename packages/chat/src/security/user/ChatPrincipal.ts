@@ -17,15 +17,15 @@ export class ChatPrincipal {
     private readonly credential: ChatCredential;
 
     constructor(chatUser: ChatUser, mfCred: ChatCredential) {
-        this.chatUser = chatUser
+        this.chatUser = chatUser;
         this.credential = mfCred;
     }
 
     public getCredentials(): ChatCredential {
-        return this.credential
+        return this.credential;
     }
 
     public getUser(): ChatUser {
-        return this.chatUser
+        return this.chatUser;
     }
 }

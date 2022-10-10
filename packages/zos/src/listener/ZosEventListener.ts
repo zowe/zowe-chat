@@ -36,13 +36,13 @@ class ZosEventListener extends ChatEventListener {
             let botName: string;
             if (botOption.chatTool === IChatTool.MATTERMOST) {
                 eventMessage = this.getMattermostEvent(chatContextData);
-                botName = botOption.mattermost.botUserName
+                botName = botOption.mattermost.botUserName;
             } else if (botOption.chatTool === IChatTool.SLACK) {
                 eventMessage = this.getSlackEvent(chatContextData);
-                botName = botOption.slack.botUserName
+                botName = botOption.slack.botUserName;
             } else if (botOption.chatTool === IChatTool.MSTEAMS) {
                 eventMessage = this.getMsteamsEvent(chatContextData);
-                botName = botOption.msteams.botUserName
+                botName = botOption.msteams.botUserName;
             } else {
                 return false;
             }
@@ -193,8 +193,8 @@ class ZosEventListener extends ChatEventListener {
             logger.debug(`Incoming command is ${JSON.stringify(this.command)}`);
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
-            this.command.extraData.zosmf = chatContextData.extraData.zosmf
-            this.command.extraData.principal = chatContextData.extraData.principal
+            this.command.extraData.zosmf = chatContextData.extraData.zosmf;
+            this.command.extraData.principal = chatContextData.extraData.principal;
             return await dispatcher.dispatch(this.command, executor);
         } catch (error) {
             // Print exception stack

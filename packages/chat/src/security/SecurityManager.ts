@@ -28,7 +28,7 @@ export class SecurityManager {
 
     // TODO: Do we need config manager and a ref to security config? Will we be reloading config dynamically?
     private readonly configManager: UserConfigManager;
-    private readonly appConfig: AppConfig
+    private readonly appConfig: AppConfig;
     private readonly userMap: IUserMapping;
     private readonly log: Logger;
     private securityConfig: SecurityConfig;
@@ -36,14 +36,14 @@ export class SecurityManager {
 
     constructor(appConfig: AppConfig, configManager: UserConfigManager, log: Logger) {
         this.log = log;
-        this.appConfig = appConfig
+        this.appConfig = appConfig;
         this.configManager = configManager;
         this.log.debug("Initializing security facility");
         this.securityConfig = this.configManager.getConfigFromSchema(SecurityConfigSchema);
 
         let cryptKey: Buffer = Buffer.from(this.securityConfig.encryptionKey, 'base64');
         if (cryptKey === undefined || cryptKey.length == 0) {
-            cryptKey = crypto.randomBytes(32)
+            cryptKey = crypto.randomBytes(32);
             this.securityConfig.encryptionKey = cryptKey.toString('base64');
         }
         let cryptIv: Buffer = Buffer.from(this.securityConfig.encryptionIv, 'base64');
@@ -53,7 +53,7 @@ export class SecurityManager {
         }
 
         // TODO: choose backing mapping service from configuration?
-        this.userMap = new UserFileMapping(this.securityConfig.userStorage, cryptKey, cryptIv, this.log)
+        this.userMap = new UserFileMapping(this.securityConfig.userStorage, cryptKey, cryptIv, this.log);
 
         this.log.info(`Using ${this.securityConfig.authenticationStrategy} authentication strategy`);
         switch (this.appConfig.security.authMode) {
@@ -67,18 +67,18 @@ export class SecurityManager {
                 break;*/
             case AuthType.PASSWORD:
                 this.credentialProvider = new PasswordProvider(this.securityConfig, cryptIv, cryptKey, this.log);
-                this.log.debug("Using password provider for downstream authentications")
+                this.log.debug("Using password provider for downstream authentications");
                 break;
             case AuthType.TOKEN:
                 this.credentialProvider = new TokenProvider(this.securityConfig, this.log);
-                this.log.debug("Using zOSMF Token provider for downstream authentications")
+                this.log.debug("Using zOSMF Token provider for downstream authentications");
                 break;
             default:
                 throw new Error("Unknown authentication strategy: " + this.securityConfig.authenticationStrategy);
         }
 
 
-        this.writeConfig()
+        this.writeConfig();
         this.log.debug("Security facility initialized");
     }
 
@@ -86,7 +86,7 @@ export class SecurityManager {
     public async authenticateUser(principal: ChatPrincipal): Promise<boolean> {
         // TODO: Write authentiction logic
         let loggedIn = false;
-        const loginSection = this.securityConfig.loginStrategy
+        const loginSection = this.securityConfig.loginStrategy;
 
         if (loginSection.strategy == LoginStrategyType.RequireLogin) {
 
@@ -97,40 +97,40 @@ export class SecurityManager {
                     port: this.appConfig.security.zosmf.port,
                     rejectUnauthorized: this.appConfig.security.zosmf.rejectUnauthorized,
                     protocol: this.appConfig.security.zosmf.protocol
-                }
+                };
                 // TODO: Do better on unwrapping creds; make a class instead of type? too much leakage
-                loggedIn = await ZosmfLogin.loginUser(zosmfHost, principal.getUser().getMainframeUser(), principal.getCredentials().value)
+                loggedIn = await ZosmfLogin.loginUser(zosmfHost, principal.getUser().getMainframeUser(), principal.getCredentials().value);
 
             } else {
-                throw new Error("Authentication service" + loginSection.authService.service + " not supported yet.")
+                throw new Error("Authentication service" + loginSection.authService.service + " not supported yet.");
             }
 
         } else {
-            throw new Error("Login strategy type " + loginSection.strategy + " not supported yet.")
+            throw new Error("Login strategy type " + loginSection.strategy + " not supported yet.");
         }
         // extract credential
         if (loggedIn) {
-            this.credentialProvider.exchangeCredential(principal.getUser(), principal.getCredentials().value)
+            this.credentialProvider.exchangeCredential(principal.getUser(), principal.getCredentials().value);
             return this.userMap.mapUser(principal.getUser().getDistributedUser(), principal.getUser().getMainframeUser());
         } else {
-            this.log.debug("Failed to login user " + principal.getUser().getMainframeUser())
-            return false
+            this.log.debug("Failed to login user " + principal.getUser().getMainframeUser());
+            return false;
         }
 
     }
 
     public logoutUser(user: ChatUser) {
-        this.credentialProvider.logout(user)
-        this.userMap.removeUser(user.getDistributedUser())
+        this.credentialProvider.logout(user);
+        this.userMap.removeUser(user.getDistributedUser());
     }
 
     public isAuthenticated(chatUsr: IUser): boolean {
         let user = this.getChatUser(chatUsr);
         if (user === undefined) {
             this.log.debug("TBD001D: Could not find stored value for user: " + chatUsr + " Returning 'not authenticated'.");
-            return false
+            return false;
         }
-        return true
+        return true;
     }
 
 
@@ -141,9 +141,9 @@ export class SecurityManager {
 
     public getPrincipal(user: ChatUser): ChatPrincipal | undefined {
 
-        let cred = this.credentialProvider.getCredential(user)
+        let cred = this.credentialProvider.getCredential(user);
         if (cred == undefined || cred.value.length == 0) {
-            return undefined
+            return undefined;
         }
         return new ChatPrincipal(
             user,
@@ -153,7 +153,7 @@ export class SecurityManager {
 
     // TODO: rename to getmainframeuser?
     public getChatUser(user: IUser): ChatUser | undefined {
-        let uid: string = user.name
+        let uid: string = user.name;
         let principal: string | undefined = this.userMap.getUser(uid);
         if (principal === undefined) {
             uid = user.email;

@@ -45,18 +45,18 @@ export default function ZoweChatApp() {
 }
 
 
-function AuthProvider({ children }: { children: React.ReactNode }) {
-    let [user, setUser] = React.useState<any>(null)
-    let [errorResponse, setError] = React.useState<any>(null)
+function AuthProvider({ children }: { children: React.ReactNode; }) {
+    let [user, setUser] = React.useState<any>(null);
+    let [errorResponse, setError] = React.useState<any>(null);
 
     let signin = (challenge: string, newUser: string, newPass: string, callback: VoidFunction) => {
         return chatAuthProvider.signin(challenge, newUser, newPass, (response: LoginResponse) => {
             if (response.success) {
-                setUser(newUser)
-                setError(null)
+                setUser(newUser);
+                setError(null);
             } else {
-                setUser(null)
-                setError(response.serverResponse)
+                setUser(null);
+                setError(response.serverResponse);
             }
             callback();
         });
@@ -64,8 +64,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let signout = (callback: VoidFunction) => {
         return chatAuthProvider.signout(() => {
-            setUser(null)
-            setError(null)
+            setUser(null);
+            setError(null);
             callback();
         });
     };
@@ -77,7 +77,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
 function Layout(props: any) {
-    let login = useAuth()
+    let login = useAuth();
     let location = useLocation();
     if (login.user !== null) {
         return <Navigate to={AppRoutes.Management} state={{ from: location }} replace />;
@@ -85,7 +85,7 @@ function Layout(props: any) {
     return <Navigate to={AppRoutes.Login} state={{ from: location }} replace />;
 }
 
-function RequireAuth({ children }: { children: JSX.Element }) {
+function RequireAuth({ children }: { children: JSX.Element; }) {
     let auth = useAuth();
     let location = useLocation();
 

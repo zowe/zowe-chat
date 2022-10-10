@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import {IBotLimit, IMattermostBotLimit, IMsteamsBotLimit, ISlackBotLimit} from './types';
+import { IBotLimit, IMattermostBotLimit, IMsteamsBotLimit, ISlackBotLimit } from './types';
 
 class BotLimit {
     protected limit: IBotLimit | IMattermostBotLimit | ISlackBotLimit | IMsteamsBotLimit;

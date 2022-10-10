@@ -12,26 +12,26 @@ export type SecurityConfig = {
     userStorage: string;
     encryptionKey: string;
     encryptionIv: string;
-    loginStrategy: LoginStrategy
-    authenticationStrategy: AuthenticationStrategy
-    chatbotUser: string
-    passticketOptions?: PassticketOptions
-    passwordOptions?: PasswordOptions
-    tokenOptions?: TokenOptions
-}
+    loginStrategy: LoginStrategy;
+    authenticationStrategy: AuthenticationStrategy;
+    chatbotUser: string;
+    passticketOptions?: PassticketOptions;
+    passwordOptions?: PasswordOptions;
+    tokenOptions?: TokenOptions;
+};
 
 export type LoginStrategy = {
     strategy: LoginStrategyType,
-    authService: LoginProvider
-}
+    authService: LoginProvider;
+};
 
 export type LoginProvider = {
-    service: LoginService
-    protocol: string
-    host: string
-    port: number
-    rejectUnauthorized?: boolean
-}
+    service: LoginService;
+    protocol: string;
+    host: string;
+    port: number;
+    rejectUnauthorized?: boolean;
+};
 
 export enum LoginService {
     ZOSMF = "zosmf",
@@ -52,26 +52,26 @@ export enum AuthenticationStrategy {
 }
 
 export type PassticketOptions = {
-    applId: string
-    replay_protection: boolean
-}
+    applId: string;
+    replay_protection: boolean;
+};
 
 export type PasswordOptions = {
-    filePath: string
-}
+    filePath: string;
+};
 
 // TODO: may expand on this later, otherwise flatten it
 export type TokenOptions = {
-    tokenProvider: TokenProvider
-}
+    tokenProvider: TokenProvider;
+};
 
 export type TokenProvider = {
-    service: TokenService
-    protocol: string
-    host: string
-    port: number
-    rejectUnauthorized?: boolean
-}
+    service: TokenService;
+    protocol: string;
+    host: string;
+    port: number;
+    rejectUnauthorized?: boolean;
+};
 
 export enum TokenService {
     ZOSMF = "zosmf",

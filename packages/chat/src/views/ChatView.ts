@@ -19,16 +19,16 @@ export class ChatView {
 
     constructor(botOption: IBotOption) {
         this.botOption = botOption;
-        this.log = Logger.getInstance()
+        this.log = Logger.getInstance();
         switch (botOption.chatTool) {
             case IChatTool.MATTERMOST:
-                this.botName = botOption.mattermost.botUserName
+                this.botName = botOption.mattermost.botUserName;
                 break;
             case IChatTool.MSTEAMS:
-                this.botName = botOption.msteams.botUserName
+                this.botName = botOption.msteams.botUserName;
                 break;
             case IChatTool.SLACK:
-                this.botName = botOption.slack.botUserName
+                this.botName = botOption.slack.botUserName;
                 break;
         }
         // Set messaging endpoint

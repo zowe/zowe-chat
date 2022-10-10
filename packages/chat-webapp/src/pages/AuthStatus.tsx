@@ -3,7 +3,7 @@ import { useAuth } from "../auth/context/AuthContext";
 import { AppRoutes } from "../routes/AppRoutes";
 
 export function AuthStatus() {
-    let auth = useAuth()
+    let auth = useAuth();
     let navigate = useNavigate();
 
     if (!auth.user) {
