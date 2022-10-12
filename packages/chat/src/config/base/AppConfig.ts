@@ -113,7 +113,8 @@ export type MsteamsConfig = {
 export type ServerOptions = {
     protocol: IProtocol;
     hostName: string;
-    port: number;
+    messagePort: number;
+    webappPort: number;
     basePath: string;
     tlsKey: string;
     tlsCert: string;

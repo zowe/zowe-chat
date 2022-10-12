@@ -8,21 +8,14 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IUser } from "@zowe/commonbot";
-import cors from "cors";
-import crypto from "crypto";
 import type { Application } from 'express';
 import express from "express";
 import * as fs from "fs-extra";
+import helmet from "helmet";
 import http from "http";
 import https from "https";
-import path from "path";
 import { ServerOptions } from '../config/base/AppConfig';
-import { EnvironmentVariable } from "../const/EnvironmentVariable";
 import { SecurityManager } from '../security/SecurityManager';
-import { CredentialType } from "../security/user/ChatCredential";
-import { ChatPrincipal } from "../security/user/ChatPrincipal";
-import { ChatUser } from "../security/user/ChatUser";
 import { Logger } from '../utils/Logger';
 
 /**
@@ -36,8 +29,6 @@ export class MessagingApp {
     private readonly log: Logger;
     private readonly option: ServerOptions;
     private readonly app: Application;
-    private readonly securityFacility: SecurityManager;
-    private readonly activeChallenges: Map<string, ChallengeComplete>;
     // server is readonly, but set outside the class constructor
     private server: https.Server | http.Server;
 
@@ -53,106 +44,12 @@ export class MessagingApp {
         // Set app option
         this.option = option;
         this.log = log;
-        this.securityFacility = securityFac;
-        this.activeChallenges = new Map<string, ChallengeComplete>();
         // Create express app
         this.app = express();
-        this.app.use(cors(this.corsOptions()));
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
+        this.app.use(helmet());
 
-        this.setApiRoutes();
-
-        if (EnvironmentVariable.ZOWE_CHAT_DEPLOY_UI) {
-            const staticFiles = EnvironmentVariable.ZOWE_CHAT_STATIC_DIR;
-
-            fs.writeFileSync(path.resolve(staticFiles, "env.js"),
-                `
-            window.env = {
-                API_HOST: '${this.option.protocol}://${this.option.hostName}:${this.option.port}'
-            };
-            `, { flag: 'w' }
-            );
-
-            this.app.use(express.static(staticFiles));
-            const rootRoute = express.Router();
-            rootRoute.get('(/*)?', (req, res) => {
-                res.sendFile(path.resolve(staticFiles, "index.html"));
-            });
-            this.app.use(rootRoute);
-        } else {
-            this.log.warn("Not deploying static frontend elements. This is intended for use by developers");
-        }
-
-    }
-
-    /**
-     * Generates a challenge link users can visit to authenticate against Zowe ChatBot. This challenge link leads to the 
-     * Zowe ChatBot Web UI, which is served from the same express application as its REST APIs. After a user successfully logs
-     * in, the challenge link is expired. 
-     * 
-     * @future The challenge link should expire after a period of time, even if the user does not log in.
-     * 
-     * @param user the user who will authenticate against the link
-     * @param onDone an action the caller can take after a successful authentication, such as sending a follow up message
-     * @returns the fully qualified challenge link
-     */
-    public generateChallenge(user: IUser, onDone: () => void): string {
-
-        // challenge string is base64 encoded - username:email:id:randombytes 
-        let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64');
-        this.activeChallenges.set(challengeString, {
-            user: user,
-            onDone: onDone,
-        });
-
-        let port = this.option.port;
-        // if we're in development mode and not serving static elements, use the local react development port
-        if (!EnvironmentVariable.ZOWE_CHAT_DEPLOY_UI && process.env.NODE_ENV == "development") {
-            port = 3000;
-        }
-        return `${this.option.protocol}://${this.option.hostName}:${port}/login?__key=${challengeString}`;
-    }
-
-    /**
-     * Defines Express REST API Routes. 
-     * 
-     * - POST /api/v1/auth/login 
-     *    - used to authenticate a user and requires a valid challenge link as part of the POST body.
-     */
-    private setApiRoutes() {
-
-        this.app.post('/api/v1/auth/login', async (req, res) => {
-            try {
-
-                // add defensive block
-                let challenge: string = req.body.challenge;
-                let user: string = req.body.user;
-                let password: string = req.body.password;
-
-                let storedChallenge = this.activeChallenges.get(challenge);
-                if (challenge == undefined || storedChallenge == undefined) {
-                    res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.');
-                    return;
-                }
-                let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(storedChallenge.user.name, user), {
-                    type: CredentialType.PASSWORD, // always considered a password, even if using MFA credential
-                    value: password
-                }));
-                if (authN) {
-                    this.activeChallenges.delete(challenge);
-                    res.status(200).send('OK');
-                    storedChallenge.onDone();
-                } else {
-                    res.status(401).send('Unauthorized');
-                }
-            } catch (error) {
-                this.log.debug("Error trying to authenticate user " + req.body.user + ".");
-                this.log.debug("Error: " + error);
-                this.log.debug(error.getErrorStack());
-                res.status(500).send('Interal Server Error');
-            }
-        });
     }
 
     /**
@@ -171,7 +68,7 @@ export class MessagingApp {
     startServer(): void {
         try {
             // Set port
-            const port = this.normalizePort(this.option.port.toString());
+            const port = this.normalizePort(this.option.messagePort.toString());
             this.app.set('port', port);
 
             // Create Http/Https server
@@ -271,38 +168,4 @@ export class MessagingApp {
         };
     }
 
-    /**
-     * Sets Cross-Origin-Request-Forgery options for the express server.
-     * 
-     * @returns 
-     * 
-     */
-    private corsOptions(): any {
-        const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
-        `${this.option.protocol}://${this.option.hostName}:${this.option.port}`];
-
-        if (!EnvironmentVariable.ZOWE_CHAT_DEPLOY_UI ||
-            process.env.NODE_ENV == "development") {
-            whitelist.push("http://localhost", "http://localhost:3000");
-        }
-        return {
-            origin: (origin: string, callback: Function) => {
-                if (whitelist.indexOf(origin) !== -1 || (origin == null || origin == undefined)) {
-                    callback(null, true);
-                }
-                else {
-                    callback(new Error(origin + "Domain not allowed by CORS"));
-                }
-            }
-        };
-    }
-
 }
-
-/**
- * Type used as part of tracking login challenges.
- */
-type ChallengeComplete = {
-    user: IUser,
-    onDone: () => void;
-};

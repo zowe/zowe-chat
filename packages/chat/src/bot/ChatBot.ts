@@ -23,6 +23,7 @@ import { SecurityManager } from '../security/SecurityManager';
 import { IChatListenerType, IChatPlugin } from '../types';
 import { Logger } from '../utils/Logger';
 import Util from "../utils/Util";
+import { ChatWebApp } from './ChatWebApp';
 import { MessagingApp } from './MessagingApp';
 
 /**
@@ -54,7 +55,8 @@ export class ChatBot {
     private readonly log: Logger;
     private readonly appConfig: AppConfig;
     private readonly configManager: UserConfigManager;
-    private readonly app: MessagingApp;
+    private readonly msgApp: MessagingApp;
+    private readonly webApp: ChatWebApp;
     private readonly pluginHome: string;
     private readonly bot: CommonBot;
     private readonly plugins: IChatPlugin[] = [];
@@ -90,13 +92,14 @@ export class ChatBot {
 
             // Messaging app
             this.log.debug("Init messaging app");
-            this.app = new MessagingApp(this.appConfig.app.server, this.security, this.log);
+            this.msgApp = new MessagingApp(this.appConfig.app.server, this.security, this.log);
+            this.webApp = new ChatWebApp(this.appConfig.app.server, this.security, this.log);
             this.log.debug("Completed messaging app init");
 
             // Commonbot
-            let cBotOpts: IBotOption = this.generateBotOpts(this.appConfig, this.app);
-            this.botMessageListener = new BotMessageListener(this.appConfig, this.security, this.app, this.log);
-            this.botEventListener = new BotEventListener(this.appConfig, this.security, this.app, this.log);
+            let cBotOpts: IBotOption = this.generateBotOpts(this.appConfig, this.msgApp);
+            this.botMessageListener = new BotMessageListener(this.appConfig, this.security, this.webApp, this.log);
+            this.botEventListener = new BotEventListener(this.appConfig, this.security, this.webApp, this.log);
             this.log.info("Creating CommonBot ...");
             this.bot = new CommonBot(cBotOpts);
             this.log.info("CommonBot initialized");
@@ -122,10 +125,12 @@ export class ChatBot {
         try {
 
             // Start server
-            const app = this.app;
-            if (app !== null) {
+            const msgApp = this.msgApp;
+            const webApp = this.webApp;
+            if (msgApp !== null) {
                 this.log.info('Start messaging server ...');
-                app.startServer();
+                msgApp.startServer();
+                webApp.startServer();
             }
 
             // Register listeners
@@ -322,7 +327,7 @@ export class ChatBot {
                 const option: IMattermostOption = { ...mmConfig };
                 botOpts = {
                     messagingApp: {
-                        option: appConfig.app.server,
+                        option: { ...appConfig.app.server, port: appConfig.app.server.messagePort },
                         app: messageApp.getApplication(),
                     },
                     chatTool: IChatTool.MATTERMOST,
@@ -367,7 +372,7 @@ export class ChatBot {
 
                     botOpts = {
                         messagingApp: {
-                            option: appConfig.app.server,
+                            option: { ...appConfig.app.server, port: appConfig.app.server.messagePort },
                             app: messageApp.getApplication(),
                         },
                         chatTool: IChatTool.SLACK,
@@ -382,7 +387,7 @@ export class ChatBot {
 
                     botOpts = {
                         messagingApp: {
-                            option: appConfig.app.server,
+                            option: { ...appConfig.app.server, port: appConfig.app.server.messagePort },
                             app: messageApp.getApplication(),
                         },
                         chatTool: IChatTool.SLACK,
@@ -400,7 +405,7 @@ export class ChatBot {
                 // Get Microsoft Teams option
                 botOpts = {
                     messagingApp: {
-                        option: appConfig.app.server,
+                        option: { ...appConfig.app.server, port: appConfig.app.server.messagePort },
                         app: messageApp.getApplication(),
                     },
                     chatTool: IChatTool.MSTEAMS,

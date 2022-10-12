@@ -13,7 +13,7 @@ import { IChatListenerRegistryEntry, IEventListener } from '../types';
 import _ = require('lodash');
 
 import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/commonbot';
-import { MessagingApp } from '../bot/MessagingApp';
+import { ChatWebApp } from '../bot/ChatWebApp';
 import { AppConfig } from '../config/base/AppConfig';
 import { SecurityManager } from '../security/SecurityManager';
 import { Logger } from '../utils/Logger';
@@ -25,10 +25,10 @@ export class BotEventListener extends BotListener {
     private readonly chatListeners: IChatListenerRegistryEntry[];
     private readonly log: Logger;
     private readonly config: AppConfig;
-    private readonly webapp: MessagingApp;
+    private readonly webapp: ChatWebApp;
     private readonly securityFacility: SecurityManager;
 
-    constructor(config: AppConfig, security: SecurityManager, webapp: MessagingApp, log: Logger) {
+    constructor(config: AppConfig, security: SecurityManager, webapp: ChatWebApp, log: Logger) {
         super();
         this.chatListeners = [];
         this.log = log;

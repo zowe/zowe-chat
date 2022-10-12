@@ -50,9 +50,13 @@ app:
     # Specify the host name or IP address of your HTTP endpoint.
     hostName: <Your hostname>
 
-    # Specify the port number of your HTTP endpoint.
+    # Specify the port number of the endpoint will serve the Chat Web App.
     # The default value is 7701.
-    port: 7701
+    webappPort: 7701
+
+    # Specify the port number to be used by certain chat services (msteams, or slack if not using socket mode.)
+    # The default value is 7701.
+    messagePort: 7702
 
     # TODO: this should not be configurable, we should set it. At the very least, it must not be obviously configurable - advanced only.
     # Specify the base path of your HTTP endpoint.
