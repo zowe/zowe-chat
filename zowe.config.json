@@ -1,0 +1,40 @@
+{
+    "$schema": "./zowe.schema.json",
+    "profiles": {
+        "tss-zosmf": {
+            "type": "zosmf",
+            "properties": {
+                "port": 10443
+            }
+        },
+        "tss-ibmzosmf": {
+            "type": "zosmf",
+            "properties": {
+                "basePath": "/ibmzosmf/api/v1"
+            }
+        },
+        "tss-ssh": {
+            "type": "ssh",
+            "properties": {
+                "port": 22
+            }
+        },
+        "tss-base": {
+            "type": "base",
+            "properties": {
+                "host": "zzow03.zowe.marist.cloud",
+                "rejectUnauthorized": false
+            },
+            "secure": [
+                "user",
+                "password"
+            ]
+        }
+    },
+    "defaults": {
+        "zosmf": "tss-zosmf",
+        "ssh": "tss-ssh",
+        "base": "tss-base"
+    },
+    "autoStore": true
+}

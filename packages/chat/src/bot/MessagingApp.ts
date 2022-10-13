@@ -1,48 +1,74 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
+
+import type { Application } from 'express';
+import express from "express";
+import * as fs from "fs-extra";
+import helmet from "helmet";
+import http from "http";
+import https from "https";
+import { ServerOptions } from '../config/base/AppConfig';
+import { SecurityManager } from '../security/SecurityManager';
+import { Logger } from '../utils/Logger';
+
+/**
+ *  This class contains server-side endpoints and static web elements, serviced under-the-hood by an express application.
+ *  This class is capable of generating a one-time user challenge link, which users can visit to authenticate against Zowe ChatBot.
+ * 
+ *  There should only be one instance of the class active at a time.
  */
+export class MessagingApp {
 
-import type {Application} from 'express';
-import {IAppOption} from '../types';
-
-import fs = require('fs');
-import express = require('express');
-import https = require('https');
-import http = require('http');
-import helmet from 'helmet';
-
-class MessagingApp {
-    private option: IAppOption;
-    private app: Application;
+    private readonly log: Logger;
+    private readonly option: ServerOptions;
+    private readonly app: Application;
+    // server is readonly, but set outside the class constructor
     private server: https.Server | http.Server;
 
-    constructor(option: IAppOption) {
+    /**
+     * Creates a new instance of the MessagingApp based on Zowe ChatBot's server options. 
+     * Sets express API routes and serves the frontend web deployment. 
+     * 
+     * @param option 
+     * @param securityFac used to generate challenge links and authenticate users
+     * @param log 
+     */
+    constructor(option: ServerOptions, securityFac: SecurityManager, log: Logger) {
         // Set app option
         this.option = option;
-
+        this.log = log;
         // Create express app
         this.app = express();
         this.app.use(express.json());
-        this.app.use(express.urlencoded({extended: false}));
-        this.app.use(helmet()); // Secure Express apps with various HTTP headers
+        this.app.use(express.urlencoded({ extended: false }));
+        this.app.use(helmet());
+
     }
 
-    // Get messaging application
+    /**
+     * This function should not be used by most callers. The CommonBot framework requires access to this app.
+     * 
+     * @returns the underlying express application
+     */
     getApplication(): Application {
         return this.app;
     }
 
-    // Start messaging application server
+    /**
+     * Configures and creates the http/https server underlying the express application, and then starts it.
+     * 
+     */
     startServer(): void {
         try {
             // Set port
-            const port = this.normalizePort(this.option.port.toString());
+            const port = this.normalizePort(this.option.messagePort.toString());
             this.app.set('port', port);
 
             // Create Http/Https server
@@ -77,7 +103,10 @@ class MessagingApp {
         }
     }
 
-    // Normalize a port into a number, string, or false.
+    // TODO: is there a place where port will be NaN and the app should not fail? named pipes?
+    /** 
+     * Normalize a port into a number, string, or false.
+     */
     private normalizePort(val: string) {
         const port = parseInt(val, 10);
 
@@ -94,9 +123,11 @@ class MessagingApp {
         return false;
     }
 
-    // Event listener for error event.
+    /**
+     * Event listener for error event. 
+     */
     private onError(port: string | number | boolean) {
-        return function(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+        return function (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             if (error.syscall !== 'listen') {
                 console.error(`Listen is not called!`);
                 console.error(error.stack);
@@ -123,14 +154,18 @@ class MessagingApp {
         };
     }
 
-    // Event listener for listening event
+    /**
+     * Event listener for listening event
+     * 
+     * @param server 
+     * @returns 
+     */
     private onListening(server: https.Server | http.Server) {
-        return function() {
+        return function () {
             const addr = server.address();
             const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
             console.info(`The messaging app server is listening on ${bind}`);
         };
     }
-}
 
-export = MessagingApp;
+}

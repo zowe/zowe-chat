@@ -1,25 +1,26 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
+import { IChatContextData, IMessage, IPayloadType } from "@zowe/commonbot";
 import _ from 'lodash';
 import yargs from 'yargs';
-
-import {IChatContextData, ICommand, IMessage, IPayloadType} from '../types';
-
+import { ICommand } from "../types";
+import { Logger } from "../utils/Logger";
 import ChatListener = require('./ChatListener');
-import Logger = require('../utils/Logger');
+export abstract class ChatMessageListener extends ChatListener {
 
-const logger = Logger.getInstance();
-abstract class ChatMessageListener extends ChatListener {
+    protected readonly log: Logger;
+
     constructor() {
         super();
+        this.log = Logger.getInstance();
     }
 
     // Match inbound message
@@ -31,10 +32,10 @@ abstract class ChatMessageListener extends ChatListener {
     // Parse inbound message
     public parseMessage(chatContextData: IChatContextData): ICommand {
         // Print start log
-        logger.start(this.parseMessage, this);
+        this.log.start(this.parseMessage, this);
 
         // Print inbound message
-        logger.debug(`Message: ${chatContextData.payload.data}`);
+        this.log.debug(`Message: ${chatContextData.payload.data}`);
 
         // Initialize command object
         const command: ICommand = {
@@ -98,17 +99,16 @@ abstract class ChatMessageListener extends ChatListener {
             command.extraData.rawMessage = chatContextData.payload.data;
 
             // Print command
-            logger.debug(`Command: ${JSON.stringify(command, null, 4)}`);
+            this.log.debug(`Command: ${JSON.stringify(command, null, 4)}`);
         } catch (error) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            this.log.error(error);
         } finally {
             // Print end log
-            logger.end(this.parseMessage, this);
+            this.log.end(this.parseMessage, this);
         }
 
         return command;
     }
 }
-
-export = ChatMessageListener;
