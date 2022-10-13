@@ -2,3 +2,6 @@ node_modules/
 common-bot-framework/src/log/*.log
 release/
 dist/
+.vscode/
+.build/
+**/.tsbuildinfo

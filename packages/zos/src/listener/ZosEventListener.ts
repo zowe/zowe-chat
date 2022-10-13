@@ -1,14 +1,14 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import {Logger, ChatEventListener, IActionType, IChatContextData, IChatToolType, IEvent, IExecutor, IMessage, IMessageType, ICommand} from '@zowe/chat';
+import { ChatEventListener, IActionType, IChatContextData, IChatTool, ICommand, IEvent, IExecutor, IMessage, IMessageType, Logger } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
 const i18nJsonData = require('../i18n/jobDisplay.json');
@@ -33,12 +33,16 @@ class ZosEventListener extends ChatEventListener {
         try {
             const botOption = chatContextData.context.chatting.bot.getOption();
             let eventMessage = '';
-            if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
+            let botName: string;
+            if (botOption.chatTool === IChatTool.MATTERMOST) {
                 eventMessage = this.getMattermostEvent(chatContextData);
-            } else if (botOption.chatTool.type === IChatToolType.SLACK) {
+                botName = botOption.mattermost.botUserName;
+            } else if (botOption.chatTool === IChatTool.SLACK) {
                 eventMessage = this.getSlackEvent(chatContextData);
-            } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
+                botName = botOption.slack.botUserName;
+            } else if (botOption.chatTool === IChatTool.MSTEAMS) {
                 eventMessage = this.getMsteamsEvent(chatContextData);
+                botName = botOption.msteams.botUserName;
             } else {
                 return false;
             }
@@ -50,7 +54,7 @@ class ZosEventListener extends ChatEventListener {
             // 1: Match bot name.
             // 2. TODO: Check if it is a valid command.
             // 3: Match command scope.
-            if (this.command.extraData.botUserName === botOption.chatTool.option.botUserName) {
+            if (this.command.extraData.botUserName === botName) {
                 if (this.command.scope === 'zos') {
                     this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
 
@@ -177,18 +181,20 @@ class ZosEventListener extends ChatEventListener {
             };
 
             const botOption = chatContextData.context.chatting.bot.getOption();
-            if (botOption.chatTool.type !== IChatToolType.MATTERMOST
-                && botOption.chatTool.type !== IChatToolType.SLACK
-                && botOption.chatTool.type !== IChatToolType.MSTEAMS) {
+            if (botOption.chatTool !== IChatTool.MATTERMOST
+                && botOption.chatTool !== IChatTool.SLACK
+                && botOption.chatTool !== IChatTool.MSTEAMS) {
                 return [{
                     type: IMessageType.PLAIN_TEXT,
-                    message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool.type}`,
+                    message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
                 }];
             }
 
             logger.debug(`Incoming command is ${JSON.stringify(this.command)}`);
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
+            this.command.extraData.zosmf = chatContextData.extraData.zosmf;
+            this.command.extraData.principal = chatContextData.extraData.principal;
             return await dispatcher.dispatch(this.command, executor);
         } catch (error) {
             // Print exception stack
