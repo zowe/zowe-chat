@@ -24,21 +24,17 @@
 * Sort plugins per the specified priority
 
 ## Environment variables
-* ZOWE_CHAT_HOME
 
-  Specifies the home directory where Zowe Chat server is installed
+| Variable | Description | Format  | Default | 
+| -------- | ----------- | ------- | ------- |
+| ZOWE_CHAT_HOME | The directory where Zowe Chat server is installed. | Any valid path | Process cwd |
+| ZOWE_CHAT_CONFIG_HOME | The directory where Zowe Chat server configuration is stored. | Any valid path | `$ZOWE_CHAT_HOME/config` |
+| ZOWE_CHAT_PLUGIN_HOME | The directory where Zowe Chat plugins are installed. | Any valid path | `$ZOWE_CHAT_HOME/plugins` |
+| ZOWE_CHAT_LOG_FILE_PATH | The path to the log file. | Any valid, writable path | `$ZOWE_CHAT_HOME/logs/chat.log` |
+| ZOWE_CHAT_LOG_LEVEL | The level of logging to be used. | `ERROR`,`INFO`, `WARN`, `VERBOSE`, `DEBUG`, `SILLY` | `INFO` |
+| ZOWE_CHAT_LOG_MAX_SIZE | The maximum size of the log file before it rotates. | Size in kilobytes | `-1`, no limit |
+| ZOWE_CHAT_LOG_MAX_FILES | The maximum number of log files to keep. | Number | `-1`, no limit |
 
-* ZOWE_CHAT_PLUGIN_HOME
-
-  Specifies the home directory where Zowe Chat plugins are installed
-
-* ZOWE_CHAT_LOG_FILE_PATH
-
-  Specifies the log file path of your Zowe Chat server. The default value is `$ZOWE_CHAT_HOMEt/log/zoweChatServer.log`.
-
-* ZOWE_CHAT_LOG_LEVEL
-
-  Specifies the level of logs. The value can be error, warn, info, verbose, debug, or silly. The default value is info.
 * ZOWE_CHAT_LOG_MAX_SIZE
 
   Specifies the maximum size of the file after which the log will rotate. The value can be a number of bytes without any unit or a number with the suffix k, m, or g as units for KB, MB, or GB separately. The default value is null, which means that the file size is unlimited except the operating system limit.

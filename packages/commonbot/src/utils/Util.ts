@@ -1,13 +1,12 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
-
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
 import nodeUtil = require('util');
 
@@ -19,7 +18,7 @@ class Util {
     // Dump JavaScript object
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static dumpObject(obj: Record<string, any>, depth: number = null): string {
-        return nodeUtil.inspect(obj, {compact: false, depth: depth});
+        return nodeUtil.inspect(obj, { compact: false, depth: depth });
     }
 
     // Dump request
@@ -36,7 +35,7 @@ class Util {
         // Dump
         let result = '';
         if (includeAllProperties) {
-            result = nodeUtil.inspect(req, {compact: false, depth: null});
+            result = nodeUtil.inspect(req, { compact: false, depth: null });
         } else {
             // Set dumped fields
             const dumpedFields = {
@@ -57,7 +56,7 @@ class Util {
                 statusMessage: req.statusMessage,
             };
 
-            result = nodeUtil.inspect(dumpedFields, {compact: false, depth: null});
+            result = nodeUtil.inspect(dumpedFields, { compact: false, depth: null });
         }
 
         if (formatted) {
@@ -95,7 +94,7 @@ class Util {
         // Dump
         let result = '';
         if (includeAllProperties) {
-            result = nodeUtil.inspect(res, {compact: false, depth: null});
+            result = nodeUtil.inspect(res, { compact: false, depth: null });
         } else {
             // Set dumped fields
             const dumpedFields = {
@@ -125,7 +124,7 @@ class Util {
                 links: res.links,
             };
 
-            result = nodeUtil.inspect(dumpedFields, {compact: false, depth: null});
+            result = nodeUtil.inspect(dumpedFields, { compact: false, depth: null });
         }
 
         if (formatted) {

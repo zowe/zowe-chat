@@ -65,6 +65,12 @@ The following information is critical to working with the code, running/writing/
 
 ## Steps to run Zowe Chat server
 * **Prerequisite:** the connection with your chat tool and related bot app are ready
+* Local Dev Deployment
+  * Build the project locally with `npm run buildAll`
+  * Run `npm run rLocal`, which sets up a local environment based on the build output from the prior step. This will fail on first invocation.
+  * Configure the local environment in the `${PROJECT_ROOT}/.build/chatbot/configuration` folder. 
+  * Re-run the `npm run rLocal` command. This will not over-write changes to your configuration.
+  * NOTE: Depending on network environments, not all chat clients will work when running the project locally (i.e. MSTeams)
 * Deploy Zowe Chat core
   * Create one folder for `ZOWE_CHAT_HOME`
   * Upload your build result of `@zowe/commonbot` and `@zowe/chat` packages to `ZOWE_CHAT_HOME`
