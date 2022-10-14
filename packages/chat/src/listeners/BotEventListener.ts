@@ -1,32 +1,40 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import {IChatContextData, IChatListenerRegistryEntry, IPayloadType, IEventListener, IEvent, IMessageType, IActionType} from '../types';
+import { IChatListenerRegistryEntry, IEventListener } from '../types';
 
 import _ = require('lodash');
 
-import BotListener = require('./BotListener');
-import Logger = require('../utils/Logger');
-import Config = require('../common/Config');
-import Util = require('../utils/Util');
+import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/commonbot';
+import { ChatWebApp } from '../bot/ChatWebApp';
+import { AppConfig } from '../config/base/AppConfig';
+import { SecurityManager } from '../security/SecurityManager';
+import { Logger } from '../utils/Logger';
+import Util from "../utils/Util";
+import { BotListener } from './BotListener';
 
-const logger = Logger.getInstance();
-const config = Config.getInstance();
+export class BotEventListener extends BotListener {
 
-class BotEventListener extends BotListener {
-    private chatListeners: IChatListenerRegistryEntry[];
-    constructor() {
+    private readonly chatListeners: IChatListenerRegistryEntry[];
+    private readonly log: Logger;
+    private readonly config: AppConfig;
+    private readonly webapp: ChatWebApp;
+    private readonly securityFacility: SecurityManager;
+
+    constructor(config: AppConfig, security: SecurityManager, webapp: ChatWebApp, log: Logger) {
         super();
-
         this.chatListeners = [];
-
+        this.log = log;
+        this.securityFacility = security;
+        this.config = config;
+        this.webapp = webapp;
         this.matchEvent = this.matchEvent.bind(this);
         this.processEvent = this.processEvent.bind(this);
     }
@@ -34,17 +42,15 @@ class BotEventListener extends BotListener {
     // Register Zowe chat listener
     registerChatListener(listenerEntry: IChatListenerRegistryEntry): void {
         // Print start log
-        logger.start(this.registerChatListener, this);
+        this.log.start(this.registerChatListener, this);
 
         // Register listener
-        logger.info(`Listener: ${listenerEntry.listenerName}    Type: ${listenerEntry.listenerType}    `
+        this.log.info(`Listener: ${listenerEntry.listenerName}    Type: ${listenerEntry.listenerType}    `
             + `Plugin: ${listenerEntry.chatPlugin.package}    Version: ${listenerEntry.chatPlugin.version}    Priority: ${listenerEntry.chatPlugin.priority}`);
         this.chatListeners.push(listenerEntry);
 
         // Print end log
-        logger.end(this.registerChatListener, this);
-
-        return;
+        this.log.end(this.registerChatListener, this);
     }
 
     // Get chat listener
@@ -53,9 +59,12 @@ class BotEventListener extends BotListener {
     }
 
     // Match inbound event
-    matchEvent(chatContextData: IChatContextData): boolean {
+    async matchEvent(chatContextData: IChatContextData): Promise<boolean> {
+
         // Print start log
-        logger.start(this.matchEvent, this);
+        this.log.start(this.matchEvent, this);
+
+        let user = chatContextData.context.chatting.user;
 
         try {
             // Initialize listener and context pool
@@ -63,7 +72,7 @@ class BotEventListener extends BotListener {
             const contexts: IChatContextData[] = [];
 
             // Check payload type
-            logger.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
+            this.log.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
             if (chatContextData.payload.type === IPayloadType.EVENT) {
                 // Find matched listeners
                 const event: IEvent = <IEvent>chatContextData.payload.data;
@@ -84,7 +93,7 @@ class BotEventListener extends BotListener {
                     }
                 }
             } else {
-                logger.error(`Wrong payload type: ${chatContextData.payload.type}`);
+                this.log.error(`Wrong payload type: ${chatContextData.payload.type}`);
             }
 
             // Set listener and context pool
@@ -97,8 +106,8 @@ class BotEventListener extends BotListener {
                 chatContextData.extraData.listeners = listeners;
                 chatContextData.extraData.contexts = contexts;
             }
-            logger.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
-            logger.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
+            this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
+            this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
 
             // Set return result
             if (chatContextData.extraData.listeners.length > 0) {
@@ -106,19 +115,22 @@ class BotEventListener extends BotListener {
             } else {
                 return false;
             }
+
         } catch (error) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            //this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            this.log.error(error);
         } finally {
             // Print end log
-            logger.end(this.matchEvent, this);
+            this.log.end(this.matchEvent, this);
         }
     }
 
     // Process matched event
     async processEvent(chatContextData: IChatContextData): Promise<void> {
         // Print start log
-        logger.start(this.processEvent, this);
+        this.log.start(this.processEvent, this);
+        let user = chatContextData.context.chatting.user;
 
         try {
             // Match event
@@ -126,24 +138,40 @@ class BotEventListener extends BotListener {
 
             // Process event
             if (matched) {
+
+                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user));
+                if (principal == undefined) {
+                    let redirect = this.webapp.generateChallenge(user, () => {
+                        this.processEvent(chatContextData);
+                    });
+                    await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
+                        message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
+                        type: IMessageType.PLAIN_TEXT
+                    }]);
+                    this.log.end(this.processEvent, this);
+                    return;
+                }
+
                 // Get matched listener and contexts
                 const matchedListeners: IChatListenerRegistryEntry[] = chatContextData.extraData.listeners;
                 const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
 
                 // Get the number of plugin limit
-                let pluginLimit = config.getConfig().chatServer.pluginLimit;
-                logger.info(`pluginLimit: ${pluginLimit}`);
+                let pluginLimit = this.config.app.pluginLimit;
+                this.log.info(`pluginLimit: ${pluginLimit}`);
                 if (pluginLimit < 0 || pluginLimit > matchedListeners.length) {
                     pluginLimit = matchedListeners.length;
                 }
-                logger.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched event!`);
+                this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched event!`);
 
                 // Process matched event
                 const event: IEvent = <IEvent>chatContextData.payload.data;
                 for (let i = 0; i < pluginLimit; i++) {
                     // Handle event
+                    listenerContexts[i].extraData.principal = principal;
+                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf;
                     const msgs = await (<IEventListener>matchedListeners[i].listenerInstance).processEvent(listenerContexts[i]);
-                    logger.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
+                    this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
                     // Return message only when open a dialog
                     if (event.action.type === IActionType.DIALOG_OPEN) {
@@ -153,7 +181,7 @@ class BotEventListener extends BotListener {
                         } else if (msgs[0].type === IMessageType.MSTEAMS_DIALOG_OPEN) {
                             return msgs[0].message;
                         } else {
-                            logger.error(`Wrong message type: ${msgs[0].type}`);
+                            this.log.error(`Wrong message type: ${msgs[0].type}`);
                         }
                     } else {
                         // Send response
@@ -163,12 +191,11 @@ class BotEventListener extends BotListener {
             }
         } catch (error) {
             // Print exception stack
-            logger.error(logger.getErrorStack(new Error(error.name), error));
+            // this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            this.log.error(error);
         } finally {
             // Print end log
-            logger.end(this.processEvent, this);
+            this.log.end(this.processEvent, this);
         }
     }
 }
-
-export = BotEventListener;

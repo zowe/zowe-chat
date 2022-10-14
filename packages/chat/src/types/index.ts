@@ -1,71 +1,20 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import type {IProtocol, IAppOption, IChatToolType, ILogOption, IChatContextData, IMessage} from '@zowe/commonbot';
+import { IChatContextData, IMessage, IName } from "@zowe/commonbot";
+import { ChatPrincipal } from "../security/user/ChatPrincipal";
 
-
-export interface IConfig {
-    chatServer: IChatServerConfig;
-    chatTool: IMattermostConfig | ISlackConfig | IMsteamsConfig;
-}
-
-export interface IChatServerConfig {
-    chatToolType: IChatToolType;
-    log: ILogOption;
-    recordLimit: number;
-    pluginLimit: number,
-    userId: string;
-    userPassword: string;
-}
-
-export interface IMattermostConfig {
-    protocol: IProtocol;
-    hostName: string;
-    port: number;
-    basePath: string;
-    tlsCertificate: string;
-    teamUrl: string;
-    botUserName: string;
-    botAccessToken: string;
-    messagingApp: IAppOption;
-}
-
-export interface ISlackConfig {
-    botUserName: string;
-    signingSecret: string;
-    token: string;
-    socketMode: ISlackConfigSocketMode;
-    httpEndpoint: ISlackConfigHttpEndpoint;
-}
-
-export interface ISlackConfigSocketMode {
-    enabled: boolean;
-    appToken: string;
-}
-
-export interface ISlackConfigHttpEndpoint {
-    enabled: boolean;
-    messagingApp: IAppOption;
-}
-
-export interface IMsteamsConfig {
-    botUserName: string;
-    botId: string;
-    botPassword: string;
-    messagingApp: IAppOption;
-}
-
-export interface IName {
-    id: string;
-    name: string;
-}
+export type ChatContext = {
+    context: IChatContextData;
+    principal?: ChatPrincipal;
+};
 
 export interface IExecutor extends IName {
     team: IName;
@@ -126,6 +75,3 @@ export interface IAdjective {
     option: Record<string, string>;
 }
 
-export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IHttpEndpoint,
-    IMessageHandlerFunction, IMessageMatcherFunction, IRouteHandlerFunction, IMessagingApp, IMessage, IMessageType, IAppOption, IPayloadType,
-    IEvent, IActionType, IBotLimit, IMattermostBotLimit, ISlackBotLimit, IMsteamsBotLimit} from '@zowe/commonbot';

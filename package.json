@@ -5,18 +5,28 @@
     "license": "EPL-2.0",
     "private": true,
     "scripts": {
-        "build": "gulp build",
-        "lint": "gulp lint"
+        "buildAll": "gulp updateLicense && npm run build --workspaces",
+        "docker": "docker build -t local/zowe-chat -f scripts/Dockerfile . && docker run -ti local/zowe-chat",
+        "installAll": "npm install --workspaces",
+        "lint": "gulp lint",
+        "brLocal": "npm run buildAll && npm run rLocal",
+        "rLocal": "gulp runChat",
+        "circularDependencyCheck": "npm run circularDependencyCheck --workspaces"
     },
     "workspaces": [
         "packages/commonbot",
         "packages/chat",
         "packages/zos",
-        "packages/clicmd"
+        "packages/clicmd",
+        "packages/chat-webapp"
     ],
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": ">=5.10.1",
         "@typescript-eslint/parser": ">=5.10.1",
+        "@zowe/core-for-zowe-sdk": "^7.2.5",
+        "@zowe/zos-files-for-zowe-sdk": "^7.2.5",
+        "@zowe/zos-uss-for-zowe-sdk": "^7.2.5",
+        "@zowe/zosmf-for-zowe-sdk": "^7.2.5",
         "eslint": ">=8.7.0",
         "eslint-config-google": ">=0.14.0",
         "eslint-plugin-header": "^3.1.1",
@@ -26,6 +36,8 @@
         "gulp-if": ">=3.0.0",
         "gulp-jshint": ">=2.1.0",
         "gulp-typescript": ">=6.0.0-alpha.1",
+        "keytar": "^7.9.0",
+        "madge": "^5.0.1",
         "ts-node": ">=10.4.0",
         "tsconfig-paths": "^4.0.0",
         "typescript": "4.6.3"

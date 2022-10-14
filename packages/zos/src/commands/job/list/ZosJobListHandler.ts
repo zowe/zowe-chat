@@ -1,25 +1,23 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import {IJob, GetJobs} from '@zowe/zos-jobs-for-zowe-sdk';
-import {ISession, Session, SessConstants} from '@zowe/imperative';
+import { AppConfig, AppConfigLoader, ChatHandler, ChatPrincipal, IBotLimit, IBotOption, IChatTool, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger, ZosmfServerConfig } from '@zowe/chat';
+import { ISession, SessConstants, Session } from '@zowe/imperative';
+import { GetJobs, IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 
-import {Logger, IMessage, IMessageType, IChatToolType, IExecutor, Config, ChatHandler, IBotOption, IBotLimit, ICommand, IMsteamsBotLimit,
-    IMattermostBotLimit, ISlackBotLimit} from '@zowe/chat';
-
-import ZosJobSlackView from './ZosJobSlackView';
-import ZosJobMattermostView from './ZosJobMattermostView';
-import ZosJobMsteamsView from './ZosJobMsteamsView';
+import { ZosJobMattermostView } from './ZosJobMattermostView';
+import { ZosJobMsteamsView } from './ZosJobMsteamsView';
+import { ZosJobSlackView } from './ZosJobSlackView';
 
 const logger = Logger.getInstance();
-const config = Config.getInstance();
+const config: AppConfig = AppConfigLoader.loadAppConfig();
 
 
 class ZosJobHandler extends ChatHandler {
@@ -30,12 +28,12 @@ class ZosJobHandler extends ChatHandler {
 
         this.getJob = this.getJob.bind(this);
 
-        if (botOption.chatTool.type === IChatToolType.SLACK) {
-            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit> botLimit);
-        } else if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
-            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit> botLimit);
-        } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
-            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit> botLimit);
+        if (botOption.chatTool === IChatTool.SLACK) {
+            this.view = new ZosJobSlackView(botOption, <ISlackBotLimit>botLimit);
+        } else if (botOption.chatTool === IChatTool.MATTERMOST) {
+            this.view = new ZosJobMattermostView(botOption, <IMattermostBotLimit>botLimit);
+        } else if (botOption.chatTool === IChatTool.MSTEAMS) {
+            this.view = new ZosJobMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
         }
     }
 
@@ -47,7 +45,8 @@ class ZosJobHandler extends ChatHandler {
         let messages: IMessage[] = [];
         try {
             const options = command.adjective.option;
-
+            const auth: ChatPrincipal = <ChatPrincipal>command.extraData.principal;
+            const zosmf: ZosmfServerConfig = <ZosmfServerConfig>command.extraData.zosmf;
             // Get option job id -- Optional
             let id: string = null;
             if (options['id'] !== undefined) {
@@ -80,13 +79,13 @@ class ZosJobHandler extends ChatHandler {
             if (options['limit'] !== undefined) {
                 limit = options['limit'];
             } else {
-                limit = String(config.getConfig().chatServer.recordLimit);
+                limit = String(config.app.recordLimit);
             }
             logger.debug(`limit: ${limit}`);
 
             // Check if limit value is valid.
             if (limit === null || limit === undefined
-                || limit.trim() === '' || isNaN(Number(limit))) {
+                || ("" + limit).trim() === '' || isNaN(Number(limit))) {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: 'Invalid adjective limit!',
@@ -94,11 +93,14 @@ class ZosJobHandler extends ChatHandler {
             }
 
             // TODO: Will integrate with Authentication functionality later.
-            /* let hostName: string = null;
-            if (adjectives['host'] !== undefined) {
-                hostName = adjectives['host'];
-            } else if (adjectives['h'] !== undefined) {
-                hostName = adjectives['h'];
+            let hostName: string = null;
+            if (zosmf?.host !== undefined) {
+                hostName = zosmf.host;
+            }
+            else if (options['host'] !== undefined) {
+                hostName = options['host'];
+            } else if (options['h'] !== undefined) {
+                hostName = options['h'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -107,8 +109,10 @@ class ZosJobHandler extends ChatHandler {
             }
 
             let port: string = null;
-            if (adjectives['port'] !== undefined) {
-                port = adjectives['port'];
+            if (zosmf?.port !== undefined) {
+                port = zosmf.port + "";
+            } else if (options['port'] !== undefined) {
+                port = options['port'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -117,10 +121,13 @@ class ZosJobHandler extends ChatHandler {
             }
 
             let user: string = null;
-            if (adjectives['user'] !== undefined) {
-                user = adjectives['user'];
-            } else if (adjectives['u'] !== undefined) {
-                user = adjectives['u'];
+            if (auth?.getUser() !== undefined) {
+                user = auth.getUser().getMainframeUser();
+            }
+            else if (options['user'] !== undefined) {
+                user = options['user'];
+            } else if (options['u'] !== undefined) {
+                user = options['u'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -129,27 +136,32 @@ class ZosJobHandler extends ChatHandler {
             }
 
             let password: string = null;
-            if (adjectives['password'] !== undefined) {
-                password = adjectives['password'];
+            if (auth?.getCredentials() !== undefined) {
+                password = auth.getCredentials().value;
+            }
+            else if (options['password'] !== undefined) {
+                password = options['password'];
             } else {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: 'Please specify password using --password.',
                 }];
-            } */
+            }
+
+            let ru: boolean = true;
+            if (zosmf?.rejectUnauthorized !== undefined) {
+                ru = zosmf.rejectUnauthorized;
+            }
 
             // session to connect Zosmf REST API.
             const sessionInfo: ISession = {
-                hostname: '',
-                // hostname: hostName,
-                port: 443,
-                // port: Number(port).valueOf(),
-                user: '',
-                password: '',
-                // user: user,
-                // password: password,
+
+                hostname: hostName,
+                port: Number(port).valueOf(),
+                user: user,
+                password: password,
                 type: SessConstants.AUTH_TYPE_BASIC,
-                rejectUnauthorized: false,
+                rejectUnauthorized: ru,
             };
             const session = new Session(sessionInfo);
 
@@ -161,7 +173,7 @@ class ZosJobHandler extends ChatHandler {
 
             // Get the list of jobs
             const jobs: IJob[] = await GetJobs.getJobsCommon(session,
-                    {owner: owner, prefix: prefix, jobid: id, execData: true, maxJobs: Number(limit).valueOf()});
+                { owner: owner, prefix: prefix, jobid: id, execData: true, maxJobs: Number(limit).valueOf() });
             logger.debug(`Got ${jobs.length} job.`);
 
 

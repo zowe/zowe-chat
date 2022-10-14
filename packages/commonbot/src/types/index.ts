@@ -1,18 +1,18 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import type {Application} from 'express';
-import type {Receiver} from '@slack/bolt';
-import CommonBot from '../CommonBot';
+import type { Receiver } from '@slack/bolt';
+import type { Application } from 'express';
+import { CommonBot } from '../CommonBot';
 
-export {TaskModuleTaskInfo, Attachment} from 'botbuilder';
+export { Attachment, TaskModuleTaskInfo } from 'botbuilder';
 
 
 /* eslint-disable no-unused-vars */
@@ -32,11 +32,54 @@ export const enum ILogLevel {
     SILLY = 'silly'
 }
 
-export const enum IChatToolType {
+export const enum IChatTool {
     MATTERMOST = 'mattermost',
     SLACK = 'slack',
     MSTEAMS = 'msteams'
 }
+
+export type IMattermostConfig = {
+    protocol: IProtocol;
+    hostName: string;
+    port: number;
+    basePath: string;
+    tlsCertificate: string;
+    teamUrl: string;
+    botUserName: string;
+    botAccessToken: string;
+    messagingApp: IAppOption;
+};
+
+export type ISlackConfig = {
+    botUserName: string;
+    signingSecret: string;
+    token: string;
+    socketMode: ISlackConfigSocketMode;
+    httpEndpoint: ISlackConfigHttpEndpoint;
+};
+
+export type ISlackConfigSocketMode = {
+    enabled: boolean;
+    appToken: string;
+};
+
+export type ISlackConfigHttpEndpoint = {
+    enabled: boolean;
+    messagingApp: IAppOption;
+};
+
+export type IMsteamsConfig = {
+    botUserName: string;
+    botId: string;
+    botPassword: string;
+    messagingApp: IAppOption;
+};
+
+export interface IAppOption extends IHttpEndpoint {
+    tlsKey: string,
+    tlsCert: string;
+}
+
 
 export const enum IMessageType {
     PLAIN_TEXT = 'plainText',
@@ -51,6 +94,8 @@ export const enum IMessageType {
     MSTEAMS_ADAPTIVE_CARD = 'msteams.adaptiveCard',
     MSTEAMS_DIALOG_OPEN = 'msteams.dialog.open',
 }
+
+
 
 export const enum IChattingType {
     PERSONAL = 'personal', // 1 on 1 chatting
@@ -102,38 +147,36 @@ export interface IMessage {
     mentions?: Record<string, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export interface IBotOption {
+export type IBotOption = {
     messagingApp: IMessagingApp,
-    chatTool: IChatTool
-}
+    chatTool: IChatTool,
+    mattermost?: IMattermostOption;
+    slack?: ISlackOption;
+    msteams?: IMsteamsOption;
+};
 
 export interface ILogOption {
     filePath: string,
     level: ILogLevel,
     maximumSize: string,
-    maximumFiles: string
+    maximumFiles: string;
 }
 
 export interface IAppOption extends IHttpEndpoint {
     tlsKey: string,
-    tlsCert: string
+    tlsCert: string;
 }
 
 export interface IHttpEndpoint {
     protocol: IProtocol,
     hostName: string,
     port: number,
-    basePath: string
+    basePath: string;
 }
 
 export interface IMessagingApp {
     option: IAppOption,
-    app: Application
-}
-
-export interface IChatTool {
-    type: IChatToolType,
-    option: IMattermostOption | ISlackOption | IMsteamsOption
+    app: Application;
 }
 
 // # Mattermost Variable         Required  Description
@@ -192,7 +235,7 @@ export interface ISlackOption {
     // Array of scopes that your app will request within the OAuth process.
     // scopes: string[],
 
-        // Optional object that can be used to customize the default OAuth support. Read more in the OAuth documentation.
+    // Optional object that can be used to customize the default OAuth support. Read more in the OAuth documentation.
     // installerOptions: Record<string, any>,
 
 
@@ -263,30 +306,30 @@ export interface IMsteamsOption {
 }
 
 export interface IMessageMatcherFunction {
-    (chatContextData: IChatContextData): boolean
+    (chatContextData: IChatContextData): boolean;
 }
 
 export interface IMessageHandlerFunction {
-    (chatContextData: IChatContextData): Promise<void>
+    (chatContextData: IChatContextData): Promise<void>;
 }
 
 export interface IMessageMatcher {
     matcher: IMessageMatcherFunction,
-    handlers: IMessageHandlerFunction[]
+    handlers: IMessageHandlerFunction[];
 }
 
 export interface IMessageHandlerIndex {
     matcherIndex: number,
-    handlerIndex: number
+    handlerIndex: number;
 }
 
 export interface IRoute {
     path: string,
-    handler: IRouteHandlerFunction
+    handler: IRouteHandlerFunction;
 }
 
 export interface IRouteHandlerFunction {
-    (chatContextData: IChatContextData): Promise<void | Record<string, any>> // eslint-disable-line @typescript-eslint/no-explicit-any
+    (chatContextData: IChatContextData): Promise<void | Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export interface IUser {
@@ -335,7 +378,7 @@ export interface IChattingContext {
     tenant: IName;
 }
 
-export interface IEvent{
+export interface IEvent {
     pluginId: string;
     action: IAction;
 }

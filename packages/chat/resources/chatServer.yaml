@@ -1,0 +1,70 @@
+# Specify the type of chat tool. Currently, 'mattermost', 'slack' or 'msteams' are the supported values.
+# The default value is mattermost.
+chatToolType: mattermost
+
+# Specify your chat tool's configuration here. By default, sample configuration files will be in the "chatTools" sub-directory.
+chatToolConfiguration: ./chatTools/mattermost.yaml
+
+security:
+  zosmf:
+    host: <Your zOSMF Host>
+    protocol: https
+    rejectUnauthorized: false
+    port: 443
+  # one of: token, password
+  authMode: password
+  # If you prefer all bot requests against mainframe services to use a single service account, set to true
+  useServiceAccount: false
+  # Service account information. if useServiceAccount is true, this information is required.
+  serviceAccount:
+    user: <Service account ID>
+    password: <Service account password>
+
+app:
+  # Configure logging
+  log:
+    # Specify the level of logs, the value can be error, warn, info, verbose, debug or silly.
+    # The default value is info.
+    level: debug
+
+    # Specify the maximum size of the file after which it will rotate. The value can be a number of bytes without any unit
+    # or a number suffixed with 'k', 'm', or 'g' as units of kb, mb, or gb separately.
+    # The default value is null, which means the file size is unlimited except operating system limit.
+    maximumSize: 10m
+
+    # Specify the maximum file number of logs to keep.
+    # The default value is null, which means only one log file and no logs will be removed.
+    maximumFiles: 10
+
+  # Specify the maximum number of resources that chatbot can retrieve for you.
+  recordLimit: 10
+
+  # Specify the maximum number of plugins that can respond to the same matched message or event.
+  pluginLimit: -1
+
+  server:
+    # Specify the protocol of your HTTP endpoint. The value can be https or http.
+    # The default value is https.
+    protocol: https
+
+    # Specify the host name or IP address of your HTTP endpoint.
+    hostName: <Your hostname>
+
+    # Specify the port number of the endpoint will serve the Chat Web App.
+    # The default value is 7701.
+    webappPort: 7701
+
+    # Specify the port number to be used by certain chat services (msteams, or slack if not using socket mode.)
+    # The default value is 7701.
+    messagePort: 7702
+
+    # TODO: this should not be configurable, we should set it. At the very least, it must not be obviously configurable - advanced only.
+    # Specify the base path of your HTTP endpoint.
+    # The default value is /zowechat/api/v1.
+    basePath: /zowechat/api/v1
+
+    # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
+    tlsKey: <Your absolute TLS key file path of your messaging server>
+
+    # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
+    tlsCert: <Your absolute TLS cert file path of your messaging server>
