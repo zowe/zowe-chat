@@ -28,7 +28,7 @@ export class UserConfigManager {
         this.configSchema = aggregateConfig;
         let userConfigDir = appConfig.app.extendedConfigDir;
         if (userConfigDir === undefined) {
-            userConfigDir = "./_config";
+            userConfigDir = "./.internal/config/user";
         }
 
         try {

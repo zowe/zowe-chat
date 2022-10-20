@@ -64,8 +64,6 @@ export class BotEventListener extends BotListener {
         // Print start log
         this.log.start(this.matchEvent, this);
 
-        let user = chatContextData.context.chatting.user;
-
         try {
             // Initialize listener and context pool
             const listeners: IChatListenerRegistryEntry[] = [];

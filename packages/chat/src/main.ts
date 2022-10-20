@@ -17,9 +17,20 @@ import { Logger } from "./utils/Logger";
 const config = AppConfigLoader.loadAppConfig();
 // Logger must be initialized for future class initialization. Uses AppConfig.
 const appLog = Logger.getInstance();
+
 // Start chat bot. Requires AppConfig and Logger.
 appLog.info("Initializing Zowe Chat Bot");
-const chatBot = ChatBot.getInstance(config, appLog);
-chatBot.run();
+try {
+    const chatBot = ChatBot.getInstance(config, appLog);
+    chatBot.run();
+} catch (error) {
+    console.log("Error initalizing Zowe Chat");
+    appLog.error("Error initalizing Zowe Chat");
+    appLog.error(appLog.getErrorStack(error, error));
+}
 
-
+process.on('uncaughtException', (event) => {
+    console.log("Uncaught exception encountered. Shutting down.");
+    console.log(event.message);
+    console.log(event.stack);
+});

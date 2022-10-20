@@ -83,18 +83,20 @@ export class Logger {
         });
 
         this.log.add(fileTransport);
-
-        // TODO: this is an express env, should we use something else more specific? ZOWE_CHAT_DEV_MODE?
-        // Only use console logger in development mode.
-        if (process.env.NODE_ENV === 'development') {
-            this.log.add(new winston.transports.Console({ format: combine(timestamp(), bnzFormat) }));
-        }
-
-        process.on("beforeExit", (code) => {
-            this.log.clear();
+        var logComplete = new Promise((resolve) => {
+            this.log.on('finish', (info) => {
+                resolve(undefined);
+            });
         });
 
-        process.on("exit", (code) => {
+        // Note: We use process.env here instead of EnvironmentVariables, as 
+        // Only use console logger in development mode.
+        if (process.env.ZOWE_CHAT_CONSOLE_LOG == 'true') {
+            this.log.add(new winston.transports.Console({ format: combine(timestamp(), bnzFormat) }));
+        }
+        process.on("exit", async (code) => {
+            await logComplete;
+            console.log("Shutting down log.");
             this.log.end();
         });
 
@@ -248,7 +250,6 @@ export class Logger {
     public info(log: string) {
         this.log.info(log);
     }
-
 
     public static getInstance(): Logger {
         if (!Logger.instance) {

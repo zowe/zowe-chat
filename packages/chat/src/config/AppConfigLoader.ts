@@ -27,9 +27,9 @@ export class AppConfigLoader {
             let cfgFilePath = "";
             if (cfgDir === undefined) {
                 cfgDir = "./";
-                cfgFilePath = cfgDir + "application.yaml";
+                cfgFilePath = cfgDir + "chatServer.yaml";
             } else {
-                cfgFilePath = `${cfgDir}/application.yaml`;
+                cfgFilePath = `${cfgDir}/chatServer.yaml`;
             }
 
             // TODO: re-use readYaml from ChatBot.ts? 

@@ -27,6 +27,8 @@ export class EnvironmentVariable {
     public static ZOWE_CHAT_DEPLOY_UI: boolean = EnvironmentVariable.getEnvBool('ZOWE_CHAT_DEPLOY_UI', true);
     /** Where the react UI static elements are located. */
     public static ZOWE_CHAT_STATIC_DIR: string = EnvironmentVariable.getEnvStr('ZOWE_CHAT_STATIC_DIR', `${process.cwd()}/static`);
+    /** Logs should be printed to the console as well as the log file */
+    public static ZOWE_CHAT_CONSOLE_LOG: boolean = EnvironmentVariable.getEnvBool('ZOWE_CHAT_CONSOLE_LOG', true);
 
 
     /**

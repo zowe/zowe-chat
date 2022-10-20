@@ -21,7 +21,7 @@ export const SecurityConfigSchema: IConfigBlockDefinition = {
         userStorage: {
             type: "string",
             description: "The path where ChatBot will store a list of authenticated users and their Chat Client IDs",
-            default: "./data/users.json"
+            default: "./.internal/data/users.json"
         },
         encryptionKey: {
             type: "string",
@@ -144,7 +144,7 @@ export const SecurityConfigSchema: IConfigBlockDefinition = {
                 filePath: {
                     type: "string",
                     description: "The path to the file where user passwords are stored",
-                    default: "./_config/crypt_p",
+                    default: "./.internal/config/pwdprovider/crypt_p",
                 }
             }
         },

@@ -8,6 +8,7 @@
         "buildAll": "gulp updateLicense && npm run build --workspaces",
         "docker": "docker build -t local/zowe-chat -f scripts/Dockerfile . && docker run -ti local/zowe-chat",
         "installAll": "npm install --workspaces",
+        "package": "gulp package",
         "lint": "gulp lint",
         "brLocal": "npm run buildAll && npm run rLocal",
         "rLocal": "gulp runChat",

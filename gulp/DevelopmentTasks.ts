@@ -10,8 +10,7 @@
 
 import child_process from "child_process";
 import * as fs from "fs-extra";
-import * as path from "path";
-import { ITaskFunction } from "./GulpHelpers";
+import { getProjectRoot, ITaskFunction } from "./GulpHelpers";
 
 const license: ITaskFunction = (done: (err: Error) => void) => {
     // process all typescript files
@@ -69,42 +68,30 @@ license.description = "Updates the license header in all TypeScript files";
 const runChat: ITaskFunction = (done: (err: Error) => void) => {
 
     try {
-        child_process.execSync(`which rsync`).toString()
+        child_process.execSync(`which rsync`).toString();
     } catch (error) {
-        console.log(error)
-        console.log("Rsync not found on system, required for this gulp task to function. Please install rsync and try again.")
+        console.log(error);
+        console.log("Rsync not found on system, required for this gulp task to function. Please install rsync and try again.");
     }
 
-    // ensure we're in root dir or backtrack there
-    let projRoot = process.cwd() + path.sep
-    const keyFile = "CONTRIBUTING.md" // File which only exists in project root
-    while (!fs.existsSync(`${projRoot}${keyFile}`)) {
+    let projRoot = getProjectRoot()
 
-        projRoot = `${projRoot}..${path.sep}`
+    let localRunDir = `${projRoot}/.build/`;
 
-        if (path.resolve(projRoot) == path.resolve("/")) {
-            console.log("Error trying to find project root - we're in the filesystem root.")
-            console.log(`Make sure you are running from a dir under the project, and the file ${keyFile} exists in the project root.`)
-            process.exit(1)
-        }
-    }
-
-    let localRunDir = `${projRoot}/.build/`
-
-    fs.mkdirpSync(`${localRunDir}/chatbot/configuration`)
-    fs.mkdirpSync(`${localRunDir}/chatbot/chat`)
-    fs.mkdirpSync(`${localRunDir}/chatbot/static`)
-    fs.mkdirpSync(`${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
-    fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/clicmd`)
-    fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/zos`)
+    fs.mkdirpSync(`${localRunDir}/chatbot/configuration`);
+    fs.mkdirpSync(`${localRunDir}/chatbot/chat`);
+    fs.mkdirpSync(`${localRunDir}/chatbot/static`);
+    fs.mkdirpSync(`${localRunDir}/chatbot/node_modules/@zowe/commonbot`);
+    fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/clicmd`);
+    fs.mkdirpSync(`${localRunDir}/chatbot/plugins/@zowe/zos`);
 
 
-    child_process.execSync(`rsync -r --ignore-existing packages/chat/resources/* ${localRunDir}/chatbot/configuration`)
-    child_process.execSync(`rsync -r --ignore-existing packages/chat/resources/plugin.yaml ${localRunDir}/chatbot/plugins`)
-    child_process.execSync(`rsync -r packages/chat/dist/* ${localRunDir}/chatbot/chat`)
-    child_process.execSync(`rsync -r packages/zos/dist/* ${localRunDir}/chatbot/plugins/@zowe/zos`)
-    child_process.execSync(`rsync -r packages/clicmd/dist/* ${localRunDir}/chatbot/plugins/@zowe/clicmd`)
-    child_process.execSync(`rsync -r packages/chat-webapp/build/* ${localRunDir}/chatbot/static`)
+    child_process.execSync(`rsync -r --ignore-existing packages/chat/resources/* ${localRunDir}/chatbot/configuration`);
+    child_process.execSync(`rsync -r --ignore-existing packages/chat/resources/plugin.yaml ${localRunDir}/chatbot/plugins`);
+    child_process.execSync(`rsync -r packages/chat/dist/* ${localRunDir}/chatbot/chat`);
+    child_process.execSync(`rsync -r packages/zos/dist/* ${localRunDir}/chatbot/plugins/@zowe/zos`);
+    child_process.execSync(`rsync -r packages/clicmd/dist/* ${localRunDir}/chatbot/plugins/@zowe/clicmd`);
+    child_process.execSync(`rsync -r packages/chat-webapp/build/* ${localRunDir}/chatbot/static`);
 
     // child_process.execSync(`rsync -r packages/commonbot/dist/* ${localRunDir}/chatbot/node_modules/@zowe/commonbot`)
     try {
@@ -121,19 +108,19 @@ const runChat: ITaskFunction = (done: (err: Error) => void) => {
                 NODE_PATH: `${projRoot}/packages/chat/node_modules`,
                 ZOWE_CHAT_STATIC_DIR: `${localRunDir}/chatbot/static`
             }
-        })
+        });
     }
     catch (error) {
-        console.log(error)
+        console.log(error);
         //      console.log(error.stdout.toString())
         //    console.log(error.stderr.toString())
 
     }
-    done(undefined)
+    done(undefined);
 
-}
+};
 
-runChat.description = "Sets up a local environment for running Zowe ChatBot. First time start will have empty configuration; future runs will not replace it."
+runChat.description = "Sets up a local environment for running Zowe ChatBot. First time start will have empty configuration; future runs will not replace it.";
 
 exports.license = license;
 exports.runChat = runChat;

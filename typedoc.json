@@ -1,0 +1,11 @@
+{
+    "out": "./docs/typedoc/",
+    "exclude": [
+        "**/node_modules/**",
+        "**/__tests__/**"
+    ],
+    "cleanOutputDir": true,
+    "entryPoints": ["./"],
+    "entryPointStrategy": "packages",
+    "readme": "./README.md"
+}

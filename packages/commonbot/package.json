@@ -6,8 +6,8 @@
     "license": "EPL-2.0",
     "private": true,
     "type": "commonjs",
-    "main": "dist/package/index.js",
-    "types": "./dist/package/index.d.ts",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "build": "gulp build",
         "packaging": "gulp packaging",
@@ -21,6 +21,7 @@
         "js-yaml": "^4.1.0",
         "superagent": "7.1.1",
         "winston": "3.7.2",
+        "typedoc": "typedoc --options ./typedoc.json ./src/",
         "ws": "8.5.0"
     },
     "devDependencies": {

@@ -10,6 +10,7 @@
     "packaging": "gulp packaging",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
     "lint": "gulp lint",
+    "typedoc": "typedoc --options ./typedoc.json ./src/",
     "circularDependencyCheck": "madge -c dist"
 
   },
