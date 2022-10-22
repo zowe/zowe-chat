@@ -8,9 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import BotLimit from '../../BotLimit';
+import { BotLimit } from '../../BotLimit';
 
-class SlackBotLimit extends BotLimit {
+export class SlackBotLimit extends BotLimit {
     // Constructor
     constructor() {
         super();
@@ -37,5 +37,3 @@ class SlackBotLimit extends BotLimit {
         };
     }
 }
-
-export = SlackBotLimit;

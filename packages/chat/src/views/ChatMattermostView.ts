@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IActionType, IBotOption, IMattermostBotLimit } from '@zowe/commonbot';
+import { IActionType, IBotOption, IMattermostBotLimit } from '../types';
 import { ChatView } from "./ChatView";
 
 export class ChatMattermostView extends ChatView {

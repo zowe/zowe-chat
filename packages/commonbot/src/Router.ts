@@ -8,19 +8,19 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { CommonBot } from './CommonBot';
+
 import { IRoute, IRouteHandlerFunction } from './types';
-import Logger from './utils/Logger';
 
+import { CommonBot } from './CommonBot';
+import { Logger } from './utils/Logger';
 
-class Router {
+const logger = Logger.getInstance();
+export class Router {
     protected bot: CommonBot;
     protected router: IRoute;
-    protected logger: Logger;
 
     // Constructor
     constructor(bot: CommonBot) {
-        this.logger = Logger.getInstance();
         this.bot = bot;
 
         this.router = null;
@@ -33,16 +33,16 @@ class Router {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async route(basePath: string, handler: IRouteHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.route, this);
+        logger.start(this.route, this);
 
         try {
-            this.logger.debug('Run base listener');
+            logger.debug('Run base listener');
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.route, this);
+            logger.end(this.route, this);
         }
     }
 
@@ -61,5 +61,3 @@ class Router {
         return;
     }
 }
-
-export = Router;

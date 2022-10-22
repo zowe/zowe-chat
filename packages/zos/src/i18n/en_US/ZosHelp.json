@@ -30,7 +30,8 @@
                                 "acronym": "o",
                                 "value": {
                                     "type": "null|string|number|enum|date|time|datetime",
-                                    "format": ""
+                                    "format": "",
+                                    "data": ""
                                 },
                                 "description": "Option description",
                                 "required": false
@@ -39,7 +40,8 @@
                                 "acronym": "p",
                                 "value": {
                                     "type": "null|string|number|enum|date|time|datetime",
-                                    "format": ""
+                                    "format": "",
+                                    "data": ""
                                 },
                                 "description": "Option description",
                                 "required": false

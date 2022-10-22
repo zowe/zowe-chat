@@ -8,13 +8,18 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+
 import { CommonBot } from '../../CommonBot';
-import { IChannel, IChatContextData, IChattingType, IChatTool, IMattermostOption, IMessage, IMessageType, IPayloadType, IUser } from '../../types';
-import Middleware = require('../../Middleware');
-import MattermostClient = require('./MattermostClient');
-import Util = require('../../utils/Util');
-import MattermostListener = require('./MattermostListener');
-class MattermostMiddleware extends Middleware {
+import { Middleware } from '../../Middleware';
+import { Logger } from '../../utils/Logger';
+import { MattermostClient } from './MattermostClient';
+import { Util } from '../../utils/Util';
+import { MattermostListener } from './MattermostListener';
+import { IChatContextData, IMessage, IMessageType, IChatToolType, IMattermostOption, IUser, IChattingType, IChannel, IPayloadType } from '../../types';
+
+const logger = Logger.getInstance();
+
+export class MattermostMiddleware extends Middleware {
     private client: MattermostClient;
     private botUser: IUser;
     private users: Map<string, IUser>;
@@ -39,8 +44,8 @@ class MattermostMiddleware extends Middleware {
 
         // Get option
         const option = this.bot.getOption();
-        if (option.chatTool !== IChatTool.MATTERMOST) {
-            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
+        if (option.chatTool.type !== IChatToolType.MATTERMOST) {
+            logger.error(`Wrong chat tool type set in bot option: ${option.chatTool.type}`);
             throw new Error(`Wrong chat tool type`);
         }
     }
@@ -48,31 +53,31 @@ class MattermostMiddleware extends Middleware {
     // Run middleware
     async run(): Promise<void> {
         // Print start log
-        this.logger.start(this.run, this);
+        logger.start(this.run, this);
 
         try {
-            const mattermostOption = <IMattermostOption>(this.bot.getOption().mattermost);
+            const mattermostOption = <IMattermostOption>(this.bot.getOption().chatTool.option);
             this.client = new MattermostClient(this, mattermostOption);
             if (mattermostOption.botAccessToken != null) {
                 await this.client.connect();
             }
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.run, this);
+            logger.end(this.run, this);
         }
     }
 
     // Send message back to Mattermost channel
     async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
         // Print start log
-        this.logger.start(this.send, this);
+        logger.start(this.send, this);
 
         try {
             // Get chat context data
-            this.logger.debug(`Chat tool data sent to Mattermost server: ${Util.dumpObject(chatContextData.context.chatTool, 2)}`);
+            logger.debug(`Chat tool data sent to Mattermost server: ${Util.dumpObject(chatContextData.context.chatTool, 2)}`);
 
             for (const msg of messages) {
                 // Process view to open dialog.
@@ -83,11 +88,11 @@ class MattermostMiddleware extends Middleware {
 
                 // Send message back to channel
                 if (chatContextData.context.chatTool !== null) { // Conversation message
-                    this.logger.info('Send conversation message ...');
+                    logger.info('Send conversation message ...');
                     this.client.sendMessage(msg.message, chatContextData.context.chatting.channel.id, chatContextData.context.chatTool.rootId);
                 } else {
                     // Proactive message
-                    this.logger.info('Send proactive message ...');
+                    logger.info('Send proactive message ...');
 
                     // Find channel if channel id is not provided.
                     let channelId: string = null;
@@ -96,34 +101,34 @@ class MattermostMiddleware extends Middleware {
                         const channelInfo: IChannel = await this.client.getChannelByName(chatContextData.context.chatting.channel.name);
 
                         if (channelInfo === null) {
-                            this.logger.error(`The specified MatterMost channel does not exist!\n`
+                            logger.error(`The specified MatterMost channel does not exist!\n`
                                 + JSON.stringify(chatContextData.context.chatting.channel, null, 2));
                             return;
                         }
-                        this.logger.debug(`Target channel info: ${JSON.stringify(channelInfo, null, 2)}`);
+                        logger.debug(`Target channel info: ${JSON.stringify(channelInfo, null, 2)}`);
                         channelId = channelInfo.id;
                     } else { // channel id is provided.
                         channelId = chatContextData.context.chatting.channel.id;
                     }
 
-                    this.logger.debug(`Target channel id: ${channelId}`);
+                    logger.debug(`Target channel id: ${channelId}`);
 
                     this.client.sendMessage(msg.message, channelId, '');
                 }
             }
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.send, this);
+            logger.end(this.send, this);
         }
     }
 
     // Process normal message
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async processMessage(rawMessage: Record<string, any>): Promise<void> {
-        this.logger.start(this.processMessage, this);
+        logger.start(this.processMessage, this);
 
         /* Incoming message format from websocket
                 {
@@ -151,7 +156,7 @@ class MattermostMiddleware extends Middleware {
                 seq: 6
                 }
         */
-        this.logger.debug(`Message is received from Mattermost server: ${Util.dumpObject(rawMessage)}`);
+        logger.debug(`Message is received from Mattermost server: ${Util.dumpObject(rawMessage)}`);
 
         try {
             const messagePost = JSON.parse(rawMessage.data.post);
@@ -166,13 +171,13 @@ class MattermostMiddleware extends Middleware {
                 user = await this.client.getUserById(messagePost.user_id);
             }
 
-            this.logger.debug(`User is ${JSON.stringify(user)}`);
+            logger.debug(`User is ${JSON.stringify(user)}`);
 
             let chattingType = IChattingType.UNKNOWN;
             if (rawMessage.data.channel_type !== undefined && rawMessage.data.channel_type !== null) {
                 chattingType = this.client.getChattingType(rawMessage.data.channel_type);
             } else {
-                this.logger.error(`rawMessage.data.channel_type is undefined.`);
+                logger.error(`rawMessage.data.channel_type is undefined.`);
             }
 
             // If this is 1v1 chat, add "@botName" to match message.
@@ -212,10 +217,10 @@ class MattermostMiddleware extends Middleware {
                     },
                 },
             };
-            this.logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
+            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Get listeners
-            const listeners = <[MattermostListener]>this.bot.getListeners();
+            const listeners = <[MattermostListener]> this.bot.getListeners();
 
             // Match and process message
             for (const listener of listeners) {
@@ -232,10 +237,10 @@ class MattermostMiddleware extends Middleware {
             }
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.processMessage, this);
+            logger.end(this.processMessage, this);
         }
     }
 
@@ -251,25 +256,23 @@ class MattermostMiddleware extends Middleware {
     }
 
     async getUserById(id: string): Promise<IUser> {
-        this.logger.start(this.getUserById, this);
+        logger.start(this.getUserById, this);
 
         let user = this.users.get(id);
         if (user === undefined) { // Not cached, query it.
             user = await this.client.getUserById(id);
         }
 
-        this.logger.end(this.getUserById, this);
+        logger.end(this.getUserById, this);
         return user;
     }
 
     async getChannelById(id: string): Promise<IChannel> {
-        this.logger.start(this.getChannelById, this);
+        logger.start(this.getChannelById, this);
 
         const channel = await this.client.getChannelById(id);
 
-        this.logger.end(this.getChannelById, this);
+        logger.end(this.getChannelById, this);
         return channel;
     }
 }
-
-export = MattermostMiddleware;

@@ -28,3 +28,26 @@ httpEndpoint:
   # Enable or disable the httpEndpoint connection protocol. The value can be true or false.
   # The default value is false.
   enabled: false
+
+  messagingApp:
+    # Specify the protocol of your HTTP endpoint. The value can be https or http.
+    # The default value is https.
+    protocol: https
+
+    # Specify the host name or IP address of your HTTP endpoint.
+    hostName: <Your host name>
+
+    # Specify the port number of your HTTP endpoint.
+    # The default value is 7701.
+    port: 7701
+    
+    # Specify the base path of your HTTP endpoint.
+    # The default value is /zowe/chat/api/v1.
+    basePath: /zowe/chat/api/v1
+
+    # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.  
+    tlsKey: <Your absolute TLS key file path of your messaging server>
+
+    # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
+    tlsCert: <Your absolute TLS cert file path of your messaging server>
+    

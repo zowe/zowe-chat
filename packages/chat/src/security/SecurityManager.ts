@@ -8,13 +8,14 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+import { config } from '../settings/Config'
 import { IUser } from "@zowe/commonbot";
 import * as crypto from "crypto";
-import { AppConfig, AuthType } from "../config/base/AppConfig";
-import { UserConfigManager } from "../config/UserConfigManager";
-import { Logger } from "../utils/Logger";
-import { LoginService, LoginStrategyType, SecurityConfig } from "./config/SecurityConfig";
-import { SecurityConfigSchema } from "./config/SecurityConfigSchema";
+import { IConfig, IAuthType } from "../types/IConfig";
+import { UserConfigManager } from "../settings/UserConfigManager";
+import { logger } from "../utils/Logger";
+import { LoginService, LoginStrategyType, SecurityConfig } from "../types/SecurityConfig";
+import { SecurityConfigSchema } from "./SecurityConfigSchema";
 import { ICredentialProvider } from "./credentials/ICredentialProvider";
 import { PasswordProvider } from "./credentials/PasswordProvider";
 import { TokenProvider } from "./credentials/TokenProvider";
@@ -28,58 +29,63 @@ export class SecurityManager {
 
     // TODO: Do we need config manager and a ref to security config? Will we be reloading config dynamically?
     private readonly configManager: UserConfigManager;
-    private readonly appConfig: AppConfig;
     private readonly userMap: IUserMapping;
-    private readonly log: Logger;
     private securityConfig: SecurityConfig;
     private credentialProvider: ICredentialProvider;
 
-    constructor(appConfig: AppConfig, configManager: UserConfigManager, log: Logger) {
-        this.log = log;
-        this.appConfig = appConfig;
+    constructor( configManager: UserConfigManager) {
         this.configManager = configManager;
-        this.log.debug("Initializing security facility");
-        this.securityConfig = this.configManager.getConfigFromSchema(SecurityConfigSchema);
 
-        let cryptKey: Buffer = Buffer.from(this.securityConfig.encryptionKey, 'base64');
-        if (cryptKey === undefined || cryptKey.length == 0) {
-            cryptKey = crypto.randomBytes(32);
-            this.securityConfig.encryptionKey = cryptKey.toString('base64');
+        logger.debug("Initializing security facility");
+        try {
+            this.securityConfig = this.configManager.getConfigFromSchema(SecurityConfigSchema);
+
+            let cryptKey: Buffer = Buffer.from(this.securityConfig.encryptionKey, 'base64');
+            if (cryptKey === undefined || cryptKey.length == 0) {
+                cryptKey = crypto.randomBytes(32);
+                this.securityConfig.encryptionKey = cryptKey.toString('base64');
+            }
+            let cryptIv: Buffer = Buffer.from(this.securityConfig.encryptionIv, 'base64');
+            if (cryptIv === undefined || cryptIv.length == 0) {
+                cryptIv = crypto.randomBytes(16);
+                this.securityConfig.encryptionIv = cryptIv.toString('base64');
+            }
+    
+            // TODO: choose backing mapping service from configuration?
+            this.userMap = new UserFileMapping(this.securityConfig.userStorage, cryptKey, cryptIv);
+    
+            logger.info(`Using ${this.securityConfig.authenticationStrategy} authentication strategy`);
+            const zosmfserverConfig = config.getZosmfServerConfig();
+            switch (zosmfserverConfig.authType) {
+                /*case AuthenticationStrategy.Passticket:
+                    if (!process.arch.startsWith('s390')) {
+                        logger.error("Passticket authentication is only supported when running on z/OS");
+                        throw Error("Passticket authentication is only supported when running on z/OS");
+                    }
+                    this.credentialProvider = new PassticketProvider(this.securityConfig, this.log);
+                    logger.debug("Using passticket provider for downstream authentications")
+                    break;*/
+                case IAuthType.PASSWORD:
+                    this.credentialProvider = new PasswordProvider(this.securityConfig, cryptIv, cryptKey);
+                    logger.debug("Using password provider for downstream authentications");
+                    break;
+                case IAuthType.TOKEN:
+                    this.credentialProvider = new TokenProvider(this.securityConfig);
+                    logger.debug("Using zOSMF Token provider for downstream authentications");
+                    break;
+                default:
+                    throw new Error("Unknown authentication strategy: " + this.securityConfig.authenticationStrategy);
+            }
+
+            this.writeConfig();
+        } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error('ZWECC001E: Internal server error: Security facility initialize exception');
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+            process.exit(1);
         }
-        let cryptIv: Buffer = Buffer.from(this.securityConfig.encryptionIv, 'base64');
-        if (cryptIv === undefined || cryptIv.length == 0) {
-            cryptIv = crypto.randomBytes(16);
-            this.securityConfig.encryptionIv = cryptIv.toString('base64');
-        }
 
-        // TODO: choose backing mapping service from configuration?
-        this.userMap = new UserFileMapping(this.securityConfig.userStorage, cryptKey, cryptIv, this.log);
-
-        this.log.info(`Using ${this.securityConfig.authenticationStrategy} authentication strategy`);
-        switch (this.appConfig.security.authMode) {
-            /*case AuthenticationStrategy.Passticket:
-                if (!process.arch.startsWith('s390')) {
-                    this.log.error("Passticket authentication is only supported when running on z/OS");
-                    throw Error("Passticket authentication is only supported when running on z/OS");
-                }
-                this.credentialProvider = new PassticketProvider(this.securityConfig, this.log);
-                this.log.debug("Using passticket provider for downstream authentications")
-                break;*/
-            case AuthType.PASSWORD:
-                this.credentialProvider = new PasswordProvider(this.securityConfig, cryptIv, cryptKey, this.log);
-                this.log.debug("Using password provider for downstream authentications");
-                break;
-            case AuthType.TOKEN:
-                this.credentialProvider = new TokenProvider(this.securityConfig, this.log);
-                this.log.debug("Using zOSMF Token provider for downstream authentications");
-                break;
-            default:
-                throw new Error("Unknown authentication strategy: " + this.securityConfig.authenticationStrategy);
-        }
-
-
-        this.writeConfig();
-        this.log.debug("Security facility initialized");
+        logger.debug("Security facility initialized");
     }
 
 
@@ -91,12 +97,12 @@ export class SecurityManager {
         if (loginSection.strategy == LoginStrategyType.RequireLogin) {
 
             if (loginSection.authService.service == LoginService.ZOSMF) {
-
+                const zosmfserverConfig = config.getZosmfServerConfig();
                 let zosmfHost: ZosmfHost = {
-                    host: this.appConfig.security.zosmf.host,
-                    port: this.appConfig.security.zosmf.port,
-                    rejectUnauthorized: this.appConfig.security.zosmf.rejectUnauthorized,
-                    protocol: this.appConfig.security.zosmf.protocol
+                    host: zosmfserverConfig.hostName,
+                    port: zosmfserverConfig.port,
+                    rejectUnauthorized: zosmfserverConfig.rejectUnauthorized,
+                    protocol: zosmfserverConfig.protocol
                 };
                 // TODO: Do better on unwrapping creds; make a class instead of type? too much leakage
                 loggedIn = await ZosmfLogin.loginUser(zosmfHost, principal.getUser().getMainframeUser(), principal.getCredentials().value);
@@ -113,7 +119,7 @@ export class SecurityManager {
             this.credentialProvider.exchangeCredential(principal.getUser(), principal.getCredentials().value);
             return this.userMap.mapUser(principal.getUser().getDistributedUser(), principal.getUser().getMainframeUser());
         } else {
-            this.log.debug("Failed to login user " + principal.getUser().getMainframeUser());
+            logger.debug("Failed to login user " + principal.getUser().getMainframeUser());
             return false;
         }
 
@@ -127,7 +133,7 @@ export class SecurityManager {
     public isAuthenticated(chatUsr: IUser): boolean {
         let user = this.getChatUser(chatUsr);
         if (user === undefined) {
-            this.log.debug("TBD001D: Could not find stored value for user: " + chatUsr + " Returning 'not authenticated'.");
+            logger.debug("TBD001D: Could not find stored value for user: " + chatUsr + " Returning 'not authenticated'.");
             return false;
         }
         return true;
@@ -160,7 +166,7 @@ export class SecurityManager {
             principal = this.userMap.getUser(uid);
         }
         if (principal === undefined || principal.trim().length == 0) {
-            this.log.debug("User not found in user map: " + user.name);
+            logger.debug("User not found in user map: " + user.name);
             return undefined;
         }
         return new ChatUser(uid, principal);

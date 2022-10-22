@@ -8,8 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IBotOption, ISlackBotLimit } from '@zowe/commonbot';
+import { IBotOption, ISlackBotLimit } from '../types';
 import { ChatView } from "./ChatView";
+
 export class ChatSlackView extends ChatView {
     protected botLimit: ISlackBotLimit;
 

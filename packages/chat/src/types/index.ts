@@ -81,6 +81,6 @@ export interface IResource {
     namespace: string;
 }
 
-export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IHttpEndpoint,
+export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IProtocol, IHttpEndpoint,
     IMessageHandlerFunction, IMessageMatcherFunction, IRouteHandlerFunction, IMessagingApp, IMessage, IMessageType, IAppOption, IPayloadType,
     IEvent, IActionType, IBotLimit, IMattermostBotLimit, ISlackBotLimit, IMsteamsBotLimit} from '@zowe/commonbot';

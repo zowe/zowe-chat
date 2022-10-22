@@ -26,7 +26,7 @@ const chatAuthProvider = {
       user: user,
       password: password,
     }).then((response) => {
-      if (response.status == 200) {
+      if (response.status === 200) {
         chatAuthProvider.isAuthenticated = true;
         callback({
           success: true,
@@ -36,14 +36,14 @@ const chatAuthProvider = {
         chatAuthProvider.isAuthenticated = false;
         callback({
           success: false,
-          serverResponse: (response.data != undefined) ? response.data : "There was an error logging in."
+          serverResponse: (response.data !== undefined) ? response.data : "There was an error logging in."
         });
       }
     }).catch((error) => {
       chatAuthProvider.isAuthenticated = false;
       callback({
         success: false,
-        serverResponse: (error?.response.data != undefined) ? error?.response.data : "There was an unknown error logging in."
+        serverResponse: (error?.response.data !== undefined) ? error?.response.data : "There was an unknown error logging in."
       });
     });
   },

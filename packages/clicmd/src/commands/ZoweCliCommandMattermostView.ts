@@ -8,10 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMattermostView, IBotOption, IExecutor, IMattermostBotLimit, IMessage, IMessageType, Logger } from "@zowe/chat";
+import { ChatMattermostView, IBotOption, IExecutor, IMattermostBotLimit, IMessage, IMessageType, logger, Util } from "@zowe/chat";
 import i18next from 'i18next';
-
-const logger = Logger.getInstance();
 
 class ZoweCliCommandMattermostView extends ChatMattermostView {
     constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
@@ -46,6 +44,8 @@ class ZoweCliCommandMattermostView extends ChatMattermostView {
                 },
             });
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Mattermost view create exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             messages = [{

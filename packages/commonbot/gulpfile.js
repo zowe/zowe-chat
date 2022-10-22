@@ -122,10 +122,11 @@ if (nodeEnv === 'production') { // Product
 
 // Print the configuration
 console.log('');
+console.log('Building @zowe/commonbot with settings below:');
 console.log('###################################################');
-console.log(`                    NODE_ENV = ${nodeEnv}`);
-console.log(`                RELEASE_TYPE = ${releaseType}`);
-console.log(`             RELEASE_VERSION = ${releaseVersion}`);
+console.log(`           NODE_ENV = ${nodeEnv}`);
+console.log(`       RELEASE_TYPE = ${releaseType}`);
+console.log(`    RELEASE_VERSION = ${releaseVersion}`);
 console.log('###################################################');
 console.log('');
 console.log(`Build folder: ${JSON.stringify(folder, null, 2)}`);

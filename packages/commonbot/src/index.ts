@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-export * from "./CommonBot";
-export * from './types';
+import { CommonBot } from './CommonBot';
 
+export default CommonBot;
+export * from './types';

@@ -8,8 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IConfigBlockDefinition } from "../../config/doc/IConfigBlockDefinition";
-import { AuthenticationStrategy, LoginStrategyType, TokenService } from "./SecurityConfig";
+import { IConfigBlockDefinition } from "../types/IChatConfigSchema";
+import { AuthenticationStrategy, LoginStrategyType, TokenService } from "../types/SecurityConfig";
 
 export const SecurityConfigSchema: IConfigBlockDefinition = {
 

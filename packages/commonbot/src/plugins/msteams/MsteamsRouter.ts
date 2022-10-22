@@ -11,12 +11,13 @@
 import type { IRouteHandlerFunction } from '../../types';
 
 import { CommonBot } from '../../CommonBot';
-import Router = require('../../Router');
-import MsteamsMiddleware = require('./MsteamsMiddleware');
+import { Router } from '../../Router';
+import { Logger } from '../../utils/Logger';
+import { MsteamsMiddleware } from './MsteamsMiddleware';
 
-class MsteamsRouter extends Router {
+const logger = Logger.getInstance();
 
-
+export class MsteamsRouter extends Router {
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
@@ -28,11 +29,11 @@ class MsteamsRouter extends Router {
     // Run router
     async route(path: string, handler: IRouteHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.route, this);
+        logger.start(this.route, this);
 
         try {
             // Check and set middleware
-            let middleware = <MsteamsMiddleware>this.bot.getMiddleware();
+            let middleware = <MsteamsMiddleware> this.bot.getMiddleware();
             if (middleware === null) {
                 middleware = new MsteamsMiddleware(this.bot);
                 this.bot.setMiddleware(middleware);
@@ -46,12 +47,10 @@ class MsteamsRouter extends Router {
             };
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.route, this);
+            logger.end(this.route, this);
         }
     }
 }
-
-export = MsteamsRouter;

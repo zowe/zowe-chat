@@ -1,30 +1,45 @@
 {
-    // "common" // Things that are reused everywhere, like "Confirm" and "Cancel" on buttons
-    // "validation" // All validation text, like "email address not valid" in a form
-    // "glossary" // Words we want to be reused consistently, like key words in your app
     "errorCode": {
-        //  ZWE AM 000I
-        //  ZWE S0 013I
-        "ZWECHT001E": {
+        "ZWECC001E": {
             "text": "Internal server error: {{error}}.",
             "reason": "",
             "action": ""
         },
-        "ZWECHT002E": {
-            "text": "The configuration file ${filePath} does not exist. Please make sure the file exists.",
-            "reason": "",
-            "action": ""
+        "ZWECC002E": {
+            "text": "The file or path {{filePath}} does not exist.",
+            "reason": "The required file or path is missing on your server",
+            "action": "Create the required file or path on your server"
         },
-        "ZWECHT003E": {
-            "text": "Failed to parse the content for file ${filePath}. Please make sure the file format is valid.",
-            "reason": "",
-            "action": ""
+        "ZWECC003E": {
+            "text": "Failed to read the file {{filePath}}.",
+            "reason": "Error ocurred when read the file. ",
+            "action": "Double check whether the file exists on your server or the file content is valid."
+        },
+        "ZWECC004E": {
+            "text": "Failed to parse the content for file {filePath}}.",
+            "reason": "The file format is invalid.",
+            "action": "Double check the file format."
+        },
+        "ZWECC005E": {
+            "text": "Unsupported value {{value}} for the item {{item}}.",
+            "reason": "The specified value is invalid.",
+            "action": "Double check and change the value to it valid."
+        },
+        "ZWECC006E": {
+            "text": "Unknown extension class or interface {{extensionName}} for the base class or interface {{baseName}}.",
+            "reason": "The sified value is invalid.",
+            "action": "Double check and change the value to it valid."
+        },
+        "ZWECC007E": {
+            "text": "Unknown extension class or interface {{}} for the base class or interface {{}}.",
+            "reason": "The sified value is invalid.",
+            "action": "Double check and change the value to it valid."
         }
     },
     "common": {
         "error": {
             "unknownQuestion": "Sorry, I can't understand the question. Try asking me `help`. You can also check the help guide to learn about what I can do.",
-            "payloadType": "@heWrong message (payloadType: {{payloadType}}) is received by the bot."
+            "payloadType": "@Wrong message (payloadType: {{payloadType}}) is received by the bot."
         }
     },
     "command": {

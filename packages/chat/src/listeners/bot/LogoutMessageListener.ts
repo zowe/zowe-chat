@@ -11,18 +11,15 @@
 
 import { IChatContextData, IMessage, IMessageType, IUser } from '@zowe/commonbot';
 import { SecurityManager } from '../../security/SecurityManager';
-import { Logger } from "../../utils/Logger";
+import { logger } from "../../utils/Logger";
+import { Util } from '../../utils/Util';
 import { ChatMessageListener } from '../ChatMessageListener';
 
-
 export class LogoutMessageListener extends ChatMessageListener {
-
-    private readonly logger: Logger;
     private readonly security: SecurityManager;
 
-    constructor(securityManager: SecurityManager, log: Logger) {
+    constructor(securityManager: SecurityManager) {
         super();
-        this.logger = log;
         this.security = securityManager;
         this.matchMessage = this.matchMessage.bind(this);
         this.processMessage = this.processMessage.bind(this);
@@ -31,13 +28,13 @@ export class LogoutMessageListener extends ChatMessageListener {
     // Match inbound message
     matchMessage(chatContextData: IChatContextData): boolean {
         // Print start log
-        this.logger.start(this.matchMessage, this);
+        logger.start(this.matchMessage, this);
 
         // Match message
         try {
             // Print incoming message
-            this.logger.debug(`Chat Plugin: ${JSON.stringify(chatContextData.extraData.chatPlugin, null, 4)}`);
-            this.logger.debug(`Incoming message: ${JSON.stringify(chatContextData.payload.data, null, 4)}`);
+            logger.debug(`Chat Plugin: ${JSON.stringify(chatContextData.extraData.chatPlugin, null, 4)}`);
+            logger.debug(`Incoming message: ${JSON.stringify(chatContextData.payload.data, null, 4)}`);
 
             // Parse message
             const command = super.parseMessage(chatContextData);
@@ -51,18 +48,19 @@ export class LogoutMessageListener extends ChatMessageListener {
                 return false;
             }
         } catch (error) {
-            // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(error.name), error));
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Logout message match exception', ns: 'ChatMessage'}));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
-            this.logger.end(this.matchMessage, this);
+            logger.end(this.matchMessage, this);
         }
     }
 
     // Process inbound message
     async processMessage(chatContextData: IChatContextData): Promise<IMessage[]> {
         // Print start log
-        this.logger.start(this.processMessage, this);
+        logger.start(this.processMessage, this);
         let user: IUser = chatContextData.context.chatting.user;
         // Process message
         let msgs: IMessage[] = [];
@@ -77,8 +75,9 @@ export class LogoutMessageListener extends ChatMessageListener {
             });
 
         } catch (error) {
-            // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(error.name), error));
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Logout message process exception', ns: 'ChatMessage'}));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
 
             msgs = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -86,7 +85,7 @@ export class LogoutMessageListener extends ChatMessageListener {
             }];
         } finally {
             // Print end log
-            this.logger.end(this.processMessage, this);
+            logger.end(this.processMessage, this);
         }
 
         return msgs;

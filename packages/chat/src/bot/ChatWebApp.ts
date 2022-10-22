@@ -8,7 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IUser } from "@zowe/commonbot";
+import type {Request, Response} from 'express';
+import { IAppOption, IUser } from "@zowe/commonbot";
 import cors from "cors";
 import crypto from "crypto";
 import type { Application } from 'express';
@@ -17,13 +18,13 @@ import * as fs from "fs-extra";
 import http from "http";
 import https from "https";
 import path from "path";
-import { ServerOptions } from '../config/base/AppConfig';
-import { EnvironmentVariable } from "../const/EnvironmentVariable";
+import { EnvironmentVariable } from "../settings/EnvironmentVariable";
 import { SecurityManager } from '../security/SecurityManager';
 import { CredentialType } from "../security/user/ChatCredential";
 import { ChatPrincipal } from "../security/user/ChatPrincipal";
 import { ChatUser } from "../security/user/ChatUser";
-import { Logger } from '../utils/Logger';
+import { logger } from '../utils/Logger';
+import { Util } from "../utils/Util";
 
 /**
  *  This class contains server-side endpoints and static web elements, serviced under-the-hood by an express application.
@@ -32,9 +33,7 @@ import { Logger } from '../utils/Logger';
  *  There should only be one instance of the class active at a time.
  */
 export class ChatWebApp {
-
-    private readonly log: Logger;
-    private readonly option: ServerOptions;
+    private readonly option: IAppOption;
     private readonly app: Application;
     private readonly securityFacility: SecurityManager;
     private readonly activeChallenges: Map<string, ChallengeComplete>;
@@ -47,29 +46,31 @@ export class ChatWebApp {
      * 
      * @param option 
      * @param securityFac used to generate challenge links and authenticate users
-     * @param log 
      */
-    constructor(option: ServerOptions, securityFac: SecurityManager, log: Logger) {
+    constructor(option: IAppOption, securityFac: SecurityManager) {
         // Set app option
         this.option = option;
-        this.log = log;
         this.securityFacility = securityFac;
         this.activeChallenges = new Map<string, ChallengeComplete>();
-        // Create express app
-        this.app = express();
-        this.app.use(cors(this.corsOptions()));
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: false }));
 
-        this.setApiRoutes();
+        this.login = this.login.bind(this);
+        this.generateCorsOption = this.generateCorsOption.bind(this);
 
-        if (EnvironmentVariable.ZOWE_CHAT_DEPLOY_UI) {
-            const staticFiles = EnvironmentVariable.ZOWE_CHAT_STATIC_DIR;
+        try {
+            // Create express app
+            this.app = express();
+            this.app.use(cors(this.generateCorsOption()));
+            this.app.use(express.json());
+            this.app.use(express.urlencoded({ extended: false }));
+
+            this.setApiRoutes();
+            // Get deployed file path
+            const staticFiles = `${EnvironmentVariable.ZOWE_CHAT_HOME}/webapp`;
 
             fs.writeFileSync(path.resolve(staticFiles, "env.js"),
                 `
             window.env = {
-                API_HOST: '${this.option.protocol}://${this.option.hostName}:${this.option.webappPort}'
+                API_HOST: '${this.option.protocol}://${this.option.hostName}:${this.option.port}'
             };
             `, { flag: 'w' }
             );
@@ -80,10 +81,11 @@ export class ChatWebApp {
                 res.sendFile(path.resolve(staticFiles, "index.html"));
             });
             this.app.use(rootRoute);
-        } else {
-            this.log.warn("Not deploying static frontend elements. This is intended for use by developers");
+        } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error('ZWECC001E: Internal server error: Web app create exception');
+            logger.error(logger.getErrorStack(new Error(error.name), error));
         }
-
     }
 
     /**
@@ -98,6 +100,8 @@ export class ChatWebApp {
      * @returns the fully qualified challenge link
      */
     public generateChallenge(user: IUser, onDone: () => void): string {
+        // Print start log
+        logger.start(this.generateChallenge, this);
 
         // challenge string is base64 encoded - username:email:id:randombytes 
         let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64');
@@ -106,11 +110,15 @@ export class ChatWebApp {
             onDone: onDone,
         });
 
-        let port = this.option.webappPort;
+        let port = this.option.port;
         // if we're in development mode and not serving static elements, use the local react development port
-        if (!EnvironmentVariable.ZOWE_CHAT_DEPLOY_UI && process.env.NODE_ENV == "development") {
+        if (process.env.NODE_ENV === "development") {
             port = 3000;
         }
+
+        // Print end log
+        logger.end(this.generateChallenge, this);
+
         return `${this.option.protocol}://${this.option.hostName}:${port}/login?__key=${challengeString}`;
     }
 
@@ -122,37 +130,47 @@ export class ChatWebApp {
      */
     private setApiRoutes() {
 
-        this.app.post('/api/v1/auth/login', async (req, res) => {
-            try {
+        this.app.post('/api/v1/auth/login', this.login);
+    }
 
-                // add defensive block
-                let challenge: string = req.body.challenge;
-                let user: string = req.body.user;
-                let password: string = req.body.password;
+    // Login handler
+    async login(req: Request, res: Response): Promise<void> {
+        // Print start log
+        logger.start(this.login, this);
 
-                let storedChallenge = this.activeChallenges.get(challenge);
-                if (challenge == undefined || storedChallenge == undefined) {
-                    res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.');
-                    return;
-                }
-                let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(storedChallenge.user.name, user), {
-                    type: CredentialType.PASSWORD, // always considered a password, even if using MFA credential
-                    value: password
-                }));
-                if (authN) {
-                    this.activeChallenges.delete(challenge);
-                    res.status(200).send('OK');
-                    storedChallenge.onDone();
-                } else {
-                    res.status(401).send('Unauthorized');
-                }
-            } catch (error) {
-                this.log.debug("Error trying to authenticate user " + req.body.user + ".");
-                this.log.debug("Error: " + error);
-                this.log.debug(error.getErrorStack());
-                res.status(500).send('Interal Server Error');
+        try {
+            // add defensive block
+            let challenge: string = req.body.challenge;
+            let user: string = req.body.user;
+            let password: string = req.body.password;
+
+            let storedChallenge = this.activeChallenges.get(challenge);
+            if (challenge == undefined || storedChallenge == undefined) {
+                res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.');
+                return;
             }
-        });
+            let authN = await this.securityFacility.authenticateUser(new ChatPrincipal(new ChatUser(storedChallenge.user.name, user), {
+                type: CredentialType.PASSWORD, // always considered a password, even if using MFA credential
+                value: password
+            }));
+            if (authN) {
+                this.activeChallenges.delete(challenge);
+                res.status(200).send('OK');
+                storedChallenge.onDone();
+            } else {
+                res.status(401).send('Unauthorized');
+            }
+        } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Web app api route set exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+            logger.debug("Error trying to authenticate user " + req.body.user + ".");
+            logger.debug("Error: " + error);
+            res.status(500).send('Interal Server Error');
+        } finally {
+            // Print end log
+            logger.end(this.login, this);
+        }
     }
 
     /**
@@ -169,20 +187,23 @@ export class ChatWebApp {
      * 
      */
     startServer(): void {
+        // Print start log
+        logger.start(this.startServer, this);
+
         try {
             // Set port
-            const port = this.normalizePort(this.option.webappPort.toString());
+            const port = this.normalizePort(this.option.port.toString());
             this.app.set('port', port);
 
             // Create Http/Https server
             if (this.option.protocol.toLowerCase() === 'https') {
                 // Check TLS key and certificate
                 if (fs.existsSync(this.option.tlsKey) === false) {
-                    console.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
+                    logger.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
                     process.exit(1);
                 }
                 if (fs.existsSync(this.option.tlsCert) === false) {
-                    console.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
+                    logger.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
                     process.exit(2);
                 }
 
@@ -200,9 +221,13 @@ export class ChatWebApp {
             this.server.on('error', this.onError(port));
             this.server.on('listening', this.onListening(this.server));
         } catch (error) {
-            console.error(`There's some problem to create the messaging app server!`);
-            console.error(error.stack);
-            process.exit(1);
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Web app server start exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+            process.exit(3);
+        } finally {
+            // Print end log
+            logger.end(this.startServer, this);
         }
     }
 
@@ -244,12 +269,12 @@ export class ChatWebApp {
                 case 'EACCES':
                     console.error(`${bind} requires elevated privileges`);
                     console.error(error.stack);
-                    process.exit(2);
+                    process.exit(4);
                     break;
                 case 'EADDRINUSE':
                     console.error(`${bind} is already in use`);
                     console.error(error.stack);
-                    process.exit(3);
+                    process.exit(5);
                     break;
                 default:
                     throw error;
@@ -277,24 +302,37 @@ export class ChatWebApp {
      * @returns 
      * 
      */
-    private corsOptions(): any {
-        const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
-        `${this.option.protocol}://${this.option.hostName}:${this.option.webappPort}`];
+    private generateCorsOption(): any {
+        // Print start log
+        logger.start(this.generateCorsOption, this);
 
-        if (!EnvironmentVariable.ZOWE_CHAT_DEPLOY_UI ||
-            process.env.NODE_ENV == "development") {
-            whitelist.push("http://localhost", "http://localhost:3000");
-        }
-        return {
-            origin: (origin: string, callback: Function) => {
-                if (whitelist.indexOf(origin) !== -1 || (origin == null || origin == undefined)) {
-                    callback(null, true);
-                }
-                else {
-                    callback(new Error(origin + "Domain not allowed by CORS"));
-                }
+        try {
+            const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
+            `${this.option.protocol}://${this.option.hostName}:${this.option.port}`];
+    
+            if (process.env.NODE_ENV == "development") {
+                whitelist.push("http://localhost", "http://localhost:3000");
             }
-        };
+
+            return {
+                origin: (origin: string, callback: Function) => {
+                    if (whitelist.indexOf(origin) !== -1 || (origin == null || origin == undefined)) {
+                        callback(null, true);
+                    }
+                    else {
+                        callback(new Error(origin + "Domain not allowed by CORS"));
+                    }
+                }
+            };
+        } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Web app cors option set exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+            process.exit(6);
+        } finally {
+            // Print end log
+            logger.end(this.generateCorsOption, this);
+        }
     }
 
 }

@@ -10,7 +10,8 @@
 
 import * as crypto from "crypto";
 import * as fs from "fs-extra";
-import { Logger } from "../../utils/Logger";
+import { logger } from "../../utils/Logger";
+import { Util } from "../../utils/Util";
 import { IUserMapping } from "./IUserMapping";
 
 /**
@@ -22,22 +23,24 @@ export class UserFileMapping implements IUserMapping {
     private readonly encryptAlgorithm: string = "aes-256-cbc";
     private readonly encryptIv: Buffer;
     private readonly encryptKey: Buffer;
-    private readonly log: Logger;
     private readonly mappingFile: string;
     // TODO: Convert to Map<string, string>? Set function wasn't working.
     private readonly userMap: any;
 
 
-    constructor(mappingFile: string, encryptionKey: Buffer, encryptionIv: Buffer, logger: Logger) {
-        this.log = logger;
+    constructor(mappingFile: string, encryptionKey: Buffer, encryptionIv: Buffer) {
         this.encryptIv = encryptionIv;
         this.encryptKey = encryptionKey;
         this.mappingFile = mappingFile;
         try {
             fs.ensureFileSync(this.mappingFile);
-        } catch (err) {
-            this.log.error(`Error creating mapping file: ${this.mappingFile}`);
-            this.log.debug(`Error details: ${err}`);
+        } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'User file mapping create exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+
+            logger.error(`Error creating mapping file: ${this.mappingFile}`);
+            logger.debug(`Error details: ${error}`);
             throw Error("Unable to initialize the default mapping service. See Log for details.");
         }
         let encryptedText = Buffer.from(fs.readFileSync(this.mappingFile).toString(), 'hex');
@@ -51,8 +54,8 @@ export class UserFileMapping implements IUserMapping {
                 this.userMap[key] = value;
             }
         }
-        this.log.info("User mapping service initialized");
-        this.log.debug(`Map content: ${JSON.stringify(this.userMap)}`);
+        logger.info("User mapping service initialized");
+        logger.debug(`Map content: ${JSON.stringify(this.userMap)}`);
     }
 
     public removeUser(distUser: string): boolean {
@@ -70,15 +73,15 @@ export class UserFileMapping implements IUserMapping {
     }
 
     public mapUser(distUser: string, mfUser: string): boolean {
-        this.log.debug(`Mapping ${distUser} to ${mfUser}`);
+        logger.debug(`Mapping ${distUser} to ${mfUser}`);
         let output = this.userMap[distUser] = mfUser;
-        // this.log.silly(JSON.stringify(output))
+        // logger.silly(JSON.stringify(output))
         this.writeMappingFile();
         return true;
     }
 
     private writeMappingFile(): void {
-        this.log.debug("Writing to user mapping file");
+        logger.debug("Writing to user mapping file");
         let cipher = crypto.createCipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
         let encryptedOut = Buffer.concat([cipher.update(JSON.stringify(this.userMap)), cipher.final()]);
         fs.writeFileSync(this.mappingFile, encryptedOut.toString('hex'), { flag: 'w' });

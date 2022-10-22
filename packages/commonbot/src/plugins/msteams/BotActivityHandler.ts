@@ -9,25 +9,26 @@
 */
 
 import type { NextFunction } from 'express';
-import { IActionType, IChatContextData, IEvent, IPayloadType, IUser, TaskModuleTaskInfo } from '../../types';
+import { IChatContextData, TaskModuleTaskInfo, IUser, IPayloadType, IEvent, IActionType } from '../../types';
 
-import { CardFactory, ChannelInfo, TaskModuleRequest, TaskModuleResponse, TeamsActivityHandler, TeamsInfo, TurnContext } from 'botbuilder';
+import { TurnContext, TeamsActivityHandler, TeamsInfo, ChannelInfo, TaskModuleRequest, TaskModuleResponse, CardFactory } from 'botbuilder';
 
-import { CommonBot } from '../../CommonBot';
 import { IChattingType } from '../../types';
 import { Logger } from '../../utils/Logger';
-import Util = require('../../utils/Util');
-import MsteamsListener = require('./MsteamsListener');
-import MsteamsRouter = require('./MsteamsRouter');
-import MsteamsMiddleware = require('./MsteamsMiddleware');
+import { Util } from '../../utils/Util';
+import { CommonBot } from '../../CommonBot';
+import { MsteamsListener } from './MsteamsListener';
+import { MsteamsRouter } from './MsteamsRouter';
+import { MsteamsMiddleware } from './MsteamsMiddleware';
 
-class BotActivityHandler extends TeamsActivityHandler {
+const logger = Logger.getInstance();
+
+export class BotActivityHandler extends TeamsActivityHandler {
     private bot: CommonBot;
     private middleware: MsteamsMiddleware;
     private serviceUrl: Map<string, string>;
     private channels: ChannelInfo[];
     private users: Map<string, IUser>;
-    private logger: Logger;
 
     constructor(bot: CommonBot, middleware: MsteamsMiddleware) {
         super();
@@ -56,16 +57,16 @@ class BotActivityHandler extends TeamsActivityHandler {
     // Process message
     async processMessage(context: TurnContext, next: NextFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.processMessage, this);
+        logger.start(this.processMessage, this);
 
         try {
             // Remove mentions from message
             TurnContext.removeRecipientMention(context.activity);
-            this.logger.debug(`MS Teams context: ${JSON.stringify(context, null, 2)}`);
+            logger.debug(`MS Teams context: ${JSON.stringify(context, null, 2)}`);
 
             // Get conversation reference
             const conversationReference = TurnContext.getConversationReference(context.activity);
-            this.logger.debug(`conversationReference: ${JSON.stringify(conversationReference, null, 2)}`);
+            logger.debug(`conversationReference: ${JSON.stringify(conversationReference, null, 2)}`);
 
             // Get chatting type
             const chattingType = this.getChattingType(context.activity.conversation.conversationType);
@@ -77,14 +78,14 @@ class BotActivityHandler extends TeamsActivityHandler {
             } else if (chattingType == IChattingType.GROUP) {
                 this.cacheServiceUrl(context.activity.conversation.id, conversationReference.serviceUrl);
             } else {
-                this.logger.error(`${IChattingType.UNKNOWN} type, Couldn't cache service Url`);
+                logger.error(`${IChattingType.UNKNOWN} type, Couldn't cache service Url`);
                 return;
             }
 
             // Cache channel info
             if (context.activity.conversation.conversationType === 'channel') {
                 this.channels = await TeamsInfo.getTeamChannels(context);
-                this.logger.debug(`Channel info: ${JSON.stringify(this.channels, null, 2)}`);
+                logger.debug(`Channel info: ${JSON.stringify(this.channels, null, 2)}`);
             }
 
             // Get mentioned bot name
@@ -93,9 +94,9 @@ class BotActivityHandler extends TeamsActivityHandler {
             // Search the user from cached users.
             let user = this.getUser(context.activity.from.id);
             // if user have not been cached, then search from the msteams server and cache it
-            if (user === undefined) {
+            if (user === undefined ) {
                 const userProfile = await TeamsInfo.getMember(context, context.activity.from.id);
-                this.logger.debug(`Cache the user info: ${JSON.stringify(userProfile, null, 2)}`);
+                logger.debug(`Cache the user info: ${JSON.stringify(userProfile, null, 2)}`);
                 user = { id: context.activity.from.id, name: context.activity.from.name, email: userProfile.email };
                 this.addUser(context.activity.from.id, user);
             }
@@ -140,7 +141,7 @@ class BotActivityHandler extends TeamsActivityHandler {
                     },
                 },
             };
-            this.logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
+            logger.debug(`Chat context data sent to chat bot: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Only value field can be used to check where the message come from: mouse clicking or user input
             // Reference: https://blog.botframework.com/2019/07/02/using-adaptive-cards-with-the-microsoft-bot-framework/
@@ -305,13 +306,13 @@ class BotActivityHandler extends TeamsActivityHandler {
                 chatContextData.payload.data = event;
 
                 // Get router
-                const router = <MsteamsRouter>this.bot.geRouter();
+                const router = <MsteamsRouter> this.bot.geRouter();
 
                 // Call route handler for mouse navigation
                 await router.getRoute().handler(chatContextData);
             } else { // From user input
                 // Get listeners
-                const listeners = <MsteamsListener[]>this.bot.getListeners();
+                const listeners = <MsteamsListener[]> this.bot.getListeners();
 
                 // Match and process message
                 for (const listener of listeners) {
@@ -331,17 +332,17 @@ class BotActivityHandler extends TeamsActivityHandler {
             await next();
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.processMessage, this);
+            logger.end(this.processMessage, this);
         }
     }
 
     // Update conversation
     async updateConversation(context: TurnContext, next: NextFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.updateConversation, this);
+        logger.start(this.updateConversation, this);
 
         try {
             // Get conversation reference
@@ -352,22 +353,22 @@ class BotActivityHandler extends TeamsActivityHandler {
 
             // Cache channel info
             this.channels = await TeamsInfo.getTeamChannels(context);
-            this.logger.debug(`Channel info: ${JSON.stringify(this.channels, null, 2)}`);
+            logger.debug(`Channel info: ${JSON.stringify(this.channels, null, 2)}`);
 
             await next();
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.updateConversation, this);
+            logger.end(this.updateConversation, this);
         }
     }
 
     // Cache service url
     // Id might be channelId or userId or conversationId
     private cacheServiceUrl(id: string, serviceUrl: string): void {
-        this.logger.info(`Caching the service URL "${serviceUrl}" for id "${id}"`);
+        logger.info(`Caching the service URL "${serviceUrl}" for id "${id}"`);
         if (this.serviceUrl.has(id)) {
             if (this.serviceUrl.get(id) !== serviceUrl) {
                 this.serviceUrl.set(id, serviceUrl);
@@ -375,8 +376,8 @@ class BotActivityHandler extends TeamsActivityHandler {
         } else {
             this.serviceUrl.set(id, serviceUrl);
         }
-        this.logger.debug(`MS Teams cached service URLs:`);
-        this.serviceUrl.forEach((value, key) => (this.logger.debug(`${key} : ${value}`)));
+        logger.debug(`MS Teams cached service URLs:`);
+        this.serviceUrl.forEach((value, key)=>(logger.debug(`${key} : ${value}`)));
 
         return;
     }
@@ -384,26 +385,26 @@ class BotActivityHandler extends TeamsActivityHandler {
     // Implement the handleTeamsTaskModuleFetch function to handle 'task/fetch'
     async handleTeamsTaskModuleFetch(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
         // Print start log
-        this.logger.start(this.handleTeamsTaskModuleFetch, this);
+        logger.start(this.handleTeamsTaskModuleFetch, this);
 
         try {
             // Called when the user selects an options from the displayed HeroCard or
             // AdaptiveCard.  The result is the action(task module) to perform.
-            this.logger.debug(`MS Teams task/fetch event context: ${JSON.stringify(context, null, 2)}`);
+            logger.debug(`MS Teams task/fetch event context: ${JSON.stringify(context, null, 2)}`);
 
             // Search the user from cached users.
             let user = this.getUser(context.activity.from.id);
             // if user have not been cached, then search from the msteams server and cache it
-            if (user === undefined) {
+            if (user === undefined ) {
                 const userProfile = await TeamsInfo.getMember(context, context.activity.from.id);
-                this.logger.debug(`Cache the user info: ${JSON.stringify(userProfile, null, 2)}`);
+                logger.debug(`Cache the user info: ${JSON.stringify(userProfile, null, 2)}`);
                 user = { id: context.activity.from.id, name: context.activity.from.name, email: userProfile.email };
                 this.addUser(context.activity.from.id, user);
             }
 
             // Get chatting type
             const chattingType = this.getChattingType(context.activity.conversation.conversationType);
-            this.logger.debug(`chattingType: ${chattingType}`);
+            logger.debug(`chattingType: ${chattingType}`);
 
             // Get  event
             const event: IEvent = {
@@ -452,9 +453,9 @@ class BotActivityHandler extends TeamsActivityHandler {
             };
 
             // Get router
-            const router = <MsteamsRouter>this.bot.geRouter();
+            const router = <MsteamsRouter> this.bot.geRouter();
             // Call route handler for mouse navigation
-            const chatOpsTaskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo>await router.getRoute().handler(chatContextData);
+            const chatOpsTaskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo> await router.getRoute().handler(chatContextData);
 
             // The adaptive card doesn't adapt the theme mode of the MS Teams, and sometimes the display is not good
             // https://techcommunity.microsoft.com/t5/teams-developer/ms-teams-dark-mode-task-with-adaptive-card-wrong-colors/m-p/2837861#M4032
@@ -470,34 +471,34 @@ class BotActivityHandler extends TeamsActivityHandler {
             };
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.handleTeamsTaskModuleFetch, this);
+            logger.end(this.handleTeamsTaskModuleFetch, this);
         }
     }
 
     // Implement the handleTeamsTaskModuleFetch function to handle 'task/submit'
     async handleTeamsTaskModuleSubmit(context: TurnContext, taskModuleRequest: TaskModuleRequest): Promise<TaskModuleResponse> {
         // Called when data is being returned from the selected option (see `handleTeamsTaskModuleFetch').
-        this.logger.start(this.handleTeamsTaskModuleSubmit, this);
+        logger.start(this.handleTeamsTaskModuleSubmit, this);
 
         try {
-            this.logger.debug(`MS Teams task/submit event context: ${JSON.stringify(context, null, 2)}`);
+            logger.debug(`MS Teams task/submit event context: ${JSON.stringify(context, null, 2)}`);
 
             // Search the user from cached users.
             let user = this.getUser(context.activity.from.id);
             // if user have not been cached, then search from the msteams server and cache it
-            if (user === undefined) {
+            if (user === undefined ) {
                 const userProfile = await TeamsInfo.getMember(context, context.activity.from.id);
-                this.logger.debug(`Cache the user info: ${JSON.stringify(userProfile, null, 2)}`);
+                logger.debug(`Cache the user info: ${JSON.stringify(userProfile, null, 2)}`);
                 user = { id: context.activity.from.id, name: context.activity.from.name, email: userProfile.email };
                 this.addUser(context.activity.from.id, user);
             }
 
             // Get chatting type
             const chattingType = this.getChattingType(context.activity.conversation.conversationType);
-            this.logger.debug(`chattingType: ${chattingType}`);
+            logger.debug(`chattingType: ${chattingType}`);
 
             // Get  event
             const event: IEvent = {
@@ -545,9 +546,9 @@ class BotActivityHandler extends TeamsActivityHandler {
             };
 
             // Get router
-            const router = <MsteamsRouter>this.bot.geRouter();
+            const router = <MsteamsRouter> this.bot.geRouter();
             // Call router handler for mouse navigation
-            const taskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo>await router.getRoute().handler(chatContextData);
+            const taskInfo: TaskModuleTaskInfo = <TaskModuleTaskInfo> await router.getRoute().handler(chatContextData);
 
             if (taskInfo !== null && taskInfo !== undefined) {
                 return {
@@ -559,10 +560,10 @@ class BotActivityHandler extends TeamsActivityHandler {
             }
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.handleTeamsTaskModuleSubmit, this);
+            logger.end(this.handleTeamsTaskModuleSubmit, this);
         }
     }
 
@@ -645,5 +646,3 @@ class BotActivityHandler extends TeamsActivityHandler {
         return chattingType;
     }
 }
-
-export = BotActivityHandler;

@@ -64,6 +64,7 @@ module.exports = {
             ignoreUrls: true,
             ignorePattern: 'goog\.(module|require)',
         }],
+        'object-curly-spacing': ["error", "always"],
         'operator-linebreak': ['error', 'before'],
         'require-jsdoc': ['off', {
             require: {

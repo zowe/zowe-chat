@@ -9,10 +9,10 @@
 */
 
 import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
-
+import { logger, Util } from '@zowe/chat';
 import { ChatSlackView, IBotOption, ICommand, IExecutor, IMessage, IMessageType, ISlackBotLimit } from '@zowe/chat';
-const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
+const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
 export class ZosJobSlackView extends ChatSlackView {
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
@@ -22,7 +22,7 @@ export class ZosJobSlackView extends ChatSlackView {
     // Get overview view.
     getOverview(jobs: IJob[], executor: IExecutor, command: ICommand): IMessage[] {
         // Print start log
-        this.log.start(this.getOverview, this);
+        logger.start(this.getOverview, this);
 
         let messages: IMessage[] = [];
         try {
@@ -100,15 +100,14 @@ export class ZosJobSlackView extends ChatSlackView {
                 blockObject.blocks.push(jobSection);
 
                 // Add divider block
-                blockObject.blocks.push(
-                    {
-                        'type': 'divider',
-                    },
+                blockObject.blocks.push({
+                    'type': 'divider',
+                },
                 );
 
                 // Create options for job details select menu
                 detailOptions.push(super.createSelectMenuOption(`Details of ${job.jobname}(${job.jobid})`,
-                    `@${this.botName}:zos:job:list:status:id=${job.jobid}`));
+                        `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`));
             }
 
             // Create action block object.
@@ -135,7 +134,9 @@ export class ZosJobSlackView extends ChatSlackView {
             });
             return messages;
         } catch (error) {
-            this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos job view create exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -143,14 +144,14 @@ export class ZosJobSlackView extends ChatSlackView {
             }];
         } finally {
             // Print end log
-            this.log.end(this.getOverview);
+            logger.end(this.getOverview);
         }
     }
 
     // Get detail view.
     getDetail(jobs: IJob[], executor: IExecutor): IMessage[] {
         // Print start log
-        this.log.start(this.getDetail, this);
+        logger.start(this.getDetail, this);
 
         let messages: IMessage[] = [];
 
@@ -272,9 +273,9 @@ export class ZosJobSlackView extends ChatSlackView {
 
             // Add divider block
             blockObject.blocks.push(
-                {
-                    'type': 'divider',
-                },
+                    {
+                        'type': 'divider',
+                    },
             );
 
             messages.push({
@@ -283,7 +284,9 @@ export class ZosJobSlackView extends ChatSlackView {
             });
             return messages;
         } catch (error) {
-            this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos job view create exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
@@ -291,7 +294,7 @@ export class ZosJobSlackView extends ChatSlackView {
             }];
         } finally {
             // Print end log
-            this.log.end(this.getDetail);
+            logger.end(this.getDetail);
         }
     }
 }

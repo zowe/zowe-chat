@@ -13,15 +13,21 @@ import {IResource} from '../types';
 import type {TFunction} from 'i18next';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
-import Logger = require('../utils/Logger');
-
-const logger = Logger.getInstance();
+import { logger } from '../utils/Logger';
+import { Util } from '../utils/Util';
 
 class ChatResource {
     private resources: IResource[];
 
     constructor() {
-        this.resources = [];
+        this.resources = [{
+                'namespace': 'ChatHelp',
+                'loadPath': `${__dirname}/../i18n/{{lng}}/ChatHelp.json`
+            },
+            {
+                'namespace': "ChatMessage",
+                'loadPath':`${__dirname}/../i18n/{{lng}}/ChatMessage.json`
+            }];
     }
 
     // Add resource
@@ -70,7 +76,8 @@ class ChatResource {
                 }
             });
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Translation resource initialize exception', ns: 'ChatMessage'}));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log

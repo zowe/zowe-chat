@@ -9,10 +9,8 @@
 */
 
 
-import {Logger, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit} from '@zowe/chat';
+import { logger, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit, Util } from '@zowe/chat';
 import i18next from 'i18next';
-
-const logger = Logger.getInstance();
 
 class ZoweCliCommandSlackView extends ChatSlackView {
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
@@ -58,6 +56,8 @@ class ZoweCliCommandSlackView extends ChatSlackView {
                 //     + '```\n' + commandOutput + '\n```',
             });
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Slack view create exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             messages = [{

@@ -9,10 +9,8 @@
 */
 
 
-import {Logger, ChatMsteamsView, IBotOption, IExecutor, IMessage, IMessageType, IMsteamsBotLimit} from '@zowe/chat';
+import { logger, ChatMsteamsView, IBotOption, IExecutor, IMessage, IMessageType, IMsteamsBotLimit, Util } from '@zowe/chat';
 import i18next from 'i18next';
-
-const logger = Logger.getInstance();
 
 class ZoweCliCommandMsteamsView extends ChatMsteamsView {
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
@@ -34,6 +32,8 @@ class ZoweCliCommandMsteamsView extends ChatMsteamsView {
                         + `<pre>${commandOutput}</pre>`,
             });
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Teams view create exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             messages = [{

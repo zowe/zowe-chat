@@ -8,14 +8,13 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMessageListener, IChatContextData, IChatTool, ICommand, IExecutor, IMessage, IMessageType } from '@zowe/chat';
+import { logger, Util } from '@zowe/chat';
+import { ChatMessageListener, IChatContextData, IChatToolType, IExecutor, IMessage, IMessageType } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
+
 const i18nJsonData = require('../i18n/jobDisplay.json');
-
-
 class ZosMessageListener extends ChatMessageListener {
-    private command: ICommand;
     constructor() {
         super();
         this.processMessage = this.processMessage.bind(this);
@@ -24,54 +23,42 @@ class ZosMessageListener extends ChatMessageListener {
     // Match inbound message
     matchMessage(chatContextData: IChatContextData): boolean {
         // Print start log
-        this.log.start(this.matchMessage, this);
+        logger.start(this.matchMessage, this);
 
         try {
-            // print incoming message
-            this.log.debug(`Incoming message: ${JSON.stringify(chatContextData.payload, null, 4)}`);
+            // Print incoming message
+            logger.debug(`Chat Plugin: ${JSON.stringify(chatContextData.extraData.chatPlugin, null, 4)}`);
+            logger.debug(`Incoming message: ${JSON.stringify(chatContextData.payload.data, null, 4)}`);
 
-            const botOption = chatContextData.context.chatting.bot.getOption();
-            let botName: string;
-            switch (botOption.chatTool) {
-                case IChatTool.MATTERMOST:
-                    botName = botOption.mattermost.botUserName;
-                    break;
-                case IChatTool.MSTEAMS:
-                    botName = botOption.msteams.botUserName;
-                    break;
-                case IChatTool.SLACK:
-                    botName = botOption.slack.botUserName;
-                    break;
+            // Parse message
+            const command = super.parseMessage(chatContextData);
+            command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
+            command.extraData.zosmf = chatContextData.extraData.zosmf;
+            command.extraData.principal = chatContextData.extraData.principal;
+
+            // Match scope
+            if (command.scope === 'zos') {
+                chatContextData.extraData.command = command;
+                return true;
+            } else {
+                // logger.info('Wrong command sent to Zowe CLI command plugin!');
+                return false;
             }
-            this.command = super.parseMessage(chatContextData);
-
-            // 1: Match bot name.
-            // 2. TODO: Check if it is a valid command.
-            // 3: Match command scope.
-            if (this.command.extraData.botUserName === botName) {
-                if (this.command.scope === 'zos') {
-                    this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
-
-                    this.log.debug('Message matched!');
-                    return true;
-                }
-            }
-
-            return false;
         } catch (error) {
-            // Print exception stack
-            this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos message match exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
             return false;
         } finally {
             // Print end log
-            this.log.end(this.matchMessage, this);
+            logger.end(this.matchMessage, this);
         }
     }
 
     // Process inbound message
     async processMessage(chatContextData: IChatContextData): Promise<IMessage[]> {
         // Print start log
-        this.log.start(this.processMessage, this);
+        logger.start(this.processMessage, this);
 
         // Process message
         try {
@@ -86,31 +73,30 @@ class ZosMessageListener extends ChatMessageListener {
             };
 
             const botOption = chatContextData.context.chatting.bot.getOption();
-            if (botOption.chatTool !== IChatTool.MATTERMOST
-                && botOption.chatTool !== IChatTool.SLACK
-                && botOption.chatTool !== IChatTool.MSTEAMS) {
+            if (botOption.chatTool.type !== IChatToolType.MATTERMOST
+                && botOption.chatTool.type !== IChatToolType.SLACK
+                && botOption.chatTool.type !== IChatToolType.MSTEAMS) {
                 return [{
                     type: IMessageType.PLAIN_TEXT,
                     message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
                 }];
             }
 
-            this.log.debug(`Incoming command is ${JSON.stringify(this.command)}`);
+            logger.debug(`Incoming command is ${JSON.stringify(chatContextData.extraData.command)}`);
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
-            this.command.extraData.zosmf = chatContextData.extraData.zosmf;
-            this.command.extraData.principal = chatContextData.extraData.principal;
-            return await dispatcher.dispatch(this.command, executor);
+            return await dispatcher.dispatch(chatContextData.extraData.command, executor);
         } catch (error) {
-            // Print exception stack
-            this.log.error(this.log.getErrorStack(new Error(error.name), error));
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos message process exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
             return [{
                 type: IMessageType.PLAIN_TEXT,
                 message: i18nJsonData.error.internal,
             }];
         } finally {
             // Print end log
-            this.log.end(this.processMessage, this);
+            logger.end(this.processMessage, this);
         }
     }
 }

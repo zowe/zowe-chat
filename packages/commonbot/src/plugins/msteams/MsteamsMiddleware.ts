@@ -9,15 +9,19 @@
 */
 
 import type { Request, Response } from 'express';
-import { IChatContextData, IChatTool, IMessage, IMessageType, IMsteamsOption } from '../../types';
+import { IChatContextData, IChatToolType, IMessage, IMessageType, IMsteamsOption } from '../../types';
 
-import { Activity, Attachment, BotFrameworkAdapter, CardFactory, ConversationAccount, ConversationParameters, Entity, MessageFactory, TurnContext } from 'botbuilder';
+import { BotFrameworkAdapter, TurnContext, CardFactory, ConversationParameters, Attachment, Activity,
+    MessageFactory, ConversationAccount, Entity } from 'botbuilder';
 import { CommonBot } from '../../CommonBot';
-import Middleware = require('../../Middleware');
-import BotActivityHandler = require('./BotActivityHandler');
-import Util = require('../../utils/Util');
+import { Middleware } from '../../Middleware';
+import { BotActivityHandler } from './BotActivityHandler';
+import { Logger } from '../../utils/Logger';
+import { Util } from '../../utils/Util';
 
-class MsteamsMiddleware extends Middleware {
+const logger = Logger.getInstance();
+
+export class MsteamsMiddleware extends Middleware {
     private botFrameworkAdapter: BotFrameworkAdapter;
     private botActivityHandler: BotActivityHandler;
 
@@ -32,13 +36,13 @@ class MsteamsMiddleware extends Middleware {
 
         // Get option
         const option = this.bot.getOption();
-        if (option.chatTool !== IChatTool.MSTEAMS) {
-            this.logger.error(`Wrong chat tool type set in bot option: ${option.chatTool}`);
+        if (option.chatTool.type !== IChatToolType.MSTEAMS) {
+            logger.error(`Wrong chat tool type set in bot option: ${option.chatTool.type}`);
             throw new Error(`Wrong chat tool type`);
         }
 
         // Create adapter
-        const msteamsOption: IMsteamsOption = option.msteams;
+        const msteamsOption: IMsteamsOption = <IMsteamsOption>option.chatTool.option;
         this.botFrameworkAdapter = new BotFrameworkAdapter({
             appId: msteamsOption.botId,
             appPassword: msteamsOption.botPassword,
@@ -51,32 +55,32 @@ class MsteamsMiddleware extends Middleware {
     // Process turn error
     async processTurnError(context: TurnContext, error: Error): Promise<void> {
         // Print start log
-        this.logger.start(this.processTurnError, this);
+        logger.start(this.processTurnError, this);
 
         try {
-            this.logger.error(`unhandled error: ${error}`);
+            logger.error(`unhandled error: ${error}`);
 
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(error.name), error));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
 
             // Send a trace activity, which will be displayed in Bot Framework Emulator
-            await context.sendTraceActivity('processTurnError Trace', `${error}`, 'https://www.botframework.com/schemas/error', 'TurnError');
+            await context.sendTraceActivity( 'processTurnError Trace', `${error}`, 'https://www.botframework.com/schemas/error', 'TurnError');
 
             // Send a message to the user
             await context.sendActivity('The bot encountered an error or bug. To continue to run this bot, please fix the bot source code.');
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.processTurnError, this);
+            logger.end(this.processTurnError, this);
         }
     }
 
     // Run middleware
     async run(): Promise<void> {
         // Print start log
-        this.logger.start(this.run, this);
+        logger.start(this.run, this);
 
         try {
             // Get bot option
@@ -91,21 +95,21 @@ class MsteamsMiddleware extends Middleware {
             });
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.run, this);
+            logger.end(this.run, this);
         }
     }
 
     // Send message back to MS Teams channel
     async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
         // Print start log
-        this.logger.start(this.send, this);
+        logger.start(this.send, this);
 
         try {
             // Get chat context data
-            this.logger.debug(`Chat context data sent to MS Teams: ${Util.dumpObject(chatContextData, 2)}`);
+            logger.debug(`Chat context data sent to MS Teams: ${Util.dumpObject(chatContextData, 2)}`);
 
             // Get text and attachment part of the message to be sent
             let textMessage: string = '';
@@ -117,7 +121,7 @@ class MsteamsMiddleware extends Middleware {
                 } else if (message.type === IMessageType.MSTEAMS_ADAPTIVE_CARD) {
                     attachments.push(CardFactory.adaptiveCard(message.message));
                 } else {
-                    this.logger.error(`Unsupported type "${message.type}" for the message: ${JSON.stringify(message, null, 2)}`);
+                    logger.error(`Unsupported type "${message.type}" for the message: ${JSON.stringify(message, null, 2)}`);
                     textMessage = `${textMessage}\n${JSON.stringify(message.message)}`;
                 }
 
@@ -127,13 +131,13 @@ class MsteamsMiddleware extends Middleware {
                     for (const mention of message.mentions) {
                         if (mention.mentioned.id.trim() === '' && mention.mentioned.name.trim() !== '') {
                             const channelInfo = this.botActivityHandler.findChannelByName(mention.mentioned.name);
-                            this.logger.debug(`Channel info for mention ${mention.mentioned.name}: ${JSON.stringify(channelInfo, null, 2)}`);
+                            logger.debug(`Channel info for mention ${mention.mentioned.name}: ${JSON.stringify(channelInfo, null, 2)}`);
                             if (channelInfo !== null) {
                                 mention.mentioned.id = channelInfo.id;
                             }
                         } else {
                             const channelInfo = this.botActivityHandler.findChannelById(mention.mentioned.id);
-                            this.logger.debug(`Channel info for mention ${mention.mentioned.name}: ${JSON.stringify(channelInfo, null, 2)}`);
+                            logger.debug(`Channel info for mention ${mention.mentioned.name}: ${JSON.stringify(channelInfo, null, 2)}`);
                             if (channelInfo !== null) {
                                 mention.mentioned.name = channelInfo.name;
                             }
@@ -145,11 +149,11 @@ class MsteamsMiddleware extends Middleware {
                         }
                     }
 
-                    this.logger.debug(`message.mentions: ${JSON.stringify(message.mentions, null, 2)}`);
+                    logger.debug(`message.mentions: ${JSON.stringify(message.mentions, null, 2)}`);
                 }
             }
 
-            this.logger.debug(`mentions: ${JSON.stringify(mentions, null, 2)}`);
+            logger.debug(`mentions: ${JSON.stringify(mentions, null, 2)}`);
 
             // Get activity
             let activity: string | Partial<Activity> = null;
@@ -161,31 +165,31 @@ class MsteamsMiddleware extends Middleware {
                 activity = { text: textMessage, attachments: attachments };
             } else {
                 activity = '';
-                this.logger.warn(`The message to be sent is empty!`);
+                logger.warn(`The message to be sent is empty!`);
             }
-            this.logger.debug(`activity to be sent: ${JSON.stringify(activity, null, 2)}`);
+            logger.debug(`activity to be sent: ${JSON.stringify(activity, null, 2)}`);
 
             // Send message back to channel
             if (activity !== '') {
                 if (chatContextData.context.chatTool !== null && chatContextData.context.chatTool !== undefined
-                    && chatContextData.context.chatTool.context !== null
-                    && chatContextData.context.chatTool.context !== undefined) { // Conversation message
-                    this.logger.info('Send conversation message ...');
+                        && chatContextData.context.chatTool.context !== null
+                        && chatContextData.context.chatTool.context !== undefined) { // Conversation message
+                    logger.info('Send conversation message ...');
 
                     // Get conversation reference
                     const conversationReference = TurnContext.getConversationReference(chatContextData.context.chatTool.context.activity);
-                    this.logger.debug(`conversationReference: ${JSON.stringify(conversationReference, null, 2)}`);
+                    logger.debug(`conversationReference: ${JSON.stringify(conversationReference, null, 2)}`);
 
                     // Send message
                     await this.botFrameworkAdapter.continueConversation(conversationReference, async (turnContext) => {
                         await turnContext.sendActivity(activity);
                     });
                 } else { // Proactive message
-                    this.logger.info('Send proactive message ...');
+                    logger.info('Send proactive message ...');
 
                     // Check cached service URL
                     if (this.botActivityHandler.getServiceUrl().size === 0) {
-                        this.logger.error(`The cached MS Teams service URL is empty! `
+                        logger.error(`The cached MS Teams service URL is empty! `
                             + `You must talk with your bot in your MS Teams client first to cache the service URL.`);
                         return;
                     }
@@ -197,17 +201,17 @@ class MsteamsMiddleware extends Middleware {
                     } else {
                         channelInfo = this.botActivityHandler.findChannelById(chatContextData.context.chatting.channel.id);
                     }
-                    this.logger.info(`Target channel info: ${JSON.stringify(channelInfo, null, 2)}`);
+                    logger.info(`Target channel info: ${JSON.stringify(channelInfo, null, 2)}`);
                     if (channelInfo == null) {
-                        this.logger.error(`The specified MS Teams channel does not exist!\n${JSON.stringify(chatContextData.context.chatting.channel, null, 2)}`);
+                        logger.error(`The specified MS Teams channel does not exist!\n${JSON.stringify(chatContextData.context.chatting.channel, null, 2)}`);
                         return;
                     }
 
                     // Get service URL
                     const serviceUrl = this.botActivityHandler.findServiceUrl(channelInfo.id);
-                    this.logger.info(`Service URL: ${serviceUrl}`);
+                    logger.info(`Service URL: ${serviceUrl}`);
                     if (serviceUrl === '') {
-                        this.logger.error(`MS Teams service URL does not exist for the channel ${JSON.stringify(channelInfo, null, 2)}`);
+                        logger.error(`MS Teams service URL does not exist for the channel ${JSON.stringify(channelInfo, null, 2)}`);
                         return;
                     }
 
@@ -227,7 +231,7 @@ class MsteamsMiddleware extends Middleware {
                         firstActivity = MessageFactory.attachment(attachments[0]);
                         firstActivity.entities = <Entity[]>mentions;
                     }
-                    this.logger.debug(`firstActivity: ${JSON.stringify(firstActivity, null, 2)}`);
+                    logger.debug(`firstActivity: ${JSON.stringify(firstActivity, null, 2)}`);
                     const conversationParameters = <ConversationParameters>{
                         isGroup: true,
                         channelData: {
@@ -251,7 +255,7 @@ class MsteamsMiddleware extends Middleware {
 
                     // Create the rest not sended Activity
                     let restActivity: Partial<Activity> = null;
-                    if (textMessage !== '' && attachments.length > 0) {
+                    if ( textMessage !== '' && attachments.length > 0) {
                         restActivity = { attachments: attachments };
                         restActivity.entities = <Entity[]>mentions;
                     } else if (textMessage === '' && attachments.length > 1) {
@@ -260,11 +264,11 @@ class MsteamsMiddleware extends Middleware {
                         restActivity = { attachments: attachments };
                         restActivity.entities = <Entity[]>mentions;
                     }
-                    this.logger.debug(`restActivity: ${JSON.stringify(restActivity, null, 2)}`);
+                    logger.debug(`restActivity: ${JSON.stringify(restActivity, null, 2)}`);
                     // Create the conversationReference
                     const conversationReference = TurnContext.getConversationReference(firstActivity);
                     // Construct the conversationReference
-                    conversationReference.conversation = <ConversationAccount>{
+                    conversationReference.conversation = <ConversationAccount> {
                         isGroup: true,
                         id: conversationResourceResponse.id,
                         conversationType: 'channel',
@@ -278,12 +282,11 @@ class MsteamsMiddleware extends Middleware {
             }
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.send, this);
+            logger.end(this.send, this);
         }
     }
 }
 
-export = MsteamsMiddleware;

@@ -8,42 +8,39 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import {
-    IBotOption, IChatContextData, IChatTool, IMattermostBotLimit, IMessage, IMessageHandlerFunction, IMessageMatcherFunction,
-    IMsteamsBotLimit, IRouteHandlerFunction, ISlackBotLimit
-} from './types';
-import Logger from './utils/Logger';
+import { IBotOption, IChatContextData, IChatToolType, IMattermostBotLimit, IMessage, IMessageHandlerFunction, IMessageMatcherFunction,
+    IMsteamsBotLimit, IRouteHandlerFunction, ISlackBotLimit } from './types';
 
-import Listener = require('./Listener');
-import Router = require('./Router');
-import Middleware = require('./Middleware');
+import { Listener } from './Listener';
+import { Logger } from './utils/Logger';
+import { Router } from './Router';
+import { Middleware } from './Middleware';
 
-import fs = require('fs');
-import BotLimit = require('./BotLimit');
-import MattermostBotLimit = require('./plugins/mattermost/MattermostBotLimit');
-import SlackBotLimit = require('./plugins/slack/SlackBotLimit');
-import MsteamsBotLimit = require('./plugins/msteams/MsteamsBotLimit');
+import fs from 'fs';
+import { BotLimit } from './BotLimit';
+import { MattermostBotLimit } from './plugins/mattermost/MattermostBotLimit';
+import { SlackBotLimit } from './plugins/slack/SlackBotLimit';
+import { MsteamsBotLimit } from './plugins/msteams/MsteamsBotLimit';
 
+const logger = Logger.getInstance();
 export class CommonBot {
     private option: IBotOption;
     private limit: BotLimit | MattermostBotLimit | SlackBotLimit | MsteamsBotLimit;
     private middleware: Middleware;
     private listeners: Listener[]; // MsteamsListener | SlackListener[] | MattermostListener[];
     private router: Router; // | MsteamsRouter | SlackRouter | MattermostRouter;
-    private logger: Logger;
 
     // Constructor
     constructor(option: IBotOption) {
         this.option = option;
-        this.logger = Logger.getInstance();
-        this.logger.info(`Bot option: ${JSON.stringify(this.option, null, 4)}`);
+        logger.info(`Bot option: ${JSON.stringify(this.option, null, 4)}`);
 
         // Create Limit instance
-        if (this.option.chatTool === IChatTool.MATTERMOST) {
+        if (this.option.chatTool.type === IChatToolType.MATTERMOST) {
             this.limit = new MattermostBotLimit();
-        } else if (this.option.chatTool === IChatTool.SLACK) {
+        } else if (this.option.chatTool.type === IChatToolType.SLACK) {
             this.limit = new SlackBotLimit();
-        } else if (this.option.chatTool === IChatTool.MSTEAMS) {
+        } else if (this.option.chatTool.type === IChatToolType.MSTEAMS) {
             this.limit = new MsteamsBotLimit();
         } else {
             this.limit = null;
@@ -90,26 +87,26 @@ export class CommonBot {
     // Listen all messages send to bot
     async listen(matcher: IMessageMatcherFunction, handler: IMessageHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.listen, this);
+        logger.start(this.listen, this);
 
         try {
             // Get chat tool type
-            const chatToolType = this.option.chatTool;
+            const chatToolType = this.option.chatTool.type;
 
             // Create listener
             let listener: Listener = null;
             const pluginFileName = `${chatToolType.substring(0, 1).toUpperCase()}${chatToolType.substring(1)}Listener`;
-            this.logger.info(`Loading listener ${chatToolType}/${pluginFileName} ...`);
-            if (fs.existsSync(`${__dirname}/plugins/${chatToolType}`) === false) {
-                this.logger.error(`Unsupported chat tool: ${chatToolType}`);
+            logger.info(`Loading listener ${chatToolType}/${pluginFileName} ...`);
+            if (fs.existsSync(`${__dirname}/plugins/${chatToolType}`) === false ) {
+                logger.error(`Unsupported chat tool: ${chatToolType}`);
                 throw new Error(`Unsupported chat tool`);
             } else {
                 if (fs.existsSync(`${__dirname}/plugins/${chatToolType}/${pluginFileName}.js`) === false) {
-                    this.logger.error(`The listener file "${__dirname}/plugins/${chatToolType}/${pluginFileName}.js" does not exist!`);
+                    logger.error(`The listener file "${__dirname}/plugins/${chatToolType}/${pluginFileName}.js" does not exist!`);
                     throw new Error(`The required listener file "${__dirname}/plugins/${chatToolType}/${pluginFileName}.js" does not exist!`);
                 } else {
-                    const ChatToolListener: typeof Listener = require(`./plugins/${chatToolType}/${pluginFileName}`);
-                    listener = new ChatToolListener(this);
+                    const ChatToolListener = require(`./plugins/${chatToolType}/${pluginFileName}`);
+                    listener = new ChatToolListener[pluginFileName](this);
                 }
             }
             this.listeners.push(listener);
@@ -118,10 +115,10 @@ export class CommonBot {
             await listener.listen(matcher, handler);
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.listen, this);
+            logger.end(this.listen, this);
         }
     }
 
@@ -138,25 +135,25 @@ export class CommonBot {
     // Set webhook router
     async route(basePath: string, handler: IRouteHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.route, this);
+        logger.start(this.route, this);
 
         try {
             // Get chat tool type
-            const chatToolType = this.option.chatTool;
+            const chatToolType = this.option.chatTool.type;
 
             // Create router
             const pluginFileName = `${chatToolType.substring(0, 1).toUpperCase()}${chatToolType.substring(1)}Router`;
-            this.logger.info(`Loading router ${chatToolType}/${pluginFileName} ...`);
-            if (fs.existsSync(`${__dirname}/plugins/${chatToolType}`) === false) {
-                this.logger.error(`Unsupported chat tool: ${chatToolType}`);
+            logger.info(`Loading router ${chatToolType}/${pluginFileName} ...`);
+            if (fs.existsSync(`${__dirname}/plugins/${chatToolType}`) === false ) {
+                logger.error(`Unsupported chat tool: ${chatToolType}`);
                 throw new Error(`Unsupported chat tool`);
             } else {
                 if (fs.existsSync(`${__dirname}/plugins/${chatToolType}/${pluginFileName}.js`) === false) {
-                    this.logger.error(`The router file "${__dirname}/plugins/${chatToolType}/${pluginFileName}.js" does not exist!`);
+                    logger.error(`The router file "${__dirname}/plugins/${chatToolType}/${pluginFileName}.js" does not exist!`);
                     throw new Error(`The required router file "${__dirname}/plugins/${chatToolType}/${pluginFileName}.js" does not exist!`);
                 } else {
-                    const ChatToolRouter: typeof Router = require(`./plugins/${chatToolType}/${pluginFileName}`);
-                    this.router = new ChatToolRouter(this);
+                    const ChatToolRouter = require(`./plugins/${chatToolType}/${pluginFileName}`);
+                    this.router = new ChatToolRouter[pluginFileName](this);
                 }
             }
 
@@ -164,10 +161,10 @@ export class CommonBot {
             await this.router.route(basePath, handler);
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.route, this);
+            logger.end(this.route, this);
         }
     }
 
@@ -179,16 +176,16 @@ export class CommonBot {
     // Send message to channel
     async send(chatContextData: IChatContextData, messages: IMessage[]): Promise<void> {
         // Print start log
-        this.logger.start(this.send, this);
+        logger.start(this.send, this);
 
         try {
             await this.middleware.send(chatContextData, messages);
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.send, this);
+            logger.end(this.send, this);
         }
     }
 }
