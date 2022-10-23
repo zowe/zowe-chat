@@ -12,21 +12,24 @@
         "build": "gulp build",
         "packaging": "gulp packaging",
         "lint": "gulp lint",
-        "circularDependencyCheck": "madge -c dist"
-
+        "checkDeps": "madge -c dist",
+        "updateDeps": "npx npm-check-updates -u"
     },
     "dependencies": {
-        "@slack/bolt": "3.11.0",
-        "botbuilder": "4.16.0",
-        "superagent": "7.1.1",
-        "winston": "3.7.2",
-        "ws": "8.5.0"
+        "@slack/bolt": "3.12.1",
+        "botbuilder": "4.17.1",
+        "superagent": "8.0.0",
+        "winston": "3.8.2",
+        "ws": "8.9.0"
     },
     "devDependencies": {
-        "@types/express": ">=4.17.13",
-        "@types/node": ">=17.0.12",
+        "@types/express": ">=4.17.14",
+        "@types/node": ">=18.11.3",
         "@types/superagent": ">=4.1.15",
-        "jshint": ">=2.13.4",
-        "moment": ">=2.29.1"
+        "jshint": ">=2.13.5",
+        "moment": ">=2.29.4",
+        "madge": "^5.0.1",
+        "eslint-plugin-header": "^3.1.1",
+        "npm-check-updates": "^16.3.15"
     }
 }

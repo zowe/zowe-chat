@@ -1,20 +1,29 @@
+/*
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
+
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { AppBar, Box, Container, Toolbar } from '@mui/material';
-import * as React from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { chatAuthProvider } from "./auth/api/auth";
-import { LoginResponse } from "./auth/api/LoginResponse";
-import { AuthContext, useAuth } from "./auth/context/AuthContext";
-import { LoginPage } from "./pages/LoginPage";
-import { ManagementPage } from "./pages/ManagementPage";
-import { AppRoutes } from "./routes/AppRoutes";
+import * as React from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { chatAuthProvider } from './auth/api/auth';
+import { LoginResponse } from './auth/api/LoginResponse';
+import { AuthContext, useAuth } from './auth/context/AuthContext';
+import { LoginPage } from './pages/LoginPage';
+import { ManagementPage } from './pages/ManagementPage';
+import { AppRoutes } from './routes/AppRoutes';
 //              <!-- <Route path={AppRoutes.Home} element={<PublicPage />} /> -->
 
 export default function ZoweChatApp() {
-
     return (
         <Container maxWidth="sm">
             <AuthProvider>
@@ -27,7 +36,7 @@ export default function ZoweChatApp() {
                     <Routes>
                         <Route path={AppRoutes.Root} element={<Layout />}>   </Route>
                         <Route path={AppRoutes.Login} element={<LoginPage />} />
-                        <Route path={AppRoutes.Login + "/:loginSession"} element={<LoginPage />} />
+                        <Route path={AppRoutes.Login + '/:loginSession'} element={<LoginPage />} />
                         <Route path={AppRoutes.Management}
                             element={
                                 <RequireAuth>
@@ -41,15 +50,16 @@ export default function ZoweChatApp() {
             </AuthProvider>
         </Container>
     );
-
 }
 
 
 function AuthProvider({ children }: { children: React.ReactNode; }) {
-    let [user, setUser] = React.useState<any>(null);
-    let [errorResponse, setError] = React.useState<any>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [user, setUser] = React.useState<any>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [errorResponse, setError] = React.useState<any>(null);
 
-    let signin = (challenge: string, newUser: string, newPass: string, callback: VoidFunction) => {
+    const signin = (challenge: string, newUser: string, newPass: string, callback: VoidFunction) => {
         return chatAuthProvider.signin(challenge, newUser, newPass, (response: LoginResponse) => {
             if (response.success) {
                 setUser(newUser);
@@ -62,23 +72,22 @@ function AuthProvider({ children }: { children: React.ReactNode; }) {
         });
     };
 
-    let signout = (callback: VoidFunction) => {
+    const signout = (callback: VoidFunction) => {
         return chatAuthProvider.signout(() => {
             setUser(null);
             setError(null);
             callback();
         });
     };
-    let value = { user, errorResponse, signin, signout };
+    const value = { user, errorResponse, signin, signout };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 function Layout(props: any) {
-    let login = useAuth();
-    let location = useLocation();
+    const login = useAuth();
+    const location = useLocation();
     if (login.user !== null) {
         return <Navigate to={AppRoutes.Management} state={{ from: location }} replace />;
     }
@@ -86,8 +95,8 @@ function Layout(props: any) {
 }
 
 function RequireAuth({ children }: { children: JSX.Element; }) {
-    let auth = useAuth();
-    let location = useLocation();
+    const auth = useAuth();
+    const location = useLocation();
 
     if (!auth.user) {
         // Redirect them to the /login page, but save the current location they were
@@ -99,4 +108,3 @@ function RequireAuth({ children }: { children: JSX.Element; }) {
 
     return children;
 }
-

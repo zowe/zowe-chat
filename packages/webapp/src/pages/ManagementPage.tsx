@@ -8,9 +8,11 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-// generate routes enum
-export enum AppRoutes {
-    Login = '/login',
-    Management = '/management',
-    Root = '/',
+
+export function ManagementPage() {
+    return (
+        <div>
+            <p>Dummy Management Component</p>
+        </div>
+    );
 }

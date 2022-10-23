@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+// eslint-disable-next-line no-undef
 window.env = {
-    API_HOST: '__API_HOST__'
+    API_HOST: '__API_HOST__',
 };

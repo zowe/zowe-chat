@@ -24,7 +24,7 @@ module.exports = {
         'ecmaVersion': 11,
         'sourceType': 'module',
     },
-    "ignorePatterns": ["**/*.js", "dist"],
+    "ignorePatterns": ["**/dist", "**/node_modules", "**/release", "**/lib"],
     'rules': {
         'header/header': [2,
             "block",

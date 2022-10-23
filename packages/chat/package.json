@@ -10,7 +10,8 @@
     "start": "node main.js",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
     "lint": "gulp lint",
-    "circularDependencyCheck": "madge -c dist"
+    "checkDeps": "madge -c dist",
+    "updateDeps": "npx npm-check-updates -u"
   },
   "repository": {
     "type": "git",
@@ -30,32 +31,35 @@
     "@zowe/core-for-zowe-sdk": "^7.7.0",
     "@zowe/imperative": "^5.6.0",
     "cors": "^2.8.5",
-    "express": "4.18.1",
-    "fs-extra": "^7.0.0",
-    "helmet": "^5.0.2",
-    "i18next": "^21.9.1",
+    "express": "4.18.2",
+    "fs-extra": "^10.1.0",
+    "helmet": "^6.0.0",
+    "i18next": "^22.0.2",
     "i18next-fs-backend": "^1.1.5",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "winston": "^3.7.2",
-    "yargs": "^17.5.1"
+    "winston": "^3.8.2",
+    "yargs": "^17.6.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
-    "@types/express": ">=4.17.13",
+    "@types/express": ">=4.17.14",
     "@types/fs-extra": "^9.0.13",
     "@types/i18next-fs-backend": "^1.1.2",
     "@types/js-yaml": "^4.0.5",
-    "@types/lodash": "^4.14.182",
-    "@types/node": ">=17.0.31",
+    "@types/lodash": "^4.14.186",
+    "@types/node": ">=18.11.3",
     "@types/winston": "^2.4.4",
-    "@types/yargs": "^17.0.11",
-    "@typescript-eslint/eslint-plugin": ">=5.23.0",
-    "@typescript-eslint/parser": ">=5.23.0",
-    "eslint": ">=8.15.0",
+    "@types/yargs": "^17.0.13",
+    "@typescript-eslint/eslint-plugin": ">=5.40.1",
+    "@typescript-eslint/parser": ">=5.40.1",
+    "eslint": ">=8.26.0",
     "eslint-config-google": ">=0.14.0",
-    "ts-node": ">=10.7.0",
-    "typescript": ">=4.6.4"
+    "eslint-plugin-header": "^3.1.1",
+    "ts-node": ">=10.9.1",
+    "typescript": ">=4.8.4",
+    "madge": "^5.0.1",
+    "npm-check-updates": "^16.3.15"
   },
   "bundledDependencies": [
     "@zowe/commonbot"

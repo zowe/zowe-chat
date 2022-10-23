@@ -365,8 +365,7 @@ if (nodeEnv === 'production') { // Product
     exports.build = gulp.series(cleanTask, buildSourceTask,
             createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
 }
-// exports.testUnit = testUnitTask;
-// exports.testFunction = testFunctionTask;
+
 exports.packaging = packagingTask;
 exports.lint = lintTask;
 exports.default = gulp.series(exports.build);

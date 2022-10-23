@@ -8,8 +8,10 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import child_process from "child_process";
-import * as fs from "fs-extra";
-import * as path from "path";
-import { ITaskFunction } from "./GulpHelpers";
-
+/* eslint-disable no-unused-vars */
+// generate routes enum
+export enum AppRoutes {
+    Login = '/login',
+    Management = '/management',
+    Root = '/',
+}
