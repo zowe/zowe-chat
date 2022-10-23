@@ -8,12 +8,12 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatContextData, IMessage, IPayloadType } from "@zowe/commonbot";
+import { IChatContextData, IMessage, IPayloadType } from '@zowe/commonbot';
 import _ from 'lodash';
 import yargs from 'yargs';
-import { ICommand } from "../types";
-import { logger } from "../utils/Logger";
-import { Util } from "../utils/Util";
+import { ICommand } from '../types';
+import { logger } from '../utils/Logger';
+import { Util } from '../utils/Util';
 import { ChatListener } from './ChatListener';
 
 export abstract class ChatMessageListener extends ChatListener {
@@ -100,7 +100,7 @@ export abstract class ChatMessageListener extends ChatListener {
             logger.debug(`Command: ${JSON.stringify(command, null, 4)}`);
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Chat message parsing exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Chat message parsing exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log

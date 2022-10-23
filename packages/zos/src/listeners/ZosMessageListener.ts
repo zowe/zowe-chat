@@ -8,12 +8,11 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+import i18next from 'i18next';
 import { logger, Util } from '@zowe/chat';
 import { ChatMessageListener, IChatContextData, IChatToolType, IExecutor, IMessage, IMessageType } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
-
-const i18nJsonData = require('../i18n/jobDisplay.json');
 class ZosMessageListener extends ChatMessageListener {
     constructor() {
         super();
@@ -32,9 +31,6 @@ class ZosMessageListener extends ChatMessageListener {
 
             // Parse message
             const command = super.parseMessage(chatContextData);
-            command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
-            command.extraData.zosmf = chatContextData.extraData.zosmf;
-            command.extraData.principal = chatContextData.extraData.principal;
 
             // Match scope
             if (command.scope === 'zos') {
@@ -78,11 +74,16 @@ class ZosMessageListener extends ChatMessageListener {
                 && botOption.chatTool.type !== IChatToolType.MSTEAMS) {
                 return [{
                     type: IMessageType.PLAIN_TEXT,
-                    message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
+                    message: i18next.t('common.error.unsupportedChatTool', { type: botOption.chatTool.type, ns: 'ZosMessage' }),
                 }];
             }
 
             logger.debug(`Incoming command is ${JSON.stringify(chatContextData.extraData.command)}`);
+
+            const command = chatContextData.extraData.command;
+            command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
+            command.extraData.zosmf = chatContextData.extraData.zosmf;
+            command.extraData.principal = chatContextData.extraData.principal;
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
             return await dispatcher.dispatch(chatContextData.extraData.command, executor);
@@ -92,7 +93,7 @@ class ZosMessageListener extends ChatMessageListener {
             logger.error(logger.getErrorStack(new Error(error.name), error));
             return [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18nJsonData.error.internal,
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log

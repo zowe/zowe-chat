@@ -25,14 +25,14 @@ export interface IChatConfigSchema {
  * Use this to describe the expected structure and contents of your profile,
  * as well as provide option definitions for create & update profile commands
  */
- export interface IConfigBlockDefinition {
+export interface IConfigBlockDefinition {
 
     /**
      * Key to be used as the block's key entry in a configuration map. i.e., "myConfigurationArea"
      */
     key: string;
     /**
-     * A short, descriptive title of your configuration 
+     * A short, descriptive title of your configuration
      */
     title: string;
     /**
@@ -69,7 +69,7 @@ export interface IChatConfigSchema {
 /**
  * A single field in a profile schema which can be serialized to a profile file
  */
- export interface IConfigProperty {
+export interface IConfigProperty {
     /**
      * See ICommandProfileProperty.ts for how to include option definitions
      * on your schema for auto-generated commands
@@ -109,7 +109,7 @@ export interface IChatConfigSchema {
     /**
      * Indicates if the given property should be securely stored
      */
-    //TODO: secure storage of config information with AES?
+    // TODO: secure storage of config information with AES?
     // secure?: boolean;
 }
 

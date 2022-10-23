@@ -9,7 +9,7 @@
 */
 
 import { IBotOption, ISlackBotLimit } from '../types';
-import { ChatView } from "./ChatView";
+import { ChatView } from './ChatView';
 
 export class ChatSlackView extends ChatView {
     protected botLimit: ISlackBotLimit;
@@ -44,6 +44,22 @@ export class ChatSlackView extends ChatView {
                     'text': actionData.placeHolder,
                 },
                 'options': selectMenuOption,
+            });
+        }
+    }
+
+    // Add button to the elements of action block
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    addButtonAction(actionBlock: Record<string, any>, actionData: Record<string, any>, value: string): void {
+        if (value.trim() !== '') {
+            actionBlock.elements.push({
+                'type': 'button',
+                'action_id': `${actionData.pluginId}:${actionData.actionId}:${actionData.token}:user_data`,
+                'text': {
+                    'type': 'plain_text',
+                    'text': actionData.placeHolder,
+                },
+                'value': value,
             });
         }
     }

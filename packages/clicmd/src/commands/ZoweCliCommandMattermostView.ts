@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMattermostView, IBotOption, IExecutor, IMattermostBotLimit, IMessage, IMessageType, logger, Util } from "@zowe/chat";
+import { ChatMattermostView, IBotOption, IExecutor, IMattermostBotLimit, IMessage, IMessageType, logger, Util } from '@zowe/chat';
 import i18next from 'i18next';
 
 class ZoweCliCommandMattermostView extends ChatMattermostView {
@@ -32,7 +32,7 @@ class ZoweCliCommandMattermostView extends ChatMattermostView {
                     props: {
                         attachments: [
                             {
-                                pretext: i18next.t('zowe.execution', {executorName: executor.name, ns: 'ClicmdMessage'}),
+                                pretext: i18next.t('zowe.execution', { executorName: executor.name, ns: 'ClicmdMessage' }),
                                 fields: [{
                                     short: false,
                                     value: '```\n' + commandOutput + '\n```',

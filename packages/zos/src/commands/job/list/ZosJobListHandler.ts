@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+import i18next from 'i18next';
 import { logger, Util } from '@zowe/chat';
 import { config } from '@zowe/chat';
 
@@ -37,22 +38,25 @@ class ZosJobHandler extends ChatHandler {
         }
     }
 
-    // Get command view for command 'zos job list job'
+    // Get command view for command 'zos job list status'
     async getJob(command: ICommand, executor: IExecutor): Promise<IMessage[]> {
         // Print start log
         logger.start(this.getJob, this);
 
         let messages: IMessage[] = [];
         try {
-            const options = command.adjective.option;
             const auth: ChatPrincipal = <ChatPrincipal>command.extraData.principal;
             const zosmfConfig = config.getZosmfServerConfig();
-            // Get option job id -- Optional
+
+            // Get positional argument - job id
+            const positionalArgument = command.adjective.arguments;
             let id: string = null;
-            if (options['id'] !== undefined) {
-                id = options['id'];
+            if (positionalArgument.length > 0) {
+                id = positionalArgument[0];
             }
             logger.debug(`id: ${id}`);
+
+            const options = command.adjective.option;
 
             // Get option owner -- Optional
             let owner: string = null;
@@ -88,65 +92,10 @@ class ZosJobHandler extends ChatHandler {
                 || ('' + limit).trim() === '' || isNaN(Number(limit))) {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
-                    message: 'Invalid adjective limit!',
+                    message: i18next.t('common.error.invalid.format', { optionName: 'limit', ns: 'ZosMessage' }),
                 }];
             }
 
-            // TODO: Will integrate with Authentication functionality later.
-            let hostName: string = null;
-            if (zosmfConfig?.hostName !== undefined) {
-                hostName = zosmfConfig.hostName;
-            }
-            else if (options['host'] !== undefined) {
-                hostName = options['host'];
-            } else if (options['h'] !== undefined) {
-                hostName = options['h'];
-            } else {
-                return messages = [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: 'Please specify host name using --host or -h.',
-                }];
-            }
-
-            let port: string = null;
-            if (zosmfConfig?.port !== undefined) {
-                port = zosmfConfig.port + '';
-            } else if (options['port'] !== undefined) {
-                port = options['port'];
-            } else {
-                return messages = [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: 'Please specify port using --port.',
-                }];
-            }
-
-            let user: string = null;
-            if (auth?.getUser() !== undefined) {
-                user = auth.getUser().getMainframeUser();
-            }
-            else if (options['user'] !== undefined) {
-                user = options['user'];
-            } else if (options['u'] !== undefined) {
-                user = options['u'];
-            } else {
-                return messages = [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: 'Please specify user using --user or -u.',
-                }];
-            }
-
-            let password: string = null;
-            if (auth?.getCredentials() !== undefined) {
-                password = auth.getCredentials().value;
-            }
-            else if (options['password'] !== undefined) {
-                password = options['password'];
-            } else {
-                return messages = [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: 'Please specify password using --password.',
-                }];
-            }
 
             let ru: boolean = true;
             if (zosmfConfig?.rejectUnauthorized !== undefined) {
@@ -155,29 +104,28 @@ class ZosJobHandler extends ChatHandler {
 
             // session to connect Zosmf REST API.
             const sessionInfo: ISession = {
-
-                hostname: hostName,
-                port: Number(port).valueOf(),
-                user: user,
-                password: password,
+                hostname: zosmfConfig.hostName,
+                port: Number(zosmfConfig.port + '').valueOf(),
+                user: auth.getUser().getMainframeUser(),
+                password: auth.getCredentials().value,
                 type: SessConstants.AUTH_TYPE_BASIC,
                 rejectUnauthorized: ru,
             };
             const session = new Session(sessionInfo);
 
             // By default the session user is used as owner.
-            // But if id is specified, then filter job with * as owner.
-            if (id !== null && id !== undefined && id !== '') {
+            // But if the job id is specified, then filter job with * as owner.
+            if (id !== null) {
                 owner = '*';
             }
 
-            // Get the list of jobs
-            const jobs: IJob[] = await GetJobs.getJobsCommon(session, { owner: owner, prefix: prefix, jobid: id,
-                execData: true, maxJobs: Number(limit).valueOf() });
+            // Get jobs
+            const jobs: IJob[] = await GetJobs.getJobsCommon(session,
+                    { owner: owner, prefix: prefix, jobid: id, execData: true, maxJobs: Number(limit).valueOf() });
             logger.debug(`Got ${jobs.length} job.`);
 
 
-            if (id !== null && jobs.length === 1) { // if id is specified, show detail view.
+            if (id !== null && jobs.length === 1) { // if the job id is specified, show detail view.
                 messages = this.view.getDetail(jobs, executor);
             } else {
                 messages = this.view.getOverview(jobs, executor, command);
@@ -191,7 +139,7 @@ class ZosJobHandler extends ChatHandler {
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: 'Internal Error!',
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log

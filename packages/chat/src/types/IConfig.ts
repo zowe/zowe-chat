@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatToolType, IProtocol, IAppOption, ILogOption} from ".";
+import { IChatToolType, IProtocol, IAppOption, ILogOption } from '.';
 
 /**
  *  The top-level configuration object used by Zowe Chat.
@@ -17,7 +17,7 @@ export interface IConfig {
     chatServer: IChatServerConfig,
     chatTool: IMattermostConfig | ISlackConfig | IMsteamsConfig;
     zosmfServer: IZosmfServerConfig,
-};
+}
 
 /**
  * Zowe Chat Server Configuration object
@@ -51,7 +51,7 @@ export interface IMattermostConfig {
     botUserName: string;
     botAccessToken: string;
     messagingApp: IAppOption;
-};
+}
 
 /**
  * Configuration for a slack connection
@@ -62,7 +62,7 @@ export interface ISlackConfig {
     token: string;
     socketMode: ISlackConfigSocketMode;
     httpEndpoint: ISlackConfigHttpEndpoint;
-};
+}
 
 export interface ISlackConfigSocketMode {
     enabled: boolean;
@@ -82,26 +82,26 @@ export interface IMsteamsConfig {
     botId: string;
     botPassword: string;
     messagingApp: IAppOption;
-};
+}
 
 /**
  * Standard z/OSMF Server Configuration object
  */
- export interface IZosmfServerConfig {
+export interface IZosmfServerConfig {
     hostName: string,
     protocol: IProtocol,
     port: number,
     rejectUnauthorized: boolean;
     authType: IAuthType;
     serviceAccount: IServiceAccountConfig;
-};
+}
 
 /**
  * Service account configuration object
  */
- export interface IServiceAccountConfig extends  IAccount {
+export interface IServiceAccountConfig extends IAccount {
     enable: boolean;
-};
+}
 
 /**
  * Service account ID and password (or other opaque credential) which can be used on behalf of a calling  user
@@ -109,7 +109,7 @@ export interface IMsteamsConfig {
 export interface IAccount {
     user: string;
     password: string;
-};
+}
 
 /**
  * authN/authZ type supported by Zowe chat out of the box for use in downstream API calls

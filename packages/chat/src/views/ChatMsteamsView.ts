@@ -9,7 +9,7 @@
 */
 
 import { IActionType, IBotOption, IMsteamsBotLimit } from '../types';
-import { ChatView } from "./ChatView";
+import { ChatView } from './ChatView';
 
 export class ChatMsteamsView extends ChatView {
     protected botLimit: IMsteamsBotLimit;
@@ -98,6 +98,38 @@ export class ChatMsteamsView extends ChatView {
                         ],
                     },
                 ],
+                'separator': actionData.separator,
+            });
+        }
+
+        return;
+    }
+
+    // Add action set for button action
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    addButtonAction(adaptiveCardBody: Record<string, unknown>[], actionData: Record<string, any>): Record<string, unknown> {
+        if (actionData.command.trim() !== '') {
+            // Create action
+            const action = {
+                'type': 'Action.Submit',
+                'title': actionData.title,
+                'data': {
+                    'pluginId': actionData.pluginId,
+                    'action': {
+                        'id': actionData.id,
+                        'token': actionData.token,
+                        'type': IActionType.BUTTON_CLICK,
+                    },
+                },
+            };
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (<any>action.data)[actionData.id] = actionData.command;
+
+            // Add action
+            adaptiveCardBody.push({
+                'type': 'ActionSet',
+                'actions': [action],
                 'separator': actionData.separator,
             });
         }

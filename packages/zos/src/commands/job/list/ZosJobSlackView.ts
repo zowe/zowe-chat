@@ -9,10 +9,10 @@
 */
 
 import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
+import i18next from 'i18next';
+
 import { logger, Util } from '@zowe/chat';
 import { ChatSlackView, IBotOption, ICommand, IExecutor, IMessage, IMessageType, ISlackBotLimit } from '@zowe/chat';
-
-const i18nJsonData = require('../../../i18n/jobDisplay.json');
 
 export class ZosJobSlackView extends ChatSlackView {
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
@@ -26,17 +26,19 @@ export class ZosJobSlackView extends ChatSlackView {
 
         let messages: IMessage[] = [];
         try {
-            // Get header message
+            // Generate header message
             let headerMessage = '';
             if (jobs.length === 0) {
-                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
-                    message: headerMessage,
+                    message: i18next.t('common.data.foundZero',
+                            { executor: executor.name, resourceName: i18next.t('command.job.list.status.resourceName',
+                                    { ns: 'ZosMessage' }), ns: 'ZosMessage' }),
                 }];
             } else {
                 // TODO: Think about what message should be when  too many jobs are searched, if jobs.length > limit.
-                headerMessage = `@${executor.name}. I have found ${jobs.length} jobs that match the filter:`;
+                headerMessage = i18next.t('common.data.foundMoreThanOne',
+                        { executor: executor.name, resourceName: i18next.t('command.job.list.status.resourceName', { ns: 'ZosMessage' }), ns: 'ZosMessage' });
             }
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,9 +55,9 @@ export class ZosJobSlackView extends ChatSlackView {
                 'channel': executor.channel.id,
             };
 
-            const detailOptions = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let job: Record<string, any>;
+            const detailOptions = [];
             for (job of jobs) {
                 // Create fields array within section block.
                 const jobSection = {
@@ -63,35 +65,36 @@ export class ZosJobSlackView extends ChatSlackView {
                     'fields': [
                         {
                             'type': 'mrkdwn',
-                            'text': `*${job.jobname}* (ID: ${job.jobid})`,
+                            'text': `:card_index: *${i18next.t('command.job.list.status.name', { ns: 'ZosMessage' })}:*  ${job.jobname}`,
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': ' ',
+                            'text': `*${i18next.t('command.job.list.status.id', { ns: 'ZosMessage' })}:* ${job.jobid}`,
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': `*${i18nJsonData.overview.owner}:* ${job.owner}`,
+                            'text': `*${i18next.t('command.job.list.status.owner', { ns: 'ZosMessage' })}:* ${job.owner}`,
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': `*${i18nJsonData.overview.subSystem}:* ${job.subsystem}`,
+                            'text': `*${i18next.t('command.job.list.status.subSystem', { ns: 'ZosMessage' })}:* ${job.subsystem}`,
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': `*${i18nJsonData.overview.status}:* ${job.status}`,
+                            'text': `*${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}:* ${job.status}`,
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': `*${i18nJsonData.overview.type}:* ${job.type}`,
+                            'text': `*${i18next.t('command.job.list.status.type', { ns: 'ZosMessage' })}:* ${job.type}`,
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': `*${i18nJsonData.overview.returnCode}:* ${job.retcode === null ? ' ' : job.retcode}`,
+                            'text': `*${i18next.t('command.job.list.status.returnCode', { ns: 'ZosMessage' })}:* ${job.retcode === null ? ' ' : job.retcode}`,
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': `*${i18nJsonData.overview.startedTime}:* ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                            'text': `*${i18next.t('command.job.list.status.startedTime', { ns: 'ZosMessage' })}:* `
+                                    + `${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
                         },
                     ],
                 };
@@ -106,8 +109,8 @@ export class ZosJobSlackView extends ChatSlackView {
                 );
 
                 // Create options for job details select menu
-                detailOptions.push(super.createSelectMenuOption(`Details of ${job.jobname}(${job.jobid})`,
-                        `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`));
+                detailOptions.push(super.createSelectMenuOption(`${job.jobname}(ID: ${job.jobid})`,
+                        `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:${job.jobid}`));
             }
 
             // Create action block object.
@@ -119,7 +122,7 @@ export class ZosJobSlackView extends ChatSlackView {
                 'pluginId': command.extraData.chatPlugin.package,
                 'actionId': 'showJobDetails',
                 'token': '',
-                'placeHolder': i18nJsonData.overview.dropDownPlaceholder,
+                'placeHolder': i18next.t('command.job.list.status.dropDownPlaceholder', { ns: 'ZosMessage' }),
             };
             super.addSelectMenuAction(actionBlock, actionData, detailOptions);
 
@@ -140,7 +143,7 @@ export class ZosJobSlackView extends ChatSlackView {
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: 'Internal error',
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log
@@ -156,18 +159,6 @@ export class ZosJobSlackView extends ChatSlackView {
         let messages: IMessage[] = [];
 
         try {
-            // Get header message
-            let headerMessage = '';
-            if (jobs.length === 0) {
-                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
-                return messages = [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: headerMessage,
-                }];
-            } else {
-                headerMessage = `@${executor.name}. Here is the the basic information of ${jobs[0].jobid}:`;
-            }
-
             // Get job
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const job: Record<string, any> = jobs[0];
@@ -178,105 +169,112 @@ export class ZosJobSlackView extends ChatSlackView {
                         'type': 'section',
                         'text': {
                             'type': 'mrkdwn',
-                            'text': headerMessage,
+                            'text': i18next.t('common.data.foundOne',
+                                    { executor: executor.name, resourceName: i18next.t('command.job.list.detail.resourceName', { ns: 'ZosMessage' }),
+                                        ns: 'ZosMessage' }),
                         },
                     },
                 ],
                 'channel': executor.channel.id,
             };
 
-            // Create fields array within section block.
-            let jobSection = {
+            // Add fields array to section block.
+            blockObject.blocks.push({
+                'type': 'section',
+                'text': {
+                    'type': 'mrkdwn',
+                    'text': `*${i18next.t('command.job.list.detail.details', { ns: 'ZosMessage' })}${job.jobname}*`,
+                },
+            },
+            {
+                'type': 'divider',
+            });
+
+            // Only 10 items are allowed in one section.
+            blockObject.blocks.push({
                 'type': 'section',
                 'fields': [
                     {
                         'type': 'mrkdwn',
-                        'text': `*${job.jobname}* (ID: ${job.jobid})`,
-                    },
-                    {
-                        'type': 'plain_text',
-                        'text': ' ',
+                        'text': `*${i18next.t('command.job.list.detail.id', { ns: 'ZosMessage' })}:* ${job.jobid}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.owner}:* ${job.owner}`,
+                        'text': `*${i18next.t('command.job.list.detail.owner', { ns: 'ZosMessage' })}:* ${job.owner}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.subSystem}:* ${job.subsystem}`,
+                        'text': `*${i18next.t('command.job.list.detail.subSystem', { ns: 'ZosMessage' })}:* ${job.subsystem}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.status}:* ${job.status}`,
+                        'text': `*${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}:* ${job.status}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.type}:* ${job.type}`,
+                        'text': `*${i18next.t('command.job.list.detail.type', { ns: 'ZosMessage' })}:* ${job.type}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.returnCode}:* ${job.retcode === null ? ' ' : job.retcode}`,
+                        'text': `*${i18next.t('command.job.list.detail.returnCode', { ns: 'ZosMessage' })}:* ${job.retcode === null? ' ': job.retcode}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.class}:* ${job.class}`,
+                        'text': `*${i18next.t('command.job.list.detail.class', { ns: 'ZosMessage' })}:* ${job.class}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.PhaseName}:* ${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
+                        'text': `*${i18next.t('command.job.list.detail.PhaseName', { ns: 'ZosMessage' })}:* `
+                                + `${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.Phase}:* ${job.phase}`,
+                        'text': `*${i18next.t('command.job.list.detail.Phase', { ns: 'ZosMessage' })}:* ${job.phase ? ' ' : job.phase}`,
+                    },
+                    {
+                        'type': 'mrkdwn',
+                        'text': `*${i18next.t('command.job.list.detail.ExecutionMember', { ns: 'ZosMessage' })}:* `
+                            + `${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
                     },
                 ],
-            };
-
-            blockObject.blocks.push(jobSection);
-            // Only 10 items are allowed in one section.
-            jobSection = {
+            },
+            {
                 'type': 'section',
                 'fields': [
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.ExecutionMember}:* ${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
+                        'text': `*${i18next.t('command.job.list.detail.ExecutionSystem', { ns: 'ZosMessage' })}:* `
+                            + `${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.ExecutionSystem}:* ${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
+                        'text': `*${i18next.t('command.job.list.detail.startedTime', { ns: 'ZosMessage' })}:* `
+                            + `${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.startedTime}:* ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                        'text': `*${i18next.t('command.job.list.detail.ExecutionSubmittedTime', { ns: 'ZosMessage' })}:* `
+                            + `${job['exec-submitted'] === undefined ? ' ': job['exec-submitted']}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.ExecutionSubmittedTime}:* ${job['exec-submitted'] === undefined ? ' ' : job['exec-submitted']}`,
+                        'text': `*${i18next.t('command.job.list.detail.ExecutionEndedTime', { ns: 'ZosMessage' })}:* `
+                            + `${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.ExecutionEndedTime}:* ${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
-                    },
-                    {
-                        'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.reasonNotRunning}:* `
+                        'text': `*${i18next.t('command.job.list.detail.reasonNotRunning', { ns: 'ZosMessage' })}:* `
                             + `${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18nJsonData.detail.openJob}:* <${job.url}|Zosmf>`,
+                        'text': `*${i18next.t('command.job.list.detail.openJob', { ns: 'ZosMessage' })}:* <${job.url}|Zosmf>`,
                     },
                 ],
-            };
-
-            blockObject.blocks.push(jobSection);
-
-            // Add divider block
-            blockObject.blocks.push(
-                    {
-                        'type': 'divider',
-                    },
-            );
+            },
+            {
+                'type': 'divider',
+            });
 
             messages.push({
                 type: IMessageType.SLACK_BLOCK,
@@ -290,7 +288,7 @@ export class ZosJobSlackView extends ChatSlackView {
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: 'Internal error',
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log

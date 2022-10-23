@@ -67,18 +67,18 @@ export class ChatWebApp {
             // Get deployed file path
             const staticFiles = `${EnvironmentVariable.ZOWE_CHAT_HOME}/webapp`;
 
-            fs.writeFileSync(path.resolve(staticFiles, "env.js"),
-                `
+            fs.writeFileSync(path.resolve(staticFiles, 'env.js'),
+                    `
             window.env = {
                 API_HOST: '${this.option.protocol}://${this.option.hostName}:${this.option.port}'
             };
-            `, { flag: 'w' }
+            `, { flag: 'w' },
             );
 
             this.app.use(express.static(staticFiles));
             const rootRoute = express.Router();
             rootRoute.get('(/*)?', (req, res) => {
-                res.sendFile(path.resolve(staticFiles, "index.html"));
+                res.sendFile(path.resolve(staticFiles, 'index.html'));
             });
             this.app.use(rootRoute);
         } catch (error) {

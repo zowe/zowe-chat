@@ -17,11 +17,10 @@ import { ChatWebApp } from '../bot/ChatWebApp';
 import { SecurityManager } from '../security/SecurityManager';
 import { config } from '../settings/Config';
 import { logger } from '../utils/Logger';
-import { Util } from "../utils/Util";
+import { Util } from '../utils/Util';
 import { BotListener } from './BotListener';
 
 export class BotEventListener extends BotListener {
-
     private readonly chatListeners: IChatListenerRegistryEntry[];
     private readonly webapp: ChatWebApp;
     private readonly securityFacility: SecurityManager;
@@ -56,11 +55,8 @@ export class BotEventListener extends BotListener {
 
     // Match inbound event
     async matchEvent(chatContextData: IChatContextData): Promise<boolean> {
-
         // Print start log
         logger.start(this.matchEvent, this);
-
-        let user = chatContextData.context.chatting.user;
 
         try {
             // Initialize listener and context pool
@@ -77,12 +73,12 @@ export class BotEventListener extends BotListener {
                         const contextData: IChatContextData = _.cloneDeep(chatContextData);
                         if (contextData.extraData === undefined || contextData.extraData === null) {
                             contextData.extraData = {
-                                'chatPlugin': { 'package': listener.chatPlugin.package, 
+                                'chatPlugin': { 'package': listener.chatPlugin.package,
                                     'version': listener.chatPlugin.version,
                                     'priority': listener.chatPlugin.priority },
                             };
                         } else {
-                            contextData.extraData.chatPlugin = { 'package': listener.chatPlugin.package, 
+                            contextData.extraData.chatPlugin = { 'package': listener.chatPlugin.package,
                                 'version': listener.chatPlugin.version,
                                 'priority': listener.chatPlugin.priority };
                         }
@@ -115,10 +111,9 @@ export class BotEventListener extends BotListener {
             } else {
                 return false;
             }
-
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Bot event match exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Bot event match exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
@@ -130,7 +125,7 @@ export class BotEventListener extends BotListener {
     async processEvent(chatContextData: IChatContextData): Promise<void> {
         // Print start log
         logger.start(this.processEvent, this);
-        let user = chatContextData.context.chatting.user;
+        const user = chatContextData.context.chatting.user;
 
         try {
             // Match event
@@ -138,15 +133,14 @@ export class BotEventListener extends BotListener {
 
             // Process event
             if (matched) {
-
-                let principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user));
+                const principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user));
                 if (principal == undefined) {
-                    let redirect = this.webapp.generateChallenge(user, () => {
+                    const redirect = this.webapp.generateChallenge(user, () => {
                         this.processEvent(chatContextData);
                     });
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
-                        type: IMessageType.PLAIN_TEXT
+                        type: IMessageType.PLAIN_TEXT,
                     }]);
                     logger.end(this.processEvent, this);
                     return;
@@ -191,7 +185,7 @@ export class BotEventListener extends BotListener {
             }
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Bot event process exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Bot event process exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log

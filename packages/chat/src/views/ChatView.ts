@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IBotOption } from "../types";
+import { IBotOption } from '../types';
 
 export class ChatView {
     protected botOption: IBotOption = null;
@@ -22,5 +22,10 @@ export class ChatView {
             this.messagingEndpointUrl = `${this.botOption.messagingApp.option.protocol}://${this.botOption.messagingApp.option.hostName}`
                 + `:${this.botOption.messagingApp.option.port}${this.botOption.messagingApp.option.basePath}`;
         }
+    }
+
+    // Get Zowe Chat Documentation Base URL
+    getDocumentationBaseURL(): string {
+        return 'https://docs.zowe.org/stable/user-guide/';
     }
 }

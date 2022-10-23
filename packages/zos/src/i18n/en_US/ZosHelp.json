@@ -1,27 +1,29 @@
 {
     "command": {
         "zos": {
-            "description": "Scope description",
+            "description": "Manages z/OS jobs, data sets, USS files and mounted filesystems.",
             "job": {
-                "description": "Resource description",
+                "description": "Manages z/OS jobs.",
                 "default": false,
                 "usage": {
-                    "description": "This command is used to manager z/OS job such as show status, start / stop ",
-                    "synopsis": []
+                    "description": "This command is used to manage z/OS job to show job status.",
+                    "synopsis": [
+                        "zos job list status  [jobId] --owner | o <owner> --prefix | p <prefix> --limit <limit>"
+                    ]
                 },
                 "example": {
-
+                    "zos job list status -o zow* -p myjo*": "Shows all jobs owned by user IDs starting with 'zow' and job names starting with 'myjo.",
+                    "zos job list status TSU15026": "Shows the job which job id is TSU15026."
                 },
                 "list": {
-                    "description": "Action description",
+                    "description": "Shows the status of job.",
                     "default": true,
                     "status": {
-                        "description": "Object description",
+                        "description": "Shows the status or detail of job.",
                         "default": true,
                         "argument": {
-                            "description": "Positional argument description",
                             "id": {
-                                "description": "Positional argument description.",
+                                "description": "It specifies the job id to narrow down the result.",
                                 "required": false
                             }
                         },
@@ -29,23 +31,242 @@
                             "owner": {
                                 "acronym": "o",
                                 "value": {
-                                    "type": "null|string|number|enum|date|time|datetime",
-                                    "format": "",
-                                    "data": ""
+                                    "type": "string",
+                                    "format": ""
                                 },
-                                "description": "Option description",
+                                "description": "The owner of the jobs. The default is the z/OS user ID. Wildcard is supported, please refer to the z/OSMF Jobs REST endpoint documentation.",
                                 "required": false
                             },
                             "prefix": {
                                 "acronym": "p",
                                 "value": {
-                                    "type": "null|string|number|enum|date|time|datetime",
-                                    "format": "",
-                                    "data": ""
+                                    "type": "string",
+                                    "format": ""
                                 },
-                                "description": "Option description",
+                                "description": "The job name prefix. Defaults is *. Wildcard is supported, please refer to the z/OSMF Jobs REST endpoint documentation.",
+                                "required": false
+                            },
+                            "--limit": {
+                                "acronym": "",
+                                "value": {
+                                    "type": "number",
+                                    "format": ""
+                                },
+                                "description": "It specifies limit of jobs to display.",
                                 "required": false
                             }
+                        }
+                    }
+                }
+            },
+            "dataset": {
+                "description": "Manages z/OS data sets.",
+                "default": false,
+                "usage": {
+                    "description": "This command is used to manage z/OS data sets to show data set status.",
+                    "synopsis": [
+                        "zos dataset list status [datasetName*] --dsname-level | dl <dsnamelevel> --volume-serial | vs <volumeserial> --start | s <firstDatasetName> --limit <limit>",
+                        "zos dataset list member [datasetMemberName*] --dataset-name | dn <datasetName> --limit <limit>"
+                    ]
+                },
+                "example": {
+                    "zos dataset list status --dl user.asm" : "Show the data set \"user.asm\".",
+                    "zos dataset list status user.*": "Show all data sets of the user \"user\".",
+                    "zos dataset list member --dn user.asm": "Show members of the data set \"user.asm\"."
+                },
+                "list": {
+                    "description": "Shows the status of data sets.",
+                    "default": true,
+                    "status": {
+                        "description": "Shows the status or detail of data sets.",
+                        "default": true,
+                        "argument": {
+                            "datasetName": {
+                                "description": "It specifies the data set name to narrow down the result. Wildcard is supported, please refer to the z/OSMF Dataset REST endpoint documentation.",
+                                "required": false
+                            }
+                        },
+                        "option": {
+                            "dsname-level ": {
+                                "acronym": "dl",
+                                "value": {
+                                    "type": "string",
+                                    "format": ""
+                                },
+                                "description": "It specifies the name or pattern of the data set. Wildcard is supported, please refer to the z/OSMF Dataset REST endpoint documentation.",
+                                "required": false
+                            },
+                            "volume-serial": {
+                                "acronym": "vs",
+                                "value": {
+                                    "type": "string",
+                                    "format": ""
+                                },
+                                "description": "It specifies the volume serial (VOLSER) where the data set resides.",
+                                "required": false
+                            },
+                            "start": {
+                                "acronym": "s",
+                                "value": {
+                                    "type": "string",
+                                    "format": ""
+                                },
+                                "description": "It specifies specifies the first data set name to return.",
+                                "required": false
+                            },
+                            "--limit": {
+                                "acronym": "",
+                                "value": {
+                                    "type": "number",
+                                    "format": ""
+                                },
+                                "description": "It specifies limit of data sets to display.",
+                                "required": false
+                            }
+                        }
+                    },
+                    "member": {
+                        "description": "Shows all members of a partitioned data set.",
+                        "default": true,
+                        "argument": {
+                            "datasetMemberName": {
+                                "description": "It specifies the member name to narrow down the result. Wildcard character is supported, please refer to the z/OSMF Dataset REST endpoint documentation.",
+                                "required": false
+                            }
+                        },
+                        "option": {
+                            "dataset-name": {
+                                "acronym": "dn",
+                                "value": {
+                                    "type": "string",
+                                    "format": ""
+                                },
+                                "description": "It specifies the name of the data set for which you want to list the members. Wildcard character is supported, please refer to the z/OSMF Dataset REST endpoint documentation.",
+                                "required": true
+                            },
+                            "--limit": {
+                                "acronym": "",
+                                "value": {
+                                    "type": "number",
+                                    "format": ""
+                                },
+                                "description": "It specifies limit of data set members to display.",
+                                "required": false
+                            }
+                        }
+                    }
+                }
+            },
+            "file": {
+                "description": "Manages USS files on a z/OS system.",
+                "default": false,
+                "usage": {
+                    "description": "This command is used to manage USS files to show file status.",
+                    "synopsis": [
+                        "zos file list status [fileName*] --path | p <path> --limit <limit>",
+                        "zos file list mounts [fileSystemName*] --mount-point | mp <mount-point-path> --limit <limit>"
+                    ]
+                },
+                "example": {
+                    "zos file list status -p '/u/user'": "Show the files and directories in path '/u/user'.",
+                    "zos file list status clean* -p '/u/user'": "Show the files and directories which name start with clean in path '/u/user'.",
+                    "zos file list mounts": "Shows all mounted filesystems.",
+                    "zos file list mounts --mp '/a/ibmuser'": "Shows filesystems mounted to a specific path.",
+                    "zos file list mounts sac*": "Shows mounted filesystems which name start with sac."
+
+                },
+                "list": {
+                    "description": "Shows the status of USS files.",
+                    "default": true,
+                    "status": {
+                        "description": "Shows the status or detail of USS file.",
+                        "default": true,
+                        "argument": {
+                            "fileName": {
+                                "description": "It specifies the file name to narrow down the result. Wildcard character * and ? is supported.",
+                                "required": false
+                            }
+                        },
+                        "option": {
+                            "path": {
+                                "acronym": "p",
+                                "value": {
+                                    "type": "string",
+                                    "format": ""
+                                },
+                                "description": "It specifies the directory containing the files and directories to be listed.",
+                                "required": true
+                            },
+                            "--limit": {
+                                "acronym": "",
+                                "value": {
+                                    "type": "number",
+                                    "format": ""
+                                },
+                                "description": "It specifies limit of files to display.",
+                                "required": false
+                            }
+                        }
+                    },
+                    "mounts": {
+                        "description": "Shows the status or detail of mounted z/OS filesystems.",
+                        "default": true,
+                        "argument": {
+                            "fileSystemName": {
+                                "description": "It specifies the filesystem name to narrow down the result. Wildcard character * and ? is supported.",
+                                "required": false
+                            }
+                        },
+                        "option": {
+                            "mount-point": {
+                                "acronym": "mp",
+                                "value": {
+                                    "type": "string",
+                                    "format": ""
+                                },
+                                "description": "It specifies the path where the file system is mounted.",
+                                "required": false
+                            },
+                            "--limit": {
+                                "acronym": "",
+                                "value": {
+                                    "type": "number",
+                                    "format": ""
+                                },
+                                "description": "It specifies limit of file systems to display.",
+                                "required": false
+                            }
+                        }
+                    }
+                }
+            },
+            "help": {
+                "description": "Shows help information for commands.",
+                "default": false,
+                "usage": {
+                    "description": "This command is used to show help information for commands",
+                    "synopsis": [
+                        "zos help list command [resourceName]"
+                    ]
+                },
+                "example": {
+                    "zos help": "Shows all commands.",
+                    "zos help list command": "Shows all commands.",
+                    "zos help list command job": "Shows usage and examples of the job commands."
+                },
+                "list": {
+                    "description": "Shows all commands.",
+                    "default": true,
+                    "command": {
+                        "description": "Shows the list or detail of commands.",
+                        "default": true,
+                        "argument": {
+                            "fileName": {
+                                "description": "It specifies the command resource to narrow down the result.",
+                                "required": false
+                            }
+                        },
+                        "option": {
                         }
                     }
                 }

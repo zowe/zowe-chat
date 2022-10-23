@@ -12,7 +12,7 @@ import { logger, Util } from '@zowe/chat';
 import { ChatEventListener, IActionType, IChatContextData, IChatToolType, ICommand, IEvent, IExecutor, IMessage, IMessageType } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
-const i18nJsonData = require('../i18n/jobDisplay.json');
+import i18next from 'i18next';
 
 class ZosEventListener extends ChatEventListener {
     constructor() {
@@ -46,9 +46,6 @@ class ZosEventListener extends ChatEventListener {
             }
 
             const command = this.parseCommand(eventMessage);
-            command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
-            command.extraData.zosmf = chatContextData.extraData.zosmf;
-            command.extraData.principal = chatContextData.extraData.principal;
             logger.debug(`Command is ${JSON.stringify(command)}`);
 
             // 1: Match bot name -> no need to do it
@@ -84,6 +81,8 @@ class ZosEventListener extends ChatEventListener {
             const event: IEvent = <IEvent>chatContextData.payload.data;
             if (event.action.type === IActionType.DROPDOWN_SELECT) {
                 eventMessage = chatContextData.context.chatTool.body.context.selected_option;
+            } if (event.action.type === IActionType.BUTTON_CLICK) {
+                eventMessage = chatContextData.context.chatTool.body.context.command;
             } else {
                 // Possible event action type are IActionType.DIALOG_OPEN, IActionType.DIALOG_SUBMIT, IActionType.BUTTON_CLICK,
                 // or unsupported event action type.
@@ -114,6 +113,8 @@ class ZosEventListener extends ChatEventListener {
             const event: IEvent = <IEvent>chatContextData.payload.data;
             if (event.action.type === IActionType.DROPDOWN_SELECT) {
                 eventMessage = chatContextData.context.chatTool.payload.selected_option.value;
+            } else if (event.action.type === IActionType.BUTTON_CLICK) {
+                eventMessage = chatContextData.context.chatTool.payload.value;
             } else {
                 // Possible event action type are IActionType.DIALOG_OPEN, IActionType.DIALOG_SUBMIT, IActionType.BUTTON_CLICK,
                 // or unsupported event action type.
@@ -145,6 +146,9 @@ class ZosEventListener extends ChatEventListener {
 
             const event: IEvent = <IEvent>chatContextData.payload.data;
             if (event.action.type === IActionType.DROPDOWN_SELECT) {
+                const actionId = chatContextData.context.chatTool.context.activity.value.action.id;
+                eventMessage = chatContextData.context.chatTool.context.activity.value[actionId];
+            } else if (event.action.type === IActionType.BUTTON_CLICK) {
                 const actionId = chatContextData.context.chatTool.context.activity.value.action.id;
                 eventMessage = chatContextData.context.chatTool.context.activity.value[actionId];
             } else {
@@ -185,16 +189,20 @@ class ZosEventListener extends ChatEventListener {
             };
 
             const botOption = chatContextData.context.chatting.bot.getOption();
-            // if (botOption.chatTool !== IChatTool.MATTERMOST
-            //     && botOption.chatTool !== IChatTool.SLACK
-            //     && botOption.chatTool !== IChatTool.MSTEAMS) {
-            //     return [{
-            //         type: IMessageType.PLAIN_TEXT,
-            //         message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
-            //     }];
-            // }
+            if (botOption.chatTool.type !== IChatToolType.MATTERMOST
+                && botOption.chatTool.type !== IChatToolType.SLACK
+                && botOption.chatTool.type !== IChatToolType.MSTEAMS) {
+                return [{
+                    type: IMessageType.PLAIN_TEXT,
+                    message: i18next.t('common.error.unsupportedChatTool', { type: botOption.chatTool.type, ns: 'ZosMessage' }),
+                }];
+            }
 
             logger.debug(`Incoming command is ${JSON.stringify(chatContextData.extraData.command)}`);
+            const command = chatContextData.extraData.command;
+            command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
+            command.extraData.zosmf = chatContextData.extraData.zosmf;
+            command.extraData.principal = chatContextData.extraData.principal;
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
             return await dispatcher.dispatch(chatContextData.extraData.command, executor);
@@ -205,7 +213,7 @@ class ZosEventListener extends ChatEventListener {
 
             return [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18nJsonData.error.internal,
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log
@@ -229,38 +237,44 @@ class ZosEventListener extends ChatEventListener {
                 chatPlugin: {},
             },
         };
+        try {
+            if (commandText !== undefined && commandText !== null && commandText.trim() !== '') {
+                const commandArray = commandText.trim().split(':');
 
-        if (commandText !== undefined && commandText !== null && commandText.trim() !== '') {
-            const commandArray = commandText.trim().split(':');
+                command.scope = commandArray.length >= 2 ? commandArray[1] : '';
+                command.resource = commandArray.length >= 3 ? commandArray[2] : '';
+                command.verb = commandArray.length >= 4 ? commandArray[3] : '';
+                command.object = commandArray.length >= 5 ? commandArray[4] : '';
 
-            command.scope = commandArray.length >= 2 ? commandArray[1] : '';
-            command.resource = commandArray.length >= 3 ? commandArray[2] : '';
-            command.verb = commandArray.length >= 4 ? commandArray[3] : '';
-            command.object = commandArray.length >= 5 ? commandArray[4] : '';
-
-            // Process adjective
-            if (commandArray.length >= 6) {
-                const adjectiveArray = commandArray.slice(5);
-                for (const obj of adjectiveArray) {
-                    if (obj.trim().length === 0) {
-                        continue;
-                    } else if (obj.includes('=')) { // option
-                        const options = obj.split('|');
-                        for (const option of options) {
-                            const words = option.split('=');
-                            command.adjective.option[words[0]] = words[1];
+                // Process adjective
+                if (commandArray.length >= 6) {
+                    const adjectiveArray = commandArray.slice(5);
+                    for (const obj of adjectiveArray) {
+                        if (obj.trim().length === 0) {
+                            continue;
+                        } else if (obj.includes('=')) { // option
+                            const options = obj.split('|');
+                            for (const option of options) {
+                                const words = option.split('=');
+                                command.adjective.option[words[0]] = words[1];
+                            }
+                        } else { // argument
+                            command.adjective.arguments.push(obj);
                         }
-                    } else { // argument
-                        command.adjective.arguments.push(obj);
                     }
                 }
+
+                // Set extra data
+                command.extraData.botUserName = commandArray[0].substring(1);
             }
 
-            // Set extra data
-            command.extraData.botUserName = commandArray[0].substring(1);
-        }
+            return command;
+        } catch (error) {
+            // Print exception stack
+            logger.error(logger.getErrorStack(new Error(error.name), error));
 
-        return command;
+            return command;
+        }
     }
 }
 
