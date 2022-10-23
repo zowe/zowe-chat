@@ -9,10 +9,10 @@
 */
 
 import CommonBot, { IBotOption, IChatToolType, IMattermostOption, ISlackOption } from '@zowe/commonbot';
-import * as fs from "fs-extra";
-import * as path from "path";
+import * as fs from 'fs-extra';
+import * as path from 'path';
 
-import { config } from '../settings/Config'
+import { config } from '../settings/Config';
 import { logger } from '../utils/Logger';
 
 import { UserConfigManager } from '../settings/UserConfigManager';
@@ -25,24 +25,23 @@ import { ChatMessageListener } from '../listeners/ChatMessageListener';
 import { SecurityConfigSchema } from '../security/SecurityConfigSchema';
 import { SecurityManager } from '../security/SecurityManager';
 import { IChatListenerType, IChatPlugin } from '../types';
-import { Util } from "../utils/Util";
+import { Util } from '../utils/Util';
 import ChatResource from './ChatResource';
 import { ChatWebApp } from './ChatWebApp';
 import { MessagingApp } from './MessagingApp';
-import { IAuthType, IConfig, IMattermostConfig, IMsteamsConfig, ISecurityChallengeMethod, ISlackConfig } from '../types/IConfig';
+import { IConfig, IMattermostConfig, IMsteamsConfig, ISecurityChallengeMethod, ISlackConfig } from '../types/IConfig';
 
-;
 
 /**
- *  The entrypoint class for the Zowe ChatBot. 
- * 
+ *  The entrypoint class for the Zowe ChatBot.
+ *
  *  @export
  *  @class ChatBot
- * 
+ *
  *  @example <caption>Initializing ChatBot</caption>
  *  // Zowe ChatBot requires {@linkcode AppConfig} configuration and a {@linkcode Logger} in order to load.
- *  // Run these commands in order first to make ensure configuration and loggers are available. 
- *  // If you do not run these commands, ChatBot will run them as part of startup anyway. 
+ *  // Run these commands in order first to make ensure configuration and loggers are available.
+ *  // If you do not run these commands, ChatBot will run them as part of startup anyway.
  *  const appConfig = AppConfigLoader.loadAppConfig()
  *  const log = Logger.getInstance()
  *  // Get ChatBot instance
@@ -65,13 +64,13 @@ export class ChatBot {
     private readonly chatResource: ChatResource;
 
     /**
-     * Private constructor for ChatBot object initialization, only intended for use by {@link getInstance()}  
-     * 
+     * Private constructor for ChatBot object initialization, only intended for use by {@link getInstance()}
+     *
      * Requires {@link AppConfig} and {@link Logger} in order to complete initialization. This constructor will
      * initialize all major components of Zowe Chat, i.e. the CommonBot framework, Zowe Chat plugins, the UI, REST, and Messaging Server,
-     * 
+     *
      * {@link run()} must be run by the caller after receiving an instance to begin listening for chat messages and events
-     * 
+     *
      */
     constructor() {
         try {
@@ -79,8 +78,8 @@ export class ChatBot {
             logger.silly(`Zowe Chat Config: \n ${JSON.stringify(cfg, null, 4)}`);
 
             // built-in config schemas and security manager. future: add plugin config schemas, if present
-            logger.debug("Creating security manager ...");
-            let blockConfigList = [SecurityConfigSchema];
+            logger.debug('Creating security manager ...');
+            const blockConfigList = [SecurityConfigSchema];
             this.configManager = new UserConfigManager({ sections: blockConfigList });
             this.security = new SecurityManager(this.configManager);
 
@@ -89,28 +88,28 @@ export class ChatBot {
 
             // Web app
             if (cfg.chatServer.securityChallengeMethod === ISecurityChallengeMethod.WEBAPP) {
-                logger.debug("Creating web app ...");
+                logger.debug('Creating web app ...');
                 this.webApp = new ChatWebApp(cfg.chatServer.webApp, this.security);
             } else {
                 this.webApp = null;
             }
 
             // Commonbot
-            logger.info("Creating CommonBot ...");
+            logger.info('Creating CommonBot ...');
             const botOption = this.generateBotOption(cfg);
             this.bot = new CommonBot(botOption);
 
             // Bot Listener
-            logger.info("Creating bot listener ...");
+            logger.info('Creating bot listener ...');
             this.botMessageListener = new BotMessageListener(this.security, this.webApp);
             this.botEventListener = new BotEventListener(this.security, this.webApp);
 
             // Plugins
-            logger.info("Creating plugin pool ...");
+            logger.info('Creating plugin pool ...');
             this.plugins = [];
 
             // Translation resources
-            logger.info("Creating translation resource ...");
+            logger.info('Creating translation resource ...');
             this.chatResource = new ChatResource();
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
@@ -127,7 +126,7 @@ export class ChatBot {
 
         try {
             // Load plugin
-            this.loadInternalMessageListeners()
+            this.loadInternalMessageListeners();
             logger.info('Load Zowe Chat plugins ...');
             this.loadPlugin();
 
@@ -156,7 +155,7 @@ export class ChatBot {
             this.bot.route(this.bot.getOption().messagingApp.option.basePath, this.botEventListener.processEvent);
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Run Zowe chat bot exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Run Zowe chat bot exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
             process.exit(2);
         } finally {
@@ -172,7 +171,7 @@ export class ChatBot {
         logger.start(this.loadInternalMessageListeners, this);
 
         this.botMessageListener.registerChatListener({
-            listenerName: "LogoutListener",
+            listenerName: 'LogoutListener',
             listenerType: IChatListenerType.MESSAGE,
             listenerInstance: new LogoutMessageListener(this.security),
             chatPlugin: {
@@ -189,9 +188,9 @@ export class ChatBot {
 
     /**
      * Loads Zowe Chatbot plugins dynamically. Reads the plugin.yaml configuration file to further process plugins.
-     * 
+     *
      * See the plugin.yaml file for more information on plugin loading.
-     * 
+     *
      */
     private loadPlugin(): void {
         // Print start log
@@ -209,15 +208,15 @@ export class ChatBot {
                 pluginYamlFilePath = `${__dirname}${path.sep}..${path.sep}config${path.sep}plugin.yaml`;
                 if (fs.existsSync(pluginYamlFilePath) === false) {
                     // ZWECC002E: The file {{filePath}} does not exist
-                    logger.error(Util.getErrorMessage('ZWECC002E', {filePath: `${pluginHome}${path.sep}plugin.yaml or ${pluginYamlFilePath}`,
-                            ns: 'ChatMessage'}));
+                    logger.error(Util.getErrorMessage('ZWECC002E', { filePath: `${pluginHome}${path.sep}plugin.yaml or ${pluginYamlFilePath}`,
+                        ns: 'ChatMessage' }));
                     logger.error(`Skip loading plugins!`);
                     return;
                 }
             }
 
             // Read Zowe Chat plugins configuration file
-            let pluginList = <IChatPlugin[]> Util.readYamlFile(pluginYamlFilePath);
+            const pluginList = <IChatPlugin[]> Util.readYamlFile(pluginYamlFilePath);
             logger.info(`${pluginYamlFilePath}:\n${JSON.stringify(this.plugins, null, 4)}`);
 
             // Sort plugin per priority in ascend order: Priority 1 (Urgent) · Priority 2 (High) · Priority 3 (Medium) · Priority 4 (Low)
@@ -240,7 +239,7 @@ export class ChatBot {
                 // Check whether the plugin is installed
                 if (fs.existsSync(pluginPath) === false) {
                     // ZWECC002E: The file {{filePath}} does not exist
-                    logger.error(Util.getErrorMessage('ZWECC002E', {filePath: pluginPath, ns: 'ChatMessage'}));
+                    logger.error(Util.getErrorMessage('ZWECC002E', { filePath: pluginPath, ns: 'ChatMessage' }));
                     logger.error(`Can't load the plugin ${plugin.package} due to the plugin file path "${pluginPath}" does not exist!`);
                     continue;
                 }
@@ -250,7 +249,7 @@ export class ChatBot {
                 const packageName = Util.getPackageName(packageFilePath);
                 if (plugin.package !== packageName) {
                     // ZWECC005E: Unsupported value {{value}} for the item {{item}}
-                    logger.error(Util.getErrorMessage('ZWECC005E', {value: plugin.package, item: 'package', ns: 'ChatMessage'}));
+                    logger.error(Util.getErrorMessage('ZWECC005E', { value: plugin.package, item: 'package', ns: 'ChatMessage' }));
                     logger.error(`Can't load the plugin ${plugin.package} due to the specified package name in ${pluginYamlFilePath} `
                         + `is not consistent with the real package name in ${packageFilePath}`);
                     continue;
@@ -261,7 +260,7 @@ export class ChatBot {
 
                 // Create and register listeners
                 plugin.listeners = [];
-                let files = fs.readdirSync(`${pluginPath}${path.sep}listeners`, {withFileTypes: true});
+                let files = fs.readdirSync(`${pluginPath}${path.sep}listeners`, { withFileTypes: true });
                 for (const file of files) {
                     if (file.isFile() && file.name.endsWith('.js')) { // .js file
                         const listenerName = file.name.replace('.js', '');
@@ -288,7 +287,7 @@ export class ChatBot {
                                 plugin.listeners.push(listenerName);
                             } else {
                                 // ZWECC005E: Unsupported value {{value}} for the item {{item}}
-                                logger.error(Util.getErrorMessage('ZWECC005E', {value: listenerName, item: 'Zowe Chat Listener Type', ns: 'ChatMessage'}));
+                                logger.error(Util.getErrorMessage('ZWECC005E', { value: listenerName, item: 'Zowe Chat Listener Type', ns: 'ChatMessage' }));
                                 logger.error(`The listener "${listenerName}" is not supported by Zowe Chat!`);
                             }
                         } else {
@@ -299,7 +298,7 @@ export class ChatBot {
 
                 // Load translation resources
                 plugin.resources = [];
-                files = fs.readdirSync(`${pluginPath}${path.sep}i18n${path.sep}en_US`, {withFileTypes: true});
+                files = fs.readdirSync(`${pluginPath}${path.sep}i18n${path.sep}en_US`, { withFileTypes: true });
                 for (const file of files) {
                     if (file.isFile() && file.name.endsWith('.json')) { // JSON translation file
                         logger.debug(`Loading translation resource: ${file.name} ...`);
@@ -313,7 +312,7 @@ export class ChatBot {
             }
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Zowe Chat plugin loading exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zowe Chat plugin loading exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
             process.exit(3);
         } finally {
@@ -324,9 +323,9 @@ export class ChatBot {
 
     /**
      * Takes configuration options from appConfig and messageApp, and converts them to configuration format for CommonBot.
-     * 
-     * @param config 
-     * @returns 
+     *
+     * @param config
+     * @returns
      */
     private generateBotOption(config: IConfig): IBotOption {
         // Print start log
@@ -337,7 +336,7 @@ export class ChatBot {
             // Read chat tool configuration
             if (config.chatServer.chatToolType === IChatToolType.MATTERMOST) {
                 // Get Mattermost config
-                const mattermostConfig = {...<IMattermostConfig> config.chatTool};
+                const mattermostConfig = { ...<IMattermostConfig> config.chatTool };
                 mattermostConfig.messagingApp = undefined;
 
                 // Generate Mattermost option
@@ -357,7 +356,7 @@ export class ChatBot {
                     (<IMattermostOption> (botOption.chatTool.option)).tlsCertificate = fs.readFileSync(mattermostConfig.tlsCertificate, 'utf8');
                 } else {
                     // ZWECC002E: The file {{filePath}} does not exist
-                    logger.error(Util.getErrorMessage('ZWECC002E', {filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage'}));
+                    logger.error(Util.getErrorMessage('ZWECC002E', { filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage' }));
                     process.exit(4);
                 }
 
@@ -366,7 +365,7 @@ export class ChatBot {
                 botOption.messagingApp.app = this.messagingApp.getApplication();
             } else if (config.chatServer.chatToolType === IChatToolType.SLACK) {
                 // Get slack config
-                const slackConfig = {...<ISlackConfig> config.chatTool};
+                const slackConfig = { ...<ISlackConfig> config.chatTool };
 
                 // Generate slack option
                 const option: ISlackOption = {
@@ -414,7 +413,7 @@ export class ChatBot {
                 }
             } else if (config.chatServer.chatToolType === IChatToolType.MSTEAMS) {
                 // Get Microsoft Teams config
-                const msteamsConfig = {...<IMsteamsConfig> config.chatTool};
+                const msteamsConfig = { ...<IMsteamsConfig> config.chatTool };
 
                 // Generate Microsoft Teams option
                 botOption = {
@@ -437,12 +436,12 @@ export class ChatBot {
                 botOption.messagingApp.app = this.messagingApp.getApplication();
             } else {
                 // ZWECC005E: Unsupported value ${value} for the item ${item}
-                logger.error(Util.getErrorMessage('ZWECC005E', {value: config.chatServer.chatToolType, item: 'chatToolType', ns: 'ChatMessage'}));
+                logger.error(Util.getErrorMessage('ZWECC005E', { value: config.chatServer.chatToolType, item: 'chatToolType', ns: 'ChatMessage' }));
                 process.exit(5);
             }
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Chat tool configuration exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Chat tool configuration exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
             process.exit(6);
         } finally {

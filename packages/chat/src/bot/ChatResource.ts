@@ -8,9 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import {IResource} from '../types';
+import { IResource } from '../types';
 
-import type {TFunction} from 'i18next';
+import type { TFunction } from 'i18next';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import { logger } from '../utils/Logger';
@@ -21,13 +21,13 @@ class ChatResource {
 
     constructor() {
         this.resources = [{
-                'namespace': 'ChatHelp',
-                'loadPath': `${__dirname}/../i18n/{{lng}}/ChatHelp.json`
-            },
-            {
-                'namespace': "ChatMessage",
-                'loadPath':`${__dirname}/../i18n/{{lng}}/ChatMessage.json`
-            }];
+            'namespace': 'ChatHelp',
+            'loadPath': `${__dirname}/../i18n/{{lng}}/ChatHelp.json`,
+        },
+        {
+            'namespace': 'ChatMessage',
+            'loadPath': `${__dirname}/../i18n/{{lng}}/ChatMessage.json`,
+        }];
     }
 
     // Add resource
@@ -77,7 +77,7 @@ class ChatResource {
             });
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Translation resource initialize exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Translation resource initialize exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log

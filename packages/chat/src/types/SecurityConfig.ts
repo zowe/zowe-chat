@@ -34,21 +34,21 @@ export type LoginProvider = {
 };
 
 export enum LoginService {
-    ZOSMF = "zosmf",
+    ZOSMF = 'zosmf',
     // SAF = "saf", // only works on z/os?
     //  ZOWE_V1 = "zowe_v1"
     //  ZOWE_V2 = "zowe_v2"
 }
 
 export enum LoginStrategyType {
-    RequireLogin = "require-login",
-    AutoLogin = "auto-login",
+    RequireLogin = 'require-login',
+    AutoLogin = 'auto-login',
 }
 
 export enum AuthenticationStrategy {
-    Passticket = "passticket",
-    Password = "password",
-    Token = "token",
+    Passticket = 'passticket',
+    Password = 'password',
+    Token = 'token',
 }
 
 export type PassticketOptions = {
@@ -74,7 +74,7 @@ export type TokenProvider = {
 };
 
 export enum TokenService {
-    ZOSMF = "zosmf",
+    ZOSMF = 'zosmf',
     // ZOWE_APIML_V1 = "zowe_v1",    TODO: implementation
     // ZOWE_APIML_V2 = "zowe_v2"     TODO: implementation
 }

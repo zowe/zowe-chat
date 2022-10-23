@@ -8,8 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatContextData, IMessage, IName } from "@zowe/commonbot";
-import { ChatPrincipal } from "../security/user/ChatPrincipal";
+import { IChatContextData, IMessage, IName } from '@zowe/commonbot';
+import { ChatPrincipal } from '../security/user/ChatPrincipal';
 
 export type ChatContext = {
     context: IChatContextData;
@@ -81,6 +81,6 @@ export interface IResource {
     namespace: string;
 }
 
-export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IProtocol, IHttpEndpoint,
+export { IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IProtocol, IHttpEndpoint,
     IMessageHandlerFunction, IMessageMatcherFunction, IRouteHandlerFunction, IMessagingApp, IMessage, IMessageType, IAppOption, IPayloadType,
-    IEvent, IActionType, IBotLimit, IMattermostBotLimit, ISlackBotLimit, IMsteamsBotLimit} from '@zowe/commonbot';
+    IEvent, IActionType, IBotLimit, IMattermostBotLimit, ISlackBotLimit, IMsteamsBotLimit } from '@zowe/commonbot';

@@ -10,18 +10,17 @@
 
 import { IChatContextData, IChatListenerRegistryEntry, IMessageListener, IMessageType, IPayloadType } from '../types';
 
-import _ from "lodash";
+import _ from 'lodash';
 import { ChatWebApp } from '../bot/ChatWebApp';
 import { SecurityManager } from '../security/SecurityManager';
 import { logger } from '../utils/Logger';
-import { Util } from "../utils/Util";
+import { Util } from '../utils/Util';
 import { BotListener } from './BotListener';
 import i18next from 'i18next';
 import { config } from '../settings/Config';
 import { IUser } from '@zowe/commonbot';
 
 export class BotMessageListener extends BotListener {
-
     private chatListeners: IChatListenerRegistryEntry[];
     private readonly securityManager: SecurityManager;
     private readonly webapp: ChatWebApp;
@@ -77,12 +76,12 @@ export class BotMessageListener extends BotListener {
                         const contextData: IChatContextData = _.cloneDeep(chatContextData);
                         if (contextData.extraData === undefined || contextData.extraData === null) {
                             contextData.extraData = {
-                                'chatPlugin': {'package': listener.chatPlugin.package, 
+                                'chatPlugin': { 'package': listener.chatPlugin.package,
                                     'version': listener.chatPlugin.version,
                                     'priority': listener.chatPlugin.priority },
                             };
                         } else {
-                            contextData.extraData.chatPlugin = { 'package': listener.chatPlugin.package, 
+                            contextData.extraData.chatPlugin = { 'package': listener.chatPlugin.package,
                                 'version': listener.chatPlugin.version,
                                 'priority': listener.chatPlugin.priority };
                         }
@@ -114,14 +113,14 @@ export class BotMessageListener extends BotListener {
                 } else {
                     // Send response
                     // await chatContextData.context.chatting.bot.send(listenerContexts[i], msgs);
-                    chatContextData.context.chatting.bot.send(chatContextData, [{type: IMessageType.PLAIN_TEXT,
-                        message: i18next.t('common.error.unknownQuestion', {ns: 'ChatMessage'})}]);
+                    chatContextData.context.chatting.bot.send(chatContextData, [{ type: IMessageType.PLAIN_TEXT,
+                        message: i18next.t('common.error.unknownQuestion', { ns: 'ChatMessage' }) }]);
                     return false;
                 }
             }
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Bot message match exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Bot message match exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
@@ -133,29 +132,28 @@ export class BotMessageListener extends BotListener {
     async processMessage(chatContextData: IChatContextData): Promise<void> {
         // Print start log
         logger.start(this.processMessage, this);
-        let user: IUser = chatContextData.context.chatting.user;
+        const user: IUser = chatContextData.context.chatting.user;
 
         if (!this.securityManager.isAuthenticated(user)) {
-            let redirect = this.webapp.generateChallenge(user, () => {
+            const redirect = this.webapp.generateChallenge(user, () => {
                 this.processMessage(chatContextData);
             });
-            logger.debug("Creating challenge link " + redirect + " for user " + user.name);
+            logger.debug('Creating challenge link ' + redirect + ' for user ' + user.name);
             await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                 message: `Hello @${user.name}, you are not currently logged in to the backend system. Please visit ${redirect} to login`,
-                type: IMessageType.PLAIN_TEXT
+                type: IMessageType.PLAIN_TEXT,
             }]);
             logger.end(this.processMessage, this);
         } else {
             try {
-
-                let principal = this.securityManager.getPrincipal(this.securityManager.getChatUser(user));
+                const principal = this.securityManager.getPrincipal(this.securityManager.getChatUser(user));
                 if (principal == undefined) {
-                    let redirect = this.webapp.generateChallenge(user, () => {
+                    const redirect = this.webapp.generateChallenge(user, () => {
                         this.processMessage(chatContextData);
                     });
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
-                        type: IMessageType.PLAIN_TEXT
+                        type: IMessageType.PLAIN_TEXT,
                     }]);
                     logger.end(this.processMessage, this);
                     return;
@@ -193,27 +191,24 @@ export class BotMessageListener extends BotListener {
                 }
 
                 if (pluginUnauth) {
-                    let redirect = this.webapp.generateChallenge(user, () => {
-
+                    const redirect = this.webapp.generateChallenge(user, () => {
+                        //
                     });
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
                         message: `Hello @${user.name}, it looks like your login expired. Please visit ${redirect} to login again,`,
-                        type: IMessageType.PLAIN_TEXT
+                        type: IMessageType.PLAIN_TEXT,
                     }]);
                     logger.end(this.processMessage, this);
                     return;
                 }
-
             } catch (error) {
                 // ZWECC001E: Internal server error: {{error}}
-                logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Bot message process exception', ns: 'ChatMessage'}));
+                logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Bot message process exception', ns: 'ChatMessage' }));
                 logger.error(logger.getErrorStack(new Error(error.name), error));
             } finally {
                 // Print end log
                 logger.end(this.processMessage, this);
             }
-
         }
     }
-
 }
