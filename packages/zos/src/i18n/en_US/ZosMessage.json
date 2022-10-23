@@ -1,51 +1,180 @@
 {
     "common": {
         "error": {
-            "internal": "Internal error!",
-            "unknownResource": "Unknown command resource.",
-            "unknownVerb": "Unknown command verb.",
-            "unknownObject": "Unknown command object.",
-            "unsupportedChatTool": "Unsupported chat tool: "
+            "internal": "Internal error.",
+            "unsupportedChatTool": "Unsupported chat tool: {{type}}",
+            "unknown": {
+                "resource": "Unknown command resource: {{resource}}.",
+                "verb": "Unknown command verb: {{verb}}.",
+                "object": "Unknown command object: {{object}}."
+            },
+            "missing": {
+                "Option": "Missing required option {{optionName}}.",
+                "argumentOrOption": "Missing positional argument {{argumentName}} or option {{optionName}}."
+            },
+            "invalid": {
+                "format": "Invalid format for option {{optionName}}."
+            }
+        },
+        "data": {
+            "foundMoreThanOne": "@{{executor}} I have found the following {{resourceName}} for you.",
+            "foundOne": "@{{executor}} Here is the detailed information of the {{resourceName}} that I found for you.",
+            "foundCommands": "@{{executor}} I have found the following Zowe Chat commands for you. Learn more details {{documentUrl}}.",
+            "foundCommandDetail": "@{{executor}} Here is the detailed information of the command that I found for you. Learn more details {{documentUrl}}.",
+            "foundZero": "@{{executor}} I haven't found any {{resourceName}} for you."
         }
     },
     "command": {
-        "zos": {
-            "job": {
-                "list": {
-                    "status": {
-                        "overview": {
-                            "idd": "Id",
-                            "name": "Name",
-                            "subSystem": "Subsystem",
-                            "owner": "Owner",
-                            "status": "Status",
-                            "type": "Type",
-                            "class": "Class",
-                            "returnCode": "Return Code",
-                            "startedTime": "Started Time",
-                            "dropDownPlaceholder": "View Details",
-                            "buttonTitle": "View Details"
-                        },
-                        "detail": {
-                            "id": "Id",
-                            "name": "Name",
-                            "subSystem": "Subsystem",
-                            "owner": "Owner",
-                            "status": "Status",
-                            "type": "Type",
-                            "class": "Class",
-                            "returnCode": "Return Code",
-                            "Phase": "Phase",
-                            "PhaseName": "Phase Name",
-                            "startedTime": "Started Time",
-                            "openJob": "Open Job",
-                            "ExecutionSystem": "Execution System",
-                            "ExecutionMember": "Execution Member",
-                            "ExecutionSubmittedTime": "Execution Submitted",
-                            "ExecutionEndedTime": "Execution Ended",
-                            "reasonNotRunning": "Reason Not Running"
-                        }
-                    }
+        "job": {
+            "list": {
+                "status": {
+                    "resourceName": "job(s)",
+                    "id": "ID",
+                    "name": "Name",
+                    "subSystem": "Subsystem",
+                    "owner": "Owner",
+                    "status": "Status",
+                    "type": "Type",
+                    "class": "Class",
+                    "returnCode": "Return Code",
+                    "startedTime": "Started Time",
+                    "dropDownPlaceholder": "Select a Job to View More Details",
+                    "buttonTitle": "View More Details"
+                },
+                "detail": {
+                    "resourceName": "job",
+                    "details": "Details of job ",
+                    "id": "ID",
+                    "name": "Name",
+                    "subSystem": "Subsystem",
+                    "owner": "Owner",
+                    "status": "Status",
+                    "type": "Type",
+                    "class": "Class",
+                    "returnCode": "Return Code",
+                    "Phase": "Phase",
+                    "PhaseName": "Phase Name",
+                    "startedTime": "Started Time",
+                    "openJob": "Open Job",
+                    "ExecutionSystem": "Execution System",
+                    "ExecutionMember": "Execution Member",
+                    "ExecutionSubmittedTime": "Execution Submitted",
+                    "ExecutionEndedTime": "Execution Ended",
+                    "reasonNotRunning": "Reason Not Running"
+                }
+            }
+        },
+        "dataset": {
+            "list": {
+                "status": {
+                    "resourceName": "data set(s)",
+                    "name": "Name",
+                    "organization": "Data Set Organization",
+                    "type": "Data Set Type",
+                    "logicalRecordLength": "Logical Record Length",
+                    "detailDropDownPlaceholder": "View Attributes of A Dataset",
+                    "buttonTitle": "View Attributes"
+                },
+                "detail": {
+                    "resourceName": "data set",
+                    "details": "Details of dataset ",
+                    "catalogName": "Catalog Name",
+                    "creationDate": "Creation Date",
+                    "deviceType": "Device Type",
+                    "organization": "Data Set Organization",
+                    "type": "Data Set Type",
+                    "usedExtents": "Used Extents",
+                    "logicalRecordLength": "Logical Record Length",
+                    "multivolume": "Date Set MultiVolume",
+                    "lastReferenceDate": "Last Reference Date",
+                    "recordFormat": "Record Format",
+                    "size": "Data Set Size",
+                    "spaceUnits": "Space Units",
+                    "volumeSerial": "Volume Serial",
+                    "memberButtonTitle": "List Dataset Member"
+                },
+                "member": {
+                    "resourceName": "data set member(s)",
+                    "name": "Name",
+                    "attributeDropDownPlaceholder": "View Attributes of A DataSet Member",
+                    "detailButtonTitle": "View More Details"
+                },
+                "memberDetail": {
+                    "resourceName": "data set member",
+                    "details": "Details of member ",
+                    "mod": "mod",
+                    "version": "Version",
+                    "modification": "Modification",
+                    "creationTime": "Creation Time",
+                    "modificationTime": "Modification Time",
+                    "cnorc": "cnorc",
+                    "inorc": "inorc",
+                    "mnorc": "mnorc",
+                    "mtime": "mtime",
+                    "user": "User",
+                    "sclm": "sclm"
+                }
+            }
+        },
+        "file": {
+            "list": {
+                "status": {
+                    "resourceName": "USS file(s)",
+                    "name": "Name",
+                    "owner": "User",
+                    "mode": "Mode",
+                    "size": "Size",
+                    "detailDropDownPlaceholder": "View Details of a File or a Directory",
+                    "buttonTitle": "View Details"
+                },
+                "detail": {
+                    "resourceName": "USS file",
+                    "details": "Details of file ",
+                    "owner": "Owner",
+                    "mode": "Mode",
+                    "size": "Size",
+                    "modification": "Modification",
+                    "user": "User",
+                    "userId": "User ID",
+                    "group": "Group",
+                    "groupId": "Group ID"
+                },
+                "mounts": {
+                    "resourceName": "mounted filesystems",
+                    "name": "Name",
+                    "mountPoint": "Mount Point",
+                    "mode": "Mode",
+                    "detailDropDownPlaceholder": "View Details of a System File",
+                    "buttonTitle": "View Details"
+                },
+                "mountsDetail":{
+                    "resourceName": " mounted filesystem",
+                    "details": "Details of file system ",
+                    "mountPoint": "Mount Point",
+                    "mode": "Mode",
+                    "type": "File System Type",
+                    "status": "Status",
+                    "blockSize": "Block Size",
+                    "blockAvailable": "Block Available",
+                    "totalBlocks": "Total Blocks",
+                    "systemName": "System Name",
+                    "readibc": "readibc",
+                    "writeibc": "writeibc",
+                    "diribc": "diribc"
+                }
+            }
+        },
+        "help": {
+            "list": {
+                "command": {
+                    "detailDropDownPlaceholder": "View Details of a command",
+                    "detailButtonTitle": "View Details",
+                    "here": "here"
+                },
+                "detail": {
+                    "usage": "Usage",
+                    "examples": "Examples",
+                    "here": "here"
                 }
             }
         }

@@ -10,7 +10,6 @@
 
 import { ChatMessageListener, ChatPrincipal, IChatContextData, IExecutor, IMessage, IMessageType, logger, IZosmfServerConfig, Util } from '@zowe/chat';
 import ZoweCliCommandHandler from '../commands/ZoweCliCommandHandler';
-
 class ClicmdMessageListener extends ChatMessageListener {
     constructor() {
         super();

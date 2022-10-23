@@ -11,7 +11,7 @@
 
 import { IChatContextData, IMessage, IMessageType, IUser } from '@zowe/commonbot';
 import { SecurityManager } from '../../security/SecurityManager';
-import { logger } from "../../utils/Logger";
+import { logger } from '../../utils/Logger';
 import { Util } from '../../utils/Util';
 import { ChatMessageListener } from '../ChatMessageListener';
 
@@ -49,7 +49,7 @@ export class LogoutMessageListener extends ChatMessageListener {
             }
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Logout message match exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Logout message match exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
@@ -61,11 +61,10 @@ export class LogoutMessageListener extends ChatMessageListener {
     async processMessage(chatContextData: IChatContextData): Promise<IMessage[]> {
         // Print start log
         logger.start(this.processMessage, this);
-        let user: IUser = chatContextData.context.chatting.user;
+        const user: IUser = chatContextData.context.chatting.user;
         // Process message
         let msgs: IMessage[] = [];
         try {
-
             // Process command
             this.security.logoutUser(this.security.getChatUser(user));
 
@@ -73,10 +72,9 @@ export class LogoutMessageListener extends ChatMessageListener {
                 type: IMessageType.PLAIN_TEXT,
                 message: `Successfully logged out user ${chatContextData.context.chatting.user.name}`,
             });
-
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Logout message process exception', ns: 'ChatMessage'}));
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Logout message process exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             msgs = [{

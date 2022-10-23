@@ -9,7 +9,6 @@
 */
 
 import { ChatEventListener, IChatContextData, IMessage, logger, Util } from "@zowe/chat";
-
 class ClicmdEventListener extends ChatEventListener {
     constructor() {
         super();
