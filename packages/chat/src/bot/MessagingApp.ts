@@ -14,41 +14,30 @@ import * as fs from "fs-extra";
 import helmet from "helmet";
 import http from "http";
 import https from "https";
-import { ServerOptions } from '../config/base/AppConfig';
-import { SecurityManager } from '../security/SecurityManager';
-import { Logger } from '../utils/Logger';
+import { IAppOption } from '../types';
+import { logger } from '../utils/Logger';
+import { Util } from '../utils/Util';
 
-/**
- *  This class contains server-side endpoints and static web elements, serviced under-the-hood by an express application.
- *  This class is capable of generating a one-time user challenge link, which users can visit to authenticate against Zowe ChatBot.
- * 
- *  There should only be one instance of the class active at a time.
- */
 export class MessagingApp {
-
-    private readonly log: Logger;
-    private readonly option: ServerOptions;
+    private readonly option: IAppOption;
     private readonly app: Application;
     // server is readonly, but set outside the class constructor
     private server: https.Server | http.Server;
 
     /**
-     * Creates a new instance of the MessagingApp based on Zowe ChatBot's server options. 
-     * Sets express API routes and serves the frontend web deployment. 
+     * Creates a new instance of the MessagingApp
      * 
      * @param option 
-     * @param securityFac used to generate challenge links and authenticate users
-     * @param log 
      */
-    constructor(option: ServerOptions, securityFac: SecurityManager, log: Logger) {
+    constructor(option: IAppOption) {
         // Set app option
         this.option = option;
-        this.log = log;
+
         // Create express app
         this.app = express();
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
-        this.app.use(helmet());
+        this.app.use(helmet());  // Secure Express apps with various HTTP headers
 
     }
 
@@ -66,20 +55,23 @@ export class MessagingApp {
      * 
      */
     startServer(): void {
+        // Print start log
+        logger.start(this.startServer, this);
+
         try {
             // Set port
-            const port = this.normalizePort(this.option.messagePort.toString());
+            const port = this.normalizePort(this.option.port.toString());
             this.app.set('port', port);
 
             // Create Http/Https server
             if (this.option.protocol.toLowerCase() === 'https') {
                 // Check TLS key and certificate
                 if (fs.existsSync(this.option.tlsKey) === false) {
-                    console.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
+                    logger.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
                     process.exit(1);
                 }
                 if (fs.existsSync(this.option.tlsCert) === false) {
-                    console.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
+                    logger.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
                     process.exit(2);
                 }
 
@@ -97,13 +89,16 @@ export class MessagingApp {
             this.server.on('error', this.onError(port));
             this.server.on('listening', this.onListening(this.server));
         } catch (error) {
-            console.error(`There's some problem to create the messaging app server!`);
-            console.error(error.stack);
-            process.exit(1);
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Message app server start exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+            process.exit(3);
+        } finally {
+            // Print end log
+            logger.end(this.startServer, this);
         }
     }
 
-    // TODO: is there a place where port will be NaN and the app should not fail? named pipes?
     /** 
      * Normalize a port into a number, string, or false.
      */
@@ -129,8 +124,8 @@ export class MessagingApp {
     private onError(port: string | number | boolean) {
         return function (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             if (error.syscall !== 'listen') {
-                console.error(`Listen is not called!`);
-                console.error(error.stack);
+                logger.error(`Listen is not called!`);
+                logger.error(error.stack);
                 throw error;
             }
 
@@ -139,14 +134,14 @@ export class MessagingApp {
             // handle specific listen errors with friendly messages
             switch (error.code) {
                 case 'EACCES':
-                    console.error(`${bind} requires elevated privileges`);
-                    console.error(error.stack);
-                    process.exit(2);
+                    logger.error(`${bind} requires elevated privileges`);
+                    logger.error(error.stack);
+                    process.exit(4);
                     break;
                 case 'EADDRINUSE':
-                    console.error(`${bind} is already in use`);
-                    console.error(error.stack);
-                    process.exit(3);
+                    logger.error(`${bind} is already in use`);
+                    logger.error(error.stack);
+                    process.exit(5);
                     break;
                 default:
                     throw error;
@@ -164,7 +159,7 @@ export class MessagingApp {
         return function () {
             const addr = server.address();
             const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
-            console.info(`The messaging app server is listening on ${bind}`);
+            logger.info(`The messaging app server is listening on ${bind}`);
         };
     }
 

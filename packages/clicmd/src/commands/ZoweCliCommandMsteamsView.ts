@@ -8,9 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMsteamsView, IBotOption, IExecutor, IMessage, IMessageType, IMsteamsBotLimit, Logger } from "@zowe/chat";
 
-const logger = Logger.getInstance();
+import { logger, ChatMsteamsView, IBotOption, IExecutor, IMessage, IMessageType, IMsteamsBotLimit, Util } from '@zowe/chat';
+import i18next from 'i18next';
 
 class ZoweCliCommandMsteamsView extends ChatMsteamsView {
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
@@ -28,10 +28,12 @@ class ZoweCliCommandMsteamsView extends ChatMsteamsView {
             // Add command output
             messages.push({
                 type: IMessageType.PLAIN_TEXT,
-                message: `@${executor.name}. I have executed the Zowe CLI command for you. Please see the below for the result!\n\n`
-                    + `<pre>${commandOutput}</pre>`,
+                message: `${i18next.t('zowe.execution', {executorName: executor.name, ns: 'ClicmdMessage'})}\n\n`
+                        + `<pre>${commandOutput}</pre>`,
             });
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Teams view create exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             messages = [{

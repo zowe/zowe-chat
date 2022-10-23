@@ -14,26 +14,22 @@ import _ = require('lodash');
 
 import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/commonbot';
 import { ChatWebApp } from '../bot/ChatWebApp';
-import { AppConfig } from '../config/base/AppConfig';
 import { SecurityManager } from '../security/SecurityManager';
-import { Logger } from '../utils/Logger';
-import Util from "../utils/Util";
+import { config } from '../settings/Config';
+import { logger } from '../utils/Logger';
+import { Util } from "../utils/Util";
 import { BotListener } from './BotListener';
 
 export class BotEventListener extends BotListener {
 
     private readonly chatListeners: IChatListenerRegistryEntry[];
-    private readonly log: Logger;
-    private readonly config: AppConfig;
     private readonly webapp: ChatWebApp;
     private readonly securityFacility: SecurityManager;
 
-    constructor(config: AppConfig, security: SecurityManager, webapp: ChatWebApp, log: Logger) {
+    constructor(security: SecurityManager, webapp: ChatWebApp) {
         super();
         this.chatListeners = [];
-        this.log = log;
         this.securityFacility = security;
-        this.config = config;
         this.webapp = webapp;
         this.matchEvent = this.matchEvent.bind(this);
         this.processEvent = this.processEvent.bind(this);
@@ -42,15 +38,15 @@ export class BotEventListener extends BotListener {
     // Register Zowe chat listener
     registerChatListener(listenerEntry: IChatListenerRegistryEntry): void {
         // Print start log
-        this.log.start(this.registerChatListener, this);
+        logger.start(this.registerChatListener, this);
 
         // Register listener
-        this.log.info(`Listener: ${listenerEntry.listenerName}    Type: ${listenerEntry.listenerType}    `
+        logger.info(`Listener: ${listenerEntry.listenerName}    Type: ${listenerEntry.listenerType}    `
             + `Plugin: ${listenerEntry.chatPlugin.package}    Version: ${listenerEntry.chatPlugin.version}    Priority: ${listenerEntry.chatPlugin.priority}`);
         this.chatListeners.push(listenerEntry);
 
         // Print end log
-        this.log.end(this.registerChatListener, this);
+        logger.end(this.registerChatListener, this);
     }
 
     // Get chat listener
@@ -62,7 +58,7 @@ export class BotEventListener extends BotListener {
     async matchEvent(chatContextData: IChatContextData): Promise<boolean> {
 
         // Print start log
-        this.log.start(this.matchEvent, this);
+        logger.start(this.matchEvent, this);
 
         let user = chatContextData.context.chatting.user;
 
@@ -72,7 +68,7 @@ export class BotEventListener extends BotListener {
             const contexts: IChatContextData[] = [];
 
             // Check payload type
-            this.log.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
+            logger.info(`Chat Context Data - payload: ${JSON.stringify(chatContextData.payload, null, 4)}`);
             if (chatContextData.payload.type === IPayloadType.EVENT) {
                 // Find matched listeners
                 const event: IEvent = <IEvent>chatContextData.payload.data;
@@ -81,10 +77,14 @@ export class BotEventListener extends BotListener {
                         const contextData: IChatContextData = _.cloneDeep(chatContextData);
                         if (contextData.extraData === undefined || contextData.extraData === null) {
                             contextData.extraData = {
-                                'chatPlugin': listener.chatPlugin,
+                                'chatPlugin': { 'package': listener.chatPlugin.package, 
+                                    'version': listener.chatPlugin.version,
+                                    'priority': listener.chatPlugin.priority },
                             };
                         } else {
-                            contextData.extraData.chatPlugin = listener.chatPlugin;
+                            contextData.extraData.chatPlugin = { 'package': listener.chatPlugin.package, 
+                                'version': listener.chatPlugin.version,
+                                'priority': listener.chatPlugin.priority };
                         }
                         if ((<IEventListener>listener.listenerInstance).matchEvent(contextData)) {
                             listeners.push(listener);
@@ -93,7 +93,7 @@ export class BotEventListener extends BotListener {
                     }
                 }
             } else {
-                this.log.error(`Wrong payload type: ${chatContextData.payload.type}`);
+                logger.error(`Wrong payload type: ${chatContextData.payload.type}`);
             }
 
             // Set listener and context pool
@@ -106,8 +106,8 @@ export class BotEventListener extends BotListener {
                 chatContextData.extraData.listeners = listeners;
                 chatContextData.extraData.contexts = contexts;
             }
-            this.log.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
-            this.log.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
+            logger.info(`${chatContextData.extraData.listeners.length} of ${this.chatListeners.length} registered listeners can handle the event!`);
+            logger.debug(`Matched listeners:\n${Util.dumpObject(chatContextData.extraData.listeners, 2)}`);
 
             // Set return result
             if (chatContextData.extraData.listeners.length > 0) {
@@ -117,19 +117,19 @@ export class BotEventListener extends BotListener {
             }
 
         } catch (error) {
-            // Print exception stack
-            //this.log.error(this.log.getErrorStack(new Error(error.name), error));
-            this.log.error(error);
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Bot event match exception', ns: 'ChatMessage'}));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
-            this.log.end(this.matchEvent, this);
+            logger.end(this.matchEvent, this);
         }
     }
 
     // Process matched event
     async processEvent(chatContextData: IChatContextData): Promise<void> {
         // Print start log
-        this.log.start(this.processEvent, this);
+        logger.start(this.processEvent, this);
         let user = chatContextData.context.chatting.user;
 
         try {
@@ -148,7 +148,7 @@ export class BotEventListener extends BotListener {
                         message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
                         type: IMessageType.PLAIN_TEXT
                     }]);
-                    this.log.end(this.processEvent, this);
+                    logger.end(this.processEvent, this);
                     return;
                 }
 
@@ -157,21 +157,21 @@ export class BotEventListener extends BotListener {
                 const listenerContexts: IChatContextData[] = chatContextData.extraData.contexts;
 
                 // Get the number of plugin limit
-                let pluginLimit = this.config.app.pluginLimit;
-                this.log.info(`pluginLimit: ${pluginLimit}`);
+                let pluginLimit = config.getChatServerConfig().limit.plugin;
+                logger.info(`pluginLimit: ${pluginLimit}`);
                 if (pluginLimit < 0 || pluginLimit > matchedListeners.length) {
                     pluginLimit = matchedListeners.length;
                 }
-                this.log.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched event!`);
+                logger.info(`${pluginLimit} of ${matchedListeners.length} matched listeners will response to the matched event!`);
 
                 // Process matched event
                 const event: IEvent = <IEvent>chatContextData.payload.data;
                 for (let i = 0; i < pluginLimit; i++) {
                     // Handle event
                     listenerContexts[i].extraData.principal = principal;
-                    listenerContexts[i].extraData.zosmf = this.config.security.zosmf;
+                    listenerContexts[i].extraData.zosmf = config.getZosmfServerConfig();
                     const msgs = await (<IEventListener>matchedListeners[i].listenerInstance).processEvent(listenerContexts[i]);
-                    this.log.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
+                    logger.debug(`Message sent to channel: ${JSON.stringify(msgs, null, 2)}`);
 
                     // Return message only when open a dialog
                     if (event.action.type === IActionType.DIALOG_OPEN) {
@@ -181,7 +181,7 @@ export class BotEventListener extends BotListener {
                         } else if (msgs[0].type === IMessageType.MSTEAMS_DIALOG_OPEN) {
                             return msgs[0].message;
                         } else {
-                            this.log.error(`Wrong message type: ${msgs[0].type}`);
+                            logger.error(`Wrong message type: ${msgs[0].type}`);
                         }
                     } else {
                         // Send response
@@ -190,12 +190,12 @@ export class BotEventListener extends BotListener {
                 }
             }
         } catch (error) {
-            // Print exception stack
-            // this.log.error(this.log.getErrorStack(new Error(error.name), error));
-            this.log.error(error);
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Bot event process exception', ns: 'ChatMessage'}));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
-            this.log.end(this.processEvent, this);
+            logger.end(this.processEvent, this);
         }
     }
 }

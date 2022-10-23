@@ -8,13 +8,10 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatMessageListener, IChatContextData, IExecutor, IMessage, IMessageType, Logger, ZosmfServerConfig } from "@zowe/chat";
-import { ChatPrincipal } from "@zowe/chat/dist/security/user/ChatPrincipal";
+import { ChatMessageListener, ChatPrincipal, IChatContextData, IExecutor, IMessage, IMessageType, logger, IZosmfServerConfig, Util } from '@zowe/chat';
 import ZoweCliCommandHandler from '../commands/ZoweCliCommandHandler';
 
-const logger = Logger.getInstance();
-
-class ZoweCliCommandMessageListener extends ChatMessageListener {
+class ClicmdMessageListener extends ChatMessageListener {
     constructor() {
         super();
 
@@ -45,7 +42,8 @@ class ZoweCliCommandMessageListener extends ChatMessageListener {
                 return false;
             }
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zowe CLI command message match exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
@@ -71,32 +69,35 @@ class ZoweCliCommandMessageListener extends ChatMessageListener {
                 'chattingType': chatContextData.context.chatting.type,
             };
 
-            let principals = chatContextData.extraData.principal as ChatPrincipal;
-            let zosmf: ZosmfServerConfig = <ZosmfServerConfig>chatContextData.extraData.zosmf;
+            const principals = chatContextData.extraData.principal as ChatPrincipal;
+            const zosmf: IZosmfServerConfig = <IZosmfServerConfig>chatContextData.extraData.zosmf;
 
 
             // Set Zowe CLI command
             const command = chatContextData.extraData.command;
             let zoweCliCmd = command.extraData.rawMessage;
-            if (!zoweCliCmd.includes("--host") && !zoweCliCmd.includes("-H")) {
-                zoweCliCmd += ` --host ${zosmf.host}`;
+            if (!zoweCliCmd.includes('--host') && !zoweCliCmd.includes('-H')) {
+                zoweCliCmd += ` --host ${zosmf.hostName}`;
             }
-            if (!zoweCliCmd.includes("--port") && !zoweCliCmd.includes("-P")) {
+            if (!zoweCliCmd.includes('--port') && !zoweCliCmd.includes('-P')) {
                 zoweCliCmd += ` --port ${zosmf.port}`;
             }
-            if (!zoweCliCmd.includes("--ru") && !zoweCliCmd.includes("--reject-unauthorized")) {
+            if (!zoweCliCmd.includes('--ru') && !zoweCliCmd.includes('--reject-unauthorized')) {
                 zoweCliCmd += ` --ru ${zosmf.rejectUnauthorized}`;
             }
-            if (!zoweCliCmd.includes("--protocol")) {
+            if (!zoweCliCmd.includes('--protocol')) {
                 zoweCliCmd += ` --protocol ${zosmf.protocol}`;
             }
-            command.extraData.zoweCliCommand = zoweCliCmd.replace(`@${command.extraData.botUserName}`, '').trim() + ` --user ${principals.getUser().getMainframeUser()} --password ${principals.getCredentials().value}`;
+            command.extraData.zoweCliCommand = zoweCliCmd.replace(`@${command.extraData.botUserName}`, '').trim()
+                 + ` --user ${principals.getUser().getMainframeUser()} --password ${principals.getCredentials().value}`;
             command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
+
             // Process command
             const handler = new ZoweCliCommandHandler(chatContextData.context.chatting.bot.getOption(), chatContextData.context.chatting.bot.getLimit());
             msgs = handler.execute(command, executor);
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zowe CLI command message process exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             msgs = [{
@@ -112,4 +113,4 @@ class ZoweCliCommandMessageListener extends ChatMessageListener {
     }
 }
 
-export = ZoweCliCommandMessageListener;
+export = ClicmdMessageListener;

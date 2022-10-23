@@ -11,13 +11,12 @@
 import childProcess from 'child_process';
 import os from 'os';
 
-import { ChatHandler, IBotLimit, IBotOption, IChatTool, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit, ISlackBotLimit, Logger } from "@zowe/chat";
+import { ChatHandler, IBotLimit, IBotOption, IChatToolType, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType, IMsteamsBotLimit,
+    ISlackBotLimit, logger, Util } from "@zowe/chat";
 
 import ZoweCliCommandMattermostView from './ZoweCliCommandMattermostView';
 import ZoweCliCommandMsteamsView from './ZoweCliCommandMsteamsView';
 import ZoweCliCommandSlackView from './ZoweCliCommandSlackView';
-
-const logger = Logger.getInstance();
 
 class ZoweCliCommandHandler extends ChatHandler {
     private view: ZoweCliCommandMattermostView | ZoweCliCommandSlackView | ZoweCliCommandMsteamsView = null;
@@ -26,11 +25,11 @@ class ZoweCliCommandHandler extends ChatHandler {
         super(botOption, botLimit);
 
         // Create view
-        if (botOption.chatTool === IChatTool.MATTERMOST) {
+        if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
             this.view = new ZoweCliCommandMattermostView(botOption, <IMattermostBotLimit>botLimit);
-        } else if (botOption.chatTool === IChatTool.SLACK) {
+        } else if (botOption.chatTool.type === IChatToolType.SLACK) {
             this.view = new ZoweCliCommandSlackView(botOption, <ISlackBotLimit>botLimit);
-        } else if (botOption.chatTool === IChatTool.MSTEAMS) {
+        } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
             this.view = new ZoweCliCommandMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
         }
     }
@@ -68,7 +67,8 @@ class ZoweCliCommandHandler extends ChatHandler {
             // Get view
             msgs = this.view.getOutput(cmdOutput, executor);
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zowe CLI command execution exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             msgs = [{

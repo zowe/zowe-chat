@@ -12,15 +12,13 @@ import { IChatContextData, IMessage, IPayloadType } from "@zowe/commonbot";
 import _ from 'lodash';
 import yargs from 'yargs';
 import { ICommand } from "../types";
-import { Logger } from "../utils/Logger";
-import ChatListener = require('./ChatListener');
+import { logger } from "../utils/Logger";
+import { Util } from "../utils/Util";
+import { ChatListener } from './ChatListener';
+
 export abstract class ChatMessageListener extends ChatListener {
-
-    protected readonly log: Logger;
-
     constructor() {
         super();
-        this.log = Logger.getInstance();
     }
 
     // Match inbound message
@@ -32,10 +30,10 @@ export abstract class ChatMessageListener extends ChatListener {
     // Parse inbound message
     public parseMessage(chatContextData: IChatContextData): ICommand {
         // Print start log
-        this.log.start(this.parseMessage, this);
+        logger.start(this.parseMessage, this);
 
         // Print inbound message
-        this.log.debug(`Message: ${chatContextData.payload.data}`);
+        logger.debug(`Message: ${chatContextData.payload.data}`);
 
         // Initialize command object
         const command: ICommand = {
@@ -99,14 +97,14 @@ export abstract class ChatMessageListener extends ChatListener {
             command.extraData.rawMessage = chatContextData.payload.data;
 
             // Print command
-            this.log.debug(`Command: ${JSON.stringify(command, null, 4)}`);
+            logger.debug(`Command: ${JSON.stringify(command, null, 4)}`);
         } catch (error) {
-            // Print exception stack
-            this.log.error(this.log.getErrorStack(new Error(error.name), error));
-            this.log.error(error);
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', {error: 'Chat message parsing exception', ns: 'ChatMessage'}));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
-            this.log.end(this.parseMessage, this);
+            logger.end(this.parseMessage, this);
         }
 
         return command;

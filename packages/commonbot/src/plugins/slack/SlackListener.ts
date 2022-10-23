@@ -11,11 +11,13 @@
 import { IMessageHandlerFunction, IMessageMatcherFunction } from '../../types';
 
 import { CommonBot } from '../../CommonBot';
-import Listener = require('../../Listener');
-import SlackMiddleware = require('./SlackMiddleware');
+import { Listener } from '../../Listener';
+import { SlackMiddleware } from './SlackMiddleware';
+import { Logger } from '../../utils/Logger';
 
-class SlackListener extends Listener {
+const logger = Logger.getInstance();
 
+export class SlackListener extends Listener {
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
@@ -27,11 +29,11 @@ class SlackListener extends Listener {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async listen(matcher: IMessageMatcherFunction, handler: IMessageHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.listen, this);
+        logger.start(this.listen, this);
 
         try {
             // Check and set middleware
-            let middleware = <SlackMiddleware>this.bot.getMiddleware();
+            let middleware = <SlackMiddleware> this.bot.getMiddleware();
             if (middleware === null) {
                 middleware = new SlackMiddleware(this.bot);
                 this.bot.setMiddleware(middleware);
@@ -42,12 +44,10 @@ class SlackListener extends Listener {
             this.messageMatcher.addMatcher(matcher, handler);
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.listen, this);
+            logger.end(this.listen, this);
         }
     }
 }
-
-export = SlackListener;

@@ -8,18 +8,17 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-export * from "@zowe/commonbot";
-export * from "./config/AppConfigLoader";
-export * from "./config/base/AppConfig";
+export * from "./settings/Config";
+export * from "./utils/Logger";
+export * from "./types/IConfig";
 export * from "./dispatchers/ChatDispatcher";
 export * from "./handlers/ChatHandler";
 export * from "./listeners/ChatEventListener";
 export * from "./listeners/ChatMessageListener";
 export * from "./security/user/ChatPrincipal";
 export * from "./types";
-export * from "./utils/Logger";
+export * from "./utils/Util";
 export * from "./views/ChatMattermostView";
 export * from "./views/ChatMsteamsView";
 export * from "./views/ChatSlackView";
 export * from "./views/ChatView";
-

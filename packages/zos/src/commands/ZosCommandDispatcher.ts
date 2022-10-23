@@ -8,11 +8,10 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatDispatcher, IBotLimit, IBotOption, ICommand, IExecutor, IMessage, IMessageType, Logger } from '@zowe/chat';
+import { logger, Util } from '@zowe/chat';
+import { ChatDispatcher, IBotLimit, IBotOption, ICommand, IExecutor, IMessage, IMessageType } from '@zowe/chat';
 import ZosJobHandler from './job/list/ZosJobListHandler';
 const i18nJsonData = require('../i18n/jobDisplay.json');
-
-const logger = Logger.getInstance();
 
 class ZosCommandDispatcher extends ChatDispatcher {
     constructor(botOption: IBotOption, botLimit: IBotLimit) {
@@ -57,7 +56,8 @@ class ZosCommandDispatcher extends ChatDispatcher {
 
             return messages;
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'zos scope command dispatch exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             logger.end(this.dispatch, this);

@@ -8,12 +8,15 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { CommonBot } from '../../CommonBot';
 import type { IRouteHandlerFunction } from '../../types';
 
-import Router = require('../../Router');
+import { CommonBot } from '../../CommonBot';
+import { Router } from '../../Router';
+import { Logger } from '../../utils/Logger';
 
-class SlackRouter extends Router {
+const logger = Logger.getInstance();
+
+export class SlackRouter extends Router {
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
@@ -25,7 +28,7 @@ class SlackRouter extends Router {
     // Run router
     async route(path: string, handler: IRouteHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.route, this);
+        logger.start(this.route, this);
 
         try {
             // Set router
@@ -35,12 +38,10 @@ class SlackRouter extends Router {
             };
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.route, this);
+            logger.end(this.route, this);
         }
     }
 }
-
-export = SlackRouter;

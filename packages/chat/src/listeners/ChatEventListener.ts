@@ -9,7 +9,7 @@
 */
 
 import { IChatContextData, IMessage } from "@zowe/commonbot";
-import ChatListener from "./ChatListener";
+import { ChatListener } from "./ChatListener";
 
 export abstract class ChatEventListener extends ChatListener {
     constructor() {

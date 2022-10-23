@@ -1,56 +1,55 @@
 {
-  "name": "@zowe/zos",
-  "version": "1.0.0",
-  "description": "Manage z/OS jobs, datasets, USS files from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
-  "type": "commonjs",
-  "main": "./index.js",
-  "types": "./index.d.ts",
-  "scripts": {
-    "build": "gulp build",
-    "packaging": "gulp packaging",
-    "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-    "circularDependencyCheck": "madge -c dist"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/zowe/zowe-chat.git"
-  },
-  "keywords": [
-    "Zowe",
-    "Chat",
-    "z/OS",
-    "Z",
-    "job",
-    "dataset", 
-    "file"
-  ],
-  "author": "Zowe",
-  "license": "EPL-2.0",
-  "bugs": {
-    "url": "https://github.com/zowe/zowe-chat/issues"
-  },
-  "homepage": "https://github.com/zowe/zowe-chat#readme",
-  "devDependencies": {
-    "@types/node": ">=17.0.31",
-    "@types/yargs": "^17.0.10",
-    "@typescript-eslint/eslint-plugin": ">=5.23.0",
-    "@typescript-eslint/parser": ">=5.23.0",
-    "eslint": ">=8.15.0",
-    "eslint-config-google": ">=0.14.0",
-    "ts-node": ">=10.7.0",
-    "typescript": "^4.7.4"
-  },
-  "peerDependencies": {
-    "@zowe/chat": "*"
-  },
-  "bundledDependencies": [],
-  "engines": {
-    "node": ">=16.13.2"
-  },
-  "dependencies": {
-    "@zowe/core-for-zowe-sdk": "^7.2.2",
-    "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
-    "@zowe/zosmf-for-zowe-sdk": "^7.2.2",
-    "yargs": "^17.5.1"
-  }
+    "name": "@zowe/zos",
+    "version": "1.0.0",
+    "description": "Manage z/OS jobs, datasets, USS files from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
+    "type": "commonjs",
+    "main": "./index.js",
+    "types": "./index.d.ts",
+    "scripts": {
+        "build": "gulp build",
+        "packaging": "gulp packaging",
+        "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
+        "lint": "gulp lint"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/zowe/zowe-chat.git"
+    },
+    "keywords": [
+        "Zowe",
+        "Chat",
+        "z/OS",
+        "Z",
+        "job",
+        "dataset",
+        "file"
+    ],
+    "author": "Zowe",
+    "license": "EPL-2.0",
+    "bugs": {
+        "url": "https://github.com/zowe/zowe-chat/issues"
+    },
+    "homepage": "https://github.com/zowe/zowe-chat#readme",
+    "dependencies": {
+        "@zowe/core-for-zowe-sdk": "^7.2.2",
+        "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
+        "@zowe/zosmf-for-zowe-sdk": "^7.2.2"
+    },
+    "devDependencies": {
+        "@types/node": ">=17.0.31",
+        "@typescript-eslint/eslint-plugin": ">=5.23.0",
+        "@typescript-eslint/parser": ">=5.23.0",
+        "eslint": ">=8.15.0",
+        "eslint-config-google": ">=0.14.0",
+        "ts-node": ">=10.7.0",
+        "typescript": "^4.7.4"
+    },
+    "peerDependencies": {
+        "@zowe/chat": "*",
+        "i18next": "*"
+    },
+    "bundledDependencies": [],
+    "engines": {
+        "node": ">=16.13.2"
+    }
 }

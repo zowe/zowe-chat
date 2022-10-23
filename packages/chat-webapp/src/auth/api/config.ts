@@ -10,7 +10,7 @@
 
 export async function getAPIHost() {
     document.getElementById("env")?.addEventListener('load', () => {
-        if (process.env.NODE_ENV == 'development' && process.env.CHAT_API_URL !== undefined) {
+        if (process.env.NODE_ENV === 'development' && process.env.CHAT_API_URL !== undefined) {
             return process.env.CHAT_API_URL;
             // window.env is set by our env.js in the public/ folder
         } else if ((<any>window).env.API_ROOT !== undefined) {

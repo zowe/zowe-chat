@@ -1,0 +1,55 @@
+{
+    "command": {
+        "zos": {
+            "description": "Scope description",
+            "job": {
+                "description": "Resource description",
+                "default": false,
+                "usage": {
+                    "description": "This command is used to manager z/OS job such as show status, start / stop ",
+                    "synopsis": []
+                },
+                "example": {
+
+                },
+                "list": {
+                    "description": "Action description",
+                    "default": true,
+                    "status": {
+                        "description": "Object description",
+                        "default": true,
+                        "argument": {
+                            "description": "Positional argument description",
+                            "id": {
+                                "description": "Positional argument description.",
+                                "required": false
+                            }
+                        },
+                        "option": {
+                            "owner": {
+                                "acronym": "o",
+                                "value": {
+                                    "type": "null|string|number|enum|date|time|datetime",
+                                    "format": "",
+                                    "data": ""
+                                },
+                                "description": "Option description",
+                                "required": false
+                            },
+                            "prefix": {
+                                "acronym": "p",
+                                "value": {
+                                    "type": "null|string|number|enum|date|time|datetime",
+                                    "format": "",
+                                    "data": ""
+                                },
+                                "description": "Option description",
+                                "required": false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

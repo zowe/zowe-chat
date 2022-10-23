@@ -1,0 +1,53 @@
+{
+    "common": {
+        "error": {
+            "internal": "Internal error!",
+            "unknownResource": "Unknown command resource.",
+            "unknownVerb": "Unknown command verb.",
+            "unknownObject": "Unknown command object.",
+            "unsupportedChatTool": "Unsupported chat tool: "
+        }
+    },
+    "command": {
+        "zos": {
+            "job": {
+                "list": {
+                    "status": {
+                        "overview": {
+                            "idd": "Id",
+                            "name": "Name",
+                            "subSystem": "Subsystem",
+                            "owner": "Owner",
+                            "status": "Status",
+                            "type": "Type",
+                            "class": "Class",
+                            "returnCode": "Return Code",
+                            "startedTime": "Started Time",
+                            "dropDownPlaceholder": "View Details",
+                            "buttonTitle": "View Details"
+                        },
+                        "detail": {
+                            "id": "Id",
+                            "name": "Name",
+                            "subSystem": "Subsystem",
+                            "owner": "Owner",
+                            "status": "Status",
+                            "type": "Type",
+                            "class": "Class",
+                            "returnCode": "Return Code",
+                            "Phase": "Phase",
+                            "PhaseName": "Phase Name",
+                            "startedTime": "Started Time",
+                            "openJob": "Open Job",
+                            "ExecutionSystem": "Execution System",
+                            "ExecutionMember": "Execution Member",
+                            "ExecutionSubmittedTime": "Execution Submitted",
+                            "ExecutionEndedTime": "Execution Ended",
+                            "reasonNotRunning": "Reason Not Running"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

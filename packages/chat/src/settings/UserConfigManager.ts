@@ -10,10 +10,9 @@
 
 
 import * as fs from "fs-extra";
-import { Logger } from "../utils/Logger";
-import { AppConfig } from "./base/AppConfig";
-import { IChatConfigSchema } from "./doc/IChatConfigSchema";
-import { IConfigBlockDefinition } from "./doc/IConfigBlockDefinition";
+import { logger } from "../utils/Logger";
+import { IChatConfigSchema, IConfigBlockDefinition} from "../types/IChatConfigSchema";
+import { Util } from "../utils/Util";
 
 export class UserConfigManager {
 
@@ -21,12 +20,10 @@ export class UserConfigManager {
     private readonly configSchema: IChatConfigSchema;
     private readonly configData: any;
     private readonly configFilePath: string;
-    private readonly log: Logger;
 
-    constructor(appConfig: AppConfig, aggregateConfig: IChatConfigSchema, log: Logger) {
-        this.log = log;
+    constructor(aggregateConfig: IChatConfigSchema) {
         this.configSchema = aggregateConfig;
-        let userConfigDir = appConfig.app.extendedConfigDir;
+        let userConfigDir; // Todo: need more discussion on whether we should support user configuration in v1 // = appConfig.app.extendedConfigDir;
         if (userConfigDir === undefined) {
             userConfigDir = "./_config";
         }
@@ -38,9 +35,13 @@ export class UserConfigManager {
             }
             fs.ensureFileSync(`${userConfigDir}/user.yaml`);
             this.configFilePath = `${userConfigDir}/user.yaml`;
-        } catch (err) {
-            this.log.error(`Error creating file within directory: ${userConfigDir}. Please ensure this directory exists and Zowe Chat can write to it.`);
-            this.log.debug(`Error details: ${err}`);
+        } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'User config manager create exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+
+            logger.error(`Error creating file within directory: ${userConfigDir}. Please ensure this directory exists and Zowe Chat can write to it.`);
+            logger.debug(`Error details: ${error}`);
             throw Error("Unable to initialize the runtime config manager. See Log for details.");
         }
 

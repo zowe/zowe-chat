@@ -8,8 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit, Logger } from '@zowe/chat';
-const logger = Logger.getInstance();
+
+import { logger, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit, Util } from '@zowe/chat';
+import i18next from 'i18next';
 
 class ZoweCliCommandSlackView extends ChatSlackView {
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
@@ -25,7 +26,7 @@ class ZoweCliCommandSlackView extends ChatSlackView {
         try {
             // Truncate the command output if longer than the allowed maximum text length
             if (commandOutput.length > this.botLimit.sectionBlockTextMaxLength) {
-                const truncationIndicator = `\n...\n<<<TRUNCATED DUE TO THE COMMAND OUTPUT IS TOO LONG>>>`;
+                const truncationIndicator = `\n...\n${i18next.t('zowe.truncationIndicator', {ns: 'ClicmdMessage'})}`;
                 commandOutput = commandOutput.substring(0, this.botLimit.sectionBlockTextMaxLength - truncationIndicator.length - 10); // Must count in ```
                 commandOutput = commandOutput + truncationIndicator;
             }
@@ -38,7 +39,7 @@ class ZoweCliCommandSlackView extends ChatSlackView {
                         'type': 'section',
                         'text': {
                             'type': 'mrkdwn',
-                            'text': `@${executor.name}. I have executed the Zowe CLI command for you. Please see the below for the result!`,
+                            'text': i18next.t('zowe.execution', {executorName: executor.name, ns: 'ClicmdMessage'}),
                         },
                     },
                     {
@@ -55,6 +56,8 @@ class ZoweCliCommandSlackView extends ChatSlackView {
                 //     + '```\n' + commandOutput + '\n```',
             });
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Slack view create exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             messages = [{

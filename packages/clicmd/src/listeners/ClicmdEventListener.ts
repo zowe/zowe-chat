@@ -8,11 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatEventListener, IChatContextData, IMessage, Logger } from "@zowe/chat";
+import { ChatEventListener, IChatContextData, IMessage, logger, Util } from "@zowe/chat";
 
-const logger = Logger.getInstance();
-
-class ZoweCliCommandEventListener extends ChatEventListener {
+class ClicmdEventListener extends ChatEventListener {
     constructor() {
         super();
 
@@ -33,7 +31,8 @@ class ZoweCliCommandEventListener extends ChatEventListener {
 
             return false;
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zowe CLI command event match exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
@@ -52,7 +51,8 @@ class ZoweCliCommandEventListener extends ChatEventListener {
             // TODO:
             return msgs;
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zowe CLI command event process exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
         } finally {
             // Print end log
@@ -61,4 +61,4 @@ class ZoweCliCommandEventListener extends ChatEventListener {
     }
 }
 
-export = ZoweCliCommandEventListener;
+export = ClicmdEventListener;

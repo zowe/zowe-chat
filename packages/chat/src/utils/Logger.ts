@@ -8,99 +8,147 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import * as fs from "fs-extra";
+import fs from 'fs';
 import path from "path";
 import * as winston from "winston";
-import { AppConfigLoader } from "../config/AppConfigLoader";
-import { AppConfig, LogLevel } from "../config/base/AppConfig";
+
+import { config } from '../settings/Config';
+import { EnvironmentVariable } from "../settings/EnvironmentVariable";
+import { ILogLevel, ILogOption } from '../types';
 
 /**
  * This class uses console.log and process.env, as classes which assist with those functions require the logger
  */
-export class Logger {
+class Logger {
+    private readonly logger: winston.Logger;
 
-    private static instance: Logger;
-    private readonly log: winston.Logger;
-    private readonly appConfig: AppConfig;
+    private option: ILogOption;
 
-    // TODO: move into constructor
-    private logFile: string;
-
-    private constructor(appConfig: AppConfig) {
-        this.appConfig = appConfig;
-
+    constructor() {
         // override values in appConfig if we have environment variables setup
         try {
-            this.logFile = process.env.ZOWE_CHAT_LOG_FILE_PATH || `./log/zoweChatServer.log`;
-            fs.ensureFileSync(this.logFile);
-            if (process.env.ZOWE_CHAT_LOG_LEVEL != undefined) {
-                if ((Object.values<string>(LogLevel)).includes(process.env.ZOWE_CHAT_LOG_LEVEL)) {
-                    this.appConfig.app.log.level = <LogLevel>process.env.ZOWE_CHAT_LOG_LEVEL;
-                } else {
-                    console.error('Unsupported value specified in the variable ZOWE_CHAT_LOG_LEVEL!');
+            this.option = {
+                'filePath': `${__dirname}/../log/chatServer.log`,
+                'level': ILogLevel.INFO,
+                'maximumSize': -1,
+                'maximumFile': -1,
+            };
+
+            // Get log configuration
+            const logConfig = config.getLogOption();
+
+            // Get log file path
+            if (EnvironmentVariable.ZOWE_CHAT_LOG_FILE_PATH !== null && EnvironmentVariable.ZOWE_CHAT_LOG_FILE_PATH !== undefined) {
+                this.option.filePath = EnvironmentVariable.ZOWE_CHAT_LOG_FILE_PATH;
+            } else {
+                if (logConfig.filePath !== null && logConfig.filePath !== undefined && logConfig.filePath.trim() !== '') {
+                    if (logConfig.filePath.indexOf('${ZOWE_CHAT_HOME}') >= 0) {
+                        this.option.filePath = logConfig.filePath.replace('${ZOWE_CHAT_HOME}', EnvironmentVariable.ZOWE_CHAT_HOME);
+                    } else if (logConfig.filePath.indexOf('$ZOWE_CHAT_HOME') >= 0) {
+                        this.option.filePath = logConfig.filePath.replace('$ZOWE_CHAT_HOME', EnvironmentVariable.ZOWE_CHAT_HOME);
+                    } else if (logConfig.filePath.indexOf('/') < 0) {
+                        this.option.filePath = `${__dirname}/../log/${logConfig.filePath}`;
+                    } else if (logConfig.filePath.startsWith('../')) {
+                        this.option.filePath = `${__dirname}/${logConfig.filePath}`;
+                    } else if (logConfig.filePath.startsWith('./')) {
+                        this.option.filePath = `${__dirname}/log/${logConfig.filePath}`;
+                    } else {
+                        this.option.filePath = logConfig.filePath;
+                    }
                 }
             }
-            if (process.env.ZOWE_CHAT_LOG_MAX_SIZE != undefined) {
-                this.appConfig.app.log.maximumSize = process.env.ZOWE_CHAT_LOG_MAX_SIZE;
+            console.info(`Log option:\n${JSON.stringify(this.option, null, 4)}`);
+
+            // Create log directory if not exist
+            const dirName = path.dirname(this.option.filePath);
+            if (fs.existsSync(dirName) === false) {
+                fs.mkdirSync(dirName, {recursive: true});
             }
-            if (process.env.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
-                if (+process.env.ZOWE_CHAT_LOG_MAX_FILES != undefined) {
-                    this.appConfig.app.log.maximumFiles = +process.env.ZOWE_CHAT_LOG_MAX_FILES;
+
+            // Get log level
+            const logLevels: string[] = [ILogLevel.ERROR, ILogLevel.WARN, ILogLevel.INFO, ILogLevel.DEBUG, ILogLevel.VERBOSE, ILogLevel.SILLY];
+            if (EnvironmentVariable.ZOWE_CHAT_LOG_LEVEL !== null && EnvironmentVariable.ZOWE_CHAT_LOG_LEVEL !== undefined) {
+                if (logLevels.includes(EnvironmentVariable.ZOWE_CHAT_LOG_LEVEL)) {
+                    this.option.level = <ILogLevel> EnvironmentVariable.ZOWE_CHAT_LOG_LEVEL;
+                }
+            } else {
+                if (logConfig.level !== null && logConfig.level !== undefined) {
+                    if (logLevels.includes(logConfig.level)) {
+                        this.option.level = logConfig.level;
+                    }
                 }
             }
+
+            // Get log max size
+            if (EnvironmentVariable.ZOWE_CHAT_LOG_MAX_SIZE !== null && EnvironmentVariable.ZOWE_CHAT_LOG_MAX_SIZE !== undefined) {
+                    this.option.maximumSize = EnvironmentVariable.ZOWE_CHAT_LOG_MAX_SIZE;
+            } else {
+                if (logConfig.maximumSize !== null && logConfig.maximumSize !== undefined) {
+                    this.option.maximumSize = logConfig.maximumSize;
+                }
+            }
+
+            // Get log max file
+            if (EnvironmentVariable.ZOWE_CHAT_LOG_MAX_FILE !== null && EnvironmentVariable.ZOWE_CHAT_LOG_MAX_FILE !== undefined) {
+                this.option.maximumFile = EnvironmentVariable.ZOWE_CHAT_LOG_MAX_FILE;
+            } else {
+                if (logConfig.maximumFile !== null && logConfig.maximumFile !== undefined) {
+                    this.option.maximumFile = logConfig.maximumFile;
+                }
+            }
+            // end override
+
+            // const {combine, timestamp, colorize, label, printf} = winston.format;
+            const { combine, timestamp, printf } = winston.format;
+
+            // Define customized format
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+            const chatLogFormat = printf(({ timestamp, level, message, label }: any) => {
+                return `${timestamp} [${level.toUpperCase()}] ${message}`;
+            });
+
+            // TODO: fix file logging - not working
+            // Create logger instance
+            this.logger = winston.createLogger({
+                level: this.option.level, // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
+                handleExceptions: true,
+                format: combine(timestamp(), chatLogFormat),
+                exitOnError: true,
+                //   format: winston.format.combine(winston.format.timestamp(), winston.format.colorize(), winston.format.simple()),
+            });
+
+            const fileTransport = new winston.transports.File({
+                filename: path.resolve(this.option.filePath),
+                maxsize: this.option.maximumSize, // 10 * 1024 * 1024,
+                maxFiles: this.option.maximumFile,
+                format: combine(timestamp(), chatLogFormat),
+                options: { flags: 'a' }
+            });
+
+            this.logger.add(fileTransport);
+
+            // TODO: this is an express env, should we use something else more specific? ZOWE_CHAT_DEV_MODE?
+            // Only use console logger in development mode.
+            if (process.env.NODE_ENV === 'development') {
+                this.logger.add(new winston.transports.Console({ format: combine(timestamp(), chatLogFormat) }));
+            }
+
+            process.on("beforeExit", (code) => {
+                console.info('Exiting Logger ...');
+                this.logger.clear();
+            });
+
+            process.on("exit", (code) => {
+                console.info('Logger exited!');
+                this.logger.end();
+            });
         } catch (error) {
-            console.error(`Failed to config the log!`);
+            // ZWECC001E: Internal server error: {{error}}
+            console.error(`ZWECC001E: Internal server error: Logger creation exception`);
             console.error(error.stack);
-            process.exit(3);
+            process.exit(1);
         }
-        // end override
-
-        // const {combine, timestamp, colorize, label, printf} = winston.format;
-        const { combine, timestamp, printf } = winston.format;
-
-        // Define customized format
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-        const bnzFormat = printf(({ timestamp, level, message, label }: any) => {
-            return `${timestamp} [${level.toUpperCase()}] ${message}`;
-        });
-
-        // TODO: fix file logging - not working
-        // Create logger instance
-        this.log = winston.createLogger({
-            level: this.appConfig.app.log.level, // error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5
-            handleExceptions: true,
-            format: combine(timestamp(), bnzFormat),
-            exitOnError: true,
-            //   format: winston.format.combine(winston.format.timestamp(), winston.format.colorize(), winston.format.simple()),
-        });
-
-        const fileTransport = new winston.transports.File({
-            filename: path.resolve(this.logFile),
-            maxsize: 10 * 1024 * 1024,
-            maxFiles: this.appConfig.app.log.maximumFiles,
-            format: combine(timestamp(), bnzFormat),
-            options: { flags: 'a' }
-        });
-
-        this.log.add(fileTransport);
-
-        // TODO: this is an express env, should we use something else more specific? ZOWE_CHAT_DEV_MODE?
-        // Only use console logger in development mode.
-        if (process.env.NODE_ENV === 'development') {
-            this.log.add(new winston.transports.Console({ format: combine(timestamp(), bnzFormat) }));
-        }
-
-        process.on("beforeExit", (code) => {
-            this.log.clear();
-        });
-
-        process.on("exit", (code) => {
-            this.log.end();
-        });
-
     }
-
-
 
     // Print start log
     //  - functionName: function name or function object can be specified here
@@ -144,11 +192,11 @@ export class Logger {
 
         // Print start log
         if (arguments.length >= 3) {
-            this.log.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
+            this.logger.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
         } else if (arguments.length == 2) {
-            this.log.info(`${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
+            this.logger.info(`${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
         } else {
-            this.log.info(`${funName.replace(/bound /, '')}    start ===>`);
+            this.logger.info(`${funName.replace(/bound /, '')}    start ===>`);
         }
     }
 
@@ -194,11 +242,11 @@ export class Logger {
 
         // Print end log
         if (arguments.length >= 3) {
-            this.log.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}      end <===`);
+            this.logger.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}      end <===`);
         } else if (arguments.length == 2) {
-            this.log.info(`${clsName} : ${funName.replace(/bound /, '')}      end <===`);
+            this.logger.info(`${clsName} : ${funName.replace(/bound /, '')}      end <===`);
         } else {
-            this.log.info(`${funName.replace(/bound /, '')}      end <===`);
+            this.logger.info(`${funName.replace(/bound /, '')}      end <===`);
         }
     }
 
@@ -230,32 +278,27 @@ export class Logger {
     }
 
     public silly(log: string) {
-        this.log.silly(log);
+        this.logger.silly(log);
     }
 
     public debug(log: string) {
-        this.log.debug(log);
+        this.logger.debug(log);
     }
 
     public error(log: string) {
-        this.log.error(log);
+        this.logger.error(log);
     }
 
     public warn(log: string) {
-        this.log.warn(log);
+        this.logger.warn(log);
     }
 
     public info(log: string) {
-        this.log.info(log);
+        this.logger.info(log);
     }
-
-
-    public static getInstance(): Logger {
-        if (!Logger.instance) {
-            Logger.instance = new Logger(AppConfigLoader.loadAppConfig());
-        }
-        return Logger.instance;
-    }
-
-
 }
+
+// Export single instance of Logger class
+const logger = new Logger();
+Object.freeze(logger);
+export { logger };

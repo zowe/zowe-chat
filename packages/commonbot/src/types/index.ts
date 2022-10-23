@@ -8,11 +8,11 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import type { Receiver } from '@slack/bolt';
 import type { Application } from 'express';
+import type { Receiver } from '@slack/bolt';
 import { CommonBot } from '../CommonBot';
 
-export { Attachment, TaskModuleTaskInfo } from 'botbuilder';
+export { TaskModuleTaskInfo, Attachment } from 'botbuilder';
 
 
 /* eslint-disable no-unused-vars */
@@ -32,54 +32,11 @@ export const enum ILogLevel {
     SILLY = 'silly'
 }
 
-export const enum IChatTool {
+export const enum IChatToolType {
     MATTERMOST = 'mattermost',
     SLACK = 'slack',
     MSTEAMS = 'msteams'
 }
-
-export type IMattermostConfig = {
-    protocol: IProtocol;
-    hostName: string;
-    port: number;
-    basePath: string;
-    tlsCertificate: string;
-    teamUrl: string;
-    botUserName: string;
-    botAccessToken: string;
-    messagingApp: IAppOption;
-};
-
-export type ISlackConfig = {
-    botUserName: string;
-    signingSecret: string;
-    token: string;
-    socketMode: ISlackConfigSocketMode;
-    httpEndpoint: ISlackConfigHttpEndpoint;
-};
-
-export type ISlackConfigSocketMode = {
-    enabled: boolean;
-    appToken: string;
-};
-
-export type ISlackConfigHttpEndpoint = {
-    enabled: boolean;
-    messagingApp: IAppOption;
-};
-
-export type IMsteamsConfig = {
-    botUserName: string;
-    botId: string;
-    botPassword: string;
-    messagingApp: IAppOption;
-};
-
-export interface IAppOption extends IHttpEndpoint {
-    tlsKey: string,
-    tlsCert: string;
-}
-
 
 export const enum IMessageType {
     PLAIN_TEXT = 'plainText',
@@ -94,8 +51,6 @@ export const enum IMessageType {
     MSTEAMS_ADAPTIVE_CARD = 'msteams.adaptiveCard',
     MSTEAMS_DIALOG_OPEN = 'msteams.dialog.open',
 }
-
-
 
 export const enum IChattingType {
     PERSONAL = 'personal', // 1 on 1 chatting
@@ -147,36 +102,38 @@ export interface IMessage {
     mentions?: Record<string, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export type IBotOption = {
+export interface IBotOption {
     messagingApp: IMessagingApp,
-    chatTool: IChatTool,
-    mattermost?: IMattermostOption;
-    slack?: ISlackOption;
-    msteams?: IMsteamsOption;
-};
+    chatTool: IChatTool
+}
 
 export interface ILogOption {
     filePath: string,
     level: ILogLevel,
-    maximumSize: string,
-    maximumFiles: string;
+    maximumSize: number,
+    maximumFile: number
 }
 
 export interface IAppOption extends IHttpEndpoint {
     tlsKey: string,
-    tlsCert: string;
+    tlsCert: string
 }
 
 export interface IHttpEndpoint {
     protocol: IProtocol,
     hostName: string,
     port: number,
-    basePath: string;
+    basePath: string
 }
 
 export interface IMessagingApp {
     option: IAppOption,
-    app: Application;
+    app: Application
+}
+
+export interface IChatTool {
+    type: IChatToolType,
+    option: IMattermostOption | ISlackOption | IMsteamsOption
 }
 
 // # Mattermost Variable         Required  Description
@@ -235,7 +192,7 @@ export interface ISlackOption {
     // Array of scopes that your app will request within the OAuth process.
     // scopes: string[],
 
-    // Optional object that can be used to customize the default OAuth support. Read more in the OAuth documentation.
+        // Optional object that can be used to customize the default OAuth support. Read more in the OAuth documentation.
     // installerOptions: Record<string, any>,
 
 
@@ -306,30 +263,30 @@ export interface IMsteamsOption {
 }
 
 export interface IMessageMatcherFunction {
-    (chatContextData: IChatContextData): boolean;
+    (chatContextData: IChatContextData): boolean
 }
 
 export interface IMessageHandlerFunction {
-    (chatContextData: IChatContextData): Promise<void>;
+    (chatContextData: IChatContextData): Promise<void>
 }
 
 export interface IMessageMatcher {
     matcher: IMessageMatcherFunction,
-    handlers: IMessageHandlerFunction[];
+    handlers: IMessageHandlerFunction[]
 }
 
 export interface IMessageHandlerIndex {
     matcherIndex: number,
-    handlerIndex: number;
+    handlerIndex: number
 }
 
 export interface IRoute {
     path: string,
-    handler: IRouteHandlerFunction;
+    handler: IRouteHandlerFunction
 }
 
 export interface IRouteHandlerFunction {
-    (chatContextData: IChatContextData): Promise<void | Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    (chatContextData: IChatContextData): Promise<void | Record<string, any>> // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export interface IUser {
@@ -378,7 +335,7 @@ export interface IChattingContext {
     tenant: IName;
 }
 
-export interface IEvent {
+export interface IEvent{
     pluginId: string;
     action: IAction;
 }

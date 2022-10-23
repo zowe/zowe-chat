@@ -8,11 +8,10 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import nodeUtil = require('util');
 
-class Util {
-    // Constructor
-    // constructor() {
+import * as nodeUtil from 'util';
+
+export class Util {
     // }
 
     // Dump JavaScript object
@@ -134,5 +133,3 @@ class Util {
         }
     }
 }
-
-export = Util;
