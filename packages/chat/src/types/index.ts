@@ -28,7 +28,8 @@ export interface IChatPlugin {
     registry: string;
     version: number;
     priority: number;
-    listeners: string[];
+    listeners?: string[];
+    resources?: IResource[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -75,3 +76,11 @@ export interface IAdjective {
     option: Record<string, string>;
 }
 
+export interface IResource {
+    loadPath: string;
+    namespace: string;
+}
+
+export {IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IProtocol, IHttpEndpoint,
+    IMessageHandlerFunction, IMessageMatcherFunction, IRouteHandlerFunction, IMessagingApp, IMessage, IMessageType, IAppOption, IPayloadType,
+    IEvent, IActionType, IBotLimit, IMattermostBotLimit, ISlackBotLimit, IMsteamsBotLimit} from '@zowe/commonbot';

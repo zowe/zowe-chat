@@ -8,10 +8,13 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import fs = require('fs');
-import nodeUtil = require('util');
+import fs from 'fs';
+import path from 'path';
+import * as nodeUtil from 'util';
+import * as yaml from 'js-yaml';
+import i18next from 'i18next';
 
-class Util {
+export class Util {
     // Constructor
     // constructor() {
     // }
@@ -159,6 +162,42 @@ class Util {
 
         return name;
     }
-}
 
-export = Util;
+    // Read YAML file
+    static readYamlFile(filePath: string): unknown {
+        let content = null;
+        try {
+            if (fs.existsSync(filePath)) {
+                content = yaml.load(fs.readFileSync(filePath, 'utf8'));
+            }
+        } catch (error) {
+            console.error(`Exception occurred when read the YAML files ${filePath}!`);
+            console.error(error.stack);
+        }
+
+        return content;
+    }
+
+    // Get the canonical path name by resolving ., .., and symbolic links
+    static getRealPath(filePath: string): string {
+        let realPath = null;
+        try {
+            if (filePath !== null && filePath !== undefined) {
+                realPath = fs.realpathSync(path.normalize(filePath));
+            }
+        } catch (error) {
+            console.error(`Exception occurred when get the real path for ${filePath}!`);
+            console.error(error.stack);
+        }
+
+        return realPath;
+    }
+
+    // Get the error message defined in translation resource
+    static getErrorMessage(errorCode: string, option: unknown): string {
+        return `${errorCode}: ${i18next.t('errorCode.' + errorCode + '.text', <any> option)}`
+            + `\n${i18next.t('errorCode.' + errorCode + '.reason', <any> option)}`
+            + `\n${i18next.t('errorCode.' + errorCode + '.action', <any> option)}`;
+    }
+
+}

@@ -10,6 +10,8 @@
 
 import { ZosmfRestClient } from "@zowe/core-for-zowe-sdk";
 import { ProfileInfo } from "@zowe/imperative";
+import { logger } from "../../utils/Logger";
+import { Util } from "../../utils/Util";
 import { ChatCredential, CredentialType } from "../user/ChatCredential";
 
 // TODO: Add Login
@@ -47,6 +49,10 @@ export class ZosmfLogin {
                 resource: "/zosmf/restjobs/jobs"
             });
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'z/OSMF user login exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+
             if (client.response.statusCode === 401 || client.response.statusCode == 403) {
                 return false;
             }
@@ -88,7 +94,10 @@ export class ZosmfLogin {
                 resource: "/zosmf/restjobs/jobs"
             });
         } catch (error) {
-            // TODO: Add Logger? console.log(error)
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'z/OSMF token get exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+
             if (client.response.statusCode === 401 || client.response.statusCode == 403) {
                 return {
                     type: CredentialType.UNDEFINED,

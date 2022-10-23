@@ -9,20 +9,19 @@
 */
 
 import type { IMessageHandlerFunction, IMessageMatcherFunction } from './types';
-import Logger from './utils/Logger';
 
 import { CommonBot } from './CommonBot';
-import MessageMatcher = require('./MessageMatcher');
+import { Logger } from './utils/Logger';
+import { MessageMatcher } from './MessageMatcher';
 
-class Listener {
+const logger = Logger.getInstance();
+export class Listener {
     protected bot: CommonBot;
     protected messageMatcher: MessageMatcher;
-    protected logger: Logger;
 
     // Constructor
     constructor(bot: CommonBot) {
         this.bot = bot;
-        this.logger = Logger.getInstance();
         this.messageMatcher = new MessageMatcher();
 
         this.listen = this.listen.bind(this);
@@ -32,16 +31,16 @@ class Listener {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async listen(matcher: IMessageMatcherFunction, handler: IMessageHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.listen, this);
+        logger.start(this.listen, this);
 
         try {
-            this.logger.debug('Run base listener');
+            logger.debug('Run base listener');
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.listen, this);
+            logger.end(this.listen, this);
         }
     }
 
@@ -50,5 +49,3 @@ class Listener {
         return this.messageMatcher;
     }
 }
-
-export = Listener;

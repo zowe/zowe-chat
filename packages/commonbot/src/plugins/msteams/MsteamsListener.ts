@@ -11,12 +11,13 @@
 import { IMessageHandlerFunction, IMessageMatcherFunction } from '../../types';
 
 import { CommonBot } from '../../CommonBot';
-import Listener = require('../../Listener');
-import MsteamsMiddleware = require('./MsteamsMiddleware');
+import { Listener } from '../../Listener';
+import { Logger } from '../../utils/Logger';
+import { MsteamsMiddleware } from './MsteamsMiddleware';
 
-class MsteamsListener extends Listener {
+const logger = Logger.getInstance();
 
-
+export class MsteamsListener extends Listener {
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
@@ -28,11 +29,11 @@ class MsteamsListener extends Listener {
     // Run listener
     async listen(matcher: IMessageMatcherFunction, handler: IMessageHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.listen, this);
+        logger.start(this.listen, this);
 
         try {
             // Check and set middleware
-            let middleware = <MsteamsMiddleware>this.bot.getMiddleware();
+            let middleware = <MsteamsMiddleware> this.bot.getMiddleware();
             if (middleware === null) {
                 middleware = new MsteamsMiddleware(this.bot);
                 this.bot.setMiddleware(middleware);
@@ -43,12 +44,10 @@ class MsteamsListener extends Listener {
             this.messageMatcher.addMatcher(matcher, handler);
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.listen, this);
+            logger.end(this.listen, this);
         }
     }
 }
-
-export = MsteamsListener;

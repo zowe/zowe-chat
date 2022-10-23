@@ -11,11 +11,13 @@
 import { IMessageHandlerFunction, IMessageMatcherFunction } from '../../types';
 
 import { CommonBot } from '../../CommonBot';
+import { Listener } from '../../Listener';
+import { Logger } from '../../utils/Logger';
+import { MattermostMiddleware } from './MattermostMiddleware';
 
-import Listener = require('../../Listener');
-import MattermostMiddleware = require('./MattermostMiddleware');
+const logger = Logger.getInstance();
 
-class MattermostListener extends Listener {
+export class MattermostListener extends Listener {
     // Constructor
     constructor(bot: CommonBot) {
         super(bot);
@@ -26,9 +28,9 @@ class MattermostListener extends Listener {
     // Run listener
     async listen(matcher: IMessageMatcherFunction, handler: IMessageHandlerFunction): Promise<void> {
         // Print start log
-        this.logger.start(this.listen, this);
+        logger.start(this.listen, this);
         try {
-            let middleware = <MattermostMiddleware>this.bot.getMiddleware();
+            let middleware = this.bot.getMiddleware();
             if (middleware === null) {
                 middleware = new MattermostMiddleware(this.bot);
                 this.bot.setMiddleware(middleware);
@@ -39,12 +41,10 @@ class MattermostListener extends Listener {
             this.messageMatcher.addMatcher(matcher, handler);
         } catch (err) {
             // Print exception stack
-            this.logger.error(this.logger.getErrorStack(new Error(err.name), err));
+            logger.error(logger.getErrorStack(new Error(err.name), err));
         } finally {
             // Print end log
-            this.logger.end(this.listen, this);
+            logger.end(this.listen, this);
         }
     }
 }
-
-export = MattermostListener;

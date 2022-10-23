@@ -8,8 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import ZosMessageListener = require('./listener/ZosMessageListener');
-import ZosEventListener = require('./listener/ZosEventListener');
+import ZosMessageListener = require('./listeners/ZosMessageListener');
+import ZosEventListener = require('./listeners/ZosEventListener');
 
 
 export = {

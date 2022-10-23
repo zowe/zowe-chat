@@ -8,15 +8,13 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { ChatEventListener, IActionType, IChatContextData, IChatTool, ICommand, IEvent, IExecutor, IMessage, IMessageType, Logger } from '@zowe/chat';
+import { logger, Util } from '@zowe/chat';
+import { ChatEventListener, IActionType, IChatContextData, IChatToolType, ICommand, IEvent, IExecutor, IMessage, IMessageType } from '@zowe/chat';
 
 import ZosCommandDispatcher from '../commands/ZosCommandDispatcher';
 const i18nJsonData = require('../i18n/jobDisplay.json');
 
-const logger = Logger.getInstance();
-
 class ZosEventListener extends ChatEventListener {
-    private command: ICommand = null;
     constructor() {
         super();
 
@@ -34,36 +32,39 @@ class ZosEventListener extends ChatEventListener {
             const botOption = chatContextData.context.chatting.bot.getOption();
             let eventMessage = '';
             let botName: string;
-            if (botOption.chatTool === IChatTool.MATTERMOST) {
+            if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
                 eventMessage = this.getMattermostEvent(chatContextData);
-                botName = botOption.mattermost.botUserName;
-            } else if (botOption.chatTool === IChatTool.SLACK) {
+                botName = botOption.chatTool.option.botUserName;
+            } else if (botOption.chatTool.type === IChatToolType.SLACK) {
                 eventMessage = this.getSlackEvent(chatContextData);
-                botName = botOption.slack.botUserName;
-            } else if (botOption.chatTool === IChatTool.MSTEAMS) {
+                botName = botOption.chatTool.option.botUserName;
+            } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
                 eventMessage = this.getMsteamsEvent(chatContextData);
-                botName = botOption.msteams.botUserName;
+                botName = botOption.chatTool.option.botUserName;
             } else {
                 return false;
             }
 
-            this.command = this.parseCommand(eventMessage);
-            this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
-            logger.debug(`Command is ${JSON.stringify(this.command)}`);
+            const command = this.parseCommand(eventMessage);
+            command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
+            command.extraData.zosmf = chatContextData.extraData.zosmf;
+            command.extraData.principal = chatContextData.extraData.principal;
+            logger.debug(`Command is ${JSON.stringify(command)}`);
 
-            // 1: Match bot name.
+            // 1: Match bot name -> no need to do it
             // 2. TODO: Check if it is a valid command.
             // 3: Match command scope.
-            if (this.command.extraData.botUserName === botName) {
-                if (this.command.scope === 'zos') {
-                    this.command.extraData.chatPlugin = chatContextData.extraData.chatPlugin;
+            if (command.extraData.botUserName === botName) {
+                if (command.scope === 'zos') {
+                    chatContextData.extraData.command = command;
 
                     logger.debug('Message matched!');
                     return true;
                 }
             }
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos event match exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
             return false;
         } finally {
@@ -91,7 +92,8 @@ class ZosEventListener extends ChatEventListener {
             }
             return eventMessage;
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos Mattermost event exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
             return '';
         } finally {
@@ -120,7 +122,8 @@ class ZosEventListener extends ChatEventListener {
             }
             return eventMessage;
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos Slack event exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return '';
@@ -153,7 +156,8 @@ class ZosEventListener extends ChatEventListener {
 
             return eventMessage;
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos Teams event exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return '';
@@ -181,24 +185,24 @@ class ZosEventListener extends ChatEventListener {
             };
 
             const botOption = chatContextData.context.chatting.bot.getOption();
-            if (botOption.chatTool !== IChatTool.MATTERMOST
-                && botOption.chatTool !== IChatTool.SLACK
-                && botOption.chatTool !== IChatTool.MSTEAMS) {
-                return [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
-                }];
-            }
+            // if (botOption.chatTool !== IChatTool.MATTERMOST
+            //     && botOption.chatTool !== IChatTool.SLACK
+            //     && botOption.chatTool !== IChatTool.MSTEAMS) {
+            //     return [{
+            //         type: IMessageType.PLAIN_TEXT,
+            //         message: `${i18nJsonData.error.unsupportedChatTool}${botOption.chatTool}`,
+            //     }];
+            // }
 
-            logger.debug(`Incoming command is ${JSON.stringify(this.command)}`);
+            logger.debug(`Incoming command is ${JSON.stringify(chatContextData.extraData.command)}`);
 
             const dispatcher = new ZosCommandDispatcher(botOption, chatContextData.context.chatting.bot.getLimit());
-            this.command.extraData.zosmf = chatContextData.extraData.zosmf;
-            this.command.extraData.principal = chatContextData.extraData.principal;
-            return await dispatcher.dispatch(this.command, executor);
+            return await dispatcher.dispatch(chatContextData.extraData.command, executor);
         } catch (error) {
-            // Print exception stack
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos event process exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
+
             return [{
                 type: IMessageType.PLAIN_TEXT,
                 message: i18nJsonData.error.internal,

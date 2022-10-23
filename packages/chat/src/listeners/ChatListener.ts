@@ -8,10 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-abstract class ChatListener {
+export abstract class ChatListener {
     constructor() {
         // TODO
     }
 }
-
-export = ChatListener;

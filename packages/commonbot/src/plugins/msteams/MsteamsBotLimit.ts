@@ -8,9 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import BotLimit from '../../BotLimit';
+import { BotLimit } from '../../BotLimit';
 
-class MsteamsBotLimit extends BotLimit {
+export class MsteamsBotLimit extends BotLimit {
     // Constructor
     constructor() {
         super();
@@ -24,5 +24,3 @@ class MsteamsBotLimit extends BotLimit {
         };
     }
 }
-
-export = MsteamsBotLimit;

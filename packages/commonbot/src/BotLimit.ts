@@ -10,7 +10,7 @@
 
 import { IBotLimit, IMattermostBotLimit, IMsteamsBotLimit, ISlackBotLimit } from './types';
 
-class BotLimit {
+export class BotLimit {
     protected limit: IBotLimit | IMattermostBotLimit | ISlackBotLimit | IMsteamsBotLimit;
 
     // Constructor
@@ -28,5 +28,3 @@ class BotLimit {
     //     this.limit[key] = value;
     // }
 }
-
-export = BotLimit;

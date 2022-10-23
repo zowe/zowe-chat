@@ -8,11 +8,9 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import type { IMessageHandlerFunction, IMessageHandlerIndex, IMessageMatcher, IMessageMatcherFunction } from './types';
+import type { IMessageMatcher, IMessageMatcherFunction, IMessageHandlerFunction, IMessageHandlerIndex } from './types';
 
-// import logger = require('./utils/Logger');
-
-class MessageMatcher {
+export class MessageMatcher {
     private matchers: IMessageMatcher[];
 
     // Constructor
@@ -149,5 +147,3 @@ class MessageMatcher {
         };
     }
 }
-
-export = MessageMatcher;
