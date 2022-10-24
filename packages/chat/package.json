@@ -5,9 +5,11 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "start": "./bin/chatsvr start",
+    "stop": "./bin/chatsvr stop",
+    "restart": "./bin/chatsvr restart",
     "build": "gulp build",
     "packaging": "gulp packaging",
-    "start": "node main.js",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
     "lint": "gulp lint",
     "checkDeps": "madge -c dist",
@@ -28,6 +30,7 @@
   },
   "homepage": "https://github.com/zowe/zowe-chat#readme",
   "dependencies": {
+    "@zowe/bot": "file:lib/zowe-bot-v100-beta-20221024-201233.tar.gz",
     "@zowe/core-for-zowe-sdk": "^7.7.0",
     "@zowe/imperative": "^5.6.0",
     "cors": "^2.8.5",
@@ -56,13 +59,20 @@
     "eslint": ">=8.26.0",
     "eslint-config-google": ">=0.14.0",
     "eslint-plugin-header": "^3.1.1",
-    "ts-node": ">=10.9.1",
-    "typescript": ">=4.8.4",
+    "gulp": ">=4.0.2",
+    "gulp-clean": ">=0.4.0",
+    "gulp-eslint": ">=6.0.0",
+    "gulp-if": ">=3.0.0",
+    "gulp-jshint": ">=2.1.0",
+    "gulp-typescript": ">=6.0.0-alpha.1",
+    "moment": "^2.29.4",
     "madge": "^5.0.1",
-    "npm-check-updates": "^16.3.15"
+    "npm-check-updates": "^16.3.15",
+    "ts-node": ">=10.9.1",
+    "typescript": ">=4.8.4"
   },
   "bundledDependencies": [
-    "@zowe/commonbot"
+    "@zowe/bot"
   ],
   "engines": {
     "node": ">=16.13.2"

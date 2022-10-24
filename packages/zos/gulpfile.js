@@ -201,13 +201,14 @@ async function createPackageJsonTask() {
     delete result.scripts.packaging;
     delete result.scripts.deploy;
     if (nodeEnv === 'production') { // Product
-        delete result.devDependencies;
         delete result.scripts.build;
         delete result.scripts.packaging;
         delete result.scripts.lint;
         delete result.scripts.checkDeps;
         delete result.scripts.updateDeps;
         delete result.scripts.test;
+        delete result.devDependencies;
+        delete result.peerDependencies;
 
         // TODO: must be updated later
         delete result.scripts.testUnit;

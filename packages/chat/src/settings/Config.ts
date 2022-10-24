@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatToolType, ILogOption } from "@zowe/commonbot";
+import { IChatToolType, ILogOption } from "@zowe/bot";
 import { IConfig, IChatServerConfig, IMattermostConfig, IMsteamsConfig, ISlackConfig, IZosmfServerConfig } from "../types/IConfig";
 import { Util } from "../utils/Util";
 import { EnvironmentVariable } from "./EnvironmentVariable";

@@ -16,7 +16,6 @@
         "docker": "docker build -t local/zowe-chat -f scripts/Dockerfile . && docker run -ti local/zowe-chat"
     },
     "workspaces": [
-        "packages/commonbot",
         "packages/chat",
         "packages/zos",
         "packages/clicmd",

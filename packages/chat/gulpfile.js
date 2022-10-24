@@ -208,6 +208,9 @@ async function createPackageJsonTask() {
         delete result.scripts.checkDeps;
         delete result.scripts.updateDeps;
         delete result.scripts.test;
+
+        result.main = 'index.js';
+        result.types = 'index.d.ts';
     } else if (nodeEnv === 'fvt') { // FVT
         // TODO: Must be enhanced later
         result.scripts.test = result.scripts.testFunction;
@@ -315,6 +318,23 @@ async function installDependencyTask() {
     }
 }
 
+// Copy library task
+async function copyLibraryTask() {
+    if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
+        return childProcess.execSync(`cd ./${folder.src.destination} && cp -R ../lib .`,
+                { stdio: 'inherit' });
+    } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(`cd ./${folder.src.destination}.. && cp -R ../lib .`,
+                { stdio: 'inherit' });
+    } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(`cd ./${folder.src.destination}.. && cp -R ../lib .`,
+                { stdio: 'inherit' });
+    } else { // Development: folder.src.destination = 'dist/'
+        return childProcess.execSync(`cd ./${folder.src.destination} && cp -R ../lib .`,
+                { stdio: 'inherit' });
+    }
+}
+
 // Purge unused file task
 async function purgeUnusedFileTask() {
     if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
@@ -361,16 +381,16 @@ async function purgeUnusedFileTask() {
 exports.clean = cleanTask;
 if (nodeEnv === 'production') { // Product
     exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, purgeUnusedFileTask);
+            createPackageJsonTask, copyLibraryTask, purgeUnusedFileTask);
 } else if (nodeEnv === 'fvt') { // FVT
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
+            createPackageJsonTask, copyGulpFileTask, copyLibraryTask, purgeUnusedFileTask);
 } else if (nodeEnv === 'ut') { // UT
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
+            createPackageJsonTask, copyGulpFileTask, copyLibraryTask, purgeUnusedFileTask);
 } else { // Development
     exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
+            createPackageJsonTask, copyGulpFileTask, copyLibraryTask, purgeUnusedFileTask);
 }
 // exports.testUnit = testUnitTask;
 // exports.testFunction = testFunctionTask;

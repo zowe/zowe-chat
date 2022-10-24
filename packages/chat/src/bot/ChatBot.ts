@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import CommonBot, { IBotOption, IChatToolType, IMattermostOption, IProtocol, ISlackOption } from '@zowe/commonbot';
+import CommonBot, { IBotOption, IChatToolType, IMattermostOption, IProtocol, ISlackOption } from '@zowe/bot';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
