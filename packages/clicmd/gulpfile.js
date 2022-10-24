@@ -202,6 +202,13 @@ async function createPackageJsonTask() {
     delete result.scripts.deploy;
     if (nodeEnv === 'production') { // Product
         delete result.devDependencies;
+        delete result.scripts.build;
+        delete result.scripts.packaging;
+        delete result.scripts.lint;
+        delete result.scripts.checkDeps;
+        delete result.scripts.updateDeps;
+        delete result.scripts.test;
+
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
     } else if (nodeEnv === 'fvt') { // FVT
@@ -354,16 +361,16 @@ async function purgeUnusedFileTask() {
 exports.clean = cleanTask;
 if (nodeEnv === 'production') { // Product
     exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, purgeUnusedFileTask);
 } else if (nodeEnv === 'fvt') { // FVT
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
 } else if (nodeEnv === 'ut') { // UT
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
 } else { // Development
     exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
 }
 
 exports.packaging = packagingTask;

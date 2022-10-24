@@ -143,7 +143,7 @@ if (nodeEnv === undefined || nodeEnv.length === 0
 
 // Clean dist folder
 function cleanTask() {
-    return gulp.src('dist', {read: false, allowEmpty: true}).pipe(gulpClean());
+    return gulp.src('dist', { read: false, allowEmpty: true }).pipe(gulpClean());
 }
 
 // Check code style
@@ -174,7 +174,7 @@ function isTypeScript(file) {
 
 // Build source code task
 function buildSourceTask() {
-    return gulp.src(folder.src.source, {dot: true})
+    return gulp.src(folder.src.source, { dot: true })
             .pipe(gulpIf(isTypeScript, tsProject()))
             .pipe(gulp.dest(folder.src.destination));
 }
@@ -191,7 +191,7 @@ async function createPackageJsonTask() {
     const pkgJson = require('./package.json');
 
     // Copy
-    const result = {...pkgJson};
+    const result = { ...pkgJson };
 
     // Change product version
     result.version = releaseVersion;
@@ -202,17 +202,28 @@ async function createPackageJsonTask() {
     delete result.scripts.deploy;
     if (nodeEnv === 'production') { // Product
         delete result.devDependencies;
+        delete result.scripts.build;
+        delete result.scripts.packaging;
+        delete result.scripts.lint;
+        delete result.scripts.checkDeps;
+        delete result.scripts.updateDeps;
+        delete result.scripts.test;
+
+        // TODO: must be updated later
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
     } else if (nodeEnv === 'fvt') { // FVT
+        // TODO: must be updated later
         result.scripts.test = result.scripts.testFunction;
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
     } else if (nodeEnv === 'ut') { // UT
+        // TODO: must be updated later
         result.scripts.test = result.scripts.testUnit;
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
     } else { // Development
+        // TODO: must be updated later
         delete result.scripts.build;
         delete result.scripts.packaging;
     }
@@ -273,25 +284,25 @@ async function packagingTask() {
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
                 + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
+        { stdio: 'inherit' });
     } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
                 + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
+        { stdio: 'inherit' });
     } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
                 + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
+        { stdio: 'inherit' });
     } else { // Development: folder.src.destination = 'dist/'
         return childProcess.execSync(`cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/common-bot*.tar.gz `
                 + `&& rm -rf ./package-lock.json `
                 + `&& mkdir package && mv [a-oq-zA-OQ-Z0-9]* ./package/. && mv package.json ./package/.  && mv plugins ./package/. `
                 + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
+        { stdio: 'inherit' });
     }
 }
 
@@ -299,31 +310,31 @@ async function packagingTask() {
 async function installDependencyTask() {
     if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
         return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
+                { stdio: 'inherit' });
     } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination}.. && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
+                { stdio: 'inherit' });
     } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination}.. && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
+                { stdio: 'inherit' });
     } else { // Development: folder.src.destination = 'dist/'
         return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
+                { stdio: 'inherit' });
     }
 }
 
 // Purge unused file task
 async function purgeUnusedFileTask() {
     if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
+        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, { stdio: 'inherit' });
     } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf && `
-                + `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
+                + `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, { stdio: 'inherit' });
     } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf && `
-                + `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
+                + `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, { stdio: 'inherit' });
     } else { // Development: folder.src.destination = 'dist/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
+        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, { stdio: 'inherit' });
     }
 }
 

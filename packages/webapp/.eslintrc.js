@@ -45,7 +45,7 @@ module.exports = {
             + '\n* SPDX-License-Identifier: EPL-2.0'
             + '\n*'
             + '\n* Copyright Contributors to the Zowe Project.\n'],
-            2
+            2,
         ],
         'indent': [
             'error', 4, {
@@ -69,10 +69,10 @@ module.exports = {
             },
         ],
         'max-len': ['error', {
-            code: 160,
-            tabWidth: 2,
-            ignoreUrls: true,
-            ignorePattern: 'goog\.(module|require)',
+            'code': 160,
+            'tabWidth': 2,
+            'ignoreUrls': true,
+            'ignoreTemplateLiterals': true,
         }],
         'object-curly-spacing': ['error', 'always'],
         'operator-linebreak': ['error', 'before'],
@@ -87,7 +87,7 @@ module.exports = {
             requireParamDescription: false,
             requireReturnDescription: false,
             requireReturn: false,
-            prefer: {returns: 'return'},
+            prefer: { returns: 'return' },
         }],
         '@typescript-eslint/no-var-requires': 'off',
         '@typescript-eslint/no-inferrable-types': 'off',

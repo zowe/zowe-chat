@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import CommonBot, { IBotOption, IChatToolType, IMattermostOption, ISlackOption } from '@zowe/commonbot';
+import CommonBot, { IBotOption, IChatToolType, IMattermostOption, IProtocol, ISlackOption } from '@zowe/commonbot';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
@@ -352,12 +352,14 @@ export class ChatBot {
                 };
 
                 // Read certificate
-                if (fs.existsSync((mattermostConfig.tlsCertificate))) {
-                    (<IMattermostOption> (botOption.chatTool.option)).tlsCertificate = fs.readFileSync(mattermostConfig.tlsCertificate, 'utf8');
-                } else {
-                    // ZWECC002E: The file {{filePath}} does not exist
-                    logger.error(Util.getErrorMessage('ZWECC002E', { filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage' }));
-                    process.exit(4);
+                if (mattermostConfig.protocol.toLowerCase() === IProtocol.HTTPS) {
+                    if (fs.existsSync((mattermostConfig.tlsCertificate))) {
+                        (<IMattermostOption> (botOption.chatTool.option)).tlsCertificate = fs.readFileSync(mattermostConfig.tlsCertificate, 'utf8');
+                    } else {
+                        // ZWECC002E: The file {{filePath}} does not exist
+                        logger.error(Util.getErrorMessage('ZWECC002E', { filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage' }));
+                        process.exit(4);
+                    }
                 }
 
                 // Create messaging app

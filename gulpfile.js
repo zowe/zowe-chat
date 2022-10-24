@@ -13,6 +13,8 @@ const childProcess = require('child_process');
 const fs = require('fs-extra')
 const path = require('path');
 const glob = require('glob');
+const moment = require('moment');
+const semver = require('semver')
 
 // Updates the license header in all TypeScript files
 async function updateLicenseTask() {
@@ -68,80 +70,74 @@ async function updateLicenseTask() {
 // Sets up a local environment for running Zowe ChatBot. First time start will have empty configuration; future runs will not replace it.
 async function startLocalTask() {
     try {
-        childProcess.execSync(`which rsync`).toString()
-    } catch (error) {
-        console.log(error)
-        console.log("Rsync not found on system, required for this gulp task to function. Please install rsync and try again.")
+        childProcess.execSync(`which rsync`).toString();
+    } catch (error) {;
+        console.log(error);
+        console.log("Rsync not found on system, required for this gulp task to function. Please install rsync and try again.");
     }
 
+    // Get project root
+    const projRoot = __dirname;
+
     // Get local run folders
-    let localRunDir = `${__dirname}/.build/`
+    let localRunDir = `${projRoot}/.build`;
     const zoweChatHome = `${localRunDir}/zoweChat`;
-    const zoweChatPluginHome = `${localRunDir}/zoweChatPlugin`
+    const zoweChatPluginHome = `${localRunDir}/plugins`;
 
     // Create all folders for local run
     console.log('');
-    console.log('=======================');
     console.log('Create local running folder ...');
-    console.log('=======================');
-    fs.mkdirpSync(`${zoweChatHome}`)
-    fs.mkdirpSync(`${zoweChatHome}/webapp`)
-    fs.mkdirpSync(`${zoweChatPluginHome}/@zowe/clicmd`)
-    fs.mkdirpSync(`${zoweChatPluginHome}/@zowe/zos`)
+    fs.mkdirpSync(`${zoweChatHome}`);
+    fs.mkdirpSync(`${zoweChatHome}/webapp`);
+    fs.mkdirpSync(`${zoweChatPluginHome}/@zowe/clicmd`);
+    fs.mkdirpSync(`${zoweChatPluginHome}/@zowe/zos`);
+    console.log('Done!');
 
     // Synchronize @zowe/chat
-    console.log('=======================');
+    console.log('');
+    console.log('Synchronizing the latest build result ...');
     console.log('Synchronizing @zowe/chat ...');
-    console.log('=======================');
-    childProcess.execSync(`rsync -r --exclude '${zoweChatHome}/config' packages/chat/dist/* ${zoweChatHome}/zoweChat`)
-    childProcess.execSync(`rsync -r --ignore-existing packages/chat/dist/config/* ${zoweChatHome}/zoweChat/config`)
-    childProcess.execSync(`rsync -r --ignore-existing packages/chat/config/plugin.yaml ${zoweChatPluginHome}`)
+    childProcess.execSync(`rsync -r --exclude 'config' ${projRoot}/packages/chat/dist/* ${zoweChatHome}`, { stdio: 'inherit' });
+    childProcess.execSync(`rsync -r --ignore-existing ${projRoot}/packages/chat/dist/config/* ${zoweChatHome}/config`, { stdio: 'inherit' });
+    childProcess.execSync(`rsync -r --ignore-existing ${projRoot}/packages/chat/dist/config/plugin.yaml ${zoweChatPluginHome}`, { stdio: 'inherit' });
+    console.log('Done!');
 
     // Synchronize @zowe/bot
-    // console.log('');
-    // console.log('=======================');
-    // console.log('Synchronizing @zowe/commonbot ...');
-    // console.log('=======================');
+    console.log('Synchronizing @zowe/commonbot ...');
+    childProcess.execSync(`rsync -r ${projRoot}/packages/commonbot/release/* ${zoweChatHome}/lib`, { stdio: 'inherit' });
+    console.log('Done!'); 
 
     // Synchronize @zowe/webapp
-    console.log('');
-    console.log('=======================');
     console.log('Synchronizing @zowe/webapp ...');
-    console.log('=======================');
-    childProcess.execSync(`rsync -r packages/webapp/build/* ${zoweChatHome}/webapp`)
+    childProcess.execSync(`rsync -r ${projRoot}/packages/webapp/build/* ${zoweChatHome}/webapp`, { stdio: 'inherit' });
+    console.log('Done!');
 
     // Synchronize @zowe/zos
-    console.log('');
-    console.log('=======================');
     console.log('Synchronizing @zowe/zos ...');
-    console.log('=======================');
-    childProcess.execSync(`rsync -r packages/zos/dist/* ${zoweChatPluginHome}/@zowe/zos`)
+    childProcess.execSync(`rsync -r ${projRoot}/packages/zos/dist/* ${zoweChatPluginHome}/@zowe/zos`, { stdio: 'inherit' });
+    console.log('Done!');
 
     // Synchronize @zowe/clicmd
-    console.log('');
-    console.log('=======================');
     console.log('Synchronizing @zowe/clicmd ...');
-    console.log('=======================');
-    childProcess.execSync(`rsync -r packages/clicmd/dist/* ${zoweChatPluginHome}/clicmd`)
+    childProcess.execSync(`rsync -r ${projRoot}/packages/clicmd/dist/* ${zoweChatPluginHome}/@zowe/clicmd`, { stdio: 'inherit' });
+    console.log('Done!');
 
-    process.exit(1);
-    
     // Configure zowe chat
     console.log('');
-    console.log('=======================');
     console.log('Configuring Zowe Chat ...');
-    console.log('=======================');
     console.log('Installing @zowe/bot library ...');
     childProcess.execSync(`cd ${zoweChatHome} && npm uninstall @zowe/commonbot && npm install ./lib/*`, { stdio: 'inherit' });
-    console.log('');
+    console.log('Done!');
     console.log('Creating global symlink for i18next package ...');
-    childProcess.execSync(`cd ${zoweChatHome}/node_modules/i18next && npm unlink && npm link`, { stdio: 'inherit' });
-    console.log('');
+    childProcess.execSync(`cd ${zoweChatHome}/node_modules/i18next && npm link`, { stdio: 'inherit' });
+    console.log('Done!');
     console.log('Link-installing @zowe/chat and i18next for @zowe/clicmd plugin ...');
-    childProcess.execSync(`cd ${zoweChatPluginHome}/@zowe/clicmd && npm link ${zoweChatHome} && npm link i18next`, { stdio: 'inherit' });
-    console.log('');
+    childProcess.execSync(`cd ${zoweChatPluginHome}/@zowe/clicmd && npm link ${zoweChatHome} && npm uninstall i18next && npm link i18next`, { stdio: 'inherit' });
+    console.log('Done!');
     console.log('Link-installing @zowe/chat and i18next for @zowe/zos plugin ...');
-    childProcess.execSync(`cd ${zoweChatPluginHome}/@zowe/zos && npm link ${zoweChatHome} && npm link i18next`, { stdio: 'inherit' });
+    childProcess.execSync(`cd ${zoweChatPluginHome}/@zowe/zos && npm link ${zoweChatHome} && npm uninstall i18next && npm link i18next`, { stdio: 'inherit' });
+    console.log('Done!');
+    console.log('All done!');
 
     try {
 
@@ -162,6 +158,108 @@ async function startLocalTask() {
     }
 }
 
+// Build all workspace
+async function buildTask() {
+    childProcess.execSync(`npm run buildAll`, { stdio: 'inherit' });
+}
+
+// Build all workspace
+async function cleanTask() {
+    childProcess.execSync(`npm run buildAll`, { stdio: 'inherit' });
+}
+
+// Build all workspace
+async function packagingTask() {
+    // Get packaging time
+    const packagingTime = moment().format(`YYYYMMDD-HHmmss`);
+
+    // Print and check configuration
+    console.log('');
+    console.log('Building Zowe Chat release package with settings below:');
+    console.log('###################################################');
+    console.log(`           NODE_ENV = ${process.env.NODE_ENV}`);
+    console.log(`       RELEASE_TYPE = ${process.env.RELEASE_TYPE}`);
+    console.log(`    RELEASE_VERSION = ${process.env.RELEASE_VERSION}`);
+    console.log('###################################################');
+    console.log('');
+    console.log(`Release folder: ${__dirname}/release`);
+    console.log(`Packaging time: ${packagingTime}`);    // Specify packaging time
+    if (process.env.NODE_ENV === undefined || process.env.NODE_ENV.toLowerCase() !== 'production') { // production, fvt, ut, development
+        console.log(`The value of environment variable NODE_ENV is not production!`);
+        console.log(`Check and set the value to production first please!`);
+        process.exit(1);
+    }
+    if (process.env.RELEASE_TYPE === undefined || process.env.RELEASE_TYPE.toLowerCase() !== 'beta' || process.env.RELEASE_TYPE.toLowerCase() !== 'ga') { // beta, ga
+        console.log(`The value of environment variable RELEASE_TYPE is not beta or ga!`);
+        console.log(`Check and set the value to beta or ga first please!`);
+        process.exit(2);
+    }
+    if (process.env.RELEASE_VERSION === undefined || semver.valid(process.env.RELEASE_VERSION) === false) { // semver: x.y.z
+        console.log(`The value of environment variable RELEASE_VERSION is empty or invalid!`);
+        console.log(`Check and set the value correctly first please!`);
+        process.exit(3);
+    }
+
+    // Get release file name
+    let packageFileName = '';
+    if (releaseType.toLowerCase() === 'beta') {
+        packageFileName = `zowe-chat-v${process.env.RELEASE_VERSION.replace(/\./g, '')}-beta.tar.gz`;
+    } else {
+        packageFileName = `zowe-chat-v${process.env.RELEASE_VERSION.replace(/\./g, '')}.tar.gz`;
+    }
+
+     // Get project root
+     const projRoot = __dirname;
+
+     // Get release folder
+     const releaseDir = `${projRoot}/release`;
+     const zoweChatReleaseDir = `${releaseDir}/zoweChat`;
+     const pluginReleaseDir = `${releaseDir}/plugins`;
+ 
+     // Create all folders for packaging
+     console.log('');
+     console.log('Create release folder ...');
+     fs.mkdirpSync(`${releaseDir}`);
+     fs.mkdirpSync(`${zoweChatReleaseDir}/webapp`);
+     fs.mkdirpSync(`${pluginReleaseDir}/@zowe/clicmd`);
+     fs.mkdirpSync(`${pluginReleaseDir}/@zowe/zos`);
+
+     // Clean the release folder
+     childProcess.execSync(`rm -rf ${releaseDir}/*`, { stdio: 'inherit' });
+
+     // Copy the latest build result
+    console.log('');
+    console.log('Copying the latest build result ...');
+    // Copy @zowe/chat
+    console.log('Copying @zowe/chat ...');
+    childProcess.execSync(`cp -R ${projRoot}/packages/chat/dist/* ${zoweChatReleaseDir}`, { stdio: 'inherit' });
+    console.log('Done!');
+
+    // Copy @zowe/bot
+    console.log('Copying  @zowe/commonbot ...');
+    childProcess.execSync(`cp -R ${projRoot}/packages/commonbot/release/* ${zoweChatReleaseDir}/lib`, { stdio: 'inherit' });
+    console.log('Done!'); 
+
+    // Copy @zowe/webapp
+    console.log('Copying @zowe/webapp ...');
+    childProcess.execSync(`cp -R ${projRoot}/packages/webapp/build/* ${zoweChatReleaseDir}/webapp`, { stdio: 'inherit' });
+    console.log('Done!');
+
+    // Copy @zowe/zos
+    console.log('Copying @zowe/zos ...');
+    childProcess.execSync(`cp -R ${projRoot}/packages/zos/dist/* ${pluginReleaseDir}/@zowe/zos`, { stdio: 'inherit' });
+    console.log('Done!');
+
+    // Copy @zowe/clicmd
+    console.log('Copying @zowe/clicmd ...');
+    childProcess.execSync(`cp -R ${projRoot}/packages/clicmd/dist/* ${pluginReleaseDir}/@zowe/clicmd`, { stdio: 'inherit' });
+    console.log('Done!');
+    
+
+    console.log('All done!');
+}
 
 exports.updateLicense = updateLicenseTask;
+exports.build = buildTask;
 exports.startLocal = startLocalTask;
+exports.packaging = gulp.series(buildTask, packagingTask);

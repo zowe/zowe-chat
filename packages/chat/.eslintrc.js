@@ -1,3 +1,13 @@
+/*
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
+
 module.exports = {
     'env': {
         'browser': false,
@@ -24,10 +34,10 @@ module.exports = {
         'ecmaVersion': 11,
         'sourceType': 'module',
     },
-    "ignorePatterns": ["**/dist", "**/node_modules", "**/release", "**/lib"],
+    'ignorePatterns': ['**/dist', '**/node_modules', '**/release', '**/lib'],
     'rules': {
         'header/header': [2,
-            "block",
+            'block',
             ['\n* This program and the accompanying materials are made available under the terms of the'
             + '\n* Eclipse Public License v2.0 which accompanies this distribution, and is available at'
             + '\n* https://www.eclipse.org/legal/epl-v20.html'
@@ -35,7 +45,7 @@ module.exports = {
             + '\n* SPDX-License-Identifier: EPL-2.0'
             + '\n*'
             + '\n* Copyright Contributors to the Zowe Project.\n'],
-            2
+            2,
         ],
         'indent': [
             'error', 4, {
@@ -59,12 +69,12 @@ module.exports = {
             },
         ],
         'max-len': ['error', {
-            code: 160,
-            tabWidth: 2,
-            ignoreUrls: true,
-            ignorePattern: 'goog\.(module|require)',
+            'code': 160,
+            'tabWidth': 2,
+            'ignoreUrls': true,
+            'ignoreTemplateLiterals': true,
         }],
-        'object-curly-spacing': ["error", "always"],
+        'object-curly-spacing': ['error', 'always'],
         'operator-linebreak': ['error', 'before'],
         'require-jsdoc': ['off', {
             require: {
@@ -77,7 +87,7 @@ module.exports = {
             requireParamDescription: false,
             requireReturnDescription: false,
             requireReturn: false,
-            prefer: {returns: 'return'},
+            prefer: { returns: 'return' },
         }],
         '@typescript-eslint/no-var-requires': 'off',
         '@typescript-eslint/no-inferrable-types': 'off',
