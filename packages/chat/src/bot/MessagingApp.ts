@@ -9,12 +9,12 @@
 */
 
 import type { Application } from 'express';
-import express from "express";
-import * as fs from "fs-extra";
-import helmet from "helmet";
-import http from "http";
-import https from "https";
-import { IAppOption } from '../types';
+import express from 'express';
+import * as fs from 'fs-extra';
+import helmet from 'helmet';
+import http from 'http';
+import https from 'https';
+import { IAppOption, IProtocol } from '../types';
 import { logger } from '../utils/Logger';
 import { Util } from '../utils/Util';
 
@@ -26,8 +26,8 @@ export class MessagingApp {
 
     /**
      * Creates a new instance of the MessagingApp
-     * 
-     * @param option 
+     *
+     * @param option
      */
     constructor(option: IAppOption) {
         // Set app option
@@ -37,13 +37,12 @@ export class MessagingApp {
         this.app = express();
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
-        this.app.use(helmet());  // Secure Express apps with various HTTP headers
-
+        this.app.use(helmet()); // Secure Express apps with various HTTP headers
     }
 
     /**
      * This function should not be used by most callers. The CommonBot framework requires access to this app.
-     * 
+     *
      * @returns the underlying express application
      */
     getApplication(): Application {
@@ -52,7 +51,7 @@ export class MessagingApp {
 
     /**
      * Configures and creates the http/https server underlying the express application, and then starts it.
-     * 
+     *
      */
     startServer(): void {
         // Print start log
@@ -64,7 +63,7 @@ export class MessagingApp {
             this.app.set('port', port);
 
             // Create Http/Https server
-            if (this.option.protocol.toLowerCase() === 'https') {
+            if (this.option.protocol.toLowerCase() === IProtocol.HTTPS) {
                 // Check TLS key and certificate
                 if (fs.existsSync(this.option.tlsKey) === false) {
                     logger.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);

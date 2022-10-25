@@ -4,3 +4,5 @@ node_modules/
 *.swp
 release/
 dist/
+.build/
+

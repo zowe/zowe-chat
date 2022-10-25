@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IBotLimit, IBotOption } from '@zowe/commonbot';
+import { IBotLimit, IBotOption } from '@zowe/bot';
 
 export class ChatDispatcher {
     protected botOption: IBotOption = null;

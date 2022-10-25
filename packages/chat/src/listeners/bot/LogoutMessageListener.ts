@@ -9,7 +9,7 @@
 */
 
 
-import { IChatContextData, IMessage, IMessageType, IUser } from '@zowe/commonbot';
+import { IChatContextData, IMessage, IMessageType, IUser } from '@zowe/bot';
 import { SecurityManager } from '../../security/SecurityManager';
 import { logger } from '../../utils/Logger';
 import { Util } from '../../utils/Util';

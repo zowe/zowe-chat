@@ -18,7 +18,7 @@ import { Util } from '../utils/Util';
 import { BotListener } from './BotListener';
 import i18next from 'i18next';
 import { config } from '../settings/Config';
-import { IUser } from '@zowe/commonbot';
+import { IUser } from '@zowe/bot';
 
 export class BotMessageListener extends BotListener {
     private chatListeners: IChatListenerRegistryEntry[];
