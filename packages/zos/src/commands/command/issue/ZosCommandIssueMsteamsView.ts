@@ -14,7 +14,7 @@ import {logger, Util, ChatMsteamsView,
     IMessageType, IMsteamsBotLimit} from '@zowe/chat';
 import {IConsoleResponse} from "@zowe/zos-console-for-zowe-sdk";
 import i18next from 'i18next';
-class ZosCommandIssueConsoleMsteamsView extends ChatMsteamsView {
+class ZosCommandIssueMsteamsView extends ChatMsteamsView {
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
         super(botOption, botLimit);
     }
@@ -32,13 +32,13 @@ class ZosCommandIssueConsoleMsteamsView extends ChatMsteamsView {
             if (issueResponse.commandResponse === null || 
                 issueResponse.commandResponse === undefined || 
                 issueResponse.commandResponse.trim() === '') {
-                headerMessage = i18next.t('command.cmd.issue.console.cmdResponse_null', { executorName: executor.name, ns: 'ZosMessage' });
+                headerMessage = i18next.t('command.cmd.issue.console.cmdResponseNull', { executorName: executor.name, ns: 'ZosMessage' });
                 messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: headerMessage,
                 }];
             } else {
-                headerMessage = i18next.t('command.cmd.issue.console.cmdResponse_output', { executorName: executor.name, ns: 'ZosMessage' }) + `\n\n`
+                headerMessage = i18next.t('command.cmd.issue.console.cmdResponseOutput', { executorName: executor.name, ns: 'ZosMessage' }) + `\n\n`
                 + `<pre>${issueResponse.commandResponse}</pre>`;
                 messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -76,4 +76,4 @@ class ZosCommandIssueConsoleMsteamsView extends ChatMsteamsView {
     }
 }
 
-export = ZosCommandIssueConsoleMsteamsView;
+export = ZosCommandIssueMsteamsView;

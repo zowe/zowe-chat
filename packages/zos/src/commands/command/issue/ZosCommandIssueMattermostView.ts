@@ -13,7 +13,7 @@ import {logger, Util, ChatMattermostView, IBotOption, IMessageType,
     IExecutor, IMessage, IMattermostBotLimit} from '@zowe/chat';
 import {IConsoleResponse} from "@zowe/zos-console-for-zowe-sdk";
 import i18next from 'i18next';
-class ZosCommandIssueConsoleMattermostView extends ChatMattermostView {
+class ZosCommandIssueMattermostView extends ChatMattermostView {
     constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
         super(botOption, botLimit);
     }
@@ -31,13 +31,13 @@ class ZosCommandIssueConsoleMattermostView extends ChatMattermostView {
                  issueResponse.commandResponse === undefined ||
                  issueResponse.commandResponse.trim() === '') 
             {
-                headerMessage = i18next.t('command.cmd.issue.console.cmdResponse_null', { executorName: executor.name, ns: 'ZosMessage' });
+                headerMessage = i18next.t('command.cmd.issue.console.cmdResponseNull', { executorName: executor.name, ns: 'ZosMessage' });
                 messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: headerMessage,
                 }];
             } else {
-                headerMessage = i18next.t('command.cmd.issue.console.cmdResponse_output', { executorName: executor.name, ns: 'ZosMessage' });
+                headerMessage = i18next.t('command.cmd.issue.console.cmdResponseOutput', { executorName: executor.name, ns: 'ZosMessage' });
                 const fields = [];
                 fields.push (
                     {
@@ -83,4 +83,4 @@ class ZosCommandIssueConsoleMattermostView extends ChatMattermostView {
     }
 }
 
-export = ZosCommandIssueConsoleMattermostView;
+export = ZosCommandIssueMattermostView;

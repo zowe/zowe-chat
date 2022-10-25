@@ -18,25 +18,25 @@ import {logger, IMessage, IMessageType, IChatToolType,
     IExecutor, config, ChatHandler, IBotOption, IBotLimit,
     ICommand, Util, IMsteamsBotLimit, ChatPrincipal,
     IMattermostBotLimit, ISlackBotLimit} from '@zowe/chat';
-import ZosCommandIssueConsoleMattermostView from './ZosCommandIssueMattermostView';
-import ZosCommandIssueConsoleMsteamsView from './ZosCommandIssueMsteamsView';
-import ZosCommandIssueConsoleSlackView from './ZosCommandIssueSlackView';
+import ZosCommandIssueMattermostView from './ZosCommandIssueMattermostView';
+import ZosCommandIssueMsteamsView from './ZosCommandIssueMsteamsView';
+import ZosCommandIssueSlackView from './ZosCommandIssueSlackView';
 
-class ZosCommandIssueConsoleHandler extends ChatHandler {
-    private view: ZosCommandIssueConsoleMattermostView |
-                ZosCommandIssueConsoleMsteamsView |
-                ZosCommandIssueConsoleSlackView = null;
+class ZosCommandIssueHandler extends ChatHandler {
+    private view: ZosCommandIssueMattermostView |
+                ZosCommandIssueMsteamsView |
+                ZosCommandIssueSlackView = null;
 
     constructor(botOption: IBotOption, botLimit: IBotLimit) {
         super(botOption, botLimit);
 
         // Create view
         if (botOption.chatTool.type === IChatToolType.MATTERMOST) {
-            this.view = new ZosCommandIssueConsoleMattermostView(botOption, <IMattermostBotLimit>botLimit);
+            this.view = new ZosCommandIssueMattermostView(botOption, <IMattermostBotLimit>botLimit);
         } else if (botOption.chatTool.type === IChatToolType.MSTEAMS) {
-            this.view = new ZosCommandIssueConsoleMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
+            this.view = new ZosCommandIssueMsteamsView(botOption, <IMsteamsBotLimit>botLimit);
         } else if (botOption.chatTool.type === IChatToolType.SLACK) {
-            this.view = new ZosCommandIssueConsoleSlackView(botOption, <ISlackBotLimit>botLimit);
+            this.view = new ZosCommandIssueSlackView(botOption, <ISlackBotLimit>botLimit);
         }
     }
 
@@ -144,4 +144,4 @@ class ZosCommandIssueConsoleHandler extends ChatHandler {
         return messages;
     }
 }
-export = ZosCommandIssueConsoleHandler;
+export = ZosCommandIssueHandler;

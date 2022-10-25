@@ -12,7 +12,7 @@
 import {logger, Util, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit} from '@zowe/chat';
 import {IConsoleResponse} from "@zowe/zos-console-for-zowe-sdk";
 import i18next from 'i18next';
-class ZosCommandIssueConsoleSlackView extends ChatSlackView {
+class ZosCommandIssueSlackView extends ChatSlackView {
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
         super(botOption, botLimit);
     }
@@ -34,7 +34,7 @@ class ZosCommandIssueConsoleSlackView extends ChatSlackView {
                             'type': 'section',
                             'text': {
                                 'type': 'mrkdwn',
-                                'text': i18next.t('command.cmd.issue.console.cmdResponse_null', { executorName: executor.name, ns: 'ZosMessage' }),
+                                'text': i18next.t('command.cmd.issue.console.cmdResponseNull', { executorName: executor.name, ns: 'ZosMessage' }),
                             },
                         }]
                     }
@@ -55,7 +55,7 @@ class ZosCommandIssueConsoleSlackView extends ChatSlackView {
                             'type': 'section',
                             'text': {
                                 'type': 'mrkdwn',
-                                'text': i18next.t('command.cmd.issue.console.cmdResponse_output', { executorName: executor.name, ns: 'ZosMessage' })
+                                'text': i18next.t('command.cmd.issue.console.cmdResponseOutput', { executorName: executor.name, ns: 'ZosMessage' })
                             }
                         },
                         {
@@ -95,4 +95,4 @@ class ZosCommandIssueConsoleSlackView extends ChatSlackView {
         }
     }
 }
-export = ZosCommandIssueConsoleSlackView;
+export = ZosCommandIssueSlackView;
