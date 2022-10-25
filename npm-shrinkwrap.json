@@ -37571,6 +37571,12 @@
                 "typescript": "^4.8.4"
             }
         },
+        "@zowe/zos-console-for-zowe-sdk": {
+            "version": "7.7.0",
+            "resolved": "https://registry.npmjs.org/@zowe/zos-console-for-zowe-sdk/-/zos-console-for-zowe-sdk-7.7.0.tgz",
+            "integrity": "sha512-jLruA3o8ctgZm23FaWxUv8bI2uT5OYZjcc5UyZSr3LBat7oz6OGpqEt2AHc1TjqrpF5CED4PHo4ST28VEu+dFQ==",
+            "requires": {}
+        },
         "@zowe/zos-files-for-zowe-sdk": {
             "version": "7.7.0",
             "resolved": "https://registry.npmjs.org/@zowe/zos-files-for-zowe-sdk/-/zos-files-for-zowe-sdk-7.7.0.tgz",
