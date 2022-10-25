@@ -1,34 +1,39 @@
 import * as child_process from "child_process";
 import * as fs from "fs-extra";
+import * as os from "os";
+import * as path from "path";
+import * as tar from "tar";
 import { getProjectRoot, ITaskFunction } from "./GulpHelpers";
 
 const packageChat: ITaskFunction = (done: (err: Error) => void) => {
 
     let projRoot = getProjectRoot();
-    let packageDir = `/Users/ma648885/.dev/zowechat/testdeploy`;
+    let tmpdir = fs.mkdtempSync(os.tmpdir() + path.sep + "zowechat-packaging-");
+    let packageDir = `${tmpdir}${path.sep}zowe_chat`;
 
     try {
-        let files = fs.readdirSync(`${packageDir}`);
+        let files = fs.readdirSync(`${tmpdir}`);
         for (let file of files) {
             fs.rmSync(`${packageDir}/${file}`, { recursive: true, force: true });
         }
 
     } finally {
-        console.log(`Cleaned existing ${packageDir}`);
+        console.log(`Building the package in ${tmpdir}...`);
     }
-
     fs.mkdirpSync(`${packageDir}`);
 
+
     // Components
-    fs.copySync(`${projRoot}/packages/commonbot/dist/package`, `${packageDir}/lib/@zowe/commonbot`);
+    fs.copySync(`${projRoot}/packages/commonbot/dist/`, `${packageDir}/lib/@zowe/commonbot`);
     fs.copySync(`${projRoot}/packages/chat/dist/`, `${packageDir}/lib`);
     fs.copySync(`${projRoot}/packages/chat-webapp/build/`, `${packageDir}/web/static`);
 
     // Configuration and startup files
     fs.copySync(`${projRoot}/packages/chat/resources/chatServer.yaml`, `${packageDir}/config/chatServer.yaml`);
     fs.copySync(`${projRoot}/packages/chat/resources/chatTools`, `${packageDir}/config/chatTools`);
-    fs.copySync(`${projRoot}/packages/chat/resources/start.env`, `${packageDir}/start.env`);
-    fs.copySync(`${projRoot}/packages/chat/resources/start.sh`, `${packageDir}/start.sh`);
+    fs.copySync(`${projRoot}/bin/chat-setup.env`, `${packageDir}/chat-setup.env`);
+    fs.copySync(`${projRoot}/bin/run-chat.sh`, `${packageDir}/bin/run-chat.sh`);
+    fs.copySync(`${projRoot}/bin/ZWECHSTC.jcl`, `${packageDir}/bin/ZWECHSTC.jcl`);
     fs.chmodSync(`${packageDir}/start.sh`, '0775');
 
     // Plugins
@@ -43,8 +48,19 @@ const packageChat: ITaskFunction = (done: (err: Error) => void) => {
     child_process.execSync(`npm install --production`, { cwd: `${packageDir}/lib` });
 
 
+    tar.c({
+        gzip: true,
+        file: `${projRoot}/.build/package/zowe-chat-${chatPkgJson.version}.tar.gz`,
+        sync: true,
+        cwd: tmpdir
+    }, ["./"]);
     // child_process.execSync(`npm install --production`, { cwd: `${packageDir}/lib/@zowe/commonbot` });
 
+    // Cleanup temporary dir
+    fs.rmSync(tmpdir, {
+        force: true,
+        recursive: true
+    });
     done(undefined);
 
 };

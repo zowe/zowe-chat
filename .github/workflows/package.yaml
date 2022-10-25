@@ -1,0 +1,63 @@
+name: zowe-chat-package
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_pax:
+        description: "Create PAX file in addition to tgz"
+        required: false
+        default: false
+        type: boolean
+      deploy_to_artifactory:
+        description: "Deploy to artifactory"
+        required: false
+        default: false
+        type: boolean
+      publish_release:
+        description: "Deploy the final artifact to Artifactory"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  release:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.ref }}
+
+      - name: Use Node.js LTS
+        uses: actions/setup-node@v2
+        with:
+          node-version: "lts/*"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Update Dependencies
+        uses: zowe-actions/octorelease-script@master
+        env:
+          GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
+          GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
+          NPM_RESOLUTIONS: ${{ needs.test.outputs.npm-resolutions }}
+        with:
+          script: npmUpdate
+
+      - name: Build Source
+        run: npm run build
+
+      - uses: zowe-actions/octorelease@master
+        env:
+          GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
+          GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
+          GIT_CREDENTIALS: x-access-token:${{ secrets.ZOWE_ROBOT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          NPM_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+          NPM_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
