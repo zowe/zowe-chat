@@ -10,6 +10,7 @@
             },
             "missing": {
                 "Option": "Missing required option {{optionName}}.",
+                "argument": "Missing positional argument {{argumentName}}.",
                 "argumentOrOption": "Missing positional argument {{argumentName}} or option {{optionName}}."
             },
             "invalid": {
@@ -161,6 +162,16 @@
                     "readibc": "readibc",
                     "writeibc": "writeibc",
                     "diribc": "diribc"
+                }
+            }
+        },
+        "cmd":{
+            "issue":{
+                "console":{
+                    "cmdResponse_null":"I have issued the z/OS Console command for you. But I don't get any output, please check the system log for the command output.",
+                    "cmdResponse_output":"I have issued the z/OS Console command for you. Please see the results below.",
+                    "cmdResponseUrl": "Please click the z/OS console command response URL and see if any more output",
+                    "truncationIndicator": "<<<TRUNCATED DUE TO THE COMMAND OUTPUT IS TOO LONG>>>"
                 }
             }
         },
