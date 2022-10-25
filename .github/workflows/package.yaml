@@ -32,32 +32,37 @@ jobs:
           persist-credentials: false
           ref: ${{ github.ref }}
 
-      - name: Use Node.js LTS
+      - name: "[Prep 1] Use Node.js LTS"
         uses: actions/setup-node@v2
         with:
           node-version: "lts/*"
 
-      - name: Install Dependencies
+      - name: "[Prep 2] Prepare workflow"
+        uses: zowe-actions/shared-actions/prepare-workflow@main
+
+      - name: "[Prep 3] Install Dependencies"
         run: npm ci
 
-      - name: Update Dependencies
-        uses: zowe-actions/octorelease-script@master
-        env:
-          GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
-          GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
-          NPM_RESOLUTIONS: ${{ needs.test.outputs.npm-resolutions }}
+      - name: "[Build 1] Build Project"
+        run: npm run buildAll
+
+      - name: "[Package 1] Build Source"
+        run: npm run package
+
+      - name: "[Package 2] Make pax"
+        uses: zowe-actions/shared-actions/make-pax@main
         with:
-          script: npmUpdate
+          pax-name: "zowe-chat"
+          pax-options: "-x os390 -pp"
+          pax-ssh-username: ${{ secrets.SSH_MARIST_USERNAME }}
+          pax-ssh-password: ${{ secrets.SSH_MARIST_RACF_PASSWORD }}
 
-      - name: Build Source
-        run: npm run build
-
-      - uses: zowe-actions/octorelease@master
-        env:
-          GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
-          GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
-          GIT_CREDENTIALS: x-access-token:${{ secrets.ZOWE_ROBOT_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-          NPM_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-          NPM_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
+#      - uses: "[Release 1] zowe-actions/octorelease@master"
+#        env:
+#          GIT_COMMITTER_NAME: ${{ secrets.ZOWE_ROBOT_USER }}
+#          GIT_COMMITTER_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}
+#          GIT_CREDENTIALS: x-access-token:${{ secrets.ZOWE_ROBOT_TOKEN }}
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          NPM_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+#          NPM_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+#          NPM_EMAIL: ${{ secrets.ZOWE_ROBOT_EMAIL }}

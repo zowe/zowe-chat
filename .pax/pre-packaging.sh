@@ -11,20 +11,21 @@ set -xe
 # Copyright Contributors to the Zowe Project.
 ################################################################################
 
-# contants
+# constants
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(pwd)
-
-# build
-echo "$SCRIPT_NAME build configmgr ..."
-STEPLIB=CBC.SCCNCMP "$SCRIPT_DIR/content/build/build_cmgr_xlclang.sh"
 
 # clean up content folder
 echo "$SCRIPT_NAME cleaning up pax folder ..."
 cd "$SCRIPT_DIR"
 mv content bak && mkdir -p content
 
+# unpack tar
+cd $SCRIPT_DIR/bak
+tar -xzvf zowe-chat-*.tar.gz
+
 # move real files to the content folder
-echo "$SCRIPT_NAME coping files should be in pax ..."
+echo "$SCRIPT_NAME copying files should be in pax ..."
 cd "$SCRIPT_DIR/content"
-cp ../bak/bin/configmgr .
+cp -R ../bak/zowe_chat/ .
+cp ../ascii/bin/* bin/
