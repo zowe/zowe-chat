@@ -227,7 +227,7 @@ class ZosDatasetSlackView extends ChatSlackView {
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18next.t('command.dataset.list.detail.multivolume', { ns: 'ZosMessage' })}:* ${dataset.mvol ? dataset.mvol : ''}`,
+                        'text': `*${i18next.t('command.dataset.list.detail.multiVolume', { ns: 'ZosMessage' })}:* ${dataset.mvol ? dataset.mvol : ''}`,
                     },
                 ],
             },
@@ -493,25 +493,26 @@ class ZosDatasetSlackView extends ChatSlackView {
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18next.t('command.dataset.list.memberDetail.modificationTime', { ns: 'ZosMessage' })}:* `
+                        'text': `*${i18next.t('command.dataset.list.memberDetail.modificationDate', { ns: 'ZosMessage' })}:* `
                                 + `${member.m4date ? member.m4date : ''}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18next.t('command.dataset.list.memberDetail.cnorc', { ns: 'ZosMessage' })}:* ${member.cnorc ? member.cnorc : ''}`,
+                        'text': `*${i18next.t('command.dataset.list.memberDetail.currentRecords', { ns: 'ZosMessage' })}:* ${member.cnorc ? member.cnorc : ''}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18next.t('command.dataset.list.memberDetail.inorc', { ns: 'ZosMessage' })}:* ${member.inorc ? member.inorc : ''}`,
+                        'text': `*${i18next.t('command.dataset.list.memberDetail.initialRecords', { ns: 'ZosMessage' })}:* ${member.inorc ? member.inorc : ''}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18next.t('command.dataset.list.memberDetail.mnorc', { ns: 'ZosMessage' })}:* `
+                        'text': `*${i18next.t('command.dataset.list.memberDetail.changedRecords', { ns: 'ZosMessage' })}:* `
                                 + `${member.mnorc !== undefined ? member.mnorc : ''}`,
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18next.t('command.dataset.list.memberDetail.mtime', { ns: 'ZosMessage' })}:* ${member.mtime ? member.mtime : ''}`,
+                        'text': `*${i18next.t('command.dataset.list.memberDetail.modificationTime', { ns: 'ZosMessage' })}:* `
+                            + `${member.mtime ? member.mtime : ''}`,
                     },
                 ],
             },

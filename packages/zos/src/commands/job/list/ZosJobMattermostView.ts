@@ -58,27 +58,27 @@ export class ZosJobMattermostView extends ChatMattermostView {
                 },
                 {
                     short: true,
-                    value: `**${i18next.t('command.job.list.status.owner', { ns: 'ZosMessage' })}: ** ${job.owner}`,
+                    value: `**${i18next.t('command.job.list.status.owner', { ns: 'ZosMessage' })}:** ${job.owner}`,
                 },
                 {
                     short: true,
-                    value: `**${i18next.t('command.job.list.status.subSystem', { ns: 'ZosMessage' })}: ** ${job.subsystem}`,
+                    value: `**${i18next.t('command.job.list.status.subSystem', { ns: 'ZosMessage' })}:** ${job.subsystem}`,
                 },
                 {
                     short: true,
-                    value: `**${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}: ** ${job.status}`,
+                    value: `**${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}:** ${this.getJobStatusIcon(job.status)}`,
                 },
                 {
                     short: true,
-                    value: `**${i18next.t('command.job.list.status.type', { ns: 'ZosMessage' })}: ** ${job.type}`,
+                    value: `**${i18next.t('command.job.list.status.type', { ns: 'ZosMessage' })}:** ${job.type}`,
                 },
                 {
                     short: true,
-                    value: `**${i18next.t('command.job.list.status.returnCode', { ns: 'ZosMessage' })}: ** ${job.retcode === null ? ' ' : job.retcode}`,
+                    value: `**${i18next.t('command.job.list.status.returnCode', { ns: 'ZosMessage' })}:** ${job.retcode === null ? ' ' : job.retcode}`,
                 },
                 {
                     short: true,
-                    value: `**${i18next.t('command.job.list.status.startedTime', { ns: 'ZosMessage' })}: **`
+                    value: `**${i18next.t('command.job.list.status.startedTime', { ns: 'ZosMessage' })}:** `
                             + `${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
                 },
                 {
@@ -156,74 +156,74 @@ export class ZosJobMattermostView extends ChatMattermostView {
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.id', { ns: 'ZosMessage' })}: ** ${job.jobid}`,
+                value: `**${i18next.t('command.job.list.detail.id', { ns: 'ZosMessage' })}:** ${job.jobid}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.owner', { ns: 'ZosMessage' })}: ** ${job.owner}`,
+                value: `**${i18next.t('command.job.list.detail.owner', { ns: 'ZosMessage' })}:** ${job.owner}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.subSystem', { ns: 'ZosMessage' })}: ** ${job.subsystem}`,
+                value: `**${i18next.t('command.job.list.detail.subSystem', { ns: 'ZosMessage' })}:** ${job.subsystem}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}: ** ${job.status}`,
+                value: `**${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}:** ${this.getJobStatusIcon(job.status)}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.type', { ns: 'ZosMessage' })}: ** ${job.type}`,
+                value: `**${i18next.t('command.job.list.detail.type', { ns: 'ZosMessage' })}:** ${job.type}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.returnCode', { ns: 'ZosMessage' })}: ** ${job.retcode === null ? ' ' : job.retcode}`,
+                value: `**${i18next.t('command.job.list.detail.returnCode', { ns: 'ZosMessage' })}:** ${job.retcode === null ? ' ' : job.retcode}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.class', { ns: 'ZosMessage' })}: ** ${job.class}`,
+                value: `**${i18next.t('command.job.list.detail.class', { ns: 'ZosMessage' })}:** ${job.class}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.PhaseName', { ns: 'ZosMessage' })}: ** `
+                value: `**${i18next.t('command.job.list.detail.PhaseName', { ns: 'ZosMessage' })}:** `
                         + `${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.Phase', { ns: 'ZosMessage' })}: ** ${job.phase ? ' ' : job.phase}`,
+                value: `**${i18next.t('command.job.list.detail.Phase', { ns: 'ZosMessage' })}:** ${job.phase ? ' ' : job.phase}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.ExecutionSystem', { ns: 'ZosMessage' })}: ** `
+                value: `**${i18next.t('command.job.list.detail.ExecutionSystem', { ns: 'ZosMessage' })}:** `
                     + `${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.ExecutionMember', { ns: 'ZosMessage' })}: ** `
+                value: `**${i18next.t('command.job.list.detail.ExecutionMember', { ns: 'ZosMessage' })}:** `
                     + `${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.startedTime', { ns: 'ZosMessage' })}: ** `
+                value: `**${i18next.t('command.job.list.detail.startedTime', { ns: 'ZosMessage' })}:** `
                         + `${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.ExecutionSubmittedTime', { ns: 'ZosMessage' })}: ** `
+                value: `**${i18next.t('command.job.list.detail.ExecutionSubmittedTime', { ns: 'ZosMessage' })}:** `
                     + `${job['exec-submitted'] === undefined ? ' ': job['exec-submitted']}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.ExecutionEndedTime', { ns: 'ZosMessage' })}: ** `
+                value: `**${i18next.t('command.job.list.detail.ExecutionEndedTime', { ns: 'ZosMessage' })}:** `
                     + `${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.reasonNotRunning', { ns: 'ZosMessage' })}: ** `
+                value: `**${i18next.t('command.job.list.detail.reasonNotRunning', { ns: 'ZosMessage' })}:** `
                     + `${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.job.list.detail.openJob', { ns: 'ZosMessage' })}: ** [Zosmf](${job.url})`,
+                value: `**${i18next.t('command.job.list.detail.openJob', { ns: 'ZosMessage' })}:** [Zosmf](${job.url})`,
             });
 
             // Create message attachments
@@ -260,5 +260,18 @@ export class ZosJobMattermostView extends ChatMattermostView {
             // Print end log
             logger.end(this.getDetail);
         }
+    }
+
+    // Get job status with Icon
+    getJobStatusIcon(statusValue: string): string {
+        let status: string = statusValue;
+        if ('ACTIVE' === statusValue.toUpperCase()) {
+            status = `:beginner: ${statusValue}`;
+        } else if ('INPUT' === statusValue.toUpperCase()) {
+            status = `:inbox_tray: ${statusValue}`;
+        } else if ('OUTPUT' === statusValue.toUpperCase()) {
+            status = `:outbox_tray: ${statusValue}`;
+        }
+        return status;
     }
 }

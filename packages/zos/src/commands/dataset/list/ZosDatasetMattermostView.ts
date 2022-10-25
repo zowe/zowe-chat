@@ -184,7 +184,7 @@ class ZosDatasetMattermostView extends ChatMattermostView {
             },
             {
                 short: true,
-                value: `**${i18next.t('command.dataset.list.detail.multivolume', { ns: 'ZosMessage' })}: ** ${dataset.mvol ? dataset.mvol : ''}`,
+                value: `**${i18next.t('command.dataset.list.detail.multiVolume', { ns: 'ZosMessage' })}: ** ${dataset.mvol ? dataset.mvol : ''}`,
             },
             {
                 short: true,
@@ -401,23 +401,24 @@ class ZosDatasetMattermostView extends ChatMattermostView {
             },
             {
                 short: true,
-                value: `**${i18next.t('command.dataset.list.memberDetail.modificationTime', { ns: 'ZosMessage' })}: ** ${member.m4date ? member.m4date : ''}`,
+                value: `**${i18next.t('command.dataset.list.memberDetail.modificationDate', { ns: 'ZosMessage' })}: ** ${member.m4date ? member.m4date : ''}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.dataset.list.memberDetail.cnorc', { ns: 'ZosMessage' })}: ** ${member.cnorc ? member.cnorc : ''}`,
+                value: `**${i18next.t('command.dataset.list.memberDetail.currentRecords', { ns: 'ZosMessage' })}: ** ${member.cnorc ? member.cnorc : ''}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.dataset.list.memberDetail.inorc', { ns: 'ZosMessage' })}: ** ${member.inorc ? member.inorc : ''}`,
+                value: `**${i18next.t('command.dataset.list.memberDetail.initialRecords', { ns: 'ZosMessage' })}: ** ${member.inorc ? member.inorc : ''}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.dataset.list.memberDetail.mnorc', { ns: 'ZosMessage' })}: ** ${member.mnorc !== undefined ? member.mnorc : ''}`,
+                value: `**${i18next.t('command.dataset.list.memberDetail.changedRecords', { ns: 'ZosMessage' })}: ** `
+                        + `${member.mnorc !== undefined ? member.mnorc : ''}`,
             },
             {
                 short: true,
-                value: `**${i18next.t('command.dataset.list.memberDetail.mtime', { ns: 'ZosMessage' })}: ** ${member.mtime ? member.mtime : ''}`,
+                value: `**${i18next.t('command.dataset.list.memberDetail.modificationTime', { ns: 'ZosMessage' })}: ** ${member.mtime ? member.mtime : ''}`,
             },
             {
                 short: true,

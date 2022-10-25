@@ -33,7 +33,8 @@ class ZosHelpSlackView extends ChatSlackView {
                             'type': 'mrkdwn',
                             'text': i18next.t('common.data.foundCommands', {
                                 executor: executor.name,
-                                documentUrl: `<${super.getDocumentationBaseURL()}/TODO}|${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}>`,
+                                documentUrl: `<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos|`
+                                    + `${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}>`,
                                 ns: 'ZosMessage',
                                 interpolation: { escapeValue: false } }),
                         },
@@ -59,7 +60,7 @@ class ZosHelpSlackView extends ChatSlackView {
                         'type': 'section',
                         'text': {
                             'type': 'mrkdwn',
-                            'text': `*<${super.getDocumentationBaseURL()}/TODO/topic=commands-${key}|${key}>*  ` // TODO
+                            'text': `*<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${key}/${key}|${key}>*  `
                                     + `${commandHelpObj[key].description} \n`,
                         },
                     });
@@ -143,7 +144,8 @@ class ZosHelpSlackView extends ChatSlackView {
                             'type': 'mrkdwn',
                             'text': i18next.t('common.data.foundCommandDetail', {
                                 executor: executor.name,
-                                documentUrl: `<${super.getDocumentationBaseURL()}/TODO}|${i18next.t('command.help.list.detail.here', { ns: 'ZosMessage' })}>`,
+                                documentUrl: `<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${commandResource}/${commandResource}|`
+                                        + `${i18next.t('command.help.list.detail.here', { ns: 'ZosMessage' })}>`,
                                 ns: 'ZosMessage',
                                 interpolation: { escapeValue: false } }),
                         },
