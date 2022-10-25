@@ -75,7 +75,7 @@ The following information is critical to working with the code, running/writing/
     > **Note:** This will not over-write changes to your configuration
   * Launch your chat tool client and chat with your bot
 * **Run from your xLinux or zLinux server for production**
-  * Execute `npm run packagingAll` to build and package the project<br>
+  * Execute `npm run packagingAll` to build and package the project
     > **Note:** Your must set the three required environment variables (`NODE_ENV`, `RELEASE_TYPE`, `RELEASE_VERSION`) for packaging first
   * Upload your building result `$PROJECT_ROOT/release/zowe-chat-v<version>-.tar.gz` to your Linux server
   * Logon your Linux server, create one folder and unpack the building result there
@@ -88,8 +88,6 @@ The following information is critical to working with the code, running/writing/
   * Update the plugin configuration file `$ZOWE_CHAT_PLUGIN_HOME/plugin.yaml` if necessary
   * Execute the commands below to install local dependencies
     ```sh
-    cd $ZOWE_CHAT_HOME
-    npm install ./lib/*
     cd $ZOWE_CHAT_HOME/node_modules/i18next
     npm link
     cd  $ZOWE_CHAT_PLUGIN_HOME/@zowe/clicmd
@@ -98,6 +96,12 @@ The following information is critical to working with the code, running/writing/
     cd  $ZOWE_CHAT_PLUGIN_HOME/@zowe/zos
     npm link $ZOWE_CHAT_HOME
     npm link i18next
+    ```
+  * Update Zowe Chat, chat tool and z/OSMF server configuration per your environment
+    ```sh
+    $ZOWE_CHAT_HOME/config/chatServer.yaml
+    $ZOWE_CHAT_HOME/config/zosmfServer.yaml
+    $ZOWE_CHAT_HOME/config/chatTools/<mattermost | msteams | slack>.yaml
     ```
   * Execute `chatsvr start` to start your Zowe Chat server
     * `chatsvr status`  - Check your Zowe Chat server status
