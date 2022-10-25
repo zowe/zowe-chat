@@ -14,6 +14,7 @@ import ZosJobHandler from './job/list/ZosJobListHandler';
 import ZosDatasetListHandler from './dataset/list/ZosDatasetListHandler';
 import ZosFileListHandler from './file/list/ZosFileListHandler';
 import ZosHelpListHandler from './help/list/ZosHelpListHandler';
+import ZosCommandIssueHandler from './command/issue/ZosCommandIssueHandler';
 import i18next from 'i18next';
 
 class ZosCommandDispatcher extends ChatDispatcher {
@@ -88,6 +89,24 @@ class ZosCommandDispatcher extends ChatDispatcher {
                     messages = [{
                         type: IMessageType.PLAIN_TEXT,
                         message: i18next.t('common.error.unknown.verb', { verb: command.verb, ns: 'ZosMessage' }),
+                    }];
+                }
+            } else if (command.resource === 'command') {
+                //Issue command
+                if (command.verb === 'issue') {
+                    if (command.object === 'console') {
+                        const handler = new ZosCommandIssueHandler(this.botOption, this.botLimit);
+                        messages = await handler.issueConsoleCommand(command, executor);
+                    } else {
+                        messages= [{
+                            type: IMessageType.PLAIN_TEXT,
+                            message: i18next.t('common.error.unknown.object', { object: command.object, ns: 'ZosMessage' }),
+                        }];
+                    }
+                } else {
+                    messages = [{
+                        type: IMessageType.PLAIN_TEXT,
+                        message: i18next.t('common.error.unknown.verb', { verb: command.verb, ns: 'ZosMessage' })
                     }];
                 }
             } else if (command.resource === 'help') {
