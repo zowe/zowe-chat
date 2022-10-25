@@ -14,7 +14,7 @@ import ZosJobHandler from './job/list/ZosJobListHandler';
 import ZosDatasetListHandler from './dataset/list/ZosDatasetListHandler';
 import ZosFileListHandler from './file/list/ZosFileListHandler';
 import ZosHelpListHandler from './help/list/ZosHelpListHandler';
-import ZosCommandIssueConsoleHandler from './command/issue/ZosCommandIssueHandler';
+import ZosCommandIssueHandler from './command/issue/ZosCommandIssueHandler';
 import i18next from 'i18next';
 
 class ZosCommandDispatcher extends ChatDispatcher {
@@ -94,9 +94,8 @@ class ZosCommandDispatcher extends ChatDispatcher {
             } else if (command.resource === 'command') {
                 //Issue command
                 if (command.verb === 'issue') {
-                    // Issue console command dy default.
                     if (command.object === 'console') {
-                        const handler = new ZosCommandIssueConsoleHandler(this.botOption, this.botLimit);
+                        const handler = new ZosCommandIssueHandler(this.botOption, this.botLimit);
                         messages = await handler.issueConsoleCommand(command, executor);
                     } else {
                         messages= [{
