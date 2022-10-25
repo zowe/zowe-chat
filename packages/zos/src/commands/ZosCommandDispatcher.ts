@@ -14,7 +14,7 @@ import ZosJobHandler from './job/list/ZosJobListHandler';
 import ZosDatasetListHandler from './dataset/list/ZosDatasetListHandler';
 import ZosFileListHandler from './file/list/ZosFileListHandler';
 import ZosHelpListHandler from './help/list/ZosHelpListHandler';
-import ZosCommandIssueConsoleHandler from './command/issue/ZosCommandIssueConsoleHandler';
+import ZosCommandIssueConsoleHandler from './command/issue/ZosCommandIssueHandler';
 import i18next from 'i18next';
 
 class ZosCommandDispatcher extends ChatDispatcher {
