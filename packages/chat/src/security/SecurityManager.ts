@@ -9,7 +9,7 @@
 */
 
 import { config } from '../settings/Config'
-import { IUser } from "@zowe/commonbot";
+import { IUser } from "@zowe/bot";
 import * as crypto from "crypto";
 import { IConfig, IAuthType } from "../types/IConfig";
 import { UserConfigManager } from "../settings/UserConfigManager";

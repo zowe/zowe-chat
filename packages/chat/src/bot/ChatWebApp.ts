@@ -9,27 +9,27 @@
 */
 
 import type {Request, Response} from 'express';
-import { IAppOption, IUser } from "@zowe/commonbot";
-import cors from "cors";
-import crypto from "crypto";
+import { IAppOption, IUser } from '@zowe/bot';
+import cors from 'cors';
+import crypto from 'crypto';
 import type { Application } from 'express';
-import express from "express";
-import * as fs from "fs-extra";
-import http from "http";
-import https from "https";
-import path from "path";
-import { EnvironmentVariable } from "../settings/EnvironmentVariable";
+import express from 'express';
+import * as fs from 'fs-extra';
+import http from 'http';
+import https from 'https';
+import path from 'path';
+import { EnvironmentVariable } from '../settings/EnvironmentVariable';
 import { SecurityManager } from '../security/SecurityManager';
-import { CredentialType } from "../security/user/ChatCredential";
-import { ChatPrincipal } from "../security/user/ChatPrincipal";
-import { ChatUser } from "../security/user/ChatUser";
+import { CredentialType } from '../security/user/ChatCredential';
+import { ChatPrincipal } from '../security/user/ChatPrincipal';
+import { ChatUser } from '../security/user/ChatUser';
 import { logger } from '../utils/Logger';
-import { Util } from "../utils/Util";
+import { Util } from '../utils/Util';
 
 /**
  *  This class contains server-side endpoints and static web elements, serviced under-the-hood by an express application.
  *  This class is capable of generating a one-time user challenge link, which users can visit to authenticate against Zowe ChatBot.
- * 
+ *
  *  There should only be one instance of the class active at a time.
  */
 export class ChatWebApp {
@@ -41,10 +41,10 @@ export class ChatWebApp {
     private server: https.Server | http.Server;
 
     /**
-     * Creates a new instance of the MessagingApp based on Zowe ChatBot's server options. 
-     * Sets express API routes and serves the frontend web deployment. 
-     * 
-     * @param option 
+     * Creates a new instance of the MessagingApp based on Zowe ChatBot's server options.
+     * Sets express API routes and serves the frontend web deployment.
+     *
+     * @param option
      * @param securityFac used to generate challenge links and authenticate users
      */
     constructor(option: IAppOption, securityFac: SecurityManager) {
@@ -89,12 +89,12 @@ export class ChatWebApp {
     }
 
     /**
-     * Generates a challenge link users can visit to authenticate against Zowe ChatBot. This challenge link leads to the 
+     * Generates a challenge link users can visit to authenticate against Zowe ChatBot. This challenge link leads to the
      * Zowe ChatBot Web UI, which is served from the same express application as its REST APIs. After a user successfully logs
-     * in, the challenge link is expired. 
-     * 
+     * in, the challenge link is expired.
+     *
      * @future The challenge link should expire after a period of time, even if the user does not log in.
-     * 
+     *
      * @param user the user who will authenticate against the link
      * @param onDone an action the caller can take after a successful authentication, such as sending a follow up message
      * @returns the fully qualified challenge link
@@ -103,7 +103,7 @@ export class ChatWebApp {
         // Print start log
         logger.start(this.generateChallenge, this);
 
-        // challenge string is base64 encoded - username:email:id:randombytes 
+        // challenge string is base64 encoded - username:email:id:randombytes
         let challengeString = Buffer.from(`${user.name}:${user.email}:${user.id}:${crypto.randomBytes(15).toString('hex')}`).toString('base64');
         this.activeChallenges.set(challengeString, {
             user: user,
@@ -112,7 +112,7 @@ export class ChatWebApp {
 
         let port = this.option.port;
         // if we're in development mode and not serving static elements, use the local react development port
-        if (process.env.NODE_ENV === "development") {
+        if (process.env.NODE_ENV === 'development') {
             port = 3000;
         }
 
@@ -123,9 +123,9 @@ export class ChatWebApp {
     }
 
     /**
-     * Defines Express REST API Routes. 
-     * 
-     * - POST /api/v1/auth/login 
+     * Defines Express REST API Routes.
+     *
+     * - POST /api/v1/auth/login
      *    - used to authenticate a user and requires a valid challenge link as part of the POST body.
      */
     private setApiRoutes() {
@@ -164,8 +164,8 @@ export class ChatWebApp {
             // ZWECC001E: Internal server error: {{error}}
             logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Web app api route set exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
-            logger.debug("Error trying to authenticate user " + req.body.user + ".");
-            logger.debug("Error: " + error);
+            logger.debug('Error trying to authenticate user ' + req.body.user + '.');
+            logger.debug('Error: ' + error);
             res.status(500).send('Interal Server Error');
         } finally {
             // Print end log
@@ -175,7 +175,7 @@ export class ChatWebApp {
 
     /**
      * This function should not be used by most callers. The CommonBot framework requires access to this app.
-     * 
+     *
      * @returns the underlying express application
      */
     getApplication(): Application {
@@ -184,7 +184,7 @@ export class ChatWebApp {
 
     /**
      * Configures and creates the http/https server underlying the express application, and then starts it.
-     * 
+     *
      */
     startServer(): void {
         // Print start log
@@ -232,7 +232,7 @@ export class ChatWebApp {
     }
 
     // TODO: is there a place where port will be NaN and the app should not fail? named pipes?
-    /** 
+    /**
      * Normalize a port into a number, string, or false.
      */
     private normalizePort(val: string) {
@@ -252,7 +252,7 @@ export class ChatWebApp {
     }
 
     /**
-     * Event listener for error event. 
+     * Event listener for error event.
      */
     private onError(port: string | number | boolean) {
         return function (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -284,9 +284,9 @@ export class ChatWebApp {
 
     /**
      * Event listener for listening event
-     * 
-     * @param server 
-     * @returns 
+     *
+     * @param server
+     * @returns
      */
     private onListening(server: https.Server | http.Server) {
         return function () {
@@ -298,9 +298,9 @@ export class ChatWebApp {
 
     /**
      * Sets Cross-Origin-Request-Forgery options for the express server.
-     * 
-     * @returns 
-     * 
+     *
+     * @returns
+     *
      */
     private generateCorsOption(): any {
         // Print start log
@@ -309,9 +309,9 @@ export class ChatWebApp {
         try {
             const whitelist: string[] = [`${this.option.protocol}://${this.option.hostName}`,
             `${this.option.protocol}://${this.option.hostName}:${this.option.port}`];
-    
-            if (process.env.NODE_ENV == "development") {
-                whitelist.push("http://localhost", "http://localhost:3000");
+
+            if (process.env.NODE_ENV == 'development') {
+                whitelist.push('http://localhost', 'http://localhost:3000');
             }
 
             return {
@@ -320,7 +320,7 @@ export class ChatWebApp {
                         callback(null, true);
                     }
                     else {
-                        callback(new Error(origin + "Domain not allowed by CORS"));
+                        callback(new Error(origin + 'Domain not allowed by CORS'));
                     }
                 }
             };

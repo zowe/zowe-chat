@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatContextData, IMessage, IPayloadType } from '@zowe/commonbot';
+import { IChatContextData, IMessage, IPayloadType } from '@zowe/bot';
 import _ from 'lodash';
 import yargs from 'yargs';
 import { ICommand } from '../types';

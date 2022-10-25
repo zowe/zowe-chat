@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatContextData, IMessage } from '@zowe/commonbot';
+import { IChatContextData, IMessage } from '@zowe/bot';
 import { ChatListener } from './ChatListener';
 
 export abstract class ChatEventListener extends ChatListener {

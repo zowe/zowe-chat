@@ -10,11 +10,10 @@
 
 /**
  * This class maintains a global list of environment variables used within Zowe Chat, to simplify tracking and re-use of the
- * populated values. Environment variables may optionally define a default within this list, or define it in calling code which 
+ * populated values. Environment variables may optionally define a default within this list, or define it in calling code which
  * checks whether the environment variable is set. Default values SHOULD NOT be described both here and in calling code.
  */
 export class EnvironmentVariable {
-
     // <Optional> The directory where Zowe Chat server is installed
     //     Priority: process argument > environment variable > default value
     //     Note: default value can't set to process.cwd() due to the process can be started from any folder
@@ -31,7 +30,7 @@ export class EnvironmentVariable {
     // <Optional> The path to the Zowe Chat server log file:
     //     Priority: process argument > environment variable > configuration file > default value
     //     Default value set to null here or else no way to tell whether environment variable is set for it
-    public static ZOWE_CHAT_LOG_FILE_PATH: string = EnvironmentVariable.getStringVariable('ZOWE_CHAT_LOG_FILE_PATH', null); //`${EnvironmentVariable.ZOWE_CHAT_HOME}/log/chatServer.log`);
+    public static ZOWE_CHAT_LOG_FILE_PATH: string = EnvironmentVariable.getStringVariable('ZOWE_CHAT_LOG_FILE_PATH', null);
 
     // <Optional> The level of logging to be used, supported value: `error`,`info`, `warn`, `verbose`, `debug`, `silly`
     //     Priority: process argument > environment variable > configuration file > default value
@@ -50,7 +49,7 @@ export class EnvironmentVariable {
 
     /**
      * Checks process arguments and environment variables for the matching envVar, returns values in that order of precedence.
-     * 
+     *
      * @param envVar the environment variable identifier
      * @param defaultValue optional default value if the environment variable is missing
      * @returns the env value, or the default supplied by caller, or undefined. If the value cannot be converted to a number, returns undefined.
@@ -64,8 +63,7 @@ export class EnvironmentVariable {
             }
             console.debug(`Found command line ${envVar} but no value was supplied as the next arg. Ignoring.`);
             return defaultValue;
-        }
-        else if (process.env[envVar] != null) {
+        } else if (process.env[envVar] != null) {
             console.debug(`Using env ${envVar}=${process.env[envVar]}`);
             return +process.env[envVar];
         }
@@ -74,25 +72,23 @@ export class EnvironmentVariable {
 
     /**
      * Checks process arguments and environment variables for the matching envVar, returns values in that order of precedence.
-     * 
+     *
      * @param envVar the environment variable identifier
      * @param defaultValue optional default value if the environment variable is missing
      * @returns the env value, or the default supplied by caller, or false. If the value cannot be coerced to a boolean, returns false.
      */
     private static getBoolVariable(envVar: string, defaultValue: boolean = false): boolean {
         if (process.argv != null && process.argv.includes(envVar)) {
-            console.debug("Using command line " + envVar + "=true");
+            console.debug('Using command line ' + envVar + '=true');
             return true;
         }
         if (process.env[envVar] != null) {
             const envValue = process.env[envVar].toLowerCase();
-            if (envValue === "true" ||
-                envValue === "1" ||
-                envValue === "yes") {
-                    console.debug("Using env " + envVar + "=true");
+            if (envValue === 'true' || envValue === '1' || envValue === 'yes') {
+                console.debug('Using env ' + envVar + '=true');
                 return true;
             }
-            console.debug("Using env " + envVar + "=false");
+            console.debug('Using env ' + envVar + '=false');
             return false;
         }
         return defaultValue;
@@ -100,7 +96,7 @@ export class EnvironmentVariable {
 
     /**
      * Checks process arguments and environment variables for the matching envVar, returns values in that order of precedence.
-     * 
+     *
      * @param envVar the environment variable identifier
      * @param defaultValue optional default value if the environment variable is missing
      * @returns the env value, or the default supplied by caller, or undefined.
@@ -114,8 +110,7 @@ export class EnvironmentVariable {
             }
             console.debug(`Found command line ${envVar} but no value was supplied as the next arg. Ignoring.`);
             return defaultValue;
-        }
-        else if (process.env[envVar] != null) {
+        } else if (process.env[envVar] != null) {
             console.debug(`Using env ${envVar}=${process.env[envVar]}`);
             return process.env[envVar];
         }
