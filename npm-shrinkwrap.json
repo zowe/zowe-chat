@@ -6549,6 +6549,15 @@
             "resolved": "packages/zos",
             "link": true
         },
+        "node_modules/@zowe/zos-console-for-zowe-sdk": {
+            "version": "7.7.0",
+            "resolved": "https://registry.npmjs.org/@zowe/zos-console-for-zowe-sdk/-/zos-console-for-zowe-sdk-7.7.0.tgz",
+            "integrity": "sha512-jLruA3o8ctgZm23FaWxUv8bI2uT5OYZjcc5UyZSr3LBat7oz6OGpqEt2AHc1TjqrpF5CED4PHo4ST28VEu+dFQ==",
+            "peerDependencies": {
+                "@zowe/core-for-zowe-sdk": "^7.0.0",
+                "@zowe/imperative": "^5.0.0"
+            }
+        },
         "node_modules/@zowe/zos-files-for-zowe-sdk": {
             "version": "7.7.0",
             "resolved": "https://registry.npmjs.org/@zowe/zos-files-for-zowe-sdk/-/zos-files-for-zowe-sdk-7.7.0.tgz",
@@ -32746,9 +32755,10 @@
             "version": "1.0.0",
             "license": "EPL-2.0",
             "dependencies": {
-                "@zowe/core-for-zowe-sdk": "^7.7.0",
-                "@zowe/zos-jobs-for-zowe-sdk": "^7.7.0",
-                "@zowe/zosmf-for-zowe-sdk": "^7.7.0"
+                "@zowe/core-for-zowe-sdk": "^7.2.2",
+                "@zowe/zos-console-for-zowe-sdk": "^7.2.2",
+                "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
+                "@zowe/zosmf-for-zowe-sdk": "^7.2.2"
             },
             "devDependencies": {
                 "@types/node": ">=18.11.3",
@@ -37552,9 +37562,10 @@
                 "@types/node": ">=18.11.3",
                 "@typescript-eslint/eslint-plugin": ">=5.40.1",
                 "@typescript-eslint/parser": ">=5.40.1",
-                "@zowe/core-for-zowe-sdk": "^7.7.0",
-                "@zowe/zos-jobs-for-zowe-sdk": "^7.7.0",
-                "@zowe/zosmf-for-zowe-sdk": "^7.7.0",
+                "@zowe/core-for-zowe-sdk": "^7.2.2",
+                "@zowe/zos-console-for-zowe-sdk": "^7.2.2",
+                "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
+                "@zowe/zosmf-for-zowe-sdk": "^7.2.2",
                 "eslint": ">=8.26.0",
                 "eslint-config-google": ">=0.14.0",
                 "eslint-plugin-header": "^3.1.1",
