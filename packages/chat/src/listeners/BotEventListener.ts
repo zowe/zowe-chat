@@ -12,7 +12,7 @@ import { IChatListenerRegistryEntry, IEventListener } from '../types';
 
 import _ = require('lodash');
 
-import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/commonbot';
+import { IActionType, IChatContextData, IEvent, IMessageType, IPayloadType } from '@zowe/bot';
 import { ChatWebApp } from '../bot/ChatWebApp';
 import { SecurityManager } from '../security/SecurityManager';
 import { config } from '../settings/Config';
