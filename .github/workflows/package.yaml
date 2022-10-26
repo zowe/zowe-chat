@@ -1,6 +1,8 @@
-name: zowe-chat-package
+name: Zowe Chat Package
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
     inputs:
       create_pax:
