@@ -32,7 +32,7 @@ class ZoweCliCommandMattermostView extends ChatMattermostView {
                     props: {
                         attachments: [
                             {
-                                pretext: i18next.t('zowe.execution', { executorName: executor.name, ns: 'ClicmdMessage' }),
+                                pretext: i18next.t('command.zowe.execution', { executorName: executor.name, ns: 'ClicmdMessage' }),
                                 fields: [{
                                     short: false,
                                     value: '```\n' + commandOutput + '\n```',
