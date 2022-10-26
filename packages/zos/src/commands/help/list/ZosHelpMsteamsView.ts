@@ -29,7 +29,8 @@ class ZosHelpMsteamsView extends ChatMsteamsView {
                 type: IMessageType.PLAIN_TEXT,
                 message: i18next.t('common.data.foundCommands', {
                     executor: executor.name,
-                    documentUrl: `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}](${super.getDocumentationBaseURL()}/TODO})`,
+                    documentUrl: `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}]`
+                        + `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos)`,
                     ns: 'ZosMessage',
                     interpolation: { escapeValue: false } }),
             });
@@ -54,7 +55,7 @@ class ZosHelpMsteamsView extends ChatMsteamsView {
                     cardObject.body.push(
                             {
                                 'type': 'TextBlock',
-                                'text': `**[${key}](${super.getDocumentationBaseURL()}/TODO/topic=commands-${key})** `
+                                'text': `**[${key}](${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${key}/${key})** `
                                     + `${commandHelpObj[key].description}`,
                                 'wrap': true,
                             });
@@ -123,7 +124,7 @@ class ZosHelpMsteamsView extends ChatMsteamsView {
             for (const key in commandHelpObj.example) {
                 if (Object.prototype.hasOwnProperty.call(commandHelpObj.example, key)) {
                     examples = examples + `- **@${this.botOption.chatTool.option.botUserName} ${key.replace(/\*/g, '\\*')}** `
-                            + `$commandHelpObj.example[key]} \r`;
+                            + `${commandHelpObj.example[key]} \r`;
                 }
             }
 
@@ -163,7 +164,8 @@ class ZosHelpMsteamsView extends ChatMsteamsView {
                 type: IMessageType.PLAIN_TEXT,
                 message: i18next.t('common.data.foundCommandDetail', {
                     executor: executor.name,
-                    documentUrl: `[${i18next.t('command.help.list.detail.here', { ns: 'ZosMessage' })}](${super.getDocumentationBaseURL()}/TODO})`,
+                    documentUrl: `[${i18next.t('command.help.list.detail.here', { ns: 'ZosMessage' })}]`
+                        + `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${commandResource}/${commandResource})`,
                     ns: 'ZosMessage',
                     interpolation: { escapeValue: false } }),
             });

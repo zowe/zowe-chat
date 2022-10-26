@@ -53,9 +53,17 @@ class ZosDatasetMsteamsView extends ChatMsteamsView {
 
             const detailOptions = [];
             for (const dataset of datasets) {
+                let icon = String.fromCodePoint(0x1F4C3);
+                if (dataset.dsorg
+                    && (dataset.dsorg === 'PO'
+                        || dataset.dsorg === 'POU'
+                        || dataset.dsorg === 'PO-E')) {
+                    icon = String.fromCodePoint(0x1F5C2);
+                }
+
                 // Add column set
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:** ${dataset.dsname}`,
+                        `${icon} **${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:** ${dataset.dsname}`,
                         `**${i18next.t('command.dataset.list.status.organization', { ns: 'ZosMessage' })}:** ${dataset.dsorg ? dataset.dsorg : ''}`,
                         true));
                 cardObject.body.push(super.createColumnSet(
@@ -154,7 +162,7 @@ class ZosDatasetMsteamsView extends ChatMsteamsView {
                     false));
             cardObject.body.push(super.createColumnSet(
                     `**${i18next.t('command.dataset.list.detail.usedExtents', { ns: 'ZosMessage' })}:** ${dataset.extx ? dataset.extx : ''}`,
-                    `**${i18next.t('command.dataset.list.detail.multivolume', { ns: 'ZosMessage' })}:** ${dataset.mvol ? dataset.mvol : ''}`,
+                    `**${i18next.t('command.dataset.list.detail.multiVolume', { ns: 'ZosMessage' })}:** ${dataset.mvol ? dataset.mvol : ''}`,
                     false));
             cardObject.body.push(super.createColumnSet(
                     `**${i18next.t('command.dataset.list.detail.recordFormat', { ns: 'ZosMessage' })}:** ${dataset.recfm ? dataset.recfm : ''}`,
@@ -248,7 +256,7 @@ class ZosDatasetMsteamsView extends ChatMsteamsView {
             // Add column set
             for (const member of members) {
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.dataset.list.member.name', { ns: 'ZosMessage' })}:** ${member.member}`,
+                        `${String.fromCodePoint(0x1F4C3)} **${i18next.t('command.dataset.list.member.name', { ns: 'ZosMessage' })}:** ${member.member}`,
                         '',
                         true));
 
@@ -338,15 +346,16 @@ class ZosDatasetMsteamsView extends ChatMsteamsView {
                     true));
             cardObject.body.push(super.createColumnSet(
                     `**${i18next.t('command.dataset.list.memberDetail.creationTime', { ns: 'ZosMessage' })}:** ${member.ec4datextx ? member.ec4datextx : ''}`,
-                    `**${i18next.t('command.dataset.list.memberDetail.modificationTime', { ns: 'ZosMessage' })}:** ${member.m4date ? member.m4date : ''}`,
+                    `**${i18next.t('command.dataset.list.memberDetail.modificationDate', { ns: 'ZosMessage' })}:** ${member.m4date ? member.m4date : ''}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.dataset.list.memberDetail.cnorc', { ns: 'ZosMessage' })}:** ${member.cnorc ? member.cnorc : ''}`,
-                    `**${i18next.t('command.dataset.list.memberDetail.inorc', { ns: 'ZosMessage' })}:** ${member.inorc ? member.inorc : ''}`,
+                    `**${i18next.t('command.dataset.list.memberDetail.currentRecords', { ns: 'ZosMessage' })}:** ${member.cnorc ? member.cnorc : ''}`,
+                    `**${i18next.t('command.dataset.list.memberDetail.initialRecords', { ns: 'ZosMessage' })}:** ${member.inorc ? member.inorc : ''}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.dataset.list.memberDetail.mnorc', { ns: 'ZosMessage' })}:** ${member.mnorc !==undefined ? member.mnorc : ''}`,
-                    `**${i18next.t('command.dataset.list.memberDetail.mtime', { ns: 'ZosMessage' })}:** ${member.mtime ? member.mtime : ''}`,
+                    `**${i18next.t('command.dataset.list.memberDetail.changedRecords', { ns: 'ZosMessage' })}:** `
+                        + `${member.mnorc !== undefined ? member.mnorc : ''}`,
+                    `**${i18next.t('command.dataset.list.memberDetail.modificationTime', { ns: 'ZosMessage' })}:** ${member.mtime ? member.mtime : ''}`,
                     false));
             cardObject.body.push(super.createColumnSet(
                     `**${i18next.t('command.dataset.list.memberDetail.user', { ns: 'ZosMessage' })}:** ${member.user ? member.user : ''}`,

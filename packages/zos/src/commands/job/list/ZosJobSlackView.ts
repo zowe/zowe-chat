@@ -81,7 +81,7 @@ export class ZosJobSlackView extends ChatSlackView {
                         },
                         {
                             'type': 'mrkdwn',
-                            'text': `*${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}:* ${job.status}`,
+                            'text': `*${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}:* ${this.getJobStatusIcon(job.status)}`,
                         },
                         {
                             'type': 'mrkdwn',
@@ -208,7 +208,7 @@ export class ZosJobSlackView extends ChatSlackView {
                     },
                     {
                         'type': 'mrkdwn',
-                        'text': `*${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}:* ${job.status}`,
+                        'text': `*${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}:* ${this.getJobStatusIcon(job.status)}`,
                     },
                     {
                         'type': 'mrkdwn',
@@ -294,6 +294,19 @@ export class ZosJobSlackView extends ChatSlackView {
             // Print end log
             logger.end(this.getDetail);
         }
+    }
+
+    // Get job status with Icon
+    getJobStatusIcon(statusValue: string): string {
+        let status: string = statusValue;
+        if ('ACTIVE' === statusValue.toUpperCase()) {
+            status = `:beginner: ${statusValue}`;
+        } else if ('INPUT' === statusValue.toUpperCase()) {
+            status = `:inbox_tray: ${statusValue}`;
+        } else if ('OUTPUT' === statusValue.toUpperCase()) {
+            status = `:outbox_tray: ${statusValue}`;
+        }
+        return status;
     }
 }
 

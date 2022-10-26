@@ -26,6 +26,6 @@ export class ChatView {
 
     // Get Zowe Chat Documentation Base URL
     getDocumentationBaseURL(): string {
-        return 'https://docs.zowe.org/stable/user-guide/';
+        return 'https://docs.zowe.org/stable/user-guide/zowe-chat';
     }
 }

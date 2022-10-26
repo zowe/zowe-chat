@@ -58,7 +58,7 @@ export class ZosJobMsteamsView extends ChatMsteamsView {
             for (job of jobs) {
                 // Add column set
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.job.list.status.name', { ns: 'ZosMessage' })}:** ${job.jobname}`,
+                        `${String.fromCodePoint(0x1F4C7)} **${i18next.t('command.job.list.status.name', { ns: 'ZosMessage' })}:** ${job.jobname}`,
                         `**${i18next.t('command.job.list.status.id', { ns: 'ZosMessage' })}:** ${job.jobid}`,
                         true));
                 cardObject.body.push(super.createColumnSet(
@@ -66,7 +66,7 @@ export class ZosJobMsteamsView extends ChatMsteamsView {
                         `**${i18next.t('command.job.list.status.subSystem', { ns: 'ZosMessage' })}:** ${job.subsystem}`,
                         false));
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}:** ${job.status}`,
+                        `**${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}:** ${this.getJobStatusIcon(job.status)}`,
                         `**${i18next.t('command.job.list.status.type', { ns: 'ZosMessage' })}:** ${job.type}`,
                         false));
                 cardObject.body.push(super.createColumnSet(
@@ -151,7 +151,7 @@ export class ZosJobMsteamsView extends ChatMsteamsView {
                     true));
             cardObject.body.push(super.createColumnSet(
                     `**${i18next.t('command.job.list.detail.subSystem', { ns: 'ZosMessage' })}:** ${job.subsystem}`,
-                    `**${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}:** ${job.status}`,
+                    `**${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}:** ${this.getJobStatusIcon(job.status)}`,
                     false));
             cardObject.body.push(super.createColumnSet(
                     `**${i18next.t('command.job.list.detail.type', { ns: 'ZosMessage' })}**: ${job.type}`,
@@ -202,5 +202,18 @@ export class ZosJobMsteamsView extends ChatMsteamsView {
             // Print end log
             logger.end(this.getDetail);
         }
+    }
+
+    // Get job status with Icon
+    getJobStatusIcon(statusValue: string): string {
+        let status: string = statusValue;
+        if ('ACTIVE' === statusValue.toUpperCase()) {
+            status = `${String.fromCodePoint(0x1F530)} ${statusValue}`;
+        } else if ('INPUT' === statusValue.toUpperCase()) {
+            status = `${String.fromCodePoint(0x1F4E5)} ${statusValue}`;
+        } else if ('OUTPUT' === statusValue.toUpperCase()) {
+            status = `${String.fromCodePoint(0x1F4E4)} ${statusValue}`;
+        }
+        return status;
     }
 }
