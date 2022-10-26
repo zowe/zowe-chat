@@ -73,7 +73,9 @@
                     "type": "Data Set Type",
                     "logicalRecordLength": "Logical Record Length",
                     "detailDropDownPlaceholder": "View Attributes of A Dataset",
-                    "buttonTitle": "View Attributes"
+                    "buttonTitle": "View Attributes",
+                    "memberDropDownPlaceholder": "List Members for A Dataset",
+                    "memberButtonTitle": "List Members"
                 },
                 "detail": {
                     "resourceName": "data set",

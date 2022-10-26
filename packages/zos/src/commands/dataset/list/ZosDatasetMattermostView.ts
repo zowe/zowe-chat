@@ -44,17 +44,18 @@ class ZosDatasetMattermostView extends ChatMattermostView {
             // Create fields array within attachment.
             const fields = [];
             const detailOptions = [];
+            const memberOptions = [];
             for (const dataset of datasets) {
-                let icon = ':page_with_curl:';
+                let isPartitioned: boolean = false;
                 if (dataset.dsorg
                     && (dataset.dsorg === 'PO'
                         || dataset.dsorg === 'POU'
                         || dataset.dsorg === 'PO-E')) {
-                    icon = ':card_index_dividers:';
+                    isPartitioned = true;
                 }
                 fields.push({
                     short: true,
-                    value: `${icon} **${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:** ${dataset.dsname}`,
+                    value: `${ isPartitioned === true ? ':card_index_dividers:' : ':page_with_curl:'} **${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:** ${dataset.dsname}`,
                 },
                 {
                     short: true,
@@ -78,6 +79,13 @@ class ZosDatasetMattermostView extends ChatMattermostView {
                     'text': `${dataset.dsname}`,
                     'value': `@${this.botOption.chatTool.option.botUserName}:zos:dataset:list:status:${dataset.dsname}`,
                 });
+
+                if (isPartitioned === true) {
+                    memberOptions.push({
+                        'text': `${dataset.dsname}`,
+                        'value': `@${this.botOption.chatTool.option.botUserName}:zos:dataset:list:member::dn=${dataset.dsname}`,
+                    });
+                }
             }
 
             // Add action
@@ -89,6 +97,8 @@ class ZosDatasetMattermostView extends ChatMattermostView {
             };
             super.addMenuAction(actions, i18next.t('command.dataset.list.status.detailDropDownPlaceholder', { ns: 'ZosMessage' }),
                     contextData, detailOptions);
+            super.addMenuAction(actions, i18next.t('command.dataset.list.status.memberDropDownPlaceholder', { ns: 'ZosMessage' }),
+                    contextData, memberOptions);
 
             // Create message attachments
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

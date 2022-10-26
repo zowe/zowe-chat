@@ -3,11 +3,9 @@
 botUserName: zowechat
 
 # Specify the signing secret of your chatbot Slack app
-# The secret will be encrypted automatically by Z ChatOps server with <AES> prefix added.
 signingSecret: <Your slack signing secret>
 
 # Specify the bot user OAuth token of your chatbot Slack app
-# The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
 token: <Your bot user oauth token>
 
 # Specify the protocol to connect to Slack for your chatbot Slack app to receive app payloads.
@@ -20,7 +18,6 @@ socketMode: # Configure the private WebSocket for Slack to communicate with your
   enabled: true
 
   # Specify the app level token of your chatbot Slack app.
-  # The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
   appToken: <Your app level token>
 
 # Configure the messaging application which Slack will communicate with when some user clicking actions occur.
