@@ -22,7 +22,7 @@ on:
         type: boolean
 
 jobs:
-  release:
+  package:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 

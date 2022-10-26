@@ -10,7 +10,7 @@ export function LoginPage() {
     let auth = useAuth();
     let alertState;
     let loginForm;
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
 
     // @ts-ignore - the 'state' is type unknown which typescript complains about
     let from = location.state?.from?.pathname || "/";
@@ -49,7 +49,7 @@ export function LoginPage() {
 
         let loginHash = searchParams.get('__key');
 
-        if (loginHash == undefined || loginHash.trim().length == 0) {
+        if (loginHash === undefined || loginHash.trim().length === 0) {
             loginHint = <Alert severity="warning">You are logging in without being sent here by Zowe ChatBot. Please use a link provided by the Bot.</Alert>;
         }
         else {
