@@ -38,8 +38,9 @@ class ZosHelpMattermostView extends ChatMattermostView {
                     }
 
                     // Add each command resource and command description
-                    helpInfoText = helpInfoText + `**[${key}](${super.getDocumentationBaseURL()}/TODO/topic=commands-${key})**  `
-                                + `${commandHelpObj[key].description} \n`;
+                    helpInfoText = helpInfoText + `**[${key}](${super.getDocumentationBaseURL()}/`
+                            + `zowe-chat-command-reference/zos/${key}/${key})**  `
+                            + `${commandHelpObj[key].description} \n`;
 
                     // Create options for command details select menu
                     detailOptions.push({
@@ -66,7 +67,8 @@ class ZosHelpMattermostView extends ChatMattermostView {
                         {
                             pretext: i18next.t('common.data.foundCommands', {
                                 executor: executor.name,
-                                documentUrl: `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}](${super.getDocumentationBaseURL()}/TODO})`,
+                                documentUrl: `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}]`
+                                        + `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos)`,
                                 ns: 'ZosMessage',
                                 interpolation: { escapeValue: false } }),
                             fields: [
@@ -135,7 +137,9 @@ class ZosHelpMattermostView extends ChatMattermostView {
                         {
                             pretext: i18next.t('common.data.foundCommandDetail', {
                                 executor: executor.name,
-                                documentUrl: `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}](${super.getDocumentationBaseURL()}/TODO)`,
+                                documentUrl: `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}]`
+                                    + `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/`
+                                    + `${command.scope}/${commandResource}/${commandResource})`,
                                 ns: 'ZosMessage',
                                 interpolation: { escapeValue: false } }),
                             fields: [

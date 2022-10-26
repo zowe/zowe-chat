@@ -9,7 +9,7 @@
 */
 
 import i18next from 'i18next';
-import {logger, IMessage, IMessageType, IExecutor, ChatMsteamsView, IBotOption, IMsteamsBotLimit, ICommand} from '@zowe/chat';
+import { logger, IMessage, IMessageType, IExecutor, ChatMsteamsView, IBotOption, IMsteamsBotLimit, ICommand } from '@zowe/chat';
 
 class ZosFileMsteamsView extends ChatMsteamsView {
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
@@ -29,12 +29,13 @@ class ZosFileMsteamsView extends ChatMsteamsView {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: i18next.t('common.data.foundZero',
-                            {executor: executor.name, resourceName: i18next.t('command.file.list.status.resourceName', {ns: 'ZosMessage'}), ns: 'ZosMessage'}),
+                            { executor: executor.name, resourceName: i18next.t('command.file.list.status.resourceName',
+                                    { ns: 'ZosMessage' }), ns: 'ZosMessage' }),
                 }];
             } else {
                 // TODO: Think about what message should be when  too many files are searched, if files.length > limit.
                 headerMessage = headerMessage = i18next.t('common.data.foundMoreThanOne',
-                        {executor: executor.name, resourceName: i18next.t('command.file.list.status.resourceName', {ns: 'ZosMessage'}), ns: 'ZosMessage'});
+                        { executor: executor.name, resourceName: i18next.t('command.file.list.status.resourceName', { ns: 'ZosMessage' }), ns: 'ZosMessage' });
             }
 
             // Add header message to messages.
@@ -48,21 +49,22 @@ class ZosFileMsteamsView extends ChatMsteamsView {
             const cardObject: Record<string, any> = super.createEmptyAdaptiveCard();
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            // let file: Record<string, any>;
+            let file: Record<string, any>;
             const detailOptions = [];
-            for (const file of files) {
+            for (file of files) {
                 if (file.name === '.' || file.name === '..') { // Ignore current and parent directory.
                     continue;
                 }
 
                 // Add column set
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.file.list.status.name', {ns: 'ZosMessage'})}:** ${file.name}`,
-                        `**${i18next.t('command.file.list.status.owner', {ns: 'ZosMessage'})}:** ${file.user}`,
+                        `${file.mode.startsWith('d') ? String.fromCodePoint(0x1F4C1) : String.fromCodePoint(0x1F4C4)}** `
+                            + `${i18next.t('command.file.list.status.name', { ns: 'ZosMessage' })}:** ${file.name}`,
+                        `**${i18next.t('command.file.list.status.owner', { ns: 'ZosMessage' })}:** ${file.user}`,
                         true));
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.file.list.status.mode', {ns: 'ZosMessage'})}:** ${file.mode}`,
-                        `**${i18next.t('command.file.list.status.size', {ns: 'ZosMessage'})}:** ${file.size}`,
+                        `**${i18next.t('command.file.list.status.mode', { ns: 'ZosMessage' })}:** ${file.mode}`,
+                        `**${i18next.t('command.file.list.status.size', { ns: 'ZosMessage' })}:** ${file.size}`,
                         false));
 
                 // Create option array for detail dropdown.
@@ -82,8 +84,8 @@ class ZosFileMsteamsView extends ChatMsteamsView {
             const dropdownDataObj = {
                 'pluginId': command.extraData.chatPlugin.package,
                 'id': 'showFileDetails',
-                'title': i18next.t('command.file.list.status.buttonTitle', {ns: 'ZosMessage'}),
-                'placeholder': i18next.t('command.file.list.status.detailDropDownPlaceholder', {ns: 'ZosMessage'}),
+                'title': i18next.t('command.file.list.status.buttonTitle', { ns: 'ZosMessage' }),
+                'placeholder': i18next.t('command.file.list.status.detailDropDownPlaceholder', { ns: 'ZosMessage' }),
                 'choices': detailOptions,
                 'separator': true,
                 'token': '',
@@ -101,7 +103,7 @@ class ZosFileMsteamsView extends ChatMsteamsView {
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18next.t('common.error.internal', {ns: 'ZosMessage'}),
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log
@@ -123,15 +125,16 @@ class ZosFileMsteamsView extends ChatMsteamsView {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: i18next.t('common.data.foundZero',
-                            {executor: executor.name, resourceName: i18next.t('command.file.list.detail.resourceName', {ns: 'ZosMessage'}), ns: 'ZosMessage'}),
+                            { executor: executor.name, resourceName: i18next.t('command.file.list.detail.resourceName',
+                                    { ns: 'ZosMessage' }), ns: 'ZosMessage' }),
                 }];
             }
             // Get file
             const file: Record<string, string| number> = files[0];
             // const isDirectory = (String)(file.mode).startsWith('d') ? true : false;
             headerMessage = i18next.t('common.data.foundOne',
-                    {executor: executor.name, resourceName: i18next.t('command.file.list.detail.resourceName', {ns: 'ZosMessage'}),
-                        ns: 'ZosMessage'});
+                    { executor: executor.name, resourceName: i18next.t('command.file.list.detail.resourceName', { ns: 'ZosMessage' }),
+                        ns: 'ZosMessage' });
 
             // Add header message to messages.
             messages.push({
@@ -145,26 +148,26 @@ class ZosFileMsteamsView extends ChatMsteamsView {
             // Add details Text Block
             cardObject.body.push({
                 'type': 'TextBlock',
-                'text': `**${i18next.t('command.file.list.detail.details', {ns: 'ZosMessage'})}${file.name}**`,
+                'text': `**${i18next.t('command.file.list.detail.details', { ns: 'ZosMessage' })}${file.name}**`,
                 'wrap': true,
                 'separator': false,
             });
             // Add column set
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.detail.owner', {ns: 'ZosMessage'})}:** ${file.user}`,
-                    `**${i18next.t('command.file.list.detail.mode', {ns: 'ZosMessage'})}:** ${file.mode}`,
+                    `**${i18next.t('command.file.list.detail.owner', { ns: 'ZosMessage' })}:** ${file.user}`,
+                    `**${i18next.t('command.file.list.detail.mode', { ns: 'ZosMessage' })}:** ${file.mode}`,
                     true));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.detail.size', {ns: 'ZosMessage'})}:** ${file.size}`,
-                    `**${i18next.t('command.file.list.detail.modification', {ns: 'ZosMessage'})}**: ${file.mtime}`,
+                    `**${i18next.t('command.file.list.detail.size', { ns: 'ZosMessage' })}:** ${file.size}`,
+                    `**${i18next.t('command.file.list.detail.modification', { ns: 'ZosMessage' })}**: ${file.mtime}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.detail.user', {ns: 'ZosMessage'})}:** ${file.user}`,
-                    `**${i18next.t('command.file.list.detail.userId', {ns: 'ZosMessage'})}**: ${file.uid}`,
+                    `**${i18next.t('command.file.list.detail.user', { ns: 'ZosMessage' })}:** ${file.user}`,
+                    `**${i18next.t('command.file.list.detail.userId', { ns: 'ZosMessage' })}**: ${file.uid}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.detail.group', {ns: 'ZosMessage'})}:** ${file.group}`,
-                    `**${i18next.t('command.file.list.detail.groupId', {ns: 'ZosMessage'})}**: ${file.gid}`,
+                    `**${i18next.t('command.file.list.detail.group', { ns: 'ZosMessage' })}:** ${file.group}`,
+                    `**${i18next.t('command.file.list.detail.groupId', { ns: 'ZosMessage' })}**: ${file.gid}`,
                     false));
 
             messages.push({
@@ -177,7 +180,7 @@ class ZosFileMsteamsView extends ChatMsteamsView {
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18next.t('common.error.internal', {ns: 'ZosMessage'}),
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log
@@ -198,12 +201,13 @@ class ZosFileMsteamsView extends ChatMsteamsView {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: i18next.t('common.data.foundZero',
-                            {executor: executor.name, resourceName: i18next.t('command.file.list.mounts.resourceName', {ns: 'ZosMessage'}), ns: 'ZosMessage'}),
+                            { executor: executor.name, resourceName: i18next.t('command.file.list.mounts.resourceName',
+                                    { ns: 'ZosMessage' }), ns: 'ZosMessage' }),
                 }];
             } else {
                 // TODO: Think about what message should be when  too many file systems are searched, if fileSystems.length > limit.
                 headerMessage = headerMessage = i18next.t('common.data.foundMoreThanOne',
-                        {executor: executor.name, resourceName: i18next.t('command.file.list.mounts.resourceName', {ns: 'ZosMessage'}), ns: 'ZosMessage'});
+                        { executor: executor.name, resourceName: i18next.t('command.file.list.mounts.resourceName', { ns: 'ZosMessage' }), ns: 'ZosMessage' });
             }
 
             // Add header message to messages.
@@ -221,11 +225,11 @@ class ZosFileMsteamsView extends ChatMsteamsView {
             for (const fileSystem of fileSystems) {
                 // Add column set
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.file.list.mounts.name', {ns: 'ZosMessage'})}:** ${fileSystem.name}`,
-                        `**${i18next.t('command.file.list.mounts.mountPoint', {ns: 'ZosMessage'})}:** ${fileSystem.mountpoint}`,
+                        `${String.fromCodePoint(0x1F4C4)} **${i18next.t('command.file.list.mounts.name', { ns: 'ZosMessage' })}:** ${fileSystem.name}`,
+                        `**${i18next.t('command.file.list.mounts.mountPoint', { ns: 'ZosMessage' })}:** ${fileSystem.mountpoint}`,
                         true));
                 cardObject.body.push(super.createColumnSet(
-                        `**${i18next.t('command.file.list.mounts.mode', {ns: 'ZosMessage'})}:** ${fileSystem.mode}`,
+                        `**${i18next.t('command.file.list.mounts.mode', { ns: 'ZosMessage' })}:** ${fileSystem.mode}`,
                         '',
                         false));
 
@@ -240,8 +244,8 @@ class ZosFileMsteamsView extends ChatMsteamsView {
             const dropdownDataObj = {
                 'pluginId': command.extraData.chatPlugin.package,
                 'id': 'showMountsDetails',
-                'title': i18next.t('command.file.list.mounts.buttonTitle', {ns: 'ZosMessage'}),
-                'placeholder': i18next.t('command.file.list.mounts.detailDropDownPlaceholder', {ns: 'ZosMessage'}),
+                'title': i18next.t('command.file.list.mounts.buttonTitle', { ns: 'ZosMessage' }),
+                'placeholder': i18next.t('command.file.list.mounts.detailDropDownPlaceholder', { ns: 'ZosMessage' }),
                 'choices': detailOptions,
                 'separator': true,
                 'token': '',
@@ -259,7 +263,7 @@ class ZosFileMsteamsView extends ChatMsteamsView {
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18next.t('common.error.internal', {ns: 'ZosMessage'}),
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log
@@ -281,15 +285,15 @@ class ZosFileMsteamsView extends ChatMsteamsView {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: i18next.t('common.data.foundZero',
-                            {executor: executor.name, resourceName: i18next.t('command.file.list.mountsDetail.resourceName', {ns: 'ZosMessage'}),
-                                ns: 'ZosMessage'}),
+                            { executor: executor.name, resourceName: i18next.t('command.file.list.mountsDetail.resourceName', { ns: 'ZosMessage' }),
+                                ns: 'ZosMessage' }),
                 }];
             }
             // Get mounts
             const fileSystem = fileSystems[0];
             headerMessage = headerMessage = headerMessage = i18next.t('common.data.foundOne',
-                    {executor: executor.name, resourceName: i18next.t('command.file.list.mountsDetail.resourceName', {ns: 'ZosMessage'}),
-                        ns: 'ZosMessage'});
+                    { executor: executor.name, resourceName: i18next.t('command.file.list.mountsDetail.resourceName', { ns: 'ZosMessage' }),
+                        ns: 'ZosMessage' });
 
             // Add header message to messages.
             messages.push({
@@ -303,34 +307,35 @@ class ZosFileMsteamsView extends ChatMsteamsView {
             // Add details Text Block
             cardObject.body.push({
                 'type': 'TextBlock',
-                'text': `**${i18next.t('command.file.list.mountsDetail.details', {ns: 'ZosMessage'})}${fileSystem.name}**`,
+                'text': `**${i18next.t('command.file.list.mountsDetail.details', { ns: 'ZosMessage' })}${fileSystem.name}**`,
                 'wrap': true,
                 'separator': false,
             });
 
             // Add column set
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.mountsDetail.mountPoint', {ns: 'ZosMessage'})}:** ${fileSystem.mountpoint}`,
-                    `**${i18next.t('command.file.list.mountsDetail.mode', {ns: 'ZosMessage'})}:** ${fileSystem.mode}`,
+                    `${String.fromCodePoint(0x1F4C4)}**${i18next.t('command.file.list.mountsDetail.mountPoint',
+                            { ns: 'ZosMessage' })}:** ${fileSystem.mountpoint}`,
+                    `**${i18next.t('command.file.list.mountsDetail.mode', { ns: 'ZosMessage' })}:** ${fileSystem.mode}`,
                     true));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.mountsDetail.type', {ns: 'ZosMessage'})}:** ${fileSystem.fstname}`,
-                    `**${i18next.t('command.file.list.mountsDetail.status', {ns: 'ZosMessage'})}**: ${fileSystem.status}`,
+                    `**${i18next.t('command.file.list.mountsDetail.type', { ns: 'ZosMessage' })}:** ${fileSystem.fstname}`,
+                    `**${i18next.t('command.file.list.mountsDetail.status', { ns: 'ZosMessage' })}**: ${fileSystem.status}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.mountsDetail.blockSize', {ns: 'ZosMessage'})}:** ${fileSystem.bsize}`,
-                    `**${i18next.t('command.file.list.mountsDetail.blockAvailable', {ns: 'ZosMessage'})}**: ${fileSystem.bavail}`,
+                    `**${i18next.t('command.file.list.mountsDetail.blockSize', { ns: 'ZosMessage' })}:** ${fileSystem.bsize}`,
+                    `**${i18next.t('command.file.list.mountsDetail.blockAvailable', { ns: 'ZosMessage' })}**: ${fileSystem.bavail}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.mountsDetail.totalBlocks', {ns: 'ZosMessage'})}:** ${fileSystem.blocks}`,
-                    `**${i18next.t('command.file.list.mountsDetail.systemName', {ns: 'ZosMessage'})}**: ${fileSystem.sysname}`,
+                    `**${i18next.t('command.file.list.mountsDetail.totalBlocks', { ns: 'ZosMessage' })}:** ${fileSystem.blocks}`,
+                    `**${i18next.t('command.file.list.mountsDetail.systemName', { ns: 'ZosMessage' })}**: ${fileSystem.sysname}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.mountsDetail.readibc', {ns: 'ZosMessage'})}:** ${fileSystem.readibc}`,
-                    `**${i18next.t('command.file.list.mountsDetail.writeibc', {ns: 'ZosMessage'})}**: ${fileSystem.writeibc}`,
+                    `**${i18next.t('command.file.list.mountsDetail.readibc', { ns: 'ZosMessage' })}:** ${fileSystem.readibc}`,
+                    `**${i18next.t('command.file.list.mountsDetail.writeibc', { ns: 'ZosMessage' })}**: ${fileSystem.writeibc}`,
                     false));
             cardObject.body.push(super.createColumnSet(
-                    `**${i18next.t('command.file.list.mountsDetail.diribc', {ns: 'ZosMessage'})}:** ${fileSystem.diribc}`,
+                    `**${i18next.t('command.file.list.mountsDetail.diribc', { ns: 'ZosMessage' })}:** ${fileSystem.diribc}`,
                     '',
                     false));
 
@@ -344,7 +349,7 @@ class ZosFileMsteamsView extends ChatMsteamsView {
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18next.t('common.error.internal', {ns: 'ZosMessage'}),
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log

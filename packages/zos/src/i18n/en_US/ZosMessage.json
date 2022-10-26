@@ -1,20 +1,19 @@
 {
     "common": {
         "error": {
-            "internal": "Internal error.",
-            "unsupportedChatTool": "Unsupported chat tool: {{type}}",
+            "internal": "Oops! An internal error occurred.",
+            "unsupportedChatTool": "ops! The chat tool {{type}}is not supported. Please try Slack, Mattermost, or Teams.",
             "unknown": {
-                "resource": "Unknown command resource: {{resource}}.",
-                "verb": "Unknown command verb: {{verb}}.",
-                "object": "Unknown command object: {{object}}."
+                "resource": "mmm... I don't understand the resource {{resource}}.",
+                "verb": "Hmmm... I don't understand the action {{verb}}.",
+                "object": "Hmmm... I don't understand the object {{object}}."
             },
             "missing": {
-                "Option": "Missing required option {{optionName}}.",
-                "argument": "Missing positional argument {{argumentName}}.",
-                "argumentOrOption": "Missing positional argument {{argumentName}} or option {{optionName}}."
+                "Option": "Hmmm…Seems that a required option {{optionName}} is missing.",
+                "argumentOrOption": "Sorry, I cannot find the results for you. Please enter at least one positional argument or option to try again."
             },
             "invalid": {
-                "format": "Invalid format for option {{optionName}}."
+                "format": "Oops! Seems that the {{optionName}} format is invalid."
             }
         },
         "data": {
@@ -86,7 +85,7 @@
                     "type": "Data Set Type",
                     "usedExtents": "Used Extents",
                     "logicalRecordLength": "Logical Record Length",
-                    "multivolume": "Date Set MultiVolume",
+                    "multiVolume": "Date Set MultiVolume",
                     "lastReferenceDate": "Last Reference Date",
                     "recordFormat": "Record Format",
                     "size": "Data Set Size",
@@ -103,17 +102,17 @@
                 "memberDetail": {
                     "resourceName": "data set member",
                     "details": "Details of member ",
-                    "mod": "mod",
+                    "mod": "Modification Level",
                     "version": "Version",
                     "modification": "Modification",
                     "creationTime": "Creation Time",
+                    "modificationDate": "Modification Date",
+                    "currentRecords": "Current Records",
+                    "initialRecords": "Initial Records",
+                    "changedRecords": "Changed Records",
                     "modificationTime": "Modification Time",
-                    "cnorc": "cnorc",
-                    "inorc": "inorc",
-                    "mnorc": "mnorc",
-                    "mtime": "mtime",
                     "user": "User",
-                    "sclm": "sclm"
+                    "sclm": "SCLM"
                 }
             }
         },
@@ -159,9 +158,9 @@
                     "blockAvailable": "Block Available",
                     "totalBlocks": "Total Blocks",
                     "systemName": "System Name",
-                    "readibc": "readibc",
-                    "writeibc": "writeibc",
-                    "diribc": "diribc"
+                    "readibc": "Data Blocks Read",
+                    "writeibc": "Data Blocks Written",
+                    "diribc": "Directory Blocks r/w"
                 }
             }
         },
