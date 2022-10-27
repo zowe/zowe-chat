@@ -25,7 +25,6 @@ teamUrl: devops
 botUserName: zowechat
 
 # Specify the access token to connect to your bot.
-# The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
 botAccessToken: <Your bot token>
 
 # Configure the messaging application which your Mattermost server will communicate with when some user clicking actions occur.

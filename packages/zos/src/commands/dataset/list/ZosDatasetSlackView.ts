@@ -55,13 +55,14 @@ class ZosDatasetSlackView extends ChatSlackView {
             };
 
             const detailOptions = [];
+            const memberOptions = [];
             for (const dataset of datasets) {
-                let icon = ':page_with_curl:';
+                let isPartitioned: boolean = false;
                 if (dataset.dsorg
                     && (dataset.dsorg === 'PO'
                         || dataset.dsorg === 'POU'
                         || dataset.dsorg === 'PO-E')) {
-                    icon = ':card_index_dividers:';
+                    isPartitioned = true;
                 }
                 // Create fields array within section block.
                 const datasetSection = {
@@ -69,7 +70,7 @@ class ZosDatasetSlackView extends ChatSlackView {
                     'fields': [
                         {
                             'type': 'mrkdwn',
-                            'text': `${icon} *${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:* ${dataset.dsname}`,
+                            'text': `${isPartitioned === true ? ':card_index_dividers:' : ':page_with_curl:' } *${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:* ${dataset.dsname}`,
                         },
                         {
                             'type': 'mrkdwn',
@@ -100,6 +101,12 @@ class ZosDatasetSlackView extends ChatSlackView {
                 // Create options for dataset details select menu
                 detailOptions.push(super.createSelectMenuOption(`${dataset.dsname}`,
                         `@${this.botOption.chatTool.option.botUserName}:zos:dataset:list:status:${dataset.dsname}`));
+
+                // Create options for dataset member select menu
+                if (isPartitioned === true) {
+                    memberOptions.push(super.createSelectMenuOption(`${dataset.dsname}`,
+                            `@${this.botOption.chatTool.option.botUserName}:zos:dataset:list:member::dn=${dataset.dsname}`));
+                }
             }
 
             // Create action block object.
@@ -107,7 +114,7 @@ class ZosDatasetSlackView extends ChatSlackView {
                 'type': 'actions',
                 'elements': <Record<string, unknown>[]>[],
             };
-            const actionData = {
+            let actionData = {
                 'pluginId': command.extraData.chatPlugin.package,
                 'actionId': 'showDatasetDetails',
                 'token': '',
@@ -115,6 +122,15 @@ class ZosDatasetSlackView extends ChatSlackView {
             };
 
             super.addSelectMenuAction(actionBlock, actionData, detailOptions);
+
+            actionData = {
+                'pluginId': command.extraData.chatPlugin.package,
+                'actionId': 'showDatasetMembers',
+                'token': '',
+                'placeHolder': i18next.t('command.dataset.list.status.memberDropDownPlaceholder', { ns: 'ZosMessage' }),
+            };
+
+            super.addSelectMenuAction(actionBlock, actionData, memberOptions);
 
 
             // Add action block object to message attachments.

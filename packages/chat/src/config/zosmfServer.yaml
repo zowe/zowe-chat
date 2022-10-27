@@ -1,7 +1,3 @@
-# Licensed material - Property of IBM
-# © Copyright IBM Corporation 2022.
-# This file controls all configurations of the CURI REST service provided by IBM z/OSMF server
-
 # Specify the protocol of your Z/OSMF server. The value can be https or http.
 # The default value is https.
 protocol: https

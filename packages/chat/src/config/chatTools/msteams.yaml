@@ -6,7 +6,6 @@ botUserName: zowechat
 botId: <Your Bot ID>
 
 # Specify the password of your Microsoft Teams bot.
-# The password will be encrypted automatically by Z ChatOps server with <AES> prefix added.
 botPassword: <Your bot password>
 
 # Configure the messaging endpoint for your Microsoft Teams bot.
