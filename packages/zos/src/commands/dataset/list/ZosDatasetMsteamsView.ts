@@ -52,18 +52,19 @@ class ZosDatasetMsteamsView extends ChatMsteamsView {
             const cardObject: Record<string, any> = super.createEmptyAdaptiveCard();
 
             const detailOptions = [];
+            const memberOptions = [];
             for (const dataset of datasets) {
-                let icon = String.fromCodePoint(0x1F4C3);
+                let isPartitioned: boolean = false;
                 if (dataset.dsorg
                     && (dataset.dsorg === 'PO'
                         || dataset.dsorg === 'POU'
                         || dataset.dsorg === 'PO-E')) {
-                    icon = String.fromCodePoint(0x1F5C2);
+                    isPartitioned = true;
                 }
 
                 // Add column set
                 cardObject.body.push(super.createColumnSet(
-                        `${icon} **${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:** ${dataset.dsname}`,
+                        `${isPartitioned === true ? String.fromCodePoint(0x1F5C2) : String.fromCodePoint(0x1F4C3)} **${i18next.t('command.dataset.list.status.name', { ns: 'ZosMessage' })}:** ${dataset.dsname}`,
                         `**${i18next.t('command.dataset.list.status.organization', { ns: 'ZosMessage' })}:** ${dataset.dsorg ? dataset.dsorg : ''}`,
                         true));
                 cardObject.body.push(super.createColumnSet(
@@ -71,20 +72,41 @@ class ZosDatasetMsteamsView extends ChatMsteamsView {
                         `**${i18next.t('command.dataset.list.status.logicalRecordLength', { ns: 'ZosMessage' })}:** ${dataset.lrecl ? dataset.lrecl : ''}`,
                         false));
 
-                // Create option array for detail dropdown.
+                // Create options for detail dropdown.
                 detailOptions.push({
                     'title': `${dataset.dsname}`,
                     'value': `@${this.botOption.chatTool.option.botUserName}:zos:dataset:list:status:${dataset.dsname}`,
                 });
+
+                // Create options for dataset member dropdown
+                if (isPartitioned === true) {
+                    memberOptions.push({
+                        'title': `${dataset.dsname}`,
+                        'value': `@${this.botOption.chatTool.option.botUserName}:zos:dataset:list:member::dn=${dataset.dsname}`,
+                    });
+                }
             }
 
             // Add show details action
-            const dropdownDataObj = {
+            let dropdownDataObj = {
                 'pluginId': command.extraData.chatPlugin.package,
                 'id': 'showDatasetDetails',
                 'title': i18next.t('command.dataset.list.status.buttonTitle', { ns: 'ZosMessage' }),
                 'placeholder': i18next.t('command.dataset.list.status.detailDropDownPlaceholder', { ns: 'ZosMessage' }),
                 'choices': detailOptions,
+                'separator': true,
+                'token': '',
+            };
+
+            super.addDropdownAction(cardObject.body, dropdownDataObj);
+
+            // Add show details action
+            dropdownDataObj = {
+                'pluginId': command.extraData.chatPlugin.package,
+                'id': 'showDatasetMember',
+                'title': i18next.t('command.dataset.list.status.memberButtonTitle', { ns: 'ZosMessage' }),
+                'placeholder': i18next.t('command.dataset.list.status.memberDropDownPlaceholder', { ns: 'ZosMessage' }),
+                'choices': memberOptions,
                 'separator': true,
                 'token': '',
             };

@@ -2,9 +2,6 @@
 # The default value is mattermost.
 chatToolType: mattermost
 
-# # Specify your chat tool's configuration here. By default, sample configuration files will be in the "chatTools" sub-directory.
-# chatToolConfiguration: ./chatTools/mattermost.yaml
-
 # Configure logging
 log:
   # Specify the log file path
@@ -13,7 +10,7 @@ log:
   
   # Specify the level of logs, the value can be error, warn, info, verbose, debug or silly.
   # The default value is info.
-  level: debug
+  level: info
 
   # Specify the maximum size of the file after which it will rotate. The value can be a number of bytes without any unit
   # or a number suffixed with 'k', 'm', or 'g' as units of kb, mb, or gb separately.
