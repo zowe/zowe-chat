@@ -10,6 +10,7 @@
                 "object": "Hmmm... I don't understand the object {{object}}."
             },
             "missing": {
+                "argument": "Hmmm…Seems that a required argument {{argumentName}} is missing.",
                 "Option": "Hmmm…Seems that a required option {{optionName}} is missing.",
                 "argumentOrOption": "Sorry, I cannot find the results for you. Please enter at least one positional argument or option to try again."
             },

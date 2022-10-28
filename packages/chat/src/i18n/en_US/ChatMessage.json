@@ -38,11 +38,12 @@
     },
     "common": {
         "error": {
-            "unknownQuestion": "Sorry, I can't understand the question. Try asking me `help`. You can also check the help guide to learn about what I can do.",
+            "unknownQuestion": "Sorry, I can't understand the question. Try asking me `zos help`. You can also check the help guide to learn about what I can do.",
             "payloadType": "@Wrong message (payloadType: {{payloadType}}) is received by the bot."
         }
     },
-    "command": {
+    "command": {   
 
     }
 }
+
