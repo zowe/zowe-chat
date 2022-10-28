@@ -29,23 +29,28 @@ export class EnvironmentVariable {
 
     // <Optional> The path to the Zowe Chat server log file:
     //     Priority: process argument > environment variable > configuration file > default value
-    //     Default value set to null here or else no way to tell whether environment variable is set for it
+    //     Default value set to null here or else no way to tell whether environment variable is set for it or not
     public static ZOWE_CHAT_LOG_FILE_PATH: string = EnvironmentVariable.getStringVariable('ZOWE_CHAT_LOG_FILE_PATH', null);
 
     // <Optional> The level of logging to be used, supported value: `error`,`info`, `warn`, `verbose`, `debug`, `silly`
     //     Priority: process argument > environment variable > configuration file > default value
-    //     Default value set to null here or else no way to tell whether environment variable is set for it
+    //     Default value set to null here or else no way to tell whether environment variable is set for it or not
     public static ZOWE_CHAT_LOG_LEVEL: string = EnvironmentVariable.getStringVariable('ZOWE_CHAT_LOG_LEVEL', null);
 
     // <Optional> The maximum size of the log file before it rotates
     //     Priority: process argument > environment variable > configuration file > default value
-    //     Default value set to null here or else no way to tell whether environment variable is set for it
+    //     Default value set to null here or else no way to tell whether environment variable is set for it or not
     public static ZOWE_CHAT_LOG_MAX_SIZE: number = EnvironmentVariable.getNumberVariable('ZOWE_CHAT_LOG_MAX_SIZE', null);
 
     // <Optional> The maximum number of log files to keep
     //     Priority: process argument > environment variable > configuration file > default value
-    //     Default value set to null here or else no way to tell whether environment variable is set for it
+    //     Default value set to null here or else no way to tell whether environment variable is set for it or not
     public static ZOWE_CHAT_LOG_MAX_FILE: number = EnvironmentVariable.getNumberVariable('ZOWE_CHAT_LOG_MAX_FILE', null);
+
+    // <Optional> Console output is suppressed or not
+    //     Priority: process argument > environment variable > configuration file > default value
+    //     Default value set to null here or else no way to tell whether environment variable is set for it or not
+    public static ZOWE_CHAT_LOG_CONSOLE_SILENT: boolean = EnvironmentVariable.getBoolVariable('ZOWE_CHAT_LOG_CONSOLE_SILENT', null);
 
     /**
      * Checks process arguments and environment variables for the matching envVar, returns values in that order of precedence.

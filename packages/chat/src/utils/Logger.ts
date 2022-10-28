@@ -9,19 +9,19 @@
 */
 
 import fs from 'fs';
-import path from "path";
-import * as winston from "winston";
+import path from 'path';
+import * as winston from 'winston';
 
 import { config } from '../settings/Config';
-import { EnvironmentVariable } from "../settings/EnvironmentVariable";
+import { EnvironmentVariable } from '../settings/EnvironmentVariable';
 import { ILogLevel, ILogOption } from '../types';
+import { Util } from './Util';
 
 /**
- * This class uses console.log and process.env, as classes which assist with those functions require the logger
+ * This class uses console.log, as classes which assist with those functions require the logger
  */
 class Logger {
     private readonly logger: winston.Logger;
-
     private option: ILogOption;
 
     constructor() {
@@ -32,6 +32,7 @@ class Logger {
                 'level': ILogLevel.INFO,
                 'maximumSize': -1,
                 'maximumFile': -1,
+                'consoleSilent': true,
             };
 
             // Get log configuration
@@ -62,7 +63,7 @@ class Logger {
             // Create log directory if not exist
             const dirName = path.dirname(this.option.filePath);
             if (fs.existsSync(dirName) === false) {
-                fs.mkdirSync(dirName, {recursive: true});
+                fs.mkdirSync(dirName, { recursive: true });
             }
 
             // Get log level
@@ -81,7 +82,7 @@ class Logger {
 
             // Get log max size
             if (EnvironmentVariable.ZOWE_CHAT_LOG_MAX_SIZE !== null && EnvironmentVariable.ZOWE_CHAT_LOG_MAX_SIZE !== undefined) {
-                    this.option.maximumSize = EnvironmentVariable.ZOWE_CHAT_LOG_MAX_SIZE;
+                this.option.maximumSize = EnvironmentVariable.ZOWE_CHAT_LOG_MAX_SIZE;
             } else {
                 if (logConfig.maximumSize !== null && logConfig.maximumSize !== undefined) {
                     this.option.maximumSize = logConfig.maximumSize;
@@ -94,6 +95,14 @@ class Logger {
             } else {
                 if (logConfig.maximumFile !== null && logConfig.maximumFile !== undefined) {
                     this.option.maximumFile = logConfig.maximumFile;
+                }
+            }
+            // Get console silent
+            if (EnvironmentVariable.ZOWE_CHAT_LOG_CONSOLE_SILENT !== null && EnvironmentVariable.ZOWE_CHAT_LOG_CONSOLE_SILENT !== undefined) {
+                this.option.consoleSilent = EnvironmentVariable.ZOWE_CHAT_LOG_CONSOLE_SILENT;
+            } else {
+                if (logConfig.consoleSilent !== null && logConfig.consoleSilent !== undefined) {
+                    this.option.consoleSilent = logConfig.consoleSilent;
                 }
             }
             // end override
@@ -122,23 +131,22 @@ class Logger {
                 maxsize: this.option.maximumSize, // 10 * 1024 * 1024,
                 maxFiles: this.option.maximumFile,
                 format: combine(timestamp(), chatLogFormat),
-                options: { flags: 'a' }
+                options: { flags: 'a' },
             });
 
             this.logger.add(fileTransport);
 
-            // TODO: this is an express env, should we use something else more specific? ZOWE_CHAT_DEV_MODE?
-            // Only use console logger in development mode.
-            if (process.env.NODE_ENV === 'development') {
+            // Suppress console log output
+            if (this.option.consoleSilent === false) {
                 this.logger.add(new winston.transports.Console({ format: combine(timestamp(), chatLogFormat) }));
             }
 
-            process.on("beforeExit", (code) => {
+            process.on('beforeExit', (code) => {
                 console.info('Exiting Logger ...');
                 this.logger.clear();
             });
 
-            process.on("exit", (code) => {
+            process.on('exit', (code) => {
                 console.info('Logger exited!');
                 this.logger.end();
             });
@@ -278,23 +286,23 @@ class Logger {
     }
 
     public silly(log: string) {
-        this.logger.silly(log);
+        this.logger.silly(Util.maskSensitiveInfo(log));
     }
 
     public debug(log: string) {
-        this.logger.debug(log);
+        this.logger.debug(Util.maskSensitiveInfo(log));
     }
 
     public error(log: string) {
-        this.logger.error(log);
+        this.logger.error(Util.maskSensitiveInfo(log));
     }
 
     public warn(log: string) {
-        this.logger.warn(log);
+        this.logger.warn(Util.maskSensitiveInfo(log));
     }
 
     public info(log: string) {
-        this.logger.info(log);
+        this.logger.info(Util.maskSensitiveInfo(log));
     }
 }
 
