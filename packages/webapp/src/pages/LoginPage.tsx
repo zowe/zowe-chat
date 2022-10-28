@@ -66,12 +66,12 @@ export function LoginPage() {
         } else {
             const userInfo = Buffer.from(loginHash, 'base64').toString().split(':');
             // eslint-disable-next-line max-len
-            loginHint = <p text-align="center">Welcome, {userInfo[0]}. <br /><br />Please login with your Mainframe ID to authenticate your use of Zowe ChatBot.</p>;
+            loginHint = <p text-align="center">Welcome, {userInfo[0]}. <br /><br />Ensure this is your private login link with your display name here.<br></br>Please log in with your Mainframe user ID for authentication to use Zowe Chat bot.</p>;
         }
 
         if (auth.errorResponse) {
             loginHint = '';
-            alertState = <Alert severity="error">Encoutered an error logging in. Please check your input and try again.</Alert>;
+            alertState = <Alert severity="error">Encountered an error logging in. Please check your input and try again.</Alert>;
         }
 
         loginForm = <form onSubmit={handleSubmit}>
