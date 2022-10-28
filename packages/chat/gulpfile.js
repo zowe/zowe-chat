@@ -48,9 +48,6 @@
 //                                   Used in gulp build, gulp packaging task
 //   RELEASE_VERSION               - Indicate which version will be add build file name
 //                                   Used in gulp packaging task
-//
-// Author:
-//   bjwsfang@cn.ibm.com
 
 const gulp = require('gulp');
 const gulpClean = require('gulp-clean');

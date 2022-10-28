@@ -8,8 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import {logger, Util, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit} from '@zowe/chat';
-import {IConsoleResponse} from "@zowe/zos-console-for-zowe-sdk";
+import { logger, Util, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit } from '@zowe/chat';
+import { IConsoleResponse } from '@zowe/zos-console-for-zowe-sdk';
 import i18next from 'i18next';
 class ZosCommandIssueSlackView extends ChatSlackView {
     constructor(botOption: IBotOption, botLimit: ISlackBotLimit) {
@@ -23,9 +23,9 @@ class ZosCommandIssueSlackView extends ChatSlackView {
         let commandOutput = issueResponse.commandResponse;
         let messages: IMessage[] = [];
         try {
-            if (commandOutput === null ||
-                commandOutput === undefined ||
-                commandOutput.trim() == '') {
+            if (commandOutput === null
+                || commandOutput === undefined
+                || commandOutput.trim() == '') {
                 messages = [{
                     type: IMessageType.PLAIN_TEXT,
                     message: {
@@ -35,10 +35,10 @@ class ZosCommandIssueSlackView extends ChatSlackView {
                                 'type': 'mrkdwn',
                                 'text': i18next.t('command.cmd.issue.console.cmdResponseNull', { executorName: executor.name, ns: 'ZosMessage' }),
                             },
-                        }]
-                    }
+                        }],
+                    },
                 }];
-            }else{
+            } else {
                 // Truncate the command output if longer than the allowed maximum text length
                 if (commandOutput.length > this.botLimit.sectionBlockTextMaxLength) {
                     const truncationIndicator = `\n...\n${i18next.t('zowe.truncationIndicator', { ns: 'ZosMessage' })}`;
@@ -54,23 +54,23 @@ class ZosCommandIssueSlackView extends ChatSlackView {
                             'type': 'section',
                             'text': {
                                 'type': 'mrkdwn',
-                                'text': i18next.t('command.cmd.issue.console.cmdResponseOutput', { executorName: executor.name, ns: 'ZosMessage' })
-                            }
+                                'text': i18next.t('command.cmd.issue.console.cmdResponseOutput', { executorName: executor.name, ns: 'ZosMessage' }),
+                            },
                         },
                         {
                             'type': 'section',
                             'text': {
                                 'type': 'mrkdwn',
                                 'text': '```\n' + commandOutput + '\n```',
-                            }
+                            },
                         },
                         {
                             'type': 'section',
-                            'text': 
+                            'text':
                             {
                                 'type': 'mrkdwn',
                                 'text': `*${i18next.t('command.cmd.issue.console.cmdResponseUrl', { executorName: executor.name, ns: 'ZosMessage' })}:* <${issueResponse.cmdResponseUrl}|${issueResponse.lastResponseKey}>`,
-                            }
+                            },
 
                         }],
                         'channel': executor.channel.id,
