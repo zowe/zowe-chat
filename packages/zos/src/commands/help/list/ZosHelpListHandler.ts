@@ -49,7 +49,7 @@ class ZosHelpListHandler extends ChatHandler {
 
 
             if (resource !== null) { // If command resource is specified in positional argument and is a valid command resource, show detail view.
-                const commands = ['job', 'dataset', 'file', 'help'];
+                const commands = ['job', 'dataset', 'file', 'help', 'command'];
 
                 if (!commands.includes(resource.toLocaleLowerCase())) {
                     const headerMessage = i18next.t('common.error.unknown.resource', { ns: 'ZosMessage' });

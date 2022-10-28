@@ -8,9 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import {logger, Util, ChatMattermostView, IBotOption, IMessageType,
-    IExecutor, IMessage, IMattermostBotLimit} from '@zowe/chat';
-import {IConsoleResponse} from "@zowe/zos-console-for-zowe-sdk";
+import { logger, Util, ChatMattermostView, IBotOption, IMessageType, IExecutor, IMessage, IMattermostBotLimit } from '@zowe/chat';
+import { IConsoleResponse } from '@zowe/zos-console-for-zowe-sdk';
 import i18next from 'i18next';
 class ZosCommandIssueMattermostView extends ChatMattermostView {
     constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
@@ -26,10 +25,9 @@ class ZosCommandIssueMattermostView extends ChatMattermostView {
         try {
             // Add command output
             let headerMessage = '';
-            if ( issueResponse.commandResponse === null ||
-                 issueResponse.commandResponse === undefined ||
-                 issueResponse.commandResponse.trim() === '') 
-            {
+            if ( issueResponse.commandResponse === null
+                 || issueResponse.commandResponse === undefined
+                 || issueResponse.commandResponse.trim() === '') {
                 headerMessage = i18next.t('command.cmd.issue.console.cmdResponseNull', { executorName: executor.name, ns: 'ZosMessage' });
                 messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -38,15 +36,15 @@ class ZosCommandIssueMattermostView extends ChatMattermostView {
             } else {
                 headerMessage = i18next.t('command.cmd.issue.console.cmdResponseOutput', { executorName: executor.name, ns: 'ZosMessage' });
                 const fields = [];
-                fields.push (
-                    {
-                        short: false,
-                        value: '```\n' + issueResponse.commandResponse + '\n```',
-                    },
-                    {
-                        short: false,
-                        value: `**${i18next.t('command.cmd.issue.console.cmdResponseUrl', { executorName: executor.name, ns: 'ZosMessage' })}: ** [${issueResponse.lastResponseKey}](${issueResponse.cmdResponseUrl})`,
-                    }
+                fields.push(
+                        {
+                            short: false,
+                            value: '```\n' + issueResponse.commandResponse + '\n```',
+                        },
+                        {
+                            short: false,
+                            value: `**${i18next.t('command.cmd.issue.console.cmdResponseUrl', { executorName: executor.name, ns: 'ZosMessage' })}: ** [${issueResponse.lastResponseKey}](${issueResponse.cmdResponseUrl})`,
+                        },
                 );
                 const attachmentObject: Record<string, any> = {
                     props: {

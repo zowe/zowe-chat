@@ -166,13 +166,20 @@ class ZosFileHandler extends ChatHandler {
 
             return messages;
         } catch (error) {
-            // ZWECC001E: Internal server error: {{error}}
+            // Got RestClientError: z/OSMF REST API Error
+            let message = i18next.t('common.error.internal', { ns: 'ZosMessage' });
+            if (error.errorCode !== undefined
+                && error.mDetails !== undefined
+                && error.mDetails.causeErrors !== undefined) {
+                message = i18next.t('common.error.restAPI', { ns: 'ZosMessage', message: JSON.parse(error.mDetails.causeErrors).message });
+            }
+
             logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos file list handler exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
+                message: message,
             }];
         } finally {
             // Print end log
@@ -309,13 +316,20 @@ class ZosFileHandler extends ChatHandler {
 
             return messages;
         } catch (error) {
-            // ZWECC001E: Internal server error: {{error}}
+            // Got RestClientError: z/OSMF REST API Error
+            let message = i18next.t('common.error.internal', { ns: 'ZosMessage' });
+            if (error.errorCode !== undefined
+                && error.mDetails !== undefined
+                && error.mDetails.causeErrors !== undefined) {
+                message = i18next.t('common.error.restAPI', { ns: 'ZosMessage', message: JSON.parse(error.mDetails.causeErrors).message });
+            }
+
             logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos file list handler exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
+                message: message,
             }];
         } finally {
             // Print end log
