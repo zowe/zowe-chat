@@ -2,6 +2,7 @@
     "common": {
         "error": {
             "internal": "Oops! An internal error occurred.",
+            "restAPI": "Oops! I can't retrieve the data for you. The error message I got is: {{message}}.",
             "unsupportedChatTool": "ops! The chat tool {{type}}is not supported. Please try Slack, Mattermost, or Teams.",
             "unknown": {
                 "resource": "mmm... I don't understand the resource {{resource}}.",

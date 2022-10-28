@@ -171,7 +171,7 @@
                     "zos file list status -p '/u/user'": "Show the files and directories in path '/u/user'.",
                     "zos file list status clean* -p '/u/user'": "Show the files and directories whose names start with clean in path '/u/user'.",
                     "zos file list mounts": "Show all mounted file systems",
-                    "zos file list mounts --mp '/a/ibmuser'": "Show file systems which are mounted to a specific path.",
+                    "zos file list mounts --mp '/u/user'": "Show file systems which are mounted to a specific path.",
                     "zos file list mounts sac*": "Show mounted file systems with name starting with sac."
 
                 },

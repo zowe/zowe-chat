@@ -13,6 +13,7 @@ import path from 'path';
 import * as nodeUtil from 'util';
 import * as yaml from 'js-yaml';
 import i18next from 'i18next';
+import { IMaskingPattern } from '../types';
 
 export class Util {
     // Constructor
@@ -200,4 +201,49 @@ export class Util {
             + `\n${i18next.t('errorCode.' + errorCode + '.action', <any> option)}`;
     }
 
+    // Mask sensitive info. in the console or log output
+    static maskSensitiveInfo(text: string, pattern: IMaskingPattern = null): string {
+        // Patterns used to mask the sensitive info. in the log
+        // TODO: add one configuration file to track the pattern and make user able to customize it
+        let maskingPatterns: IMaskingPattern[] = [];
+        if (pattern === null && pattern !== undefined) {
+            maskingPatterns = [
+                {
+                    pattern: '--password .*?( |$)',
+                    replacement: '--password ********',
+                },
+                {
+                    pattern: 'Password": {0,1}".*?"', //   "Password": "********" | "botPassword": "********"
+                    replacement: 'Password": "********"',
+                },
+                {
+                    pattern: 'Password\': {0,1}\'.*?\'', //  'Password': '********'
+                    replacement: 'Password\': \'********\'',
+                },
+                {
+                    pattern: 'token": {0,1}".*?"', // "botAccessToken": "********"  | "token": "********" | "appToken": "********"
+                    replacement: 'token": "********"',
+                },
+                {
+                    pattern: 'Password":{"type":"plain_text_input","value":".*?"}',
+                    replacement: 'Password":{"type":"plain_text_input","value":"********"}',
+                },
+                {
+                    pattern: '"signingSecret": {0,1}".*?"',
+                    replacement: '"signingSecret": "********"',
+                },
+            ];
+        } else {
+            maskingPatterns.push(pattern);
+        }
+
+        let result = text;
+        if (text !== undefined && text !== null && text.trim() !== '') {
+            for (const pattern of maskingPatterns) {
+                const regex = new RegExp(pattern.pattern, 'ig');
+                result = result.replace(regex, pattern.replacement);
+            }
+        }
+        return result;
+    }
 }

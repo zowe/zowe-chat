@@ -8,10 +8,10 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import {logger, Util, ChatMsteamsView,
+import { logger, Util, ChatMsteamsView,
     IBotOption, IExecutor, IMessage,
-    IMessageType, IMsteamsBotLimit} from '@zowe/chat';
-import {IConsoleResponse} from "@zowe/zos-console-for-zowe-sdk";
+    IMessageType, IMsteamsBotLimit } from '@zowe/chat';
+import { IConsoleResponse } from '@zowe/zos-console-for-zowe-sdk';
 import i18next from 'i18next';
 class ZosCommandIssueMsteamsView extends ChatMsteamsView {
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
@@ -28,9 +28,9 @@ class ZosCommandIssueMsteamsView extends ChatMsteamsView {
         try {
             let headerMessage = '';
             // Add command output
-            if (issueResponse.commandResponse === null || 
-                issueResponse.commandResponse === undefined || 
-                issueResponse.commandResponse.trim() === '') {
+            if (issueResponse.commandResponse === null
+                || issueResponse.commandResponse === undefined
+                || issueResponse.commandResponse.trim() === '') {
                 headerMessage = i18next.t('command.cmd.issue.console.cmdResponseNull', { executorName: executor.name, ns: 'ZosMessage' });
                 messages = [{
                     type: IMessageType.PLAIN_TEXT,
@@ -44,18 +44,18 @@ class ZosCommandIssueMsteamsView extends ChatMsteamsView {
                     message: headerMessage,
                 }];
                 const cardObject: Record<string, any> = super.createEmptyAdaptiveCard();
-                 // Add details Text Block
+                // Add details Text Block
                 cardObject.body.push({
                     'type': 'TextBlock',
-                    'text': `${i18next.t('command.cmd.issue.console.cmdResponseUrl', { executorName: executor.name, ns: 'ZosMessage' })}: ` +
-                    `[${issueResponse.lastResponseKey}](${issueResponse.cmdResponseUrl})`,
+                    'text': `${i18next.t('command.cmd.issue.console.cmdResponseUrl', { executorName: executor.name, ns: 'ZosMessage' })}: `
+                    + `[${issueResponse.lastResponseKey}](${issueResponse.cmdResponseUrl})`,
                     'wrap': true,
                     'separator': false,
-                 });
+                });
                 messages.push({
                     type: IMessageType.MSTEAMS_ADAPTIVE_CARD,
-                    message: cardObject
-                })
+                    message: cardObject,
+                });
             }
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
