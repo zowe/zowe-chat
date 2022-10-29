@@ -245,13 +245,13 @@ async function packagingTask() {
         console.log('  Step 4: Installing dependency ...');
         console.log('===================================================');
         console.log('Installing dependency for @zowe/chat ...');
-        childProcess.execSync(`cd ${zoweChatReleaseDir} && npm install`, { stdio: 'inherit' });
+        childProcess.execSync(`cd ${zoweChatReleaseDir} && npm install --production`, { stdio: 'inherit' });
         console.log('Done!');
         console.log('Installing dependency for @zowe/clicmd ...');
-        childProcess.execSync(`cd ${pluginReleaseDir}/@zowe/clicmd && npm install`, { stdio: 'inherit' });
+        childProcess.execSync(`cd ${pluginReleaseDir}/@zowe/clicmd && npm install --production`, { stdio: 'inherit' });
         console.log('Done!');
         console.log('Installing dependency for @zowe/zos ...');
-        childProcess.execSync(`cd ${pluginReleaseDir}/@zowe/zos && npm install`, { stdio: 'inherit' });
+        childProcess.execSync(`cd ${pluginReleaseDir}/@zowe/zos && npm install --production`, { stdio: 'inherit' });
         console.log('Done!');
 
         // Packaging
