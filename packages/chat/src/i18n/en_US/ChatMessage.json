@@ -42,7 +42,7 @@
             "payloadType": "@Wrong message (payloadType: {{payloadType}}) is received by the bot."
         }
     },
-    "command": {   
+    "command": {
 
     }
 }

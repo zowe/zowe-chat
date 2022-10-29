@@ -405,7 +405,7 @@ class ZosFileSlackView extends ChatSlackView {
                 'type': 'section',
                 'text': {
                     'type': 'mrkdwn',
-                    'text': `*${i18next.t('command.file.list.mountsDetail.details', { ns: 'ZosMessage' })}${fileSystem.name}*`,
+                    'text': `*${i18next.t('command.file.list.mountsDetail.details', { ns: 'ZosMessage' })}* ${fileSystem.name}`,
                 },
             },
             {
