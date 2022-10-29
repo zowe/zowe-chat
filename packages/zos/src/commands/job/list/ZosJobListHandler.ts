@@ -138,7 +138,10 @@ class ZosJobHandler extends ChatHandler {
             if (error.errorCode !== undefined
                 && error.mDetails !== undefined
                 && error.mDetails.causeErrors !== undefined) {
-                message = i18next.t('common.error.restAPI', { ns: 'ZosMessage', message: JSON.parse(error.mDetails.causeErrors).message });
+                const causeErrors = JSON.parse(error.mDetails.causeErrors);
+                if (causeErrors.message !== undefined && causeErrors.message !== '') {
+                    message = i18next.t('common.error.restAPI', { ns: 'ZosMessage', message: causeErrors.message });
+                }
             }
             logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos job list handler exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));

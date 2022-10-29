@@ -58,7 +58,7 @@ class ZosFileMsteamsView extends ChatMsteamsView {
 
                 // Add column set
                 cardObject.body.push(super.createColumnSet(
-                        `${file.mode.startsWith('d') ? String.fromCodePoint(0x1F4C1) : String.fromCodePoint(0x1F4C4)}** `
+                        `${file.mode.startsWith('d') ? String.fromCodePoint(0x1F4C1) : String.fromCodePoint(0x1F4C4)} **`
                             + `${i18next.t('command.file.list.status.name', { ns: 'ZosMessage' })}:** ${file.name}`,
                         `**${i18next.t('command.file.list.status.owner', { ns: 'ZosMessage' })}:** ${file.user}`,
                         true));
@@ -307,14 +307,14 @@ class ZosFileMsteamsView extends ChatMsteamsView {
             // Add details Text Block
             cardObject.body.push({
                 'type': 'TextBlock',
-                'text': `**${i18next.t('command.file.list.mountsDetail.details', { ns: 'ZosMessage' })}${fileSystem.name}**`,
+                'text': `**${i18next.t('command.file.list.mountsDetail.details', { ns: 'ZosMessage' })}** ${fileSystem.name}`,
                 'wrap': true,
                 'separator': false,
             });
 
             // Add column set
             cardObject.body.push(super.createColumnSet(
-                    `${String.fromCodePoint(0x1F4C4)}**${i18next.t('command.file.list.mountsDetail.mountPoint',
+                    `**${i18next.t('command.file.list.mountsDetail.mountPoint',
                             { ns: 'ZosMessage' })}:** ${fileSystem.mountpoint}`,
                     `**${i18next.t('command.file.list.mountsDetail.mode', { ns: 'ZosMessage' })}:** ${fileSystem.mode}`,
                     true));
