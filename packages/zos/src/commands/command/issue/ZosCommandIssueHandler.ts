@@ -57,13 +57,13 @@ class ZosCommandIssueHandler extends ChatHandler {
             logger.debug(`Console Name: ${consoleName}`);
 
             // Match the optional option -- sysplex system
-            let sysplex: string = null;
-            if (options['sysplex-system'] !== undefined) {
-                sysplex = options['sysplex-system'];
-            } else if (options['ss'] !== undefined) {
-                sysplex = options['ss'];
+            let systemName: string = null;
+            if (options['system-name'] !== undefined) {
+                systemName = options['system-name'];
+            } else if (options['sn'] !== undefined) {
+                systemName = options['sn'];
             }
-            logger.debug(`sysplex system: ${sysplex}`);
+            logger.debug(`sysplex system: ${systemName}`);
 
             // Match the optional option -- solicited keyword
             // let solKey: string = null;
@@ -75,28 +75,28 @@ class ZosCommandIssueHandler extends ChatHandler {
             // logger.debug(`solicited keyword: ${solKey}`);
 
             // Get the command string
-            let cmdString: string = null;
-            cmdString = command.adjective.arguments[0];
-            logger.debug(`Command string: ${cmdString}`);
+            let commandString: string = null;
+            commandString = command.adjective.arguments[0];
+            logger.debug(`Command string: ${commandString}`);
 
             // Check if command string is invalid.
-            if (cmdString === null
-                || cmdString === undefined
-                || ('' + cmdString).trim() === ''
+            if (commandString === null
+                || commandString === undefined
+                || ('' + commandString).trim() === ''
             ) {
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
-                    message: i18next.t('common.error.missing.argument', { argumentName: 'cmdString', ns: 'ZosMessage' }),
+                    message: i18next.t('common.error.missing.argument', { argumentName: 'commandString', ns: 'ZosMessage' }),
                 }];
             }
 
             // handle the command string inside the quotes or doube quotes
             // since zowe cli sdk issue command accept the command string without delimiters
-            if ((cmdString.charAt(0) == '"'
-                && cmdString.charAt(cmdString.length - 1) == '"')
-                || (cmdString.charAt(0) == '\''
-                && cmdString.charAt(cmdString.length - 1) == '\'')) {
-                cmdString = cmdString.substring(1, cmdString.length - 1);
+            if ((commandString.charAt(0) == '"'
+                && commandString.charAt(commandString.length - 1) == '"')
+                || (commandString.charAt(0) == '\''
+                && commandString.charAt(commandString.length - 1) == '\'')) {
+                    commandString = commandString.substring(1, commandString.length - 1);
             }
             // session to connect Zosmf REST API.
             let ru: boolean = true;
@@ -113,10 +113,10 @@ class ZosCommandIssueHandler extends ChatHandler {
             };
             const session = new Session(sessionInfo);
             const parms: IIssueParms = {
-                command: cmdString,
+                command: commandString,
                 consoleName: consoleName,
                 solicitedKeyword: '',
-                sysplexSystem: sysplex,
+                sysplexSystem: systemName,
                 async: 'N',
             };
             const issueResponse: IConsoleResponse = await IssueCommand.issue(session, parms);
