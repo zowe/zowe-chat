@@ -140,7 +140,7 @@ export class BotMessageListener extends BotListener {
             });
             logger.debug('Creating challenge link ' + redirect + ' for user ' + user.name);
             await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
-                message: `Hello @${user.name}, you are not currently logged in to the backend system. Please visit ${redirect} to login`,
+                message: `Hello @${user.name}, you are not logged in to the backend system yet. Please log in through your private login link that works for you only: ${redirect}`,
                 type: IMessageType.PLAIN_TEXT,
             }]);
             logger.end(this.processMessage, this);
@@ -152,7 +152,7 @@ export class BotMessageListener extends BotListener {
                         this.processMessage(chatContextData);
                     });
                     await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [{
-                        message: `Hello @${user.name}, your login expired. Please visit ${redirect} to login again,`,
+                        message: `Hello @${user.name}, your session has expired, please log in again through your private login link that works for you only: ${redirect}`,
                         type: IMessageType.PLAIN_TEXT,
                     }]);
                     logger.end(this.processMessage, this);
