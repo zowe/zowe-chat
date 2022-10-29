@@ -244,13 +244,13 @@
                 "description": "Interact with z/OS command related services, including z/OSMF Console services, etc.",
                 "default": false,
                 "usage": {
-                    "description": "",
+                    "description": "Issue z/OS commands.",
                     "synopsis": [
-                       "zos command issue console <positional argument> <option>"
+                       "zos command issue console [commandString] --console-name | --cn <consoleName> --system-name | --sn <systemName>"
                     ]
                 },
                 "example": {
-                    "zos command issue console \"d a,l\" --console-name test ": "Issue a z/OS console command with a console name."
+                    "zos command issue console \"d a,l\" --console-name test": "Issue a z/OS console command with a console name."
                 },
                 "issue": {
                     "description": "Issue z/OS commands.",
@@ -275,8 +275,8 @@
                                 "description": "The name of the z/OS extended MCS console to direct the command. The name must be between 2 and 8 characters long and cannot start with a digit. Characters are alphanumeric and can also include symbols like #, $, and @.",
                                 "required": false
                             },
-                            "sysplex": {
-                                "acronym": "ss",
+                            "systemName": {
+                                "acronym": "sn",
                                 "value": {
                                     "type": "null|string",
                                     "format": ""

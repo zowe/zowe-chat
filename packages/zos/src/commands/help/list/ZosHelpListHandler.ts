@@ -52,7 +52,7 @@ class ZosHelpListHandler extends ChatHandler {
                 const commands = ['job', 'dataset', 'file', 'help', 'command'];
 
                 if (!commands.includes(resource.toLocaleLowerCase())) {
-                    const headerMessage = i18next.t('common.error.unknown.resource', { ns: 'ZosMessage' });
+                    const headerMessage = i18next.t('common.error.unknown.resource', { resource: resource, ns: 'ZosMessage' });
                     return messages = [{
                         type: IMessageType.PLAIN_TEXT,
                         message: headerMessage,
