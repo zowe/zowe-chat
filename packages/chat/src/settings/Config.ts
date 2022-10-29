@@ -8,10 +8,10 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-import { IChatToolType, ILogOption } from "@zowe/bot";
-import { IConfig, IChatServerConfig, IMattermostConfig, IMsteamsConfig, ISlackConfig, IZosmfServerConfig } from "../types/IConfig";
-import { Util } from "../utils/Util";
-import { EnvironmentVariable } from "./EnvironmentVariable";
+import { IChatToolType, ILogOption } from '@zowe/bot';
+import { IConfig, IChatServerConfig, IMattermostConfig, IMsteamsConfig, ISlackConfig, IZosmfServerConfig } from '../types/IConfig';
+import { Util } from '../utils/Util';
+import { EnvironmentVariable } from './EnvironmentVariable';
 
 /**
  * Class which reads the application configuration file (YAML)
@@ -24,7 +24,7 @@ class Config {
         this.config = {
             chatServer: null,
             chatTool: null,
-            zosmfServer: null
+            zosmfServer: null,
         };
 
         // Load chat server config: chatServer.yaml
@@ -59,14 +59,14 @@ class Config {
 
     // Load chat server configuration file: chatServer.yaml
     private loadChatServerConfig(): void {
-        let chatServerConfig: IChatServerConfig  = null;
+        let chatServerConfig: IChatServerConfig = null;
 
         try {
             const filePath = `${EnvironmentVariable.ZOWE_CHAT_CONFIG_HOME}/chatServer.yaml`;
 
             // Read chatServer.yaml configuration
             chatServerConfig = <IChatServerConfig> Util.readYamlFile(filePath);
-            console.info(`chatServer.yaml:\n ${JSON.stringify(chatServerConfig, null, 4)}`);
+            console.info(`chatServer.yaml:\n ${Util.maskSensitiveInfo(JSON.stringify(chatServerConfig, null, 4))}`);
 
             // Check result
             if (chatServerConfig === null) {
@@ -79,7 +79,7 @@ class Config {
             this.config.chatServer = chatServerConfig;
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            console.error(Util.getErrorMessage('ZWECC001E', {error: 'Chat server configure loading exception', ns: 'ChatMessage'}));
+            console.error(Util.getErrorMessage('ZWECC001E', { error: 'Chat server configure loading exception', ns: 'ChatMessage' }));
             console.error(error.stack);
 
             process.exit(2);
@@ -100,17 +100,17 @@ class Config {
                 // Read mattermost.yaml
                 filePath = `${EnvironmentVariable.ZOWE_CHAT_CONFIG_HOME}/chatTools/mattermost.yaml`;
                 chatToolConfig = <IMattermostConfig> Util.readYamlFile(filePath);
-                console.info(`chatTools/mattermost.yaml:\n ${JSON.stringify(chatToolConfig, null, 4)}`);
+                console.info(`chatTools/mattermost.yaml:\n ${Util.maskSensitiveInfo(JSON.stringify(chatToolConfig, null, 4))}`);
             } else if (this.config.chatServer.chatToolType === IChatToolType.SLACK) {
                 // Read slack.yaml
-                filePath = `${EnvironmentVariable.ZOWE_CHAT_CONFIG_HOME}/chatTools/slack.yaml`
+                filePath = `${EnvironmentVariable.ZOWE_CHAT_CONFIG_HOME}/chatTools/slack.yaml`;
                 chatToolConfig = <IMattermostConfig> Util.readYamlFile(filePath);
-                console.info(`chatTools/slack.yaml:\n ${JSON.stringify(chatToolConfig, null, 4)}`);
+                console.info(`chatTools/slack.yaml:\n ${Util.maskSensitiveInfo(JSON.stringify(chatToolConfig, null, 4))}`);
             } else if (this.config.chatServer.chatToolType === IChatToolType.MSTEAMS) {
                 // Read msteams.yaml
-                filePath = `${EnvironmentVariable.ZOWE_CHAT_CONFIG_HOME}/chatTools/msteams.yaml`
+                filePath = `${EnvironmentVariable.ZOWE_CHAT_CONFIG_HOME}/chatTools/msteams.yaml`;
                 chatToolConfig = <IMattermostConfig> Util.readYamlFile(filePath);
-                console.info(`chatTools/msteams.yaml:\n ${JSON.stringify(chatToolConfig, null, 4)}`);
+                console.info(`chatTools/msteams.yaml:\n ${Util.maskSensitiveInfo(JSON.stringify(chatToolConfig, null, 4))}`);
             } else {
                 // ZWECC005E: Unsupported value ${value} for the item ${item}
                 console.error(`ZWECC005E: Unsupported value ${this.config.chatServer.chatToolType} for the item chatToolType`);
@@ -128,7 +128,7 @@ class Config {
             this.config.chatTool = chatToolConfig;
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            console.error(Util.getErrorMessage('ZWECC001E', {error: 'Chat tool configure loading exception', ns: 'ChatMessage'}));
+            console.error(Util.getErrorMessage('ZWECC001E', { error: 'Chat tool configure loading exception', ns: 'ChatMessage' }));
             console.error(error.stack);
             process.exit(5);
         }
@@ -138,14 +138,14 @@ class Config {
 
     // Load z/OSMF server configuration file: zosmfServer.yaml
     private loadZosmfServerConfig(): IZosmfServerConfig {
-        let zosmfServerConfig: IZosmfServerConfig  = null;
+        let zosmfServerConfig: IZosmfServerConfig = null;
 
         try {
             const filePath = `${EnvironmentVariable.ZOWE_CHAT_CONFIG_HOME}/zosmfServer.yaml`;
 
             // Read zosmfServer.yaml configuration
             zosmfServerConfig = <IZosmfServerConfig> Util.readYamlFile(filePath);
-            console.info(`zosmfServer.yaml:\n ${JSON.stringify(zosmfServerConfig, null, 4)}`);
+            console.info(`zosmfServer.yaml:\n ${Util.maskSensitiveInfo(JSON.stringify(zosmfServerConfig, null, 4))}`);
 
             // Check result
             if (zosmfServerConfig === null) {
@@ -158,7 +158,7 @@ class Config {
             this.config.zosmfServer = zosmfServerConfig;
         } catch (error) {
             // ZWECC001E: Internal server error: {{error}}
-            console.error(Util.getErrorMessage('ZWECC001E', {error: 'z/OSMF server configure loading exception', ns: 'ChatMessage'}));
+            console.error(Util.getErrorMessage('ZWECC001E', { error: 'z/OSMF server configure loading exception', ns: 'ChatMessage' }));
             console.error(error.stack);
             process.exit(7);
         }

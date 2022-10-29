@@ -81,6 +81,11 @@ export interface IResource {
     namespace: string;
 }
 
+export interface IMaskingPattern {
+    pattern: string;
+    replacement: string;
+}
+
 export { IBotOption, IChatToolType, IChatContextData, IMattermostOption, ISlackOption, IMsteamsOption, ILogLevel, ILogOption, IProtocol, IHttpEndpoint,
     IMessageHandlerFunction, IMessageMatcherFunction, IRouteHandlerFunction, IMessagingApp, IMessage, IMessageType, IAppOption, IPayloadType,
     IEvent, IActionType, IBotLimit, IMattermostBotLimit, ISlackBotLimit, IMsteamsBotLimit } from '@zowe/bot';
