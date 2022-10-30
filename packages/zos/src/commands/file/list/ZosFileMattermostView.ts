@@ -154,7 +154,7 @@ class ZosFileSlackView extends ChatMattermostView {
             const fields = [];
             fields.push({
                 short: false,
-                title: `**${i18next.t('command.file.list.detail.details', { ns: 'ZosMessage' })}${file.name}**`,
+                title: `${i18next.t('command.file.list.detail.details', { ns: 'ZosMessage' })}${file.name}`,
                 value: `*** \n`,
             },
             {
@@ -345,7 +345,7 @@ class ZosFileSlackView extends ChatMattermostView {
             const fields = [];
             fields.push({
                 short: false,
-                title: `**${i18next.t('command.file.list.mountsDetail.details', { ns: 'ZosMessage' })}** ${fileSystem.name}`,
+                title: `${i18next.t('command.file.list.mountsDetail.details', { ns: 'ZosMessage' })} ${fileSystem.name}`,
                 value: `*** \n`,
             },
             {
