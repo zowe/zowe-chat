@@ -54,15 +54,19 @@ class ZoweCliCommandHandler extends ChatHandler {
                 logger.info(`Zowe CLI command to be executed: ${command.extraData.zoweCliCommand}`);
                 cmdOutput = childProcess.execSync(command.extraData.zoweCliCommand, { cwd: os.homedir(), timeout: cmdTimeout, windowsHide: true }).toString();
             } catch (error) {
-                logger.debug(`status: ${error.status}`);
-                logger.debug(`message: ${error.message}`);
+                logger.debug(`error.status: ${error.status}`);
+                logger.debug(`error.message: ${error.message}`);
+                logger.debug(`error.stderr: ${error.stderr}`);
+                logger.debug(`error.stdout: ${error.stdout}`);
                 if (error.code === 'ETIMEDOUT') { // Timeout
                     cmdOutput = `${error.code}: The execution of Zowe CLI command "${command}" timed out.`;
                 } else {
-                    cmdOutput = error.stderr;
+                    cmdOutput = error.message;
                 }
-                logger.debug(`stdout: ${error.stdout}`);
             }
+
+            // Mask sensitive info.
+            cmdOutput = Util.maskSensitiveInfo(cmdOutput);
 
             // Get view
             msgs = this.view.getOutput(cmdOutput, executor);

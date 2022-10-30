@@ -206,11 +206,11 @@ export class Util {
         // Patterns used to mask the sensitive info. in the log
         // TODO: add one configuration file to track the pattern and make user able to customize it
         let maskingPatterns: IMaskingPattern[] = [];
-        if (pattern === null && pattern !== undefined) {
+        if (pattern === null || pattern === undefined) {
             maskingPatterns = [
                 {
-                    pattern: '--password .*?( |$)',
-                    replacement: '--password ********',
+                    pattern: '--password .*?( |"|\'|\r|\n|$)',
+                    replacement: '--password ********\n',
                 },
                 {
                     pattern: 'Password": {0,1}".*?"', //   "Password": "********" | "botPassword": "********"

@@ -15,6 +15,7 @@ rejectUnauthorized: true
 
 # Specify authentication type. The value can be token or password
 # The default value is password
+# Note: token is not supported at present
 authType: password
 
 # If you prefer all bot requests against mainframe services to use a single service account, set to true
