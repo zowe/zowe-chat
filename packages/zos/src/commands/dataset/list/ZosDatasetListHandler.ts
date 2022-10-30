@@ -175,7 +175,7 @@ class ZosDatasetListHandler extends ChatHandler {
                 && name.indexOf('**') === -1
                 && name.indexOf('%') === -1) {
                 for (const ds of datasets) {
-                    if (ds.dsname === name) {
+                    if (ds.dsname === name.toUpperCase()) {
                         datasets = [];
                         datasets.push(ds);
                         break;
