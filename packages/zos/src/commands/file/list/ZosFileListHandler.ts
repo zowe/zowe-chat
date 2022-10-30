@@ -311,7 +311,7 @@ class ZosFileHandler extends ChatHandler {
             // Show detailView if one file system is found and a mountPoint is provided and a fileSystemName without wildcard is provided
             if (fileSystems.length === 1
                 && (mountPoint !== null
-                    || (fileSystemName !== null && fileSystemName.indexOf('*') === -1 && fileSystemName.indexOf('?') === 1))) {
+                    || (fileSystemName !== null && fileSystemName.indexOf('*') === -1 && fileSystemName.indexOf('?') === -1))) {
                 messages = this.view.getMountsDetail(response.apiResponse.items, executor);
             } else {
                 messages = this.view.getMountsOverview(fileSystems, executor, command);
