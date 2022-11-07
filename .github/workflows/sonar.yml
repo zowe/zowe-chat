@@ -1,4 +1,4 @@
-name: Lint
+name: Sonar
 
 on:
   push:
