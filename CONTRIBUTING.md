@@ -12,46 +12,68 @@ This document is a living summary of conventions and best practices for developm
  
 ## Contact Us
 
-Get in touch using [Zowe Communication Channels](https://github.com/zowe/community/blob/master/README.md#communication-channels). You can find us in the `#zowe-chat` channel on Slack.
+Get in touch using [Zowe Chat Site](https://www.zowe.org/#chat-intro). You can find us in the [#zowe-chat](https://openmainframeproject.slack.com/archives/C03NNABMN0J) channel on Slack.
 
-## Understanding Modules
+## Understanding Monorepo and project
 
-**Modules** are individual folders inside the `zowe-chat` root folder. Refer to the table below for the purposes and documentation of the more important modules.
+[Zowe Chat](https://github.com/zowe/zowe-chat/blob/main/README.md) is a chatting application for you to operate z/OS itself including job, dataset, USS file, error code, console command etc. from channels of 3 popular chat tools including Mattermost, Slack, Microsoft Teams. Extendibility also is provided for users to create their own plugins to extend capabilities of Zowe Chat as plugins.
 
-| Package Folder                           | Purpose                                                                     |
-|------------------------------------------|-----------------------------------------------------------------------------|
-| common-bot-framework                     | [Common functionality for chat bots and chat services](./README.md)         |
+**Modules** are individual folders inside the `zowe-chat/packages` root folder. Refer to the table below for the purposes and documentation of the more important modules.
+
+| Package Folder    | Purpose                                                                                                                                                  |
+|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| chat              | [Provide basic functionalities for chatting and extendability](https://github.com/zowe/zowe-chat/blob/main/packages/chat/README.md)                      |
+| zos               | [Provide functionalities to manage z/OS job/data set/USS file & issue z/os command](https://github.com/zowe/zowe-chat/blob/main/packages/zos/README.md)) |
+| clicmd            | [Provide functionalities to natively execute Zowe CLI commands in chat tool](https://github.com/zowe/zowe-chat/blob/main/packages/clicmd/README.md)      |
+| webapp            | [One web UI app to complete authentication challenge for z/OSMF server](https://github.com/zowe/zowe-chat/blob/main/packages/webapp/README.md)           |
 
 ## General Guidelines
 
-## Branch Naming Guidelines
 
-Use the format `{contributor-tag}/{issue-tag}/{description}`, where:
+## Branch Guidelines
 
-* `{contributor-tag}` is your Github handle. E.g. `CarsonCook`. If you are working on behalf of the Zowe Chat squad, use `squad` instead.
-* `{issue-tag}` is `GH` followed by the Github issue number. E.g. `GH1234`. If there is no related Github issue this section can be left out.
-* `{description}` is a short description of the reason for the branch. Keep it short and relevant, and use `-` instead of spaces. E.g. `job-view-handler`.
+* Branch naming:
+  Use the format `<description>`
+  > `<description>` is a short description of the reason for the branch. Keep it short and relevant, and name in camel case without any space. E.g. `jobViewHandler`.
+* Branch size
+  * One feature one branch
+    > The feature granularity must be kept as small as possible so as to reduce the reviewing effort. Usually your branch only cover change in single project. For example, if one feature need to change both frontend and backend part, it'd better to create two branches for the feature, one for frontend and another for backend; Another example, if you want to implement some features in a Zowe Chat plugin, but need to enhance Zowe Chat core. It'd better to create two branches for the feature, one for the plugin feature and another for Zowe Chat core enhancement.
 
-Example as an outside contributor: `CarsonCook/GH1234/job-view-handler`.
-Example for a squad contribution: `squad/GH1234/job-view-handler`.
+    > Your must link to an feature issue when you submit your branch
+  * One issue one branch
+    > You must link to an story or task issue when you submit your branch
+  * One bug fixing one branch
+    > You must link to an bug issue when you fix a bug
 
-## Code Guidelines
 
-* Indent code with 4 spaces.
-* Lint rules are enforced through the [build process](#build-process-guidelines).
-* Use the provided [tsconfig.json](./tsconfig.json) file.
-* TODO editor config files
+## Code style Guidelines
+
+* Do not auto-format the code using other tools except ESlint.
+* All code styles are controlled by ESLint configuration file `.eslintrc.js` under each project
+* Except updating the ESLint configuration file `.eslintrc.js` in each project, do not use other way to change the code style
+* ESLint extension `dbaeumer.vscode-eslint` must be installed in your VS Code
+* `npm lint all` command must be executed and no error and warning is shown before a pull request is submit against your branch
 
  ### File Naming Guidelines
 
- * Class names should match files names. E.g. class `JobSubmission` would be found in a file `JobSubmission.ts`.
- * Interface names should match file names and should start with the capital letter `I`. E.g. interfacd `IJobSubmissionParms` would be found in `IJobSubmissionParms.ts`.
+ * Class file names should match class names. E.g. class `ZosJobMattermostView` would be found in a file `ZosJobMattermostView.ts`.
+ * Except `types/index.ts`, interface and type file names should start with the capital letter `I` and placed under `types` folder. The file name should be named by interface and type group or itself. E.g. configuration related interfaces would be found in `types/IConfig.ts`.
  * Nested directories should be single lowercase words, named by feature. For example `security`, `message`, `config`.
  * Keep the directory hierarchy shallow.
 
+### Class / Interface / Type / Variable Naming Guidelines
+ * Class and variable name should be noun phrase in singular format and camel case.
+ * Interface name and type should be noun phrase in singular format and camel case and start with the capital letter `I`.
+ * Function name should be verb-object phrase or verb in singular format and camel case
+ * Class names should match files names. E.g. class `ZosJobMattermostView` would be found in a file `ZosJobMattermostView.ts`.
+
+### Environment Variable Naming Guidelines
+* Environment variables should be kept at less as possible, do not add new variables if not necessary for business 
+* Environment variables should be noun phrase in singular format, upper and snake case.
+
  ### Testing Guidelines
 
-Zowe Chat uses the jest testing framework. In general test code should adhere to the same linting and conventions as other code in the project.
+Zowe Chat uses the `jest` testing framework. In general test code should adhere to the same linting and conventions as other code in the project.
 
  * The Zowe Chat squad uses Test-Driven-Development practices.
  * All code in PRs should be covered with unit tests.
@@ -64,7 +86,7 @@ Zowe Chat uses the jest testing framework. In general test code should adhere to
 
 ## Build Process Guidelines
 
-Zowe Chat uses Gulp for build tasks and linting. The build can be ran via `npm run build`.
+Zowe Chat uses `Gulp` for build tasks and linting. The build can be ran via `npm run buildAll`.
 
 ## Documentation Guidelines
 
