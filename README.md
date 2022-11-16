@@ -7,7 +7,6 @@ Zowe Chat is a chatting application for you to operate z/OS itself including job
   - [Projects](#projects)
   - [Documentation](#documentation)
   - [Contribution guidelines](#contribution-guidelines)
-  - [Environment variables](#environment-variables)
   - [Steps to build Zowe Chat](#steps-to-build-zowe-chat)
   - [Steps to run Zowe Chat server](#steps-to-run-zowe-chat-server)
 
@@ -21,11 +20,11 @@ Zowe Chat is a chatting application for you to operate z/OS itself including job
 * Extendibility with plugin
   
 ## Projects
-There four projects below are under Zowe Chat repository.
-* @zowe/commonbot
-* @zowe/chat
-* @zowe/zos
-* @zowe/clicmd
+There are four projects below under Zowe Chat repository.
+* [@zowe/chat](https://github.com/zowe/zowe-chat/blob/main/packages/chat/README.md)
+* [@zowe/zos](https://github.com/zowe/zowe-chat/blob/main/packages/zos/README.md)
+* [@zowe/clicmd](https://github.com/zowe/zowe-chat/blob/main/packages/clicmd/README.md)
+* [@zowe/webapp](https://github.com/zowe/zowe-chat/blob/main/packages/webapp/README.md)
 
 ## Documentation
 
@@ -40,44 +39,73 @@ The following information is critical to working with the code, running/writing/
 | Documentation that describes the features of the Common Bot Framework | [About Common Bot Framework](https://github.com/zowe/zowe-chat/blob/main/packages/commonbot/README.md) |
 
 ## Steps to build Zowe Chat
-### Environment variables
-* NODE_ENV
+* Environment variables
+  * NODE_ENV
 
-  Specifies the building environment for your mono-repo
+    Specifies the building environment for your mono-repo
 
-* RELEASE_TYPE
+  * RELEASE_TYPE
 
-  Specifies the release type of your building result
+    Specifies the release type of your building result
 
-* RELEASE_VERSION
+  * RELEASE_VERSION
 
-  Specifies the release version of your building result
+    Specifies the release version of your building result
 
-### Build steps
-* Clone the repo
-* Go to the directory where Zowe Chat repo is cloned
-* Run the command below to build the whole workspaces
-  ```Shell
-     npm install
-     npm run build --workspaces
-  ```
-  **Note:** You can also to build single project by specifying the detailed project name. e.g. use the command `npm run build --workspace=@zowe/chat` to build only `chat` project.
+* Build steps
+  * Clone the repo
+  * Go to the directory where Zowe Chat repo is cloned
+  * Run the command below to build the whole workspaces
+    ```sh
+    npm run installAll
+    npm run buildAll
+    ```
+    > **Note:** You can also to build single project by specifying the detailed project name. e.g. use the command `npm run build --workspace=@zowe/chat` to build only `chat` project.
 
 ## Steps to run Zowe Chat server
 * **Prerequisite:** the connection with your chat tool and related bot app are ready
-* Deploy Zowe Chat core
-  * Create one folder for `ZOWE_CHAT_HOME`
-  * Upload your build result of `@zowe/commonbot` and `@zowe/chat` packages to `ZOWE_CHAT_HOME`
-  * `cd ${ZOWE_CHAT_HOME}`
-  * `npm install ${ZOWE_CHAT_HOME}/yourCommonBotLib`
-  * Double confirm all configuration under `ZOWE_CHAT_HOME/config` are correct
-  * Start Zowe Chat Server using the command `node index.js`
-* Deploy Zowe Chat plugins
-  * Create one folder for `ZOWE_CHAT_PLUGIN_HOME`
-  * Upload your plugin build result of `@zowe/zos` and `@zowe/clicmd` packages to `ZOWE_CHAT_PLUGIN_HOME/@zowe/`
-  * Update the plugin configuration file `ZOWE_CHAT_PLUGIN_HOME/plugin.yaml`
-  * Link `@zowe/chat` library
-    * Go to each directory of Zowe Chat plugin
-    * Run the command `npm link ZOWE_CHAT_PLUGIN_HOME` to link `@zowe/chat` library
-  **Note:** you must restart Zowe Chat server to make sure your changes to plugin work
+* **Run from local laptop for development**
 
+  > **Note:** Depending on chat tool requirement and your laptop network environment, not all chat clients will work when running the project locally (i.e. MSTeams)
+  * Execute `npm run buildAll` to build all projects
+  * Execute `npm run startLocal` to set up a local environment in the folder `$PROJECT_ROOT/.build` based on the previous build result
+    > **Note:** This will fail on first invocation.
+  * Configure your local environment in the `$PROJECT_ROOT/.build/zoweChat/config` folder
+  * Re-execute `npm run startLocal` command to start Zowe Chat server locally
+    > **Note:** This will not over-write changes to your configuration
+  * Launch your chat tool client and chat with your bot
+* **Run from your xLinux or zLinux server for production**
+  * Execute `npm run packagingAll` to build and package the project
+    > **Note:** Your must set the three required environment variables (`NODE_ENV`, `RELEASE_TYPE`, `RELEASE_VERSION`) for packaging first
+  * Upload your building result `$PROJECT_ROOT/release/zowe-chat-v<version>-.tar.gz` to your Linux server
+  * Logon your Linux server, create one folder and unpack the building result there
+  * Set and update required environment variables
+    ```sh
+     export ZOWE_CHAT_HOME=<your created folder>/zoweChat
+     export ZOWE_CHAT_PLUGIN_HOME=<your created folder>/plugins
+     export PATH=$PATH:$ZOWE_CHAT_HOME/bin
+    ```
+  * Update the plugin configuration file `$ZOWE_CHAT_PLUGIN_HOME/plugin.yaml` if necessary
+  * Execute the commands below to install local dependencies
+    ```sh
+    cd $ZOWE_CHAT_HOME/node_modules/i18next
+    npm link
+    cd  $ZOWE_CHAT_PLUGIN_HOME/@zowe/clicmd
+    npm link $ZOWE_CHAT_HOME
+    npm link i18next
+    cd  $ZOWE_CHAT_PLUGIN_HOME/@zowe/zos
+    npm link $ZOWE_CHAT_HOME
+    npm link i18next
+    ```
+  * Update Zowe Chat, chat tool and z/OSMF server configuration per your environment
+    ```sh
+    $ZOWE_CHAT_HOME/config/chatServer.yaml
+    $ZOWE_CHAT_HOME/config/zosmfServer.yaml
+    $ZOWE_CHAT_HOME/config/chatTools/<mattermost | msteams | slack>.yaml
+    ```
+  * Execute `chatsvr start` to start your Zowe Chat server
+    * `chatsvr status`  - Check your Zowe Chat server status
+    * `chatsvr stop`    - Stop your Zowe Chat server
+    * `chatsvr restart` - Restart your Zowe Chat server
+  * Launch your chat tool client and chat with your bot
+  

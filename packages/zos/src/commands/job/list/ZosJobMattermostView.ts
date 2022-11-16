@@ -1,22 +1,20 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import {IJob} from '@zowe/zos-jobs-for-zowe-sdk';
+import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
+import i18next from 'i18next';
 
-import {Logger, IMessage, IMessageType, ChatMattermostView, IExecutor, IBotOption, IMattermostBotLimit, ICommand} from '@zowe/chat';
+import { logger, Util } from '@zowe/chat';
+import { ChatMattermostView, IBotOption, ICommand, IExecutor, IMattermostBotLimit, IMessage, IMessageType } from '@zowe/chat';
 
-const i18nJsonData = require('../../../i18n/jobDisplay.json');
-
-const logger = Logger.getInstance();
-
-class ZosJobMattermostView extends ChatMattermostView {
+export class ZosJobMattermostView extends ChatMattermostView {
     constructor(botOption: IBotOption, botLimit: IMattermostBotLimit) {
         super(botOption, botLimit);
     }
@@ -29,76 +27,80 @@ class ZosJobMattermostView extends ChatMattermostView {
         let messages: IMessage[] = [];
 
         try {
+            // Generate header message
             let headerMessage = '';
             if (jobs.length === 0) {
-                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
                 return messages = [{
                     type: IMessageType.PLAIN_TEXT,
-                    message: headerMessage,
+                    message: i18next.t('common.data.foundZero',
+                            { executor: executor.name, resourceName: i18next.t('command.job.list.status.resourceName',
+                                    { ns: 'ZosMessage' }), ns: 'ZosMessage' }),
                 }];
             } else {
                 // TODO: Think about what message should be when  too many jobs are searched, if jobs.length > limit.
-                headerMessage = `@${executor.name}. I have found ${jobs.length} jobs that match the filter:`;
+                headerMessage = i18next.t('common.data.foundMoreThanOne',
+                        { executor: executor.name, resourceName: i18next.t('command.job.list.status.resourceName', { ns: 'ZosMessage' }), ns: 'ZosMessage' });
             }
 
-            const detailOptions = [];
             // Create fields array within attachment.
             const fields = [];
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let job: Record<string, any>;
+            const detailOptions = [];
             for (job of jobs) {
                 fields.push({
                     short: true,
-                    value: `**${job.jobid}** (ID: ${job.jobname})`,
+                    value: `:card_index: **${i18next.t('command.job.list.status.name', { ns: 'ZosMessage' })}:** ${job.jobname}`,
                 },
                 {
                     short: true,
-                    value: '',
+                    value: `**${i18next.t('command.job.list.status.id', { ns: 'ZosMessage' })}:** ${job.jobid}`,
                 },
                 {
                     short: true,
-                    value: `**${i18nJsonData.overview.owner}: ** ${job.owner}`,
+                    value: `**${i18next.t('command.job.list.status.owner', { ns: 'ZosMessage' })}:** ${job.owner}`,
                 },
                 {
                     short: true,
-                    value: `**${i18nJsonData.overview.subSystem}: ** ${job.subsystem}`,
+                    value: `**${i18next.t('command.job.list.status.subSystem', { ns: 'ZosMessage' })}:** ${job.subsystem}`,
                 },
                 {
                     short: true,
-                    value: `**${i18nJsonData.overview.status}: ** ${job.status}`,
+                    value: `**${i18next.t('command.job.list.status.status', { ns: 'ZosMessage' })}:** ${this.getJobStatusIcon(job.status)}`,
                 },
                 {
                     short: true,
-                    value: `**${i18nJsonData.overview.type}: ** ${job.type}`,
+                    value: `**${i18next.t('command.job.list.status.type', { ns: 'ZosMessage' })}:** ${job.type}`,
                 },
                 {
                     short: true,
-                    value: `**${i18nJsonData.overview.returnCode}: ** ${job.retcode === null ? ' ' : job.retcode}`,
+                    value: `**${i18next.t('command.job.list.status.returnCode', { ns: 'ZosMessage' })}:** ${job.retcode === null ? ' ' : job.retcode}`,
                 },
                 {
                     short: true,
-                    value: `**${i18nJsonData.overview.startedTime}: **${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                    value: `**${i18next.t('command.job.list.status.startedTime', { ns: 'ZosMessage' })}:** `
+                            + `${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
                 },
                 {
                     short: false,
-                    value: `*** \n`,
+                    value: `***`,
                 });
 
                 // Options for details message menu.
                 detailOptions.push({
-                    'text': `Details of ${job.jobname}(${job.jobid})`,
-                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:id=${job.jobid}`,
+                    'text': `${job.jobname}(ID: ${job.jobid})`,
+                    'value': `@${this.botOption.chatTool.option.botUserName}:zos:job:list:status:${job.jobid}`,
                 });
             }
 
-            // Add action
+            // Add actions
             const actions = <Record<string, unknown>[]>[];
-            const contextData = {
+            const actionData = {
                 'pluginId': command.extraData.chatPlugin.package,
                 'token': '',
                 'id': '',
             };
-            super.addMenuAction(actions, i18nJsonData.overview.dropDownPlaceholder, contextData, detailOptions);
+            super.addMenuAction(actions, i18next.t('command.job.list.status.dropDownPlaceholder', { ns: 'ZosMessage' }), actionData, detailOptions);
 
             // Create message attachments
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,11 +121,13 @@ class ZosJobMattermostView extends ChatMattermostView {
             });
             return messages;
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos job view create exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: 'Internal error',
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log
@@ -139,18 +143,7 @@ class ZosJobMattermostView extends ChatMattermostView {
         let messages: IMessage[] = [];
 
         try {
-            // Get header message
-            let headerMessage = '';
-            if (jobs.length === 0) {
-                headerMessage = `@${executor.name}. I haven't found any jobs that match the filter.`;
-                return messages = [{
-                    type: IMessageType.PLAIN_TEXT,
-                    message: headerMessage,
-                }];
-            } else {
-                headerMessage = `@${executor.name}. Here is the the basic information of ${jobs[0].jobid}:`;
-            }
-
+            // Get job
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const job: Record<string, any> = jobs[0];
 
@@ -158,67 +151,79 @@ class ZosJobMattermostView extends ChatMattermostView {
             const fields = [];
             fields.push({
                 short: false,
-                value: `**${job.jobname}** (ID: ${job.jobid})`,
+                title: `${i18next.t('command.job.list.detail.details', { ns: 'ZosMessage' })}${job.jobname}`,
+                value: `*** \n`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.owner}: ** ${job.owner}`,
+                value: `**${i18next.t('command.job.list.detail.id', { ns: 'ZosMessage' })}:** ${job.jobid}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.subSystem}: ** ${job.subsystem}`,
+                value: `**${i18next.t('command.job.list.detail.owner', { ns: 'ZosMessage' })}:** ${job.owner}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.status}: ** ${job.status}`,
+                value: `**${i18next.t('command.job.list.detail.subSystem', { ns: 'ZosMessage' })}:** ${job.subsystem}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.type}: ** ${job.type}`,
+                value: `**${i18next.t('command.job.list.detail.status', { ns: 'ZosMessage' })}:** ${this.getJobStatusIcon(job.status)}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.returnCode}: ** ${job.retcode === null ? ' ' : job.retcode}`,
+                value: `**${i18next.t('command.job.list.detail.type', { ns: 'ZosMessage' })}:** ${job.type}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.class}: ** ${job.class}`,
+                value: `**${i18next.t('command.job.list.detail.returnCode', { ns: 'ZosMessage' })}:** ${job.retcode === null ? ' ' : job.retcode}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.PhaseName}: ** ${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
+                value: `**${i18next.t('command.job.list.detail.class', { ns: 'ZosMessage' })}:** ${job.class}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.Phase}: ** ${job.phase}`,
+                value: `**${i18next.t('command.job.list.detail.PhaseName', { ns: 'ZosMessage' })}:** `
+                        + `${job['phase-name'] === undefined ? ' ' : job['phase-name']}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.ExecutionSystem}: ** ${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
+                value: `**${i18next.t('command.job.list.detail.Phase', { ns: 'ZosMessage' })}:** ${job.phase ? ' ' : job.phase}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.ExecutionMember}: ** ${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
+                value: `**${i18next.t('command.job.list.detail.ExecutionSystem', { ns: 'ZosMessage' })}:** `
+                    + `${job['exec-system'] === undefined ? ' ' : job['exec-system']}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.startedTime}: ** ${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
+                value: `**${i18next.t('command.job.list.detail.ExecutionMember', { ns: 'ZosMessage' })}:** `
+                    + `${job['exec-member'] === undefined ? ' ' : job['exec-member']}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.ExecutionSubmittedTime}: ** ${job['exec-submitted'] === undefined ? ' ': job['exec-submitted']}`,
+                value: `**${i18next.t('command.job.list.detail.startedTime', { ns: 'ZosMessage' })}:** `
+                        + `${job['exec-started'] === undefined ? ' ' : job['exec-started']}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.ExecutionEndedTime}: ** ${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
+                value: `**${i18next.t('command.job.list.detail.ExecutionSubmittedTime', { ns: 'ZosMessage' })}:** `
+                    + `${job['exec-submitted'] === undefined ? ' ': job['exec-submitted']}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.reasonNotRunning}: ** ${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
+                value: `**${i18next.t('command.job.list.detail.ExecutionEndedTime', { ns: 'ZosMessage' })}:** `
+                    + `${job['exec-ended'] === undefined ? ' ' : job['exec-ended']}`,
             },
             {
                 short: true,
-                value: `**${i18nJsonData.detail.openJob}: ** [Zosmf](${job.url})`,
+                value: `**${i18next.t('command.job.list.detail.reasonNotRunning', { ns: 'ZosMessage' })}:** `
+                    + `${job['reason-not-running'] === undefined ? ' ' : job['reason-not-running']}`,
+            },
+            {
+                short: true,
+                value: `**${i18next.t('command.job.list.detail.openJob', { ns: 'ZosMessage' })}:** [Zosmf](${job.url})`,
             });
 
             // Create message attachments
@@ -227,7 +232,9 @@ class ZosJobMattermostView extends ChatMattermostView {
                 props: {
                     attachments: [
                         {
-                            pretext: headerMessage,
+                            pretext: i18next.t('common.data.foundOne',
+                                    { executor: executor.name, resourceName: i18next.t('command.job.list.detail.resourceName', { ns: 'ZosMessage' }),
+                                        ns: 'ZosMessage' }),
                             fields: fields,
                             actions: [],
                         },
@@ -241,17 +248,30 @@ class ZosJobMattermostView extends ChatMattermostView {
             });
             return messages;
         } catch (error) {
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zos job view create exception', ns: 'ChatMessage' }));
             logger.error(logger.getErrorStack(new Error(error.name), error));
 
             return messages = [{
                 type: IMessageType.PLAIN_TEXT,
-                message: 'Internal error',
+                message: i18next.t('common.error.internal', { ns: 'ZosMessage' }),
             }];
         } finally {
             // Print end log
             logger.end(this.getDetail);
         }
     }
-}
 
-export = ZosJobMattermostView;
+    // Get job status with Icon
+    getJobStatusIcon(statusValue: string): string {
+        let status: string = statusValue;
+        if ('ACTIVE' === statusValue.toUpperCase()) {
+            status = `:beginner: ${statusValue}`;
+        } else if ('INPUT' === statusValue.toUpperCase()) {
+            status = `:inbox_tray: ${statusValue}`;
+        } else if ('OUTPUT' === statusValue.toUpperCase()) {
+            status = `:outbox_tray: ${statusValue}`;
+        }
+        return status;
+    }
+}

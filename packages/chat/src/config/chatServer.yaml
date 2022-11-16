@@ -1,9 +1,13 @@
-# Specify the type of chat tool, the value can be mattermost, slack or msteams.
+# Specify the type of chat tool. Currently, 'mattermost', 'slack' or 'msteams' are the supported values.
 # The default value is mattermost.
-chatToolType: slack
+chatToolType: mattermost
 
 # Configure logging
 log:
+  # Specify the log file path
+  # The default value is chatServer.log
+  filePath: chatServer.log
+  
   # Specify the level of logs, the value can be error, warn, info, verbose, debug or silly.
   # The default value is info.
   level: info
@@ -15,16 +19,44 @@ log:
 
   # Specify the maximum file number of logs to keep.
   # The default value is null, which means only one log file and no logs will be removed.
-  maximumFiles: null
+  maximumFile: null
 
-# Specify the maximum number of resources that chatbot can retrieve for you.
-recordLimit: 10
+  # Specify whether the console output is suppressed or not. The value can be true or false.
+  # The default value is true, which means the console output is suppressed.
+  consoleSilent: true
 
-# Specify the maximum number of plugins that can respond to the same matched message or event.
-pluginLimit: -1
+# Specify the chatting limit
+limit:
+   # Specify the maximum number of resources that chatbot can retrieve for you.
+   record: 10
+   # Specify the maximum number of plugins that can respond to the same matched message or event.
+   plugin: -1
 
-# Specify the functional user id used to access your z/OS system.
-userId: <Your user id>
+# Specify what security challenge method when accessing backend resource from chat tool channels. The value can be webapp, dialog or passticket.
+# The default value is webapp
+# Note: dialog and passticket is not supported at present
+securityChallengeMethod: webapp
 
-# Specify the password of the functional user.
-userPassword: <Your password>
+# Specify the configuration for Chat Web App
+webApp:
+  # Specify the protocol of your HTTP endpoint. The value can be https or http.
+  # The default value is https.
+  protocol: https
+
+  # Specify the host name or IP address of your HTTP endpoint.
+  hostName: <Your hostname>
+
+  # Specify the port number of the endpoint will serve the Chat Web App.
+  # The default value is 7702.
+  port: 7702
+
+  # TODO: this should not be configurable, we should set it. At the very least, it must not be obviously configurable - advanced only.
+  # Specify the base path of your HTTP endpoint.
+  # The default value is /zowe/chat/index
+  basePath: /zowe/chat/index
+
+  # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
+  tlsKey: <Your absolute TLS key file path of your messaging server>
+
+  # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
+  tlsCert: <Your absolute TLS cert file path of your messaging server>

@@ -3,7 +3,7 @@
 protocol: https
 
 # Specify the host name or IP address of your Mattermost server.
-hostName: <Your host name>
+hostName: <Your mattermost server hostname>
 
 # Specify the port number of your Mattermost server.
 # The default value is 443.
@@ -25,8 +25,7 @@ teamUrl: devops
 botUserName: zowechat
 
 # Specify the access token to connect to your bot.
-# The token will be encrypted automatically by Z ChatOps server with <AES> prefix added.
-botAccessToken: <Your bot access token>
+botAccessToken: <Your bot token>
 
 # Configure the messaging application which your Mattermost server will communicate with when some user clicking actions occur.
 messagingApp:
@@ -42,8 +41,8 @@ messagingApp:
   port: 7701
   
   # Specify the base path of your HTTP endpoint.
-  # The default value is /zowechat/api/v1.
-  basePath: /zowechat/api/v1
+  # The default value is /zowe/chat/api/v1.
+  basePath: /zowe/chat/api/v1
 
   # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.  
   tlsKey: <Your absolute TLS key file path of your messaging server>

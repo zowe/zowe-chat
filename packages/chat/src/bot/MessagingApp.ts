@@ -1,27 +1,34 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import type {Application} from 'express';
-import {IAppOption} from '../types';
-
-import fs = require('fs');
-import express = require('express');
-import https = require('https');
-import http = require('http');
+import type { Application } from 'express';
+import express from 'express';
+import * as fs from 'fs-extra';
 import helmet from 'helmet';
+import http from 'http';
+import https from 'https';
+import { IAppOption, IProtocol } from '../types';
+import { logger } from '../utils/Logger';
+import { Util } from '../utils/Util';
 
-class MessagingApp {
-    private option: IAppOption;
-    private app: Application;
+export class MessagingApp {
+    private readonly option: IAppOption;
+    private readonly app: Application;
+    // server is readonly, but set outside the class constructor
     private server: https.Server | http.Server;
 
+    /**
+     * Creates a new instance of the MessagingApp
+     *
+     * @param option
+     */
     constructor(option: IAppOption) {
         // Set app option
         this.option = option;
@@ -29,31 +36,41 @@ class MessagingApp {
         // Create express app
         this.app = express();
         this.app.use(express.json());
-        this.app.use(express.urlencoded({extended: false}));
+        this.app.use(express.urlencoded({ extended: false }));
         this.app.use(helmet()); // Secure Express apps with various HTTP headers
     }
 
-    // Get messaging application
+    /**
+     * This function should not be used by most callers. The CommonBot framework requires access to this app.
+     *
+     * @returns the underlying express application
+     */
     getApplication(): Application {
         return this.app;
     }
 
-    // Start messaging application server
+    /**
+     * Configures and creates the http/https server underlying the express application, and then starts it.
+     *
+     */
     startServer(): void {
+        // Print start log
+        logger.start(this.startServer, this);
+
         try {
             // Set port
             const port = this.normalizePort(this.option.port.toString());
             this.app.set('port', port);
 
             // Create Http/Https server
-            if (this.option.protocol.toLowerCase() === 'https') {
+            if (this.option.protocol.toLowerCase() === IProtocol.HTTPS) {
                 // Check TLS key and certificate
                 if (fs.existsSync(this.option.tlsKey) === false) {
-                    console.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
+                    logger.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
                     process.exit(1);
                 }
                 if (fs.existsSync(this.option.tlsCert) === false) {
-                    console.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
+                    logger.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
                     process.exit(2);
                 }
 
@@ -71,13 +88,19 @@ class MessagingApp {
             this.server.on('error', this.onError(port));
             this.server.on('listening', this.onListening(this.server));
         } catch (error) {
-            console.error(`There's some problem to create the messaging app server!`);
-            console.error(error.stack);
-            process.exit(1);
+            // ZWECC001E: Internal server error: {{error}}
+            logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Message app server start exception', ns: 'ChatMessage' }));
+            logger.error(logger.getErrorStack(new Error(error.name), error));
+            process.exit(3);
+        } finally {
+            // Print end log
+            logger.end(this.startServer, this);
         }
     }
 
-    // Normalize a port into a number, string, or false.
+    /** 
+     * Normalize a port into a number, string, or false.
+     */
     private normalizePort(val: string) {
         const port = parseInt(val, 10);
 
@@ -94,12 +117,14 @@ class MessagingApp {
         return false;
     }
 
-    // Event listener for error event.
+    /**
+     * Event listener for error event. 
+     */
     private onError(port: string | number | boolean) {
-        return function(error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+        return function (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             if (error.syscall !== 'listen') {
-                console.error(`Listen is not called!`);
-                console.error(error.stack);
+                logger.error(`Listen is not called!`);
+                logger.error(error.stack);
                 throw error;
             }
 
@@ -108,14 +133,14 @@ class MessagingApp {
             // handle specific listen errors with friendly messages
             switch (error.code) {
                 case 'EACCES':
-                    console.error(`${bind} requires elevated privileges`);
-                    console.error(error.stack);
-                    process.exit(2);
+                    logger.error(`${bind} requires elevated privileges`);
+                    logger.error(error.stack);
+                    process.exit(4);
                     break;
                 case 'EADDRINUSE':
-                    console.error(`${bind} is already in use`);
-                    console.error(error.stack);
-                    process.exit(3);
+                    logger.error(`${bind} is already in use`);
+                    logger.error(error.stack);
+                    process.exit(5);
                     break;
                 default:
                     throw error;
@@ -123,14 +148,18 @@ class MessagingApp {
         };
     }
 
-    // Event listener for listening event
+    /**
+     * Event listener for listening event
+     * 
+     * @param server 
+     * @returns 
+     */
     private onListening(server: https.Server | http.Server) {
-        return function() {
+        return function () {
             const addr = server.address();
             const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
-            console.info(`The messaging app server is listening on ${bind}`);
+            logger.info(`The messaging app server is listening on ${bind}`);
         };
     }
-}
 
-export = MessagingApp;
+}

@@ -1,17 +1,21 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import fs = require('fs');
-import nodeUtil = require('util');
+import fs from 'fs';
+import path from 'path';
+import * as nodeUtil from 'util';
+import * as yaml from 'js-yaml';
+import i18next from 'i18next';
+import { IMaskingPattern } from '../types';
 
-class Util {
+export class Util {
     // Constructor
     // constructor() {
     // }
@@ -19,7 +23,7 @@ class Util {
     // Dump JavaScript object
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static dumpObject(obj: Record<string, any>, depth: number = null): string {
-        return nodeUtil.inspect(obj, {compact: false, depth: depth});
+        return nodeUtil.inspect(obj, { compact: false, depth: depth });
     }
 
     // Dump request
@@ -36,7 +40,7 @@ class Util {
         // Dump
         let result = '';
         if (includeAllProperties) {
-            result = nodeUtil.inspect(req, {compact: false, depth: null});
+            result = nodeUtil.inspect(req, { compact: false, depth: null });
         } else {
             // Set dumped fields
             const dumpedFields = {
@@ -57,7 +61,7 @@ class Util {
                 statusMessage: req.statusMessage,
             };
 
-            result = nodeUtil.inspect(dumpedFields, {compact: false, depth: null});
+            result = nodeUtil.inspect(dumpedFields, { compact: false, depth: null });
         }
 
         if (formatted) {
@@ -95,7 +99,7 @@ class Util {
         // Dump
         let result = '';
         if (includeAllProperties) {
-            result = nodeUtil.inspect(res, {compact: false, depth: null});
+            result = nodeUtil.inspect(res, { compact: false, depth: null });
         } else {
             // Set dumped fields
             const dumpedFields = {
@@ -125,7 +129,7 @@ class Util {
                 links: res.links,
             };
 
-            result = nodeUtil.inspect(dumpedFields, {compact: false, depth: null});
+            result = nodeUtil.inspect(dumpedFields, { compact: false, depth: null });
         }
 
         if (formatted) {
@@ -159,6 +163,87 @@ class Util {
 
         return name;
     }
-}
 
-export = Util;
+    // Read YAML file
+    static readYamlFile(filePath: string): unknown {
+        let content = null;
+        try {
+            if (fs.existsSync(filePath)) {
+                content = yaml.load(fs.readFileSync(filePath, 'utf8'));
+            }
+        } catch (error) {
+            console.error(`Exception occurred when read the YAML files ${filePath}!`);
+            console.error(error.stack);
+        }
+
+        return content;
+    }
+
+    // Get the canonical path name by resolving ., .., and symbolic links
+    static getRealPath(filePath: string): string {
+        let realPath = null;
+        try {
+            if (filePath !== null && filePath !== undefined) {
+                realPath = fs.realpathSync(path.normalize(filePath));
+            }
+        } catch (error) {
+            console.error(`Exception occurred when get the real path for ${filePath}!`);
+            console.error(error.stack);
+        }
+
+        return realPath;
+    }
+
+    // Get the error message defined in translation resource
+    static getErrorMessage(errorCode: string, option: unknown): string {
+        return `${errorCode}: ${i18next.t('errorCode.' + errorCode + '.text', <any> option)}`
+            + `\n${i18next.t('errorCode.' + errorCode + '.reason', <any> option)}`
+            + `\n${i18next.t('errorCode.' + errorCode + '.action', <any> option)}`;
+    }
+
+    // Mask sensitive info. in the console or log output
+    static maskSensitiveInfo(text: string, pattern: IMaskingPattern = null): string {
+        // Patterns used to mask the sensitive info. in the log
+        // TODO: add one configuration file to track the pattern and make user able to customize it
+        let maskingPatterns: IMaskingPattern[] = [];
+        if (pattern === null || pattern === undefined) {
+            maskingPatterns = [
+                {
+                    pattern: '--password .*?( |"|\'|\r|\n|$)',
+                    replacement: '--password ********\n',
+                },
+                {
+                    pattern: 'Password": {0,1}".*?"', //   "Password": "********" | "botPassword": "********"
+                    replacement: 'Password": "********"',
+                },
+                {
+                    pattern: 'Password\': {0,1}\'.*?\'', //  'Password': '********'
+                    replacement: 'Password\': \'********\'',
+                },
+                {
+                    pattern: 'token": {0,1}".*?"', // "botAccessToken": "********"  | "token": "********" | "appToken": "********"
+                    replacement: 'token": "********"',
+                },
+                {
+                    pattern: 'Password":{"type":"plain_text_input","value":".*?"}',
+                    replacement: 'Password":{"type":"plain_text_input","value":"********"}',
+                },
+                {
+                    pattern: '"signingSecret": {0,1}".*?"',
+                    replacement: '"signingSecret": "********"',
+                },
+            ];
+        } else {
+            maskingPatterns.push(pattern);
+        }
+
+        let result = text;
+        if (text !== undefined && text !== null && text.trim() !== '') {
+            for (const pattern of maskingPatterns) {
+                const regex = new RegExp(pattern.pattern, 'ig');
+                result = result.replace(regex, pattern.replacement);
+            }
+        }
+        return result;
+    }
+}

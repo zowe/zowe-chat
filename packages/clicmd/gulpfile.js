@@ -1,3 +1,13 @@
+/*
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
+
 // Description:
 //   Gulp script used to clean, build, test (UT & FVT), deploy or packaging Zowe Chat - job。
 //
@@ -38,9 +48,6 @@
 //                                   Used in gulp build, gulp packaging task
 //   RELEASE_VERSION               - Indicate which version will be add build file name
 //                                   Used in gulp packaging task
-//
-// Author:
-//   bjwsfang@cn.ibm.com
 
 const gulp = require('gulp');
 const gulpClean = require('gulp-clean');
@@ -111,11 +118,12 @@ if (nodeEnv === 'production') { // Product
 }
 
 // Print the configuration
-console.log('');
+// console.log('');
+console.log('Building @zowe/clicmd with settings below:');
 console.log('###################################################');
-console.log(`                    NODE_ENV = ${nodeEnv}`);
-console.log(`                RELEASE_TYPE = ${releaseType}`);
-console.log(`             RELEASE_VERSION = ${releaseVersion}`);
+console.log(`           NODE_ENV = ${nodeEnv}`);
+console.log(`       RELEASE_TYPE = ${releaseType}`);
+console.log(`    RELEASE_VERSION = ${releaseVersion}`);
 console.log('###################################################');
 console.log('');
 console.log(`Build folder: ${JSON.stringify(folder, null, 2)}`);
@@ -190,7 +198,15 @@ async function createPackageJsonTask() {
     delete result.scripts.packaging;
     delete result.scripts.deploy;
     if (nodeEnv === 'production') { // Product
+        delete result.scripts.build;
+        delete result.scripts.packaging;
+        delete result.scripts.lint;
+        delete result.scripts.checkDeps;
+        delete result.scripts.updateDeps;
+        delete result.scripts.test;
         delete result.devDependencies;
+        delete result.peerDependencies;
+
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
     } else if (nodeEnv === 'fvt') { // FVT
@@ -343,19 +359,18 @@ async function purgeUnusedFileTask() {
 exports.clean = cleanTask;
 if (nodeEnv === 'production') { // Product
     exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, purgeUnusedFileTask);
 } else if (nodeEnv === 'fvt') { // FVT
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
 } else if (nodeEnv === 'ut') { // UT
     exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
 } else { // Development
     exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask, packagingTask);
+            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
 }
-// exports.testUnit = testUnitTask;
-// exports.testFunction = testFunctionTask;
+
 exports.packaging = packagingTask;
 exports.lint = lintTask;
 exports.default = gulp.series(exports.build);

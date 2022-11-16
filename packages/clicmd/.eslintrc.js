@@ -1,3 +1,13 @@
+/*
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
+
 module.exports = {
     'env': {
         'browser': false,
@@ -24,17 +34,17 @@ module.exports = {
         'ecmaVersion': 11,
         'sourceType': 'module',
     },
-    "ignorePatterns": ["**/*.js", "dist"],
+    'ignorePatterns': ['**/dist', '**/node_modules', '**/release', '**/lib'],
     'rules': {
         'header/header': [2,
-            "block",
-            ['\n * This program and the accompanying materials are made available under the terms of the'
-            + '\n * Eclipse Public License v2.0 which accompanies this distribution, and is available at'
-            + '\n * https://www.eclipse.org/legal/epl-v20.html'
-            + '\n *'
-            + '\n * SPDX-License-Identifier: EPL-2.0'
-            + '\n *'
-            + '\n * Copyright Contributors to the Zowe Project.\n '],
+            'block',
+            ['\n* This program and the accompanying materials are made available under the terms of the'
+            + '\n* Eclipse Public License v2.0 which accompanies this distribution, and is available at'
+            + '\n* https://www.eclipse.org/legal/epl-v20.html'
+            + '\n*'
+            + '\n* SPDX-License-Identifier: EPL-2.0'
+            + '\n*'
+            + '\n* Copyright Contributors to the Zowe Project.\n'],
             2
         ],
         'indent': [
@@ -64,6 +74,7 @@ module.exports = {
             ignoreUrls: true,
             ignorePattern: 'goog\.(module|require)',
         }],
+        'object-curly-spacing': ['error', 'always'],
         'operator-linebreak': ['error', 'before'],
         'require-jsdoc': ['off', {
             require: {

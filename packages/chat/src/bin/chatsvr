@@ -1,0 +1,140 @@
+#!/bin/sh
+
+################################################################################
+# This program and the accompanying materials are made available under the terms of the
+# Eclipse Public License v2.0 which accompanies this distribution, and is available at
+# https://www.eclipse.org/legal/epl-v20.html
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Copyright Contributors to the Zowe Project.
+################################################################################
+
+# Usage
+function help() {
+    echo "Usage: ${0} <start|stop|restart|status>"
+    echo "Example: ${0} start      - Start  Zowe Chat server"
+    echo "         ${0} stop       - Stop Zowe Chat server"
+    echo "         ${0} restart    - Restart Zowe Chat server"
+    echo "         ${0} status     - Show the status of Zowe Chat server"
+}
+
+# Start Zowe Chat server
+function start() {
+    echo "Starting Zowe Chat server ..."
+
+    # Check logs folder
+    if [ ! -d "${LOG_FILE_PATH}" ]; then
+       mkdir -p "${LOG_FILE_PATH}"
+    fi
+
+    # Find existing chatsvr process
+    pid=`ps aux | grep 'node main.js' | grep 'appNameTag=chatsvr' | grep -v grep | awk '{print $2}'`
+    if [ -z "${pid}" ]; then
+        if [ ! -f "${ZOWE_CHAT_HOME}/main.js" ]; then
+            echo "Can not start Zowe Chat server due to the file ${ZOWE_CHAT_HOME}/main.js is missing!"
+            echo "Please double check your installation and setting!"
+            exit 1
+        fi
+        cd ${ZOWE_CHAT_HOME}
+        nohup node main.js --appNameTag=chatsvr > "${LOG_FILE_PATH}/nohup.out" 2>&1 &
+
+        # Check starting result per second
+        for i in 0 1 2 3 4; do
+            sleep 1s
+            pid=`ps aux | grep 'node main.js' | grep 'appNameTag=chatsvr' | grep -v grep | awk '{print $2}'`
+            if [ ! -z "${pid}" ]; then
+                break
+            fi
+        done
+        if [ -z "${pid}" ]; then
+            echo "Failed to start Zowe Chat server!"
+            echo "Please check the server log in the folder ${LOG_FILE_PATH}."
+        else
+            echo "Zowe Chat server is started. The process ID is ${pid}."
+        fi
+    else
+        echo "Zowe Chat server is already running. The process ID is ${pid}."
+    fi
+}
+
+# Stop Zowe Chat server
+function stop() {
+    pids=`ps aux | grep 'node main.js' | grep 'appNameTag=chatsvr' | grep -v grep | awk '{print $2}'`
+    echo "Stopping Zowe Chat server ..."
+    if [ -n "${pids}" ]; then
+        for pid in "${pids}"; do {
+            kill -9 ${pid};
+        }  done
+
+        # Check stop result
+        pid=`ps aux | grep 'node main.js' | grep 'appNameTag=chatsvr' | grep -v grep | awk '{print $2}'`
+        if [ -z "${pid}" ]; then
+            echo "Stopped."
+        else
+            echo "Failed to stop Zowe Chat server!"
+            echo "Please check the server log in the folder ${LOG_FILE_PATH}."
+        fi
+    else
+        echo "The server is not running!"
+    fi
+}
+
+# Get running state of Zowe Chat server
+function status() {
+    pid=`ps aux | grep 'node main.js' | grep 'appNameTag=chatsvr' | grep -v grep | awk '{print $2}'`
+    if [ -z "${pid}" ]; then
+        echo "Zowe Chat server is not running!"
+    else
+        echo "Zowe Chat server is running with process ID: ${pid} "
+    fi
+}
+
+# Check ZOWE_CHAT_HOME and ZOWE_CHAT_PLUGIN_HOME environment variables
+if [ -z "${ZOWE_CHAT_HOME}" -o -z "${ZOWE_CHAT_PLUGIN_HOME}" ]; then
+    echo "The required environment variable ZOWE_CHAT_HOME or ZOWE_CHAT_PLUGIN_HOME is missing!"
+    echo "Please double check and set them first!"
+    echo ""
+    exit 1
+fi
+
+# Check ZOWE_CHAT_HOME and ZOWE_CHAT_PLUGIN_HOME folder
+if [ ! -d "${ZOWE_CHAT_HOME}" ]; then
+    echo "Your Zowe Chat home directory does not exist!"
+    echo "Plesae double check your enviornment variable setting for ZOWE_CHAT_HOME."
+    exit 2
+fi
+if [ ! -d "${ZOWE_CHAT_PLUGIN_HOME}" ]; then
+    echo "Your Zowe Chat plugin home directory does not exist!"
+    echo "Plesae double check your enviornment variable setting for ZOWE_CHAT_PLUGIN_HOME."
+    exit 3
+fi
+
+# Get log path
+LOG_FILE_PATH="${ZOWE_CHAT_HOME}/log"
+if [ ! -z "${ZOWE_CHAT_LOG_FILE_PATH}" ]; then
+    LOG_FILE_PATH=`echo ${ZOWE_CHAT_LOG_FILE_PATH} | awk -F/ '{print $NF}'`
+    LOG_FILE_PATH=`echo ${ZOWE_CHAT_LOG_FILE_PATH} | sed s/\\/${CHAT_LOG_FILE_NAME}//`
+fi
+
+# Execute
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        help
+        ;;
+esac
+
+exit 0

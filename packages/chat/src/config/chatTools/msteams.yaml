@@ -3,10 +3,9 @@
 botUserName: zowechat
 
 # Specify the ID of your Microsoft Teams bot.
-botId: <Your bot ID>
+botId: <Your Bot ID>
 
 # Specify the password of your Microsoft Teams bot.
-# The password will be encrypted automatically by Z ChatOps server with <AES> prefix added.
 botPassword: <Your bot password>
 
 # Configure the messaging endpoint for your Microsoft Teams bot.
@@ -24,11 +23,12 @@ messagingApp:
   port: 7701
   
   # Specify the base path of your messaging endpoint.
-  # The default value is /zowechat/api/v1.
-  basePath: /zowechat/api/v1
+  # The default value is /zowe/chat/api/v1.
+  basePath: /zowe/chat/api/v1
 
   # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.  
   tlsKey: <Your absolute TLS key file path of your messaging server>
 
   # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
   tlsCert: <Your absolute TLS cert file path of your messaging server>
+

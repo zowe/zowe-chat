@@ -1,4 +1,8 @@
 node_modules/
-common-bot-framework/src/log/*.log
+*.log
+.DS_Store
+*.swp
 release/
 dist/
+.build/
+

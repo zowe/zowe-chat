@@ -1,19 +1,18 @@
 /*
- * This program and the accompanying materials are made available under the terms of the
- * Eclipse Public License v2.0 which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-v20.html
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Copyright Contributors to the Zowe Project.
- */
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*/
 
-import {IActionType, IBotOption, IMsteamsBotLimit} from '../types';
-import ChatView = require('./ChatView');
+import { IActionType, IBotOption, IMsteamsBotLimit } from '../types';
+import { ChatView } from './ChatView';
 
-class ChatMsteamsView extends ChatView {
+export class ChatMsteamsView extends ChatView {
     protected botLimit: IMsteamsBotLimit;
-
     constructor(botOption: IBotOption, botLimit: IMsteamsBotLimit) {
         super(botOption);
 
@@ -106,6 +105,38 @@ class ChatMsteamsView extends ChatView {
         return;
     }
 
+    // Add action set for button action
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    addButtonAction(adaptiveCardBody: Record<string, unknown>[], actionData: Record<string, any>): Record<string, unknown> {
+        if (actionData.command.trim() !== '') {
+            // Create action
+            const action = {
+                'type': 'Action.Submit',
+                'title': actionData.title,
+                'data': {
+                    'pluginId': actionData.pluginId,
+                    'action': {
+                        'id': actionData.id,
+                        'token': actionData.token,
+                        'type': IActionType.BUTTON_CLICK,
+                    },
+                },
+            };
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (<any>action.data)[actionData.id] = actionData.command;
+
+            // Add action
+            adaptiveCardBody.push({
+                'type': 'ActionSet',
+                'actions': [action],
+                'separator': actionData.separator,
+            });
+        }
+
+        return;
+    }
+
     // Get empty adaptive card
     createEmptyAdaptiveCard(): Record<string, unknown> {
         return {
@@ -121,5 +152,3 @@ class ChatMsteamsView extends ChatView {
         };
     }
 }
-
-export = ChatMsteamsView;
