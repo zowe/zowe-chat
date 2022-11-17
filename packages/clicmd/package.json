@@ -9,7 +9,7 @@
         "build": "gulp build",
         "packaging": "gulp packaging",
         "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-        "lint": "gulp lint",
+        "lint": "eslint src/**/*.ts",
         "checkDeps": "madge -c dist",
         "updateDeps": "npx npm-check-updates -u"
     },
@@ -30,8 +30,7 @@
         "url": "https://github.com/zowe/zowe-chat/issues"
     },
     "homepage": "https://github.com/zowe/zowe-chat#readme",
-    "dependencies": {
-    },
+    "dependencies": {},
     "devDependencies": {
         "@types/node": ">=18.11.3",
         "@typescript-eslint/eslint-plugin": ">=5.40.1",

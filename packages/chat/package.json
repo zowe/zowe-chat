@@ -1,80 +1,80 @@
 {
-  "name": "@zowe/chat",
-  "version": "1.0.0",
-  "description": "Manage z/OS resources from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "start": "./bin/chatsvr start",
-    "stop": "./bin/chatsvr stop",
-    "restart": "./bin/chatsvr restart",
-    "build": "gulp build",
-    "packaging": "gulp packaging",
-    "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-    "lint": "gulp lint",
-    "checkDeps": "madge -c dist",
-    "updateDeps": "npx npm-check-updates -u"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/zowe/zowe-chat.git"
-  },
-  "keywords": [
-    "zowe",
-    "chat"
-  ],
-  "author": "zowe",
-  "license": "EPL-2.0",
-  "bugs": {
-    "url": "https://github.com/zowe/zowe-chat/issues"
-  },
-  "homepage": "https://github.com/zowe/zowe-chat#readme",
-  "dependencies": {
-    "@zowe/bot": "file:lib/zowe-bot-v100-beta.tar.gz",
-    "@zowe/core-for-zowe-sdk": "^7.7.0",
-    "@zowe/imperative": "^5.6.0",
-    "cors": "^2.8.5",
-    "express": "4.18.2",
-    "fs-extra": "^10.1.0",
-    "helmet": "^6.0.0",
-    "i18next": "^22.0.2",
-    "i18next-fs-backend": "^1.1.5",
-    "js-yaml": "^4.1.0",
-    "lodash": "^4.17.21",
-    "winston": "^3.8.2",
-    "yargs": "^17.6.0"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.12",
-    "@types/express": ">=4.17.14",
-    "@types/fs-extra": "^9.0.13",
-    "@types/i18next-fs-backend": "^1.1.2",
-    "@types/js-yaml": "^4.0.5",
-    "@types/lodash": "^4.14.186",
-    "@types/node": ">=18.11.3",
-    "@types/winston": "^2.4.4",
-    "@types/yargs": "^17.0.13",
-    "@typescript-eslint/eslint-plugin": ">=5.40.1",
-    "@typescript-eslint/parser": ">=5.40.1",
-    "eslint": ">=8.26.0",
-    "eslint-config-google": ">=0.14.0",
-    "eslint-plugin-header": "^3.1.1",
-    "gulp": ">=4.0.2",
-    "gulp-clean": ">=0.4.0",
-    "gulp-eslint": ">=6.0.0",
-    "gulp-if": ">=3.0.0",
-    "gulp-jshint": ">=2.1.0",
-    "gulp-typescript": ">=6.0.0-alpha.1",
-    "moment": "^2.29.4",
-    "madge": "^5.0.1",
-    "npm-check-updates": "^16.3.15",
-    "ts-node": ">=10.9.1",
-    "typescript": ">=4.8.4"
-  },
-  "bundledDependencies": [
-    "@zowe/bot"
-  ],
-  "engines": {
-    "node": ">=16.13.2"
-  }
+    "name": "@zowe/chat",
+    "version": "1.0.0",
+    "description": "Manage z/OS resources from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "start": "./bin/chatsvr start",
+        "stop": "./bin/chatsvr stop",
+        "restart": "./bin/chatsvr restart",
+        "build": "gulp build",
+        "packaging": "gulp packaging",
+        "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
+        "lint": "eslint src/**/*.ts",
+        "checkDeps": "madge -c dist",
+        "updateDeps": "npx npm-check-updates -u"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/zowe/zowe-chat.git"
+    },
+    "keywords": [
+        "zowe",
+        "chat"
+    ],
+    "author": "zowe",
+    "license": "EPL-2.0",
+    "bugs": {
+        "url": "https://github.com/zowe/zowe-chat/issues"
+    },
+    "homepage": "https://github.com/zowe/zowe-chat#readme",
+    "dependencies": {
+        "@zowe/bot": "file:lib/zowe-bot-v100-beta.tar.gz",
+        "@zowe/core-for-zowe-sdk": "^7.7.0",
+        "@zowe/imperative": "^5.6.0",
+        "cors": "^2.8.5",
+        "express": "4.18.2",
+        "fs-extra": "^10.1.0",
+        "helmet": "^6.0.0",
+        "i18next": "^22.0.2",
+        "i18next-fs-backend": "^1.1.5",
+        "js-yaml": "^4.1.0",
+        "lodash": "^4.17.21",
+        "winston": "^3.8.2",
+        "yargs": "^17.6.0"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.12",
+        "@types/express": ">=4.17.14",
+        "@types/fs-extra": "^9.0.13",
+        "@types/i18next-fs-backend": "^1.1.2",
+        "@types/js-yaml": "^4.0.5",
+        "@types/lodash": "^4.14.186",
+        "@types/node": ">=18.11.3",
+        "@types/winston": "^2.4.4",
+        "@types/yargs": "^17.0.13",
+        "@typescript-eslint/eslint-plugin": ">=5.40.1",
+        "@typescript-eslint/parser": ">=5.40.1",
+        "eslint": ">=8.26.0",
+        "eslint-config-google": ">=0.14.0",
+        "eslint-plugin-header": "^3.1.1",
+        "gulp": ">=4.0.2",
+        "gulp-clean": ">=0.4.0",
+        "gulp-eslint": ">=6.0.0",
+        "gulp-if": ">=3.0.0",
+        "gulp-jshint": ">=2.1.0",
+        "gulp-typescript": ">=6.0.0-alpha.1",
+        "moment": "^2.29.4",
+        "madge": "^5.0.1",
+        "npm-check-updates": "^16.3.15",
+        "ts-node": ">=10.9.1",
+        "typescript": ">=4.8.4"
+    },
+    "bundledDependencies": [
+        "@zowe/bot"
+    ],
+    "engines": {
+        "node": ">=16.13.2"
+    }
 }
