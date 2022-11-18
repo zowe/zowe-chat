@@ -72,7 +72,7 @@ module.exports = {
         '@typescript-eslint/camelcase': 'off',
         indent: [
           'error',
-          4,
+          2,
           {
             CallExpression: {
               arguments: 2,
