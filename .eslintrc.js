@@ -34,7 +34,8 @@ module.exports = {
       ],
       2,
     ],
-    'prettier/prettier': ['error', { bracketSpacing: true }],
+    // eslint-disable-next-line node/no-unsupported-features/es-syntax
+    'prettier/prettier': ['error', { ...require('./.prettierrc.json') }],
     'block-scoped-var': 'error',
     eqeqeq: ['error', 'always', { null: 'ignore' }],
     'no-var': 'error',
@@ -75,17 +76,17 @@ module.exports = {
           2,
           {
             CallExpression: {
-              arguments: 2,
+              arguments: 1,
             },
             FunctionDeclaration: {
               body: 1,
-              parameters: 2,
+              parameters: 1,
             },
             FunctionExpression: {
               body: 1,
-              parameters: 2,
+              parameters: 1,
             },
-            MemberExpression: 2,
+            MemberExpression: 1,
             ObjectExpression: 1,
             SwitchCase: 1,
             ignoredNodes: ['ConditionalExpression'],
@@ -101,7 +102,7 @@ module.exports = {
             ignoreTemplateLiterals: true,
           },
         ],
-        'operator-linebreak': ['error', 'before'],
+        'operator-linebreak': ['error', 'after'],
         'object-curly-spacing': ['error', 'always'],
         'node/no-missing-import': 'off',
         'node/no-empty-function': 'off',
