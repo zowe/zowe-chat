@@ -1,4 +1,5 @@
 # Zowe Chat
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/{owner}/{repo}/badge)](https://api.securityscorecards.dev/projects/github.com/{owner}/{repo})
 
 Zowe Chat is a chatting application for you to operate z/OS itself including job, dataset, USS file, error code, console command etc. from channels of 3 popular chat tools including Mattermost, Slack, Microsoft Teams. Extendibility also is provided for users to create their own plugins to extend capabilities of Zowe Chat as plugins.
 
