@@ -8,3 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
+describe('jest executes integration test', () => {
+    it('assert 1=1', async () => {
+        expect(1).toBe(1);
+    });
+});

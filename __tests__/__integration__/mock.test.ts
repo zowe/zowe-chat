@@ -8,11 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-module.exports = {
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    roots: [
-        '<rootDir>/test',
-    ],
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-};
+describe('jest executes integration test', () => {
+    it('assert 1=1', async () => {
+        expect(1).toBe(1);
+    });
+});
