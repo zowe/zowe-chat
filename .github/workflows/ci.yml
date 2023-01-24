@@ -55,11 +55,9 @@ jobs:
       run: npm run buildAll
 
     - name: Unit Tests
-      if: ${{ always() && steps.build.outcome == 'success' }}
       run: npm run test:unit
 
     - name: Integration Tests
-      if: ${{ always() && steps.build.outcome == 'success' && !(github.event.inputs.test-type == 'binary' || github.event_name == 'push') }}
       run: npm run test:integration
 
     - name: Archive Results
