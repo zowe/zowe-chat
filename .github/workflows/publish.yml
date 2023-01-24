@@ -1,5 +1,5 @@
 
-name: Zowe Chat Package
+name: Zowe Chat Publish
 
 on:
   push:
