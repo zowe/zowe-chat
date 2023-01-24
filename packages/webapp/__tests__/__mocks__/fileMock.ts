@@ -8,8 +8,8 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-describe('jest executes integration test', () => {
-    it('assert 1=1', async () => {
-        expect(1).toBe(1);
-    });
-});
+// force resolve an import so this is treated as a module
+// eslint-disable-next-line no-unused-vars
+import sep from 'path';
+
+module.exports = 'test-file-stub';

@@ -9,10 +9,13 @@
 */
 
 import { render, screen } from '@testing-library/react';
-import ZoweChatApp from './ZoweChatApp';
+import ZoweChatApp from '../../src/ZoweChatApp';
+import { BrowserRouter } from 'react-router-dom';
 
-test('renders learn react link', () => {
-    render(<ZoweChatApp />);
-    const linkElement = screen.getByText(/login/i);
+test('renders Zowe Chat Login Text', () => {
+    render(<BrowserRouter>
+        <ZoweChatApp />
+    </BrowserRouter>);
+    const linkElement = screen.getByText(/Zowe Chat Login/i);
     expect(linkElement).toBeInTheDocument();
 });

@@ -8,8 +8,11 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-describe('jest executes system test', () => {
-    it('assert 2=2', async () => {
-        expect(2).toBe(2);
+import { sep } from 'path';
+
+describe('jest executes integration test', () => {
+    it('assert 1=1', async () => {
+        expect(1).toBe(1);
+        console.log('Test ' + sep + ' Complete');
     });
 });

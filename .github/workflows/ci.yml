@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  build-and-test:
     if: (github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository) && !contains(github.event.head_commit.message, '[ci skip]')
     runs-on: ${{ matrix.os }}
     outputs:
@@ -58,7 +58,7 @@ jobs:
       if: ${{ always() && steps.build.outcome == 'success' }}
       run: npm run test:unit
 
-    - name: Integration Tests (Native)
+    - name: Integration Tests
       if: ${{ always() && steps.build.outcome == 'success' && !(github.event.inputs.test-type == 'binary' || github.event_name == 'push') }}
       run: npm run test:integration
 
@@ -75,26 +75,38 @@ jobs:
       with:
         env_vars: OS,NODE
 
-  release:
-    if: github.event_name == 'push' && github.ref_protected
-    needs: test
+  call-deploy-dev:
+    needs: build-and-test
     runs-on: ubuntu-latest
-
+    if: |
+        github.event.name == 'pull_request' &&  
+        ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
+        ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-        persist-credentials: false
-        ref: ${{ github.ref }}
+      - name: 'Call deployment workflow'
+        uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
+        id: call-deploy-chat
+        with:
+          github-token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
+          owner: zowe
+          repo: zowe-chat
+          workflow-filename: deploy-test-env.yml
+          branch-name: ${{ env.BRANCH_NAME }}
+          poll-frequency: 3
+          inputs-json-string: '{"custom-zowe-artifactory-pattern-or-build-number":"${{ github.run_number }}"}'
 
-    - name: Use Node.js LTS
-      uses: actions/setup-node@v2
-      with:
-        node-version: 'lts/*'
+  call-deploy-main:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event.name == 'push' && contains(github.ref, 'main')
+    steps:
+      - name: 'Check if a valid label exists'
+        uses: zowe-actions/shared-actions/check-labels-pr
+        id: check-labels
+        with:
+          labels-match: "${{ fromJSON(call-deploy-environment.strategy.matrix.labels-allowed) }}"
+    
 
-    - name: Install Dependencies
-      run: npm ci
+      
+        
 
-    - name: Build Source
-      run: npm run buildAll

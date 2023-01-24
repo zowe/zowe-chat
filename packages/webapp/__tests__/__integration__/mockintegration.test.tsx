@@ -8,4 +8,11 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-jest.setTimeout(50000);
+import { sep } from 'path';
+
+describe('jest executes integration test', () => {
+    it('assert 1=1', async () => {
+        expect(1).toBe(1);
+        console.log('Test ' + sep + ' Complete');
+    });
+});
