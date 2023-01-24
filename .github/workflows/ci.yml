@@ -4,7 +4,6 @@
 name: Zowe Chat CI Build
 
 on:
-  push:
   pull_request:
     types: [opened, synchronize]
   workflow_dispatch:
@@ -76,6 +75,15 @@ jobs:
       with:
         env_vars: OS,NODE
 
+  dump-info:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump event name
+        run: echo ${{ github.event.name }}
+      - name: Dump labels
+        run: echo ${{ github.event.pull_request.labels }}
+
   call-deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -114,8 +122,3 @@ jobs:
           github-ref: ${{ github.ref }} 
           poll-frequency: 3
           inputs-json-string: '{"custom-zowe-artifactory-pattern-or-build-number":"${{ github.run_number }}"}'
-    
-
-      
-        
-
