@@ -116,10 +116,6 @@ jobs:
   call-deploy-dev-1:
     needs: check-dev-label
     runs-on: ubuntu-latest
-    if: |
-        github.event_name == 'pull_request' &&  
-        ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
-        ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
     steps:
       - name: 'Call deployment workflow'
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
