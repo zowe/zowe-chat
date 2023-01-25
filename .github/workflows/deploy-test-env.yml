@@ -1,6 +1,6 @@
 name: Deploy Dev Environment
 
-on:
+on:    
   workflow_dispatch:
     inputs:
       test-server:
@@ -31,6 +31,7 @@ jobs:
     steps:
     - name: RANDOM_DISPATCH_EVENT_ID is ${{ github.event.inputs.RANDOM_DISPATCH_EVENT_ID }}
       run: echo "prints random dispatch event id sent from workflow dispatch event"
+
   deploy-chat:
     runs-on: ubuntu-latest
     steps:
@@ -61,9 +62,9 @@ jobs:
       run: npm run packagingAll
 
     - name: Install Chat Dev-1
-      if: ${{ contains(github.event.inputs.test-server, "chatbot-dev-1-deploy") }}
+      if: github.event.inputs.test-server == 'chatbot-dev-1-deploy'
       run: echo 'dev-1 deploy'
 
     - name: Install Chat Dev-2
-      if: ${{ contains(github.event.inputs.test-server, "chatbot-dev-2-deploy") }}
+      if: github.event.inputs.test-server == 'chatbot-dev-2-deploy'
       run: echo 'dev-2 deploy'
