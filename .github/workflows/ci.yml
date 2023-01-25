@@ -92,7 +92,7 @@ jobs:
       - name: Dump labels
         run: echo "${{ github.ref }}"
 
-  check-dev-label:
+  call-deploy-dev:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: |
