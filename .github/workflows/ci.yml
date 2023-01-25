@@ -112,7 +112,7 @@ jobs:
               echo ::set-output name=TEST_SERVER::"chatbot-dev-2-deploy"  
           fi
           
-  call-deploy-dev-1:
+  call-deploy-dev:
     needs: check-dev-label
     runs-on: ubuntu-latest
     steps:
@@ -126,7 +126,7 @@ jobs:
           workflow-filename: deploy-test-env.yml
           branch-name: ${{ github.head_ref }}
           poll-frequency: 3
-          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "$TEST_SERVER", "run-system-test": "false"}'
+          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}", "run-system-test": "false"}'
 
   call-deploy-main:
     needs: build-and-test
