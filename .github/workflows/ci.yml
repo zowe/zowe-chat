@@ -101,6 +101,8 @@ jobs:
         ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
     steps:
       - name: 'Call deployment workflow'
+        env: 
+          TEST_SERVER: "${{ fromJson('{\"chatbot-dev-1-deploy\": \"Dev Instance 1\", \"chatbot-dev-2-deploy\": \"Dev Instance 2\" })[github.event.pull_request.labels.*.name]"
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
         id: call-deploy-dev-chat
         with:
@@ -109,9 +111,8 @@ jobs:
           repo: zowe-chat
           workflow-filename: deploy-test-env.yml
           branch-name: ${{ env.BRANCH_NAME }}
-          github-ref: ${{ github.ref }} 
           poll-frequency: 3
-          inputs-json-string: '{"custom-zowe-artifactory-pattern-or-build-number":"${{ github.run_number }}"}'
+          inputs-json-string: '{"branch-or-ref":"${{ github.run_number }}", "test-server": "$TEST_SERVER", "run-system-test": "false"}'
 
   call-deploy-main:
     needs: build-and-test
