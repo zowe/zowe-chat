@@ -124,9 +124,9 @@ jobs:
           owner: zowe
           repo: zowe-chat
           workflow-filename: deploy-test-env.yml
-          branch-name: ${{ env.BRANCH_NAME }}
+          branch-name: ${{ github.head_ref }}
           poll-frequency: 3
-          inputs-json-string: '{"branch-or-ref":"${{ github.run_number }}", "test-server": "$TEST_SERVER", "run-system-test": "false"}'
+          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "$TEST_SERVER", "run-system-test": "false"}'
 
   call-deploy-main:
     needs: build-and-test
@@ -141,7 +141,7 @@ jobs:
           owner: zowe
           repo: zowe-chat
           workflow-filename: deploy-stable.yml
-          branch-name: ${{ env.BRANCH_NAME }}
+          branch-name: ${{ github.head_ref }}
           github-ref: ${{ github.ref }} 
           poll-frequency: 3
-          inputs-json-string: '{"custom-zowe-artifactory-pattern-or-build-number":"${{ github.run_number }}"}'
+          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "$TEST_SERVER", "run-system-test": "false"}'
