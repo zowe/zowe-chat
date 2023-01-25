@@ -106,7 +106,7 @@ jobs:
       - name: Set test system name as variable
         shell: bash
         run: |
-          if [[ "$TEST_SERVER_ONE" = true]]; then
+          if [[ "$TEST_SERVER_ONE" = true ]]; then
               echo ::set-output name=TEST_SERVER::"chatbot-dev-1-deploy"  
           else
               echo ::set-output name=TEST_SERVER::"chatbot-dev-2-deploy"  
