@@ -102,7 +102,7 @@ jobs:
     steps:
       - name: 'Call deployment workflow'
         env: 
-          TEST_SERVER: "${{ fromJson('{\"chatbot-dev-1-deploy\": \"Dev Instance 1\", \"chatbot-dev-2-deploy\": \"Dev Instance 2\" })[github.event.pull_request.labels.*.name]"
+          TEST_SERVER: "${{ fromJson('{\"chatbot-dev-1-deploy\": \"Dev Instance 1\", \"chatbot-dev-2-deploy\": \"Dev Instance 2\" })[github.event.pull_request.labels.*.name] }}"
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
         id: call-deploy-dev-chat
         with:
