@@ -76,13 +76,14 @@ jobs:
         env_vars: OS,NODE
 
   dump-info:
-    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Dump event name
-        run: echo ${{ github.event.name }}
+        run: echo "${{ github.event }}"
       - name: Dump labels
-        run: echo ${{ github.event.pull_request.labels }}
+        run: echo "${{ github.event.pull_request.labels }}" 
+      - name: Dump labels
+        run: echo "${{ github.ref }}"
 
   call-deploy-dev:
     needs: build-and-test
