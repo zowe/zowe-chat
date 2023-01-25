@@ -112,12 +112,9 @@ jobs:
           else
               echo "TEST_SERVER=chatbot-dev-2-deploy" >> $GITHUB_OUTPUT
           fi
-          
-  call-deploy-dev:
-    needs: check-dev-label
-    runs-on: ubuntu-latest
-    steps:
+
       - name: 'Call deployment workflow'
+        if: ${{ steps.check-dev-label.outputs.TEST_SERVER }}
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
         id: call-deploy-dev-chat
         with:
