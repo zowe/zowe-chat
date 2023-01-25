@@ -78,8 +78,13 @@ jobs:
   dump-info:
     runs-on: ubuntu-latest
     steps:
-      - name: Dump event name
-        run: echo "${{ toJson(github.event) }}"
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo -e "\033[31;1;4mDump GitHub context\033[0m"
+          echo -e "$GITHUB_CONTEXT\n"
+        shell: bash
       - name: Dump labels
         run: echo "${{ github.event.pull_request.labels }}" 
       - name: Dump labels
