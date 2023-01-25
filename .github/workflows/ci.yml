@@ -104,12 +104,13 @@ jobs:
       TEST_SERVER_TWO: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy') }}
     steps:
       - name: Set test system name as variable
+        id: check-dev-label
         shell: bash
         run: |
           if [[ "$TEST_SERVER_ONE" = true ]]; then
-              echo ::set-output name=TEST_SERVER::"chatbot-dev-1-deploy"  
+              echo "TEST_SERVER=chatbot-dev-1-deploy" >> $GITHUB_OUTPUT
           else
-              echo ::set-output name=TEST_SERVER::"chatbot-dev-2-deploy"  
+              echo "TEST_SERVER=chatbot-dev-2-deploy" >> $GITHUB_OUTPUT
           fi
           
   call-deploy-dev:
