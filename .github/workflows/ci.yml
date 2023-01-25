@@ -92,8 +92,29 @@ jobs:
       - name: Dump labels
         run: echo "${{ github.ref }}"
 
-  call-deploy-dev:
+  check-dev-label:
     needs: build-and-test
+    runs-on: ubuntu-latest
+    if: |
+        github.event_name == 'pull_request' &&  
+        ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
+        ^  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
+    env:
+      TEST_SERVER_ONE: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') }}
+      TEST_SERVER_TWO: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy') }}
+    steps:
+      - name: Set test system name as variable
+        shell: bash
+        run: |
+          if [[ "$TEST_SERVER_ONE" = true]]; then
+              echo ::set-output name=TEST_SERVER::"chatbot-dev-1-deploy"  
+          else
+              echo ::set-output name=TEST_SERVER::"chatbot-dev-2-deploy"  
+          fi
+          
+
+  call-deploy-dev-1:
+    needs: check-dev-label
     runs-on: ubuntu-latest
     if: |
         github.event_name == 'pull_request' &&  
@@ -101,8 +122,6 @@ jobs:
         ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
     steps:
       - name: 'Call deployment workflow'
-        env: 
-          TEST_SERVER: "${{ github.event.pull_request.labels.*.name }}"
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
         id: call-deploy-dev-chat
         with:
