@@ -98,7 +98,7 @@ jobs:
     if: |
         github.event_name == 'pull_request' &&  
         ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
-        ^  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
+        ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
     env:
       TEST_SERVER_ONE: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') }}
       TEST_SERVER_TWO: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy') }}
@@ -112,7 +112,6 @@ jobs:
               echo ::set-output name=TEST_SERVER::"chatbot-dev-2-deploy"  
           fi
           
-
   call-deploy-dev-1:
     needs: check-dev-label
     runs-on: ubuntu-latest
