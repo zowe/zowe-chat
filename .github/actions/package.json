@@ -1,0 +1,7 @@
+{
+    "name":"Zowe Chat Github Actions",
+    "devDependencies": {
+        "@actions/core" :"1.10.0",
+        "ssh2" :"1.11.0"
+    }
+}

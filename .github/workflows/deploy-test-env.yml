@@ -58,13 +58,35 @@ jobs:
       run: npm run buildAll
 
     - name: Package Chat
+      env:
+        RELEASE_TYPE: beta
+        NODE_ENV: production
+        RELEASE_VERSION: 002 #TODO: support builds which mark the code as PR-#
       id: Package
-      run: npm run packagingAll
+      run: npm run packagingAll # Note - package name is used later, format by convention in gulp scripts
 
-    - name: Install Chat Dev-1
-      if: github.event.inputs.test-server == 'chatbot-dev-1-deploy'
-      run: echo 'dev-1 deploy'
+    - name: Get system address
+      env:
+       TEST_SERVER_ONE: ${{ github.event.inputs.test-server == 'chatbot-dev-1-deploy' }}
+       TEST_SERVER_TWO: ${{ github.event.inputs.test-server == 'chatbot-dev-2-deploy' }}
+      id: system-address
+      shell: bash
+      run: |
+        if [[ "$TEST_SERVER_ONE" = true ]]; then
+            echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N3 }}" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT=${{ secrets.ZLINUX_PKEY_N3 }}" >> $GITHUB_OUTPUT
+        else
+            echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT=${{ secrets.ZLINUX_PKEY_N4 }}" >> $GITHUB_OUTPUT
+        fi
 
-    - name: Install Chat Dev-2
-      if: github.event.inputs.test-server == 'chatbot-dev-2-deploy'
-      run: echo 'dev-2 deploy'
+    - name: Deploy Chatbot
+      uses: ./github/actions/deploy
+      with:
+        host: $SERVER_ADDRESS
+        ssh_key: $SERVER_CERT
+        ssh_user: zowechat
+        botToken: ${{ secrets.MATTERMOST_TOKEN_DEV_1_BOT_BACKUP }}
+
+
+        
