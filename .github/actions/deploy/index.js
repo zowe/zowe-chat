@@ -44,6 +44,11 @@ let zosmf_ru = core.getInput('zosmf_ru')
 
 let homeDir = process.env.HOME
 console.log(homeDir)
+try {
+    fs.mkdirSync(`${homeDir}/.ssh`)
+} catch(err) {
+    console.log("Error creating local directory .build: " + err.toString())
+}
 fs.appendFileSync(`${homeDir}/.ssh/config`, 
 `
 Host ${host}
