@@ -63,7 +63,7 @@ fs.mkdirSync('.build')
     console.log("Error creating local directory .build: " + err.toString())
 }
 const pkeyAuth = '.build/chat_pkey.id_rsa'
-fs.writeFileSync(`${pkeyAuth}`, `${ssh_key.replaceAll('\\n', '\n')}`, {mode: 0o600})
+fs.writeFileSync(`${pkeyAuth}`, `${ssh_key.replaceAll('"','').replaceAll('\\n', '\n')}`, {mode: 0o600})
 
 const chatCfgYaml = yaml.load(fs.readFileSync('release/zoweChat/config/chatServer.yaml'))
 const mmCfgYaml = yaml.load(fs.readFileSync('release/zoweChat/config/chatTools/mattermost.yaml'))
