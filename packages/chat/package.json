@@ -1,5 +1,5 @@
 {
-  "name": "@zowe/chat-backend",
+  "name": "@zowe/chat",
   "version": "1.0.0",
   "description": "Manage z/OS resources from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
   "main": "dist/index.js",

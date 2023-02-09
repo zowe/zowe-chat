@@ -39,6 +39,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: 'zowe/zowe-chat'
+        token: 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
         ref: ${{ github.event.inputs.branch-or-ref }}
 
     - name: Use Node.js 16
@@ -61,11 +62,15 @@ jobs:
       env:
         RELEASE_TYPE: beta
         NODE_ENV: production
-        RELEASE_VERSION: 002 #TODO: support builds which mark the code as PR-#
+        RELEASE_VERSION: 002 #TODO: support builds which mark the code as PR-#, or any other format
       id: Package
       run: npm run packagingAll # Note - package name is used later, format by convention in gulp scripts
 
-    - name: Get system address
+  # For testing locally with `act`, uncomment below and run with `--job just-deploy --bind`.
+  #just-deploy:
+  #  runs-on: ubuntu-latest
+  #  steps:
+    - name: Set deployment target
       env:
        TEST_SERVER_ONE: ${{ github.event.inputs.test-server == 'chatbot-dev-1-deploy' }}
        TEST_SERVER_TWO: ${{ github.event.inputs.test-server == 'chatbot-dev-2-deploy' }}
@@ -75,18 +80,25 @@ jobs:
         if [[ "$TEST_SERVER_ONE" = true ]]; then
             echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N3 }}" >> $GITHUB_OUTPUT
             echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N3 }}\"" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_1_BOT }}" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_NAME=zowe-chat-dev-1" >> $GITHUB_OUTPUT
         else
             echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
             echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_2_BOT }}" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_NAME=zowe-chat-dev-2" >> $GITHUB_OUTPUT
         fi
 
     - name: Deploy Chatbot
-      uses: ./github/actions/deploy
+      id: deploy-chatbot
+      uses: ./.github/actions/deploy
       with:
         host: $SERVER_ADDRESS
         ssh_key: $SERVER_CERT
-        ssh_user: zowechat
-        botToken: ${{ secrets.MATTERMOST_TOKEN_DEV_1_BOT_BACKUP }}
-
-
-        
+        ssh_user: ${{ secrets.ZLINUX_USER }}
+        botToken: $MATTERMOST_BOT_TOKEN
+        botName: $MATTERMOST_BOT_NAME
+        zosmf_host: ${{ secrets.ZOSMF_HOST }}
+        zosmf_port: ${{ secrets.ZOSMF_PORT }}
+        zosmf_ru: ${{ secrets.ZOSMF_RU }}
+        zosmf_protocol: ${{ secrets.ZOSMF_PROTOCOL }}

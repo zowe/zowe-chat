@@ -353,12 +353,17 @@ export class ChatBot {
 
                 // Read certificate
                 if (mattermostConfig.protocol.toLowerCase() === IProtocol.HTTPS) {
-                    if (fs.existsSync((mattermostConfig.tlsCertificate))) {
-                        (<IMattermostOption> (botOption.chatTool.option)).tlsCertificate = fs.readFileSync(mattermostConfig.tlsCertificate, 'utf8');
+                    // if the tls certificate is empty, we'll proceed without error, instead relying on default cert chain
+                    if (mattermostConfig.tlsCertificate.trim().length > 0) {
+                        if ( fs.existsSync((mattermostConfig.tlsCertificate))) {
+                            (<IMattermostOption> (botOption.chatTool.option)).tlsCertificate = fs.readFileSync(mattermostConfig.tlsCertificate, 'utf8');
+                        } else {
+                            // ZWECC002E: The file {{filePath}} does not exist
+                            logger.error(Util.getErrorMessage('ZWECC002E', { filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage' }));
+                            process.exit(4);
+                        }
                     } else {
-                        // ZWECC002E: The file {{filePath}} does not exist
-                        logger.error(Util.getErrorMessage('ZWECC002E', { filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage' }));
-                        process.exit(4);
+                        logger.info('Mattermost TLS Certificate Empty. Using default certificate chain.');
                     }
                 }
 

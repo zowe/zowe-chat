@@ -26,6 +26,20 @@ inputs:
     description: User to connect to system as
     required: false
     default: zowechat
+  zosmf_protocol:
+    description: z/OSMF Protocol to Use
+    required: false
+    default: 'https'
+  zosmf_host:
+    description: z/OSMF Host name
+    required: true
+  zosmf_port:
+    description: z/OSMF Port
+    required: true
+  zosmf_ru:
+    description: Reject Unauthorized (false=allow self signed certs)
+    required: false
+    default: 'true'
   
 outputs:
   success: 
