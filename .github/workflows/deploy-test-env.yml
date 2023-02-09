@@ -61,7 +61,7 @@ jobs:
       env:
         RELEASE_TYPE: beta
         NODE_ENV: production
-        RELEASE_VERSION: 002 #TODO: support builds which mark the code as PR-#, or any other format
+        RELEASE_VERSION: '002' #TODO: support builds which mark the code as PR-#, or any other format
       id: Package
       run: npm run packagingAll # Note - package name is used later, format by convention in gulp scripts
 
