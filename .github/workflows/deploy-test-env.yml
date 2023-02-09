@@ -96,11 +96,11 @@ jobs:
       id: deploy-chatbot
       uses: ./.github/actions/deploy
       with:
-        host: "$SERVER_ADDRESS"
-        ssh_key: "$SERVER_CERT"
+        host: ${{ steps.system-address.outputs.SERVER_ADDRESS }}
+        ssh_key: ${{ steps.system-address.outputs.SERVER_CERT }}
         ssh_user: ${{ secrets.ZLINUX_USER }}
-        botToken: "$MATTERMOST_BOT_TOKEN"
-        botName: "$MATTERMOST_BOT_NAME"
+        botToken: ${{ steps.system-address.outputs.MATTERMOST_BOT_TOKEN }}
+        botName: ${{ steps.system-address.outputs.MATTERMOST_BOT_NAME }}
         zosmf_host: ${{ secrets.ZOSMF_HOST }}
         zosmf_port: ${{ secrets.ZOSMF_PORT }}
         zosmf_ru: ${{ secrets.ZOSMF_RU }}
