@@ -1,4 +1,4 @@
-name: Deploy Dev Environment
+name: Deploy Dev Environment Trigger Build
 
 on:   
   workflow_dispatch:
