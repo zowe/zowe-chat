@@ -1,0 +1,47 @@
+name: Deploy Dev Environment
+
+on:   
+  workflow_dispatch:
+    inputs:
+      RANDOM_DISPATCH_EVENT_ID:
+        description: 'random dispatch event id'
+        required: false
+        type: string
+    
+  pull_request:
+    types:
+      [labeled]
+ 
+jobs:
+  call-deploy-dev:
+    runs-on: ubuntu-latest
+    if: |
+        github.event_name == 'pull_request' &&  
+        ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
+        ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
+    env:
+      TEST_SERVER_ONE: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') }}
+      TEST_SERVER_TWO: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy') }}
+    steps:
+      - name: Set test system name as variable
+        id: check-dev-label
+        shell: bash
+        run: |
+          if [[ "$TEST_SERVER_ONE" = true ]]; then
+              echo "TEST_SERVER=chatbot-dev-1-deploy" >> $GITHUB_OUTPUT
+          else
+              echo "TEST_SERVER=chatbot-dev-2-deploy" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 'Call deployment workflow'
+        if: ${{ steps.check-dev-label.outputs.TEST_SERVER }}
+        uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
+        id: call-deploy-dev-chat
+        with:
+          github-token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
+          owner: zowe
+          repo: zowe-chat
+          workflow-filename: deploy-test-env.yml
+          branch-name: ${{ github.head_ref }}
+          poll-frequency: 3
+          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}", "run-system-test": "false"}'
