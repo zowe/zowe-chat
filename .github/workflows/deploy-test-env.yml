@@ -78,12 +78,12 @@ jobs:
       run: |
         if [[ "$TEST_SERVER_ONE" = true ]]; then
             echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N3 }}" >> $GITHUB_OUTPUT
-            echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N3 }}\"" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT='${{ secrets.ZLINUX_PKEY_N3 }}'" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_1_BOT }}" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_NAME=zowe-chat-dev-1" >> $GITHUB_OUTPUT
         else
             echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
-            echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT='${{ secrets.ZLINUX_PKEY_N4 }}'" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_2_BOT }}" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_NAME=zowe-chat-dev-2" >> $GITHUB_OUTPUT
         fi
