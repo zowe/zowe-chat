@@ -65,6 +65,10 @@ jobs:
       id: Package
       run: npm run packagingAll # Note - package name is used later, format by convention in gulp scripts
 
+    - name: Install Actions Dependencies
+      id: actions-deps
+      run: cd .github/actions && npm install
+
   # For testing locally with `act`, uncomment below and run with `--job just-deploy --bind`.
   #just-deploy:
   #  runs-on: ubuntu-latest
