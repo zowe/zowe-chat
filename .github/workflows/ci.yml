@@ -105,6 +105,7 @@ jobs:
           repo: zowe-chat
           workflow-filename: pr-label-trigger-deploy.yml
           poll-frequency: 3
+          branch-name: ${{ github.head_ref }}
 
   call-deploy-main:
     needs: build-and-test
