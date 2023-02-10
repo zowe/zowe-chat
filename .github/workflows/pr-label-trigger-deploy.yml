@@ -47,4 +47,4 @@ jobs:
           workflow-filename: deploy-test-env.yml
           branch-name: ${{ github.head_ref }}
           poll-frequency: 3
-          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}", "run-system-test": "false"}'
+          inputs-json-string: '{"pull-number": "${{ github.event.number }}", "branch-or-ref":"${{ github.ref }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}", "run-system-test": "false"}'

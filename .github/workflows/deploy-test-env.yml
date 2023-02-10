@@ -5,6 +5,11 @@ permissions: read-all
 on:    
   workflow_dispatch:
     inputs:
+      pull-number:
+        description: The pull request being deployed, if applicable.
+        type: string
+        required: false
+        default: no-pr
       test-server:
         description: 'Choose the test instance. "main" will only work on the main branch'
         type: choice
@@ -128,5 +133,5 @@ jobs:
         api_key: ${{ secrets.MATTERMOST_API_KEY }}
         bot_id: ${{ steps.system-address.output.BOT_ID }}
         bot_name:  ${{ steps.system-address.outputs.MATTERMOST_BOT_NAME }}
-        display_name: "Z Chat PR-${{ github.event.number }}"
+        display_name: "Z Chat PR-${{ github.event.inputs.pull-number }}"
         description: "Commit ${{ github.sha }}"
