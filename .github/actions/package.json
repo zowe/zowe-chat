@@ -1,9 +1,10 @@
 {
-    "name":"Zowe Chat Github Actions",
+    "name": "Zowe Chat Github Actions",
     "private": true,
     "devDependencies": {
-        "@actions/core" :"1.10.0",
+        "@actions/core": "1.10.0",
         "js-yaml": "^4.1.0",
-        "ssh2" :"1.11.0"
+        "ssh2": "1.11.0",
+        "superagent": "^8.0.9"
     }
 }

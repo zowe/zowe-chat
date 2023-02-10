@@ -1,0 +1,27 @@
+name: Update Chatbot Name
+description: Updates chatbot deployed to mattermost public test instance
+inputs: 
+  api_key:
+    description: Mattermost API Key used to update bot details
+    required: true
+  bot_name:
+    description: Bot name
+    required: true
+  bot_id:
+    description: Bot ID
+    required: true
+  description:
+    description: Updated bot description
+    required: true
+  display_name:
+    description: Bot's display name in Mattermost
+    required: true
+
+  
+outputs:
+  success: 
+    description: return code
+
+runs:
+  using: node16
+  main: index.js

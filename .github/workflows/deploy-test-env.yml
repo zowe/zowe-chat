@@ -6,12 +6,13 @@ on:
   workflow_dispatch:
     inputs:
       test-server:
-        description: 'Choose the test instance'
+        description: 'Choose the test instance. "main" will only work on the main branch'
         type: choice
         required: true
         options:
         - chatbot-dev-1-deploy
         - chatbot-dev-2-deploy
+        - main
       run-system-test:
         description: 'Run system tests after install'
         type: boolean
@@ -69,7 +70,7 @@ jobs:
 
     - name: Install Actions Dependencies
       id: actions-deps
-      run: cd .github/actions && npm install
+      run: cd .github/actions && npm ci
 
   # For testing locally with `act`, uncomment below and run with `--job just-deploy --bind`.
   #just-deploy:
@@ -77,6 +78,7 @@ jobs:
   #  steps:
     - name: Set deployment target
       env:
+       MAIN_BRANCH: ${{ github.event.inputs.test-server == 'main' }} && ${{ github.ref == 'refs/heads/main' }}
        TEST_SERVER_ONE: ${{ github.event.inputs.test-server == 'chatbot-dev-1-deploy' }}
        TEST_SERVER_TWO: ${{ github.event.inputs.test-server == 'chatbot-dev-2-deploy' }}
       id: system-address
@@ -86,12 +88,22 @@ jobs:
             echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N3 }}" >> $GITHUB_OUTPUT
             echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N3 }}\"" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_1_BOT }}" >> $GITHUB_OUTPUT
+            echo "BOT_ID=${{ secrets.MATTERMOST_DEV_1_BOT_ID }}" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_NAME=zowe-chat-dev-1" >> $GITHUB_OUTPUT
-        else
+        elif [[ "$TEST_SERVER_TWO" = true ]]; then
             echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
             echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_2_BOT }}" >> $GITHUB_OUTPUT
+            echo "BOT_ID=${{ secrets.MATTERMOST_DEV_2_BOT_ID }}" >> $GITHUB_OUTPUT
             echo "MATTERMOST_BOT_NAME=zowe-chat-dev-2" >> $GITHUB_OUTPUT
+        elif [[ "$MAIN_BRANCH" = true ]]; then
+            echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_MAIN_BOT }}" >> $GITHUB_OUTPUT
+            echo "BOT_ID=${{ secrets.MATTERMOST_MAIN_BOT_ID }}" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_NAME=zowe-chat-stable" >> $GITHUB_OUTPUT
+        else 
+            echo "Error: No valid test-server configuration found. If deploying to main, please ensure this is the main branch."
         fi
 
     - name: Deploy Chatbot
@@ -107,3 +119,14 @@ jobs:
         zosmf_port: ${{ secrets.ZOSMF_PORT }}
         zosmf_ru: ${{ secrets.ZOSMF_RU }}
         zosmf_protocol: ${{ secrets.ZOSMF_PROTOCOL }}
+
+    - name: Update chatbot name
+      if: contains(github.event.inputs.test-server, 'chatbot-dev')
+      id: update-chatbot-name
+      uses: ./.github/actions/update-chatbot-name
+      with:
+        api_key: ${{ secrets.MATTERMOST_API_KEY }}
+        bot_id: ${{ steps.system-address.output.BOT_ID }}
+        bot_name:  ${{ steps.system-address.outputs.MATTERMOST_BOT_NAME }}
+        display_name: "Z Chat PR-${{ github.event.number }}"
+        description: "Commit ${{ github.sha }}"
