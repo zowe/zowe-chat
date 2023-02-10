@@ -20,7 +20,6 @@ jobs:
     permissions:
       actions: write
     if: |
-        github.event_name == 'pull_request' &&  
         ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
         ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
     env:
