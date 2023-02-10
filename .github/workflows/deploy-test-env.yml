@@ -1,5 +1,12 @@
 name: Deploy Dev Environment
 
+permissions:
+  actions: write
+  checks: write
+  pull-requests: read
+  repository-projects: read
+  statuses: read
+
 on:    
   workflow_dispatch:
     inputs:
