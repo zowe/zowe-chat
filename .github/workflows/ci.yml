@@ -3,12 +3,7 @@
 
 name: Zowe Chat CI Build
 
-permissions:
-  actions: write
-  checks: write
-  pull-requests: read
-  repository-projects: read
-  statuses: read
+permissions: read-all
 
 on:
   push:
@@ -84,22 +79,9 @@ jobs:
       with:
         env_vars: OS,NODE
 
-  dump-info:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo -e "\033[31;1;4mDump GitHub context\033[0m"
-          echo -e "$GITHUB_CONTEXT\n"
-        shell: bash
-      - name: Dump labels
-        run: echo "${{ github.event.pull_request.labels }}" 
-      - name: Dump labels
-        run: echo "${{ github.ref }}"
-
   call-deploy-dev:
+    permissions:
+      actions: write
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
@@ -115,6 +97,8 @@ jobs:
           branch-name: ${{ github.head_ref }}
 
   call-deploy-main:
+    permissions:
+      actions: write
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event.name == 'push' && contains(github.ref, 'main')

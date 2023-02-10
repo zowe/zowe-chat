@@ -1,11 +1,7 @@
 name: Deploy Dev Environment Trigger Build
 
-permissions:
-  actions: write
-  checks: write
-  pull-requests: read
-  repository-projects: read
-  statuses: read
+permissions: read-all
+
 
 on:   
   workflow_dispatch:
@@ -22,6 +18,8 @@ on:
 jobs:
   call-deploy-dev:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     if: |
         github.event_name == 'pull_request' &&  
         ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
