@@ -1,5 +1,7 @@
 name: Deploy Stable Environment
 
+permissions: read-all
+
 on:
   workflow_dispatch:
     inputs:

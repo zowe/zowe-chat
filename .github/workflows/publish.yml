@@ -1,6 +1,8 @@
 
 name: Zowe Chat Publish
 
+permissions: read-all
+
 on:
   push:
   pull_request:

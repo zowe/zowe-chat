@@ -2,7 +2,6 @@ name: Deploy Dev Environment Trigger Build
 
 permissions: read-all
 
-
 on:   
   workflow_dispatch:
     inputs:
