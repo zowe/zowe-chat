@@ -79,7 +79,10 @@ jobs:
       with:
         env_vars: OS,NODE
 
-  check-dev-label:
+
+  call-deploy-dev:
+    permissions:
+      actions: write
     needs: build-and-test
     runs-on: ubuntu-latest
     if: |
@@ -100,12 +103,6 @@ jobs:
               echo "TEST_SERVER=chatbot-dev-2-deploy" >> $GITHUB_OUTPUT
           fi
 
-  call-deploy-dev:
-    permissions:
-      actions: write
-    needs: check-dev-label
-    runs-on: ubuntu-latest
-    steps:
       - name: 'Call deployment workflow'
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
         id: call-deploy-dev-chat
