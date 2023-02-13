@@ -131,7 +131,7 @@ jobs:
       uses: ./.github/actions/update-chatbot-name
       with:
         api_key: ${{ secrets.MATTERMOST_API_KEY }}
-        bot_id: ${{ steps.system-address.output.BOT_ID }}
+        bot_id: ${{ steps.system-address.outputs.BOT_ID }}
         bot_name:  ${{ steps.system-address.outputs.MATTERMOST_BOT_NAME }}
         display_name: "Z Chat PR-${{ github.event.inputs.pull-number }}"
         description: "Commit ${{ github.sha }}"
