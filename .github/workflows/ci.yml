@@ -79,10 +79,31 @@ jobs:
       with:
         env_vars: OS,NODE
 
+  check-dev-label:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: |
+        github.event_name == 'pull_request' &&  
+        ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
+        ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
+    env:
+      TEST_SERVER_ONE: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') }}
+      TEST_SERVER_TWO: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy') }}
+    steps:
+      - name: Set test system name as variable
+        id: check-dev-label
+        shell: bash
+        run: |
+          if [[ "$TEST_SERVER_ONE" = true ]]; then
+              echo "TEST_SERVER=chatbot-dev-1-deploy" >> $GITHUB_OUTPUT
+          else
+              echo "TEST_SERVER=chatbot-dev-2-deploy" >> $GITHUB_OUTPUT
+          fi
+
   call-deploy-dev:
     permissions:
       actions: write
-    needs: build-and-test
+    needs: check-dev-label
     runs-on: ubuntu-latest
     steps:
       - name: 'Call deployment workflow'
@@ -95,6 +116,7 @@ jobs:
           workflow-filename: pr-label-trigger-deploy.yml
           poll-frequency: 3
           branch-name: ${{ github.head_ref }}
+          inputs-json-string: '{"pull-number" :"${{ github.event.number }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}" }'
 
   call-deploy-main:
     permissions:
@@ -114,4 +136,4 @@ jobs:
           branch-name: ${{ github.head_ref }}
           github-ref: ${{ github.ref }} 
           poll-frequency: 3
-          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "$TEST_SERVER", "run-system-test": "false"}'
+          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "main", "run-system-test": "false"}'
