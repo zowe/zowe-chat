@@ -15,6 +15,11 @@ on:
       [labeled]
  
 jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump context
+      uses: crazy-max/ghaction-dump-context@v2
   call-deploy-dev:
     runs-on: ubuntu-latest
     permissions:
