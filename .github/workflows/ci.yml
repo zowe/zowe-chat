@@ -113,10 +113,10 @@ jobs:
           github-token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
           owner: zowe
           repo: zowe-chat
-          workflow-filename: pr-label-trigger-deploy.yml
-          poll-frequency: 3
+          workflow-filename: deploy-test-env.yml
           branch-name: ${{ github.head_ref }}
-          inputs-json-string: '{"pull-number" :"${{ github.event.number }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}" }'
+          poll-frequency: 3
+          inputs-json-string: '{ "pull-number": "${{ github.event.number }}", "branch-or-ref":"${{ github.ref }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}", "run-system-test": "false"}'
 
   call-deploy-main:
     permissions:
