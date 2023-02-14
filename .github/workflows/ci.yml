@@ -129,7 +129,7 @@ jobs:
           github-token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
           owner: zowe
           repo: zowe-chat
-          workflow-filename: deploy-stable.yml
+          workflow-filename: deploy-test-env.yml
           branch-name: ${{ github.head_ref }}
           github-ref: ${{ github.ref }} 
           poll-frequency: 3
