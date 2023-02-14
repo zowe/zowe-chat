@@ -1,6 +1,6 @@
 # Testing Guidelines
 
-Zowe Chat uses the [jest](https://jestjs.io/) testing framework.
+Zowe Chat uses the [jest](https://jestjs.io/) testing framework. The jest test configuration is centralized in the root `jest.config.ts` file ([see here](../jest.config.ts)).
 
 In general, tests should adhere to same lint rules and conventions as other code within the project.
 
