@@ -9,5 +9,6 @@
  */
 
 module.exports = {
-    ...require('../../.eslintrc.js'),
+  root: false,
+  extends: '../../.eslintrc.js',
 };
