@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 import * as fs from "fs-extra";
 import { logger } from "../utils/Logger";
 import { IChatConfigSchema, IConfigBlockDefinition} from "../types/IChatConfigSchema";

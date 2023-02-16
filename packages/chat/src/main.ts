@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 import { chatBot } from "./bot/ChatBot";
 // import { Logger } from "./utils/Logger";
 

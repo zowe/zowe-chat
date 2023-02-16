@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 import { logger, ChatSlackView, IBotOption, IExecutor, IMessage, IMessageType, ISlackBotLimit, Util } from '@zowe/chat';
 import i18next from 'i18next';
 
