@@ -34,7 +34,8 @@
     "eslint-config-prettier": "^8.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "~2.7.0",
+    "fs-extra": "^11.1.0",
+    "glob": "^8.1.0",
     "gulp": ">=4.0.2",
     "gulp-clean": ">=0.4.0",
     "gulp-eslint": ">=6.0.0",
@@ -44,9 +45,14 @@
     "keytar": "^7.9.0",
     "madge": "^5.0.1",
     "moment": "^2.29.4",
+    "prettier": "~2.7.0",
     "semver": "^7.3.8",
+    "shebang-regex": "^4.0.0",
     "ts-node": ">=10.9.1",
     "tsconfig-paths": "^4.1.0",
     "typescript": "4.8.4"
+  },
+  "engines": {
+    "node": "^16.0.0"
   }
 }
