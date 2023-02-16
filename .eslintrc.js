@@ -15,6 +15,7 @@ module.exports = {
     es6: true,
     jest: true,
   },
+  root: true,
   plugins: ['node', 'prettier', 'header'],
   extends: ['eslint:recommended', 'plugin:node/recommended', 'prettier'],
   ignorePatterns: ['**/.build', '**/build', '**/dist', '**/node_modules', '**/release', '**/lib'],
