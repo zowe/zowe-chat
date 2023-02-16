@@ -7,3 +7,5 @@
  *
  * Copyright Contributors to the Zowe Project.
  */
+
+// dummy-eslint-pass-no-newlines-after-header

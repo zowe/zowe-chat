@@ -26,7 +26,8 @@ class ZoweCliCommandSlackView extends ChatSlackView {
       // Truncate the command output if longer than the allowed maximum text length
       if (commandOutput.length > this.botLimit.sectionBlockTextMaxLength) {
         const truncationIndicator = `\n...\n${i18next.t('command.zowe.truncationIndicator', { ns: 'ClicmdMessage' })}`;
-        commandOutput = commandOutput.substring(0, this.botLimit.sectionBlockTextMaxLength - truncationIndicator.length - 10); // Must count in ```
+        // Must count in ```
+        commandOutput = commandOutput.substring(0, this.botLimit.sectionBlockTextMaxLength - truncationIndicator.length - 10);
         commandOutput = commandOutput + truncationIndicator;
       }
 

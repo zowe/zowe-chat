@@ -161,10 +161,15 @@ class ZosFileHandler extends ChatHandler {
             messages = this.view.getDetail(files, executor);
           } else {
             // Contain wildcard in filename
-            let fileNameWithWildCard = fileName.replace('+', '\\+'); // Replace special character +
-            fileNameWithWildCard = fileNameWithWildCard.replace('.', '\\.'); // Replace special character .
-            fileNameWithWildCard = fileNameWithWildCard.replace('?', '.'); // Replace ? with Regex . to match any single character
-            fileNameWithWildCard = fileNameWithWildCard.replace('*', '.*'); // Replace * with .* to match any single character 0 or more times
+            // Replace rules:
+            // Replace special character +
+            // Replace special character .
+            // Replace ? with Regex . to match any single character
+            // Replace * with .* to match any single character 0 or more times
+            let fileNameWithWildCard = fileName.replace('+', '\\+');
+            fileNameWithWildCard = fileNameWithWildCard.replace('.', '\\.');
+            fileNameWithWildCard = fileNameWithWildCard.replace('?', '.');
+            fileNameWithWildCard = fileNameWithWildCard.replace('*', '.*');
 
             const regex = new RegExp(fileNameWithWildCard);
             const files = [];
@@ -394,10 +399,15 @@ class ZosFileHandler extends ChatHandler {
           }
         }
       } else {
-        let fileSysNamWithWildCard = fileSystemName.replace('+', '\\+'); // Replace special character +
-        fileSysNamWithWildCard = fileSysNamWithWildCard.replace('.', '\\.'); // Replace special character .
-        fileSysNamWithWildCard = fileSysNamWithWildCard.replace('?', '.'); // Replace ? with Regex . to match any single character
-        fileSysNamWithWildCard = fileSysNamWithWildCard.replace('*', '.*'); // Replace * with .* to match any single character 0 or more times
+        // Wildcard replace rules:
+        // Replace special character +
+        // Replace special character .
+        // Replace ? with Regex . to match any single character
+        // Replace * with .* to match any single character 0 or more times
+        let fileSysNamWithWildCard = fileSystemName.replace('+', '\\+');
+        fileSysNamWithWildCard = fileSysNamWithWildCard.replace('.', '\\.');
+        fileSysNamWithWildCard = fileSysNamWithWildCard.replace('?', '.');
+        fileSysNamWithWildCard = fileSysNamWithWildCard.replace('*', '.*');
 
         const regex = new RegExp(fileSysNamWithWildCard);
         for (const fileSystem of fileSystems) {

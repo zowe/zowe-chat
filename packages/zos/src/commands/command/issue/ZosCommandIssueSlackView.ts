@@ -23,7 +23,7 @@ class ZosCommandIssueSlackView extends ChatSlackView {
     let commandOutput = issueResponse.commandResponse;
     let messages: IMessage[] = [];
     try {
-      if (commandOutput === null || commandOutput === undefined || commandOutput.trim() == '') {
+      if (commandOutput === null || commandOutput === undefined || commandOutput.trim() === '') {
         messages = [
           {
             type: IMessageType.PLAIN_TEXT,
@@ -44,7 +44,8 @@ class ZosCommandIssueSlackView extends ChatSlackView {
         // Truncate the command output if longer than the allowed maximum text length
         if (commandOutput.length > this.botLimit.sectionBlockTextMaxLength) {
           const truncationIndicator = `\n...\n${i18next.t('zowe.truncationIndicator', { ns: 'ZosMessage' })}`;
-          commandOutput = commandOutput.substring(0, this.botLimit.sectionBlockTextMaxLength - truncationIndicator.length - 10); // Must count in ```
+          // Must count in ```
+          commandOutput = commandOutput.substring(0, this.botLimit.sectionBlockTextMaxLength - truncationIndicator.length - 10);
           commandOutput = commandOutput + truncationIndicator;
         }
 

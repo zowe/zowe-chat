@@ -8,7 +8,8 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-import { render, screen } from '@testing-library/react';
+// eslint-disable-next-line node/no-unpublished-import
+import { render, screen } from '@testing-library/react'; // TODO:  will-fix-in-another-pr
 import ZoweChatApp from './ZoweChatApp';
 
 test('renders learn react link', () => {

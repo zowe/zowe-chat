@@ -103,8 +103,8 @@ class ZosCommandIssueHandler extends ChatHandler {
       // handle the command string inside the quotes or doube quotes
       // since zowe cli sdk issue command accept the command string without delimiters
       if (
-        (commandString.charAt(0) == '"' && commandString.charAt(commandString.length - 1) == '"') ||
-        (commandString.charAt(0) == "'" && commandString.charAt(commandString.length - 1) == "'")
+        (commandString.charAt(0) === '"' && commandString.charAt(commandString.length - 1) === '"') ||
+        (commandString.charAt(0) === `'` && commandString.charAt(commandString.length - 1) === `'`)
       ) {
         commandString = commandString.substring(1, commandString.length - 1);
       }

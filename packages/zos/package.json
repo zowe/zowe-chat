@@ -59,6 +59,8 @@
   },
   "peerDependencies": {
     "@zowe/chat": "*",
+    "@zowe/imperative": "^5.8.3",
+    "@zowe/zos-files-for-zowe-sdk": "^7.10.4",
     "i18next": "*"
   },
   "bundledDependencies": [],
