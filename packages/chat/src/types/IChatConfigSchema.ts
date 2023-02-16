@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 /**
  * The complete schema for configuration managed through Chat's admin interface.
  */

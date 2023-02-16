@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 export * from "./settings/Config";
 export * from "./utils/Logger";
 export * from "./types/IConfig";

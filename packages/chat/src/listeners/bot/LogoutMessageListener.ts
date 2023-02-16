@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 import { IChatContextData, IMessage, IMessageType, IUser } from '@zowe/bot';
 import { SecurityManager } from '../../security/SecurityManager';
 import { logger } from '../../utils/Logger';
