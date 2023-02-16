@@ -158,7 +158,7 @@ export class BotMessageListener extends BotListener {
     } else {
       try {
         const principal = this.securityManager.getPrincipal(this.securityManager.getChatUser(user));
-        if (principal == undefined) {
+        if (principal == null) {
           const redirect = this.webapp.generateChallenge(user, () => {
             this.processMessage(chatContextData);
           });

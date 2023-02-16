@@ -164,7 +164,7 @@ class Logger {
       // ZWECC001E: Internal server error: {{error}}
       console.error(`ZWECC001E: Internal server error: Logger creation exception`);
       console.error(error.stack);
-      process.exit(1);
+      throw error;
     }
   }
 
@@ -211,7 +211,7 @@ class Logger {
     // Print start log
     if (arguments.length >= 3) {
       this.logger.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
-    } else if (arguments.length == 2) {
+    } else if (arguments.length === 2) {
       this.logger.info(`${clsName} : ${funName.replace(/bound /, '')}    start ===>`);
     } else {
       this.logger.info(`${funName.replace(/bound /, '')}    start ===>`);
@@ -261,7 +261,7 @@ class Logger {
     // Print end log
     if (arguments.length >= 3) {
       this.logger.info(`${fileName} : ${clsName} : ${funName.replace(/bound /, '')}      end <===`);
-    } else if (arguments.length == 2) {
+    } else if (arguments.length === 2) {
       this.logger.info(`${clsName} : ${funName.replace(/bound /, '')}      end <===`);
     } else {
       this.logger.info(`${funName.replace(/bound /, '')}      end <===`);

@@ -8,6 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+/* eslint-disable no-unused-vars */
 // ChatCredential to disambiguate from internal node Credential type
 export type ChatCredential = {
   type: CredentialType;

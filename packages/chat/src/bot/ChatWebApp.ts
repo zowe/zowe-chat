@@ -78,6 +78,7 @@ export class ChatWebApp {
       );
 
       this.app.use(express.static(staticFiles));
+      // eslint-disable-next-line new-cap
       const rootRoute = express.Router();
       rootRoute.get('(/*)?', (req, res) => {
         res.sendFile(path.resolve(staticFiles, 'index.html'));
@@ -148,7 +149,7 @@ export class ChatWebApp {
       const password: string = req.body.password;
 
       const storedChallenge = this.activeChallenges.get(challenge);
-      if (challenge == undefined || storedChallenge == undefined) {
+      if (challenge == null || storedChallenge == null) {
         res.status(403).send('The link you used to login is either expired or invalid. Please request a new one from Zowe ChatBot.');
         return;
       }
@@ -205,11 +206,11 @@ export class ChatWebApp {
         // Check TLS key and certificate
         if (fs.existsSync(this.option.tlsKey) === false) {
           logger.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
-          process.exit(1);
+          throw new Error('Could not load tls key');
         }
         if (fs.existsSync(this.option.tlsCert) === false) {
           logger.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
-          process.exit(2);
+          throw new Error('Could not load tls certificate');
         }
 
         // Create HTTPS server
@@ -232,7 +233,7 @@ export class ChatWebApp {
       // ZWECC001E: Internal server error: {{error}}
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Web app server start exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(3);
+      throw error;
     } finally {
       // Print end log
       logger.end(this.startServer, this);
@@ -263,7 +264,7 @@ export class ChatWebApp {
    * Event listener for error event.
    */
   private onError(port: string | number | boolean) {
-    return function (error: any) {
+    return (error: any) => {
       // eslint-disable-line @typescript-eslint/no-explicit-any
       if (error.syscall !== 'listen') {
         console.error(`Listen is not called!`);
@@ -278,12 +279,12 @@ export class ChatWebApp {
         case 'EACCES':
           console.error(`${bind} requires elevated privileges`);
           console.error(error.stack);
-          process.exit(4);
+          throw error;
           break;
         case 'EADDRINUSE':
           console.error(`${bind} is already in use`);
           console.error(error.stack);
-          process.exit(5);
+          throw error;
           break;
         default:
           throw error;
@@ -298,7 +299,7 @@ export class ChatWebApp {
    * @returns
    */
   private onListening(server: https.Server | http.Server) {
-    return function () {
+    return () => {
       const addr = server.address();
       const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
       console.info(`The messaging app server is listening on ${bind}`);
@@ -321,13 +322,13 @@ export class ChatWebApp {
         `${this.option.protocol}://${this.option.hostName}:${this.option.port}`,
       ];
 
-      if (process.env.NODE_ENV == 'development') {
+      if (process.env.NODE_ENV === 'development') {
         whitelist.push('http://localhost', 'http://localhost:3000');
       }
 
       return {
         origin: (origin: string, callback: Function) => {
-          if (whitelist.indexOf(origin) !== -1 || origin == null || origin == undefined) {
+          if (whitelist.indexOf(origin) !== -1 || origin == null) {
             callback(null, true);
           } else {
             callback(new Error(origin + 'Domain not allowed by CORS'));
@@ -338,7 +339,7 @@ export class ChatWebApp {
       // ZWECC001E: Internal server error: {{error}}
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Web app cors option set exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(6);
+      throw error;
     } finally {
       // Print end log
       logger.end(this.generateCorsOption, this);

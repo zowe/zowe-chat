@@ -111,7 +111,8 @@ export const SecurityConfigSchema: IConfigBlockDefinition = {
         {
           value: AuthenticationStrategy.Token,
           description:
-            'Caches tokens per user for use with downstream API services. Tokens typically expire within hours, at which time Zowe ChatBot will prompt users for another login.',
+            'Caches tokens per user for use with downstream API services.' +
+            'Tokens typically expire within hours, at which time Zowe ChatBot will prompt users for another login.',
         },
       ],
       default: AuthenticationStrategy.Token,

@@ -44,7 +44,7 @@ export class UserFileMapping implements IUserMapping {
     const encryptedText = Buffer.from(fs.readFileSync(this.mappingFile).toString(), 'hex');
     const decipher = crypto.createDecipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
     this.userMap = {};
-    if (encryptedText == undefined || encryptedText.length == 0) {
+    if (encryptedText == null || encryptedText.length === 0) {
       this.writeMappingFile();
     } else {
       const jsonFormat: Object = JSON.parse(Buffer.concat([decipher.update(encryptedText), decipher.final()]).toString());
@@ -72,7 +72,7 @@ export class UserFileMapping implements IUserMapping {
 
   public mapUser(distUser: string, mfUser: string): boolean {
     logger.debug(`Mapping ${distUser} to ${mfUser}`);
-    const output = (this.userMap[distUser] = mfUser);
+    this.userMap[distUser] = mfUser;
     // logger.silly(JSON.stringify(output))
     this.writeMappingFile();
     return true;

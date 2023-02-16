@@ -26,8 +26,8 @@ export class TokenProvider implements ICredentialProvider {
   private readonly rejectUnauth: boolean;
 
   /*
-    Set-Cookie: LtpaToken2=+nF4yYMIyE9y+nc3W2BhhEQ9cKzlcrFQzEyM dp4V31aBs+BgRpT+KwXAGotgM+RaIqrdBc/J+coCeEoZUdl4NThNndMsKTPpswNU65PDgdg/6HYKtssn8Rn8IGehxjTMbrF67L87pv3IkPFoG1jKGPZF3tIEZ3ZuAortJzv9WVYzFyEn2Vamq/XeTXfXxLTgBTkwm9a240G0HjFAkbXD/PF8sMHPSB2Cvf8J7Joggkl2f5bntlZ5Tgaro5hsIiml45DsTbKxNm4KYO6RhPD7XvtO4IuHz5Wd88GmaNlGa2wBeRQLiHR4XKk2SpVQHQOU7; Path=/; Secure; HttpOnly
-    */
+
+  */
 
   constructor(securityConfig: SecurityConfig) {
     const zosmfConfig = config.getZosmfServerConfig();
@@ -60,7 +60,7 @@ export class TokenProvider implements ICredentialProvider {
           chatUser.getMainframeUser(),
           password,
         );
-        if (token.type == CredentialType.UNDEFINED) {
+        if (token.type === CredentialType.UNDEFINED) {
           return false;
         }
         this.storeCredential(chatUser, token);
@@ -75,7 +75,7 @@ export class TokenProvider implements ICredentialProvider {
   public getCredential(chatUser: ChatUser): ChatCredential | undefined {
     try {
       const cred = this.retrieveCredential(chatUser);
-      if (cred === undefined || cred.value.length == 0) {
+      if (cred == null || cred.value.length === 0) {
         return {
           type: CredentialType.UNDEFINED,
           value: '',

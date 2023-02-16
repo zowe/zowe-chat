@@ -21,7 +21,8 @@ export class UserConfigManager {
 
   constructor(aggregateConfig: IChatConfigSchema) {
     this.configSchema = aggregateConfig;
-    let userConfigDir; // Todo: need more discussion on whether we should support user configuration in v1 // = appConfig.app.extendedConfigDir;
+    // TODO: need more discussion on whether we should support user configuration in v1 // = appConfig.app.extendedConfigDir;
+    let userConfigDir;
     if (userConfigDir === undefined) {
       userConfigDir = './_config';
     }
@@ -46,7 +47,7 @@ export class UserConfigManager {
     }
 
     const configContents = fs.readJSONSync(`${this.configFilePath}`, { throws: false });
-    if (configContents == undefined) {
+    if (configContents == null) {
       this.configData = this.generateConfig(this.configSchema);
     } else {
       this.configData = configContents;

@@ -114,7 +114,7 @@ export class ChatBot {
       // ZWECC001E: Internal server error: {{error}}
       logger.error('ZWECC001E: Internal server error: Chatbot creation exception');
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(1);
+      throw error;
     }
   }
 
@@ -156,7 +156,7 @@ export class ChatBot {
       // ZWECC001E: Internal server error: {{error}}
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Run Zowe chat bot exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(2);
+      throw error;
     } finally {
       // Print end log
       logger.end(this.run, this);
@@ -323,7 +323,7 @@ export class ChatBot {
       // ZWECC001E: Internal server error: {{error}}
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Zowe Chat plugin loading exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(3);
+      throw error;
     } finally {
       // Print end log
       logger.end(this.loadPlugin, this);
@@ -367,7 +367,7 @@ export class ChatBot {
           } else {
             // ZWECC002E: The file {{filePath}} does not exist
             logger.error(Util.getErrorMessage('ZWECC002E', { filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage' }));
-            process.exit(4);
+            throw new Error('Could not load the mattermost tlsCertificate');
           }
         }
 
@@ -452,13 +452,13 @@ export class ChatBot {
         logger.error(
           Util.getErrorMessage('ZWECC005E', { value: config.chatServer.chatToolType, item: 'chatToolType', ns: 'ChatMessage' }),
         );
-        process.exit(5);
+        throw new Error('Could not find a supporter chatToolType');
       }
     } catch (error) {
       // ZWECC001E: Internal server error: {{error}}
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Chat tool configuration exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(6);
+      throw error;
     } finally {
       // Print end log
       logger.end(this.generateBotOption, this);

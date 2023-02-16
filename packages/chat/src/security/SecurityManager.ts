@@ -11,7 +11,7 @@
 import { config } from '../settings/Config';
 import { IUser } from '@zowe/bot';
 import * as crypto from 'crypto';
-import { IConfig, IAuthType } from '../types/IConfig';
+import { IAuthType } from '../types/IConfig';
 import { UserConfigManager } from '../settings/UserConfigManager';
 import { logger } from '../utils/Logger';
 import { LoginService, LoginStrategyType, SecurityConfig } from '../types/SecurityConfig';
@@ -40,12 +40,12 @@ export class SecurityManager {
       this.securityConfig = this.configManager.getConfigFromSchema(SecurityConfigSchema);
 
       let cryptKey: Buffer = Buffer.from(this.securityConfig.encryptionKey, 'base64');
-      if (cryptKey === undefined || cryptKey.length == 0) {
+      if (cryptKey === undefined || cryptKey.length === 0) {
         cryptKey = crypto.randomBytes(32);
         this.securityConfig.encryptionKey = cryptKey.toString('base64');
       }
       let cryptIv: Buffer = Buffer.from(this.securityConfig.encryptionIv, 'base64');
-      if (cryptIv === undefined || cryptIv.length == 0) {
+      if (cryptIv === undefined || cryptIv.length === 0) {
         cryptIv = crypto.randomBytes(16);
         this.securityConfig.encryptionIv = cryptIv.toString('base64');
       }
@@ -81,7 +81,7 @@ export class SecurityManager {
       // ZWECC001E: Internal server error: {{error}}
       logger.error('ZWECC001E: Internal server error: Security facility initialize exception');
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(1);
+      throw error;
     }
 
     logger.debug('Security facility initialized');
@@ -92,8 +92,8 @@ export class SecurityManager {
     let loggedIn = false;
     const loginSection = this.securityConfig.loginStrategy;
 
-    if (loginSection.strategy == LoginStrategyType.RequireLogin) {
-      if (loginSection.authService.service == LoginService.ZOSMF) {
+    if (loginSection.strategy === LoginStrategyType.RequireLogin) {
+      if (loginSection.authService.service === LoginService.ZOSMF) {
         const zosmfserverConfig = config.getZosmfServerConfig();
         const zosmfHost: ZosmfHost = {
           host: zosmfserverConfig.hostName,
@@ -127,7 +127,7 @@ export class SecurityManager {
   public isAuthenticated(chatUsr: IUser): boolean {
     const user = this.getChatUser(chatUsr);
     if (user === undefined) {
-      logger.debug('TBD001D: Could not find stored value for user: ' + chatUsr + " Returning 'not authenticated'.");
+      logger.debug('TBD001D: Could not find stored value for user: ' + chatUsr + ` Returning 'not authenticated'.`);
       return false;
     }
     return true;
@@ -140,7 +140,7 @@ export class SecurityManager {
 
   public getPrincipal(user: ChatUser): ChatPrincipal | undefined {
     const cred = this.credentialProvider.getCredential(user);
-    if (cred == undefined || cred.value.length == 0) {
+    if (cred == null || cred.value.length === 0) {
       return undefined;
     }
     return new ChatPrincipal(user, cred);
@@ -150,11 +150,11 @@ export class SecurityManager {
   public getChatUser(user: IUser): ChatUser | undefined {
     let uid: string = user.name;
     let principal: string | undefined = this.userMap.getUser(uid);
-    if (principal === undefined) {
+    if (principal == null) {
       uid = user.email;
       principal = this.userMap.getUser(uid);
     }
-    if (principal === undefined || principal.trim().length == 0) {
+    if (principal == null || principal.trim().length === 0) {
       logger.debug('User not found in user map: ' + user.name);
       return undefined;
     }

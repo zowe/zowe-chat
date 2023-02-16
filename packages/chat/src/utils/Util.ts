@@ -219,8 +219,8 @@ export class Util {
           replacement: 'Password": "********"',
         },
         {
-          pattern: "Password': {0,1}'.*?'", //  'Password': '********'
-          replacement: "Password': '********'",
+          pattern: `Password': {0,1}'.*?'`, //  'Password': '********'
+          replacement: `Password': '********'`,
         },
         {
           pattern: 'token": {0,1}".*?"', // "botAccessToken": "********"  | "token": "********" | "appToken": "********"

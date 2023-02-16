@@ -72,7 +72,7 @@ class Config {
       if (chatServerConfig === null) {
         // ZWECC003E: Failed to the read the file {{filePath}}
         console.error(`ZWECC003E: Failed to the read the file ${filePath}`);
-        process.exit(1);
+        throw new Error('Failed to read configuration file.');
       }
 
       // Set chat server config
@@ -82,7 +82,7 @@ class Config {
       console.error(Util.getErrorMessage('ZWECC001E', { error: 'Chat server configure loading exception', ns: 'ChatMessage' }));
       console.error(error.stack);
 
-      process.exit(2);
+      throw error;
     }
 
     return;
@@ -114,14 +114,14 @@ class Config {
       } else {
         // ZWECC005E: Unsupported value ${value} for the item ${item}
         console.error(`ZWECC005E: Unsupported value ${this.config.chatServer.chatToolType} for the item chatToolType`);
-        process.exit(3);
+        throw new Error('Unsupported value within configuration file');
       }
 
       // Check result
       if (chatToolConfig === null) {
         // ZWECC003E: Failed to the read the file {{filePath}}
         console.error(`ZWECC003E: Failed to the read the file ${filePath}`);
-        process.exit(4);
+        throw new Error('Could not read chat tool configuration file.');
       }
 
       // Set chat tool config
@@ -130,7 +130,7 @@ class Config {
       // ZWECC001E: Internal server error: {{error}}
       console.error(Util.getErrorMessage('ZWECC001E', { error: 'Chat tool configure loading exception', ns: 'ChatMessage' }));
       console.error(error.stack);
-      process.exit(5);
+      throw error;
     }
 
     return chatToolConfig;
@@ -151,7 +151,7 @@ class Config {
       if (zosmfServerConfig === null) {
         // ZWECC003E: Failed to the read the file {{filePath}}
         console.error(`ZWECC003E: Failed to the read the file ${filePath}`);
-        process.exit(6);
+        throw new Error('Failed to read zosmfServer.yaml configuration');
       }
 
       // Set z/OSMF server config
@@ -160,7 +160,7 @@ class Config {
       // ZWECC001E: Internal server error: {{error}}
       console.error(Util.getErrorMessage('ZWECC001E', { error: 'z/OSMF server configure loading exception', ns: 'ChatMessage' }));
       console.error(error.stack);
-      process.exit(7);
+      throw error;
     }
 
     return zosmfServerConfig;

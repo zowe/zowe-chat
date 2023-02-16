@@ -83,7 +83,7 @@ export class ZosmfLogin {
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'z/OSMF user login exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
 
-      if (client.response.statusCode === 401 || client.response.statusCode == 403) {
+      if (client.response.statusCode === 401 || client.response.statusCode === 403) {
         return false;
       }
     }
@@ -158,7 +158,7 @@ export class ZosmfLogin {
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'z/OSMF token get exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
 
-      if (client.response.statusCode === 401 || client.response.statusCode == 403) {
+      if (client.response.statusCode === 401 || client.response.statusCode === 403) {
         return {
           type: CredentialType.UNDEFINED,
           value: '',

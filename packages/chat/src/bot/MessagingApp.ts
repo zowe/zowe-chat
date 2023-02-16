@@ -67,11 +67,11 @@ export class MessagingApp {
         // Check TLS key and certificate
         if (fs.existsSync(this.option.tlsKey) === false) {
           logger.error(`The TLS key file "${this.option.tlsKey}" does not exist!`);
-          process.exit(1);
+          throw new Error('Could not load tlsKey');
         }
         if (fs.existsSync(this.option.tlsCert) === false) {
           logger.error(`The TLS certificate file "${this.option.tlsCert}" does not exist!`);
-          process.exit(2);
+          throw new Error('Could not load certificate');
         }
 
         // Create HTTPS server
@@ -94,7 +94,7 @@ export class MessagingApp {
       // ZWECC001E: Internal server error: {{error}}
       logger.error(Util.getErrorMessage('ZWECC001E', { error: 'Message app server start exception', ns: 'ChatMessage' }));
       logger.error(logger.getErrorStack(new Error(error.name), error));
-      process.exit(3);
+      throw error;
     } finally {
       // Print end log
       logger.end(this.startServer, this);
@@ -124,7 +124,7 @@ export class MessagingApp {
    * Event listener for error event.
    */
   private onError(port: string | number | boolean) {
-    return function (error: any) {
+    return (error: any) => {
       // eslint-disable-line @typescript-eslint/no-explicit-any
       if (error.syscall !== 'listen') {
         logger.error(`Listen is not called!`);
@@ -139,12 +139,12 @@ export class MessagingApp {
         case 'EACCES':
           logger.error(`${bind} requires elevated privileges`);
           logger.error(error.stack);
-          process.exit(4);
+          throw error;
           break;
         case 'EADDRINUSE':
           logger.error(`${bind} is already in use`);
           logger.error(error.stack);
-          process.exit(5);
+          throw error;
           break;
         default:
           throw error;
@@ -159,7 +159,7 @@ export class MessagingApp {
    * @returns
    */
   private onListening(server: https.Server | http.Server) {
-    return function () {
+    return () => {
       const addr = server.address();
       const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
       logger.info(`The messaging app server is listening on ${bind}`);

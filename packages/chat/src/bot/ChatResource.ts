@@ -73,8 +73,8 @@ class ChatResource {
             },
           },
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
         (error: any, t: TFunction) => {
-          // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
           if (error) {
             logger.error(`Failed to load translation resources!\n ${JSON.stringify(error, null, 4)}`);
           }

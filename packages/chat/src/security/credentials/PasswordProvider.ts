@@ -43,7 +43,7 @@ export class PasswordProvider implements ICredentialProvider {
     const encryptedText = Buffer.from(fs.readFileSync(this.passFile).toString(), 'hex');
     const decipher = crypto.createDecipheriv(this.encryptAlgorithm, this.encryptKey, this.encryptIv);
     this.passCache = new Map();
-    if (encryptedText == undefined || encryptedText.length == 0) {
+    if (encryptedText == null || encryptedText.length === 0) {
       this.writePassFile();
     } else {
       const jsonFormat: Object = JSON.parse(Buffer.concat([decipher.update(encryptedText), decipher.final()]).toString());
@@ -68,7 +68,7 @@ export class PasswordProvider implements ICredentialProvider {
   }
 
   public getCredential(chatUser: ChatUser): ChatCredential | undefined {
-    if (this.passCache.get(chatUser.getMainframeUser()) == undefined) {
+    if (this.passCache.get(chatUser.getMainframeUser()) == null) {
       return undefined;
     }
     return {

@@ -142,7 +142,7 @@ export class BotEventListener extends BotListener {
       // Process event
       if (matched) {
         const principal = this.securityFacility.getPrincipal(this.securityFacility.getChatUser(user));
-        if (principal == undefined) {
+        if (principal == null) {
           const redirect = this.webapp.generateChallenge(user, () => {
             this.processEvent(chatContextData);
           });

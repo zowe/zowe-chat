@@ -8,6 +8,7 @@
  * Copyright Contributors to the Zowe Project.
  */
 
+/* eslint-disable no-unused-vars */
 import { IChatToolType, IProtocol, IAppOption, ILogOption } from '.';
 
 /**
