@@ -28,7 +28,7 @@ jobs:
         run: npm install -g npm@^8
 
       - name: Install Node Package Dependencies
-        run: npm ci --workspaces
+        run: npm ci --workspaces --include=dev
 
       - name: Lint
         run: npm run lintAll
