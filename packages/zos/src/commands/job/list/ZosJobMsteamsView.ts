@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 import { IJob } from '@zowe/zos-jobs-for-zowe-sdk';
 import i18next from 'i18next';
 

@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 export interface IUserMapping {
 
     userExists(distUser: string): boolean;

@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 // ChatCredential to disambiguate from internal node Credential type
 export type ChatCredential = {
     type: CredentialType;

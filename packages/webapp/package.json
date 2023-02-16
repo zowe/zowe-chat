@@ -9,7 +9,7 @@
     "eject": "react-scripts eject",
     "checkDeps": "madge -c build",
     "updateDeps": "npx npm-check-updates -u",
-    "lint": "npx eslint ."
+    "lint": "eslint \"src/**/*.tsx\""
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",

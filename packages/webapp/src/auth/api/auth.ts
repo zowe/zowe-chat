@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 import * as axios from 'axios';
 import { LoginResponse } from './LoginResponse';
 

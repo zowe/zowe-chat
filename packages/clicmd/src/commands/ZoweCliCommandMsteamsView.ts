@@ -8,7 +8,6 @@
 * Copyright Contributors to the Zowe Project.
 */
 
-
 import { logger, ChatMsteamsView, IBotOption, IExecutor, IMessage, IMessageType, IMsteamsBotLimit, Util } from '@zowe/chat';
 import i18next from 'i18next';
 
