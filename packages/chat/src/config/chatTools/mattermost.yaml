@@ -39,12 +39,12 @@ messagingApp:
   # Specify the port number of your HTTP endpoint.
   # The default value is 7701.
   port: 7701
-  
+
   # Specify the base path of your HTTP endpoint.
   # The default value is /zowe/chat/api/v1.
   basePath: /zowe/chat/api/v1
 
-  # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.  
+  # Specify the absolute file path of the TLS key (PEM) if HTTPS protocol is specified.
   tlsKey: <Your absolute TLS key file path of your messaging server>
 
   # Specify the absolute file path of the TLS certificate (PEM) if HTTPS protocol is specified.
