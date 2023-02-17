@@ -280,12 +280,10 @@ export class ChatWebApp {
           console.error(`${bind} requires elevated privileges`);
           console.error(error.stack);
           throw error;
-          break;
         case 'EADDRINUSE':
           console.error(`${bind} is already in use`);
           console.error(error.stack);
           throw error;
-          break;
         default:
           throw error;
       }

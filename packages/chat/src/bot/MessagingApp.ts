@@ -140,12 +140,10 @@ export class MessagingApp {
           logger.error(`${bind} requires elevated privileges`);
           logger.error(error.stack);
           throw error;
-          break;
         case 'EADDRINUSE':
           logger.error(`${bind} is already in use`);
           logger.error(error.stack);
           throw error;
-          break;
         default:
           throw error;
       }
