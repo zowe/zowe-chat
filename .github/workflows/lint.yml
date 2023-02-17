@@ -21,14 +21,14 @@ jobs:
       - name: Use Node.js LTS
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: lts/*
 
       - name: Use NPM v8
         id: npm8
         run: npm install -g npm@^8
 
       - name: Install Node Package Dependencies
-        run: npm ci --workspaces --include=dev --legacy-peer-deps
+        run: npm ci
 
       - name: Lint
         run: npm run lintAll
