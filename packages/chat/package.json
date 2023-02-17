@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/zowe/zowe-chat#readme",
   "dependencies": {
-    "@zowe/bot": "file:lib/zowe-bot-v100-beta.tar.gz",
+    "@zowe/bot": "file:lib/zowe-bot-v101-beta.tar.gz",
     "@zowe/core-for-zowe-sdk": "^7.7.0",
     "@zowe/imperative": "^5.6.0",
     "cors": "^2.8.5",

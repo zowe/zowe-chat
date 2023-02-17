@@ -1,0 +1,136 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Zowe Chat CI Build
+
+permissions: read-all
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+      types: [opened, synchronize]
+    
+
+jobs:
+  build-and-test:
+    if: (!contains(github.event.head_commit.message, '[ci skip]'))
+    runs-on: ${{ matrix.os }}
+    outputs:
+      npm-resolutions: ${{ steps.npm-update.outputs.result }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [16.x, 18.x]
+        os: [ubuntu-latest]
+
+    env:
+      OS: ${{ matrix.os }}
+      NODE: ${{ matrix.node-version }}
+
+    timeout-minutes: 60
+
+    concurrency:
+      group: ${{ matrix.os }}-node-${{ matrix.node-version }}-ci-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Get NPM Version
+      id: npm-version
+      run: echo "::set-output name=number::$(npm --version)"
+
+    - name: Use NPM v8
+      id: npm8
+      run: npm install -g npm@~8.3.2
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build Source
+      id: build
+      run: npm run buildAll
+
+    - name: Unit Tests
+      run: npm run test:unit
+
+    - name: Integration Tests
+      run: npm run test:integration
+
+    - name: Archive Results
+      if: ${{ always() && steps.build.outcome == 'success' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.os }}-${{ matrix.node-version }}-results
+        path: __tests__/__results__/
+
+    - name: Upload Results to Codecov
+      if: ${{ always() && steps.build.outcome == 'success' }}
+      uses: codecov/codecov-action@v3
+      with:
+        env_vars: OS,NODE
+
+
+  call-deploy-dev:
+    permissions:
+      actions: write
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: |
+        github.event_name == 'pull_request' &&  
+        ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
+        ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
+    env:
+      TEST_SERVER_ONE: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') }}
+      TEST_SERVER_TWO: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy') }}
+    steps:
+      - name: Set test system name as variable
+        id: check-dev-label
+        shell: bash
+        run: |
+          if [[ "$TEST_SERVER_ONE" = true ]]; then
+              echo "TEST_SERVER=chatbot-dev-1-deploy" >> $GITHUB_OUTPUT
+          else
+              echo "TEST_SERVER=chatbot-dev-2-deploy" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 'Call deployment workflow'
+        uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
+        id: call-deploy-dev-chat
+        with:
+          github-token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
+          owner: zowe
+          repo: zowe-chat
+          workflow-filename: deploy-test-env.yml
+          branch-name: ${{ github.head_ref }}
+          poll-frequency: 3
+          inputs-json-string: '{ "pull-number": "${{ github.event.number }}", "branch-or-ref":"${{ github.ref }}", "test-server": "${{ steps.check-dev-label.outputs.TEST_SERVER }}", "run-system-test": "false"}'
+
+  call-deploy-main:
+    permissions:
+      actions: write
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event.name == 'push' && contains(github.ref, 'main')
+    steps:
+      - name: 'Check if a valid label exists'
+        uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
+        id: call-deploy-main-chat
+        with:
+          github-token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
+          owner: zowe
+          repo: zowe-chat
+          workflow-filename: deploy-test-env.yml
+          branch-name: ${{ github.head_ref }}
+          github-ref: ${{ github.ref }} 
+          poll-frequency: 3
+          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "main", "run-system-test": "false"}'

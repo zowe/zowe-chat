@@ -1,0 +1,16 @@
+
+name: Zowe Chat Publish
+
+permissions: read-all
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: no commands yet
+        id: empty
+        run: echo 'empty commands'

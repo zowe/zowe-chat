@@ -1,0 +1,137 @@
+name: Deploy Dev Environment
+
+permissions: read-all
+
+on:    
+  workflow_dispatch:
+    inputs:
+      pull-number:
+        description: The pull request being deployed, if applicable.
+        type: string
+        required: false
+        default: no-pr
+      test-server:
+        description: 'Choose the test instance. "main" will only work on the main branch'
+        type: choice
+        required: true
+        options:
+        - chatbot-dev-1-deploy
+        - chatbot-dev-2-deploy
+        - main
+      run-system-test:
+        description: 'Run system tests after install'
+        type: boolean
+        required: true
+        default: false
+      branch-or-ref:
+        description: 'Branch or ref to deploy to test instance'
+        type: string
+        required: true  
+      RANDOM_DISPATCH_EVENT_ID:
+        description: 'random dispatch event id'
+        required: false
+        type: string
+
+jobs:
+  display-dispatch-event-id:
+    if: github.event.inputs.RANDOM_DISPATCH_EVENT_ID != ''
+    runs-on: ubuntu-latest
+    steps:
+    - name: RANDOM_DISPATCH_EVENT_ID is ${{ github.event.inputs.RANDOM_DISPATCH_EVENT_ID }}
+      run: echo "prints random dispatch event id sent from workflow dispatch event"
+
+  deploy-chat:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        repository: 'zowe/zowe-chat'
+        ref: ${{ github.event.inputs.branch-or-ref }}
+
+    - name: Use Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Use NPM v8
+      id: npm8
+      run: npm install -g npm@~8.3.2
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build Source
+      id: build
+      run: npm run buildAll
+
+    - name: Package Chat
+      env:
+        RELEASE_TYPE: beta
+        NODE_ENV: production
+        RELEASE_VERSION: '002' #TODO: support builds which mark the code as PR-#, or any other format
+      id: Package
+      run: npm run packagingAll # Note - package name is used later, format by convention in gulp scripts
+
+    - name: Install Actions Dependencies
+      id: actions-deps
+      run: cd .github/actions && npm ci
+
+  # For testing locally with `act`, uncomment below and run with `--job just-deploy --bind`.
+  #just-deploy:
+  #  runs-on: ubuntu-latest
+  #  steps:
+    - name: Set deployment target
+      env:
+       MAIN_BRANCH: ${{ github.event.inputs.test-server == 'main' }} && ${{ github.ref == 'refs/heads/main' }}
+       TEST_SERVER_ONE: ${{ github.event.inputs.test-server == 'chatbot-dev-1-deploy' }}
+       TEST_SERVER_TWO: ${{ github.event.inputs.test-server == 'chatbot-dev-2-deploy' }}
+      id: system-address
+      shell: bash
+      run: |
+        if [[ "$TEST_SERVER_ONE" = true ]]; then
+            echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N3 }}" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N3 }}\"" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_1_BOT }}" >> $GITHUB_OUTPUT
+            echo "BOT_ID=${{ secrets.MATTERMOST_DEV_1_BOT_ID }}" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_NAME=zowe-chat-dev-1" >> $GITHUB_OUTPUT
+        elif [[ "$TEST_SERVER_TWO" = true ]]; then
+            echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_2_BOT }}" >> $GITHUB_OUTPUT
+            echo "BOT_ID=${{ secrets.MATTERMOST_DEV_2_BOT_ID }}" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_NAME=zowe-chat-dev-2" >> $GITHUB_OUTPUT
+        elif [[ "$MAIN_BRANCH" = true ]]; then
+            echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
+            echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_MAIN_BOT }}" >> $GITHUB_OUTPUT
+            echo "BOT_ID=${{ secrets.MATTERMOST_MAIN_BOT_ID }}" >> $GITHUB_OUTPUT
+            echo "MATTERMOST_BOT_NAME=zowe-chat-stable" >> $GITHUB_OUTPUT
+        else 
+            echo "Error: No valid test-server configuration found. If deploying to main, please ensure this is the main branch."
+        fi
+
+    - name: Deploy Chatbot
+      id: deploy-chatbot
+      uses: ./.github/actions/deploy
+      with:
+        host: ${{ steps.system-address.outputs.SERVER_ADDRESS }}
+        ssh_key: ${{ steps.system-address.outputs.SERVER_CERT }}
+        ssh_user: ${{ secrets.ZLINUX_USER }}
+        botToken: ${{ steps.system-address.outputs.MATTERMOST_BOT_TOKEN }}
+        botName: ${{ steps.system-address.outputs.MATTERMOST_BOT_NAME }}
+        zosmf_host: ${{ secrets.ZOSMF_HOST }}
+        zosmf_port: ${{ secrets.ZOSMF_PORT }}
+        zosmf_ru: ${{ secrets.ZOSMF_RU }}
+        zosmf_protocol: ${{ secrets.ZOSMF_PROTOCOL }}
+
+    - name: Update chatbot name
+      if: contains(github.event.inputs.test-server, 'chatbot-dev')
+      id: update-chatbot-name
+      uses: ./.github/actions/update-chatbot-name
+      with:
+        api_key: ${{ secrets.MATTERMOST_API_KEY }}
+        bot_id: ${{ steps.system-address.outputs.BOT_ID }}
+        bot_name:  ${{ steps.system-address.outputs.MATTERMOST_BOT_NAME }}
+        display_name: "Z Chat PR-${{ github.event.inputs.pull-number }}"
+        description: "Commit ${{ github.sha }}"
