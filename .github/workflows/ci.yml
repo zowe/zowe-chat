@@ -128,7 +128,6 @@ jobs:
           owner: zowe
           repo: zowe-chat
           workflow-filename: deploy-test-env.yml
-          branch-name: ${{ github.head_ref }}
-          github-ref: ${{ github.ref }}
+          branch-name: ${{ github.ref }}
           poll-frequency: 3
           inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "main", "run-system-test": "false"}'
