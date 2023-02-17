@@ -118,7 +118,7 @@ jobs:
       actions: write
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event.name == 'push' && contains(github.ref, 'main')
+    if: github.event_name == 'push' && contains(github.ref, 'main')
     steps:
       - name: 'Check if a valid label exists'
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
