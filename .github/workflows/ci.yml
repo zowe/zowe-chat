@@ -118,9 +118,9 @@ jobs:
       actions: write
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && contains(github.ref, 'main')
+    if: github.event.name == 'push' && contains(github.ref, 'main')
     steps:
-      - name: Call deploy main
+      - name: 'Check if a valid label exists'
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
         id: call-deploy-main-chat
         with:
@@ -128,6 +128,7 @@ jobs:
           owner: zowe
           repo: zowe-chat
           workflow-filename: deploy-test-env.yml
-          branch-name: main
+          branch-name: ${{ github.head_ref }}
+          github-ref: ${{ github.ref }}
           poll-frequency: 3
-          inputs-json-string: '{"branch-or-ref":"main", "test-server": "main", "run-system-test": "false"}'
+          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "main", "run-system-test": "false"}'
