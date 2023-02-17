@@ -369,7 +369,7 @@ export class ChatBot {
             } else {
               // ZWECC002E: The file {{filePath}} does not exist
               logger.error(Util.getErrorMessage('ZWECC002E', { filePath: mattermostConfig.tlsCertificate, ns: 'ChatMessage' }));
-              process.exit(4);
+              throw new Error('Unable to read mattermost TLS certificate');
             }
           } else {
             logger.info('Mattermost TLS Certificate Empty. Using default certificate chain.');
