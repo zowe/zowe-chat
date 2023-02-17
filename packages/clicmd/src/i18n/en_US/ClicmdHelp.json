@@ -1,7 +1,7 @@
 {
-    "command": {
-        "zowe": {
-            "description": "Execute Zowe CLI command directly from chat tool channels"
-        }
+  "command": {
+    "zowe": {
+      "description": "Execute Zowe CLI command directly from chat tool channels"
     }
+  }
 }

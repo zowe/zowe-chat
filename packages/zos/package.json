@@ -9,7 +9,7 @@
     "build": "gulp build",
     "packaging": "gulp packaging",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --resolve-plugins-relative-to ../../",
     "checkDeps": "madge -c dist",
     "updateDeps": "npx npm-check-updates -u"
   },
@@ -59,6 +59,8 @@
   },
   "peerDependencies": {
     "@zowe/chat": "*",
+    "@zowe/imperative": "*",
+    "@zowe/zos-files-for-zowe-sdk": "*",
     "i18next": "*"
   },
   "bundledDependencies": [],

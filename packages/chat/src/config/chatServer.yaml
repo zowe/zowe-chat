@@ -7,7 +7,7 @@ log:
   # Specify the log file path
   # The default value is chatServer.log
   filePath: chatServer.log
-  
+
   # Specify the level of logs, the value can be error, warn, info, verbose, debug or silly.
   # The default value is info.
   level: info
@@ -27,10 +27,10 @@ log:
 
 # Specify the chatting limit
 limit:
-   # Specify the maximum number of resources that chatbot can retrieve for you.
-   record: 10
-   # Specify the maximum number of plugins that can respond to the same matched message or event.
-   plugin: -1
+  # Specify the maximum number of resources that chatbot can retrieve for you.
+  record: 10
+  # Specify the maximum number of plugins that can respond to the same matched message or event.
+  plugin: -1
 
 # Specify what security challenge method when accessing backend resource from chat tool channels. The value can be webapp, dialog or passticket.
 # The default value is webapp
