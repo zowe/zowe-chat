@@ -11,7 +11,7 @@
     "build": "gulp build",
     "packaging": "gulp packaging",
     "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-    "lint": "gulp lint",
+    "lint": "eslint \"src/**/*.ts\" --resolve-plugins-relative-to ../../",
     "checkDeps": "madge -c dist",
     "updateDeps": "npx npm-check-updates -u"
   },

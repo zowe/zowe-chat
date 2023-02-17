@@ -19,7 +19,7 @@ rejectUnauthorized: true
 authType: password
 
 # If you prefer all bot requests against mainframe services to use a single service account, set to true
-serviceAccount: 
+serviceAccount:
   # Enable or disable the service account. The value can be true or false.
   # The default value is false.
   enabled: false
@@ -27,5 +27,5 @@ serviceAccount:
   # Service account id. if service account is enabled, this information is required.
   user: <Service account ID>
 
- # Service account password. if service account is enabled, this information is required.
+  # Service account password. if service account is enabled, this information is required.
   password: <Service account password>

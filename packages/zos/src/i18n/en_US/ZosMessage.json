@@ -1,196 +1,196 @@
 {
-    "common": {
-        "error": {
-            "internal": "Oops! An internal error occurred.",
-            "restAPI": "Oops! I can't retrieve the data for you. The error message I got is: {{message}}.",
-            "unsupportedChatTool": "ops! The chat tool {{type}}is not supported. Please try Slack, Mattermost, or Teams.",
-            "unknown": {
-                "resource": "mmm... I don't understand the resource {{resource}}.",
-                "verb": "Hmmm... I don't understand the action {{verb}}.",
-                "object": "Hmmm... I don't understand the object {{object}}."
-            },
-            "missing": {
-                "argument": "Hmmm… Seems that a required argument {{argumentName}} is missing.",
-                "Option": "Hmmm… Seems that a required option {{optionName}} is missing.",
-                "argumentOrOption": "Sorry, I cannot find the results for you. Please enter at least one positional argument or option to try again."
-            },
-            "invalid": {
-                "format": "Oops! Seems that the {{optionName}} format is invalid."
-            }
-        },
-        "data": {
-            "foundMoreThanOne": "@{{executor}} I have found the following {{resourceName}} for you.",
-            "foundOne": "@{{executor}} Here is the detailed information of the {{resourceName}} that I found for you.",
-            "foundCommands": "@{{executor}} I have found the following Zowe Chat commands for you. Learn more details {{documentUrl}}.",
-            "foundCommandDetail": "@{{executor}} Here is the detailed information of the command that I found for you. Learn more details {{documentUrl}}.",
-            "foundZero": "@{{executor}} I haven't found any {{resourceName}} for you."
-        }
+  "common": {
+    "error": {
+      "internal": "Oops! An internal error occurred.",
+      "restAPI": "Oops! I can't retrieve the data for you. The error message I got is: {{message}}.",
+      "unsupportedChatTool": "ops! The chat tool {{type}}is not supported. Please try Slack, Mattermost, or Teams.",
+      "unknown": {
+        "resource": "mmm... I don't understand the resource {{resource}}.",
+        "verb": "Hmmm... I don't understand the action {{verb}}.",
+        "object": "Hmmm... I don't understand the object {{object}}."
+      },
+      "missing": {
+        "argument": "Hmmm… Seems that a required argument {{argumentName}} is missing.",
+        "Option": "Hmmm… Seems that a required option {{optionName}} is missing.",
+        "argumentOrOption": "Sorry, I cannot find the results for you. Please enter at least one positional argument or option to try again."
+      },
+      "invalid": {
+        "format": "Oops! Seems that the {{optionName}} format is invalid."
+      }
     },
-    "command": {
-        "job": {
-            "list": {
-                "status": {
-                    "resourceName": "job(s)",
-                    "id": "ID",
-                    "name": "Name",
-                    "subSystem": "Subsystem",
-                    "owner": "Owner",
-                    "status": "Status",
-                    "type": "Type",
-                    "class": "Class",
-                    "returnCode": "Return Code",
-                    "startedTime": "Started Time",
-                    "dropDownPlaceholder": "Select a Job to View More Details",
-                    "buttonTitle": "View More Details"
-                },
-                "detail": {
-                    "resourceName": "job",
-                    "details": "Details of job ",
-                    "id": "ID",
-                    "name": "Name",
-                    "subSystem": "Subsystem",
-                    "owner": "Owner",
-                    "status": "Status",
-                    "type": "Type",
-                    "class": "Class",
-                    "returnCode": "Return Code",
-                    "Phase": "Phase",
-                    "PhaseName": "Phase Name",
-                    "startedTime": "Started Time",
-                    "openJob": "Open Job",
-                    "ExecutionSystem": "Execution System",
-                    "ExecutionMember": "Execution Member",
-                    "ExecutionSubmittedTime": "Execution Submitted",
-                    "ExecutionEndedTime": "Execution Ended",
-                    "reasonNotRunning": "Reason Not Running"
-                }
-            }
-        },
-        "dataset": {
-            "list": {
-                "status": {
-                    "resourceName": "data set(s)",
-                    "name": "Name",
-                    "organization": "Data Set Organization",
-                    "type": "Data Set Type",
-                    "logicalRecordLength": "Logical Record Length",
-                    "detailDropDownPlaceholder": "View Attributes of A Dataset",
-                    "buttonTitle": "View Attributes",
-                    "memberDropDownPlaceholder": "List Members for A Dataset",
-                    "memberButtonTitle": "List Members"
-                },
-                "detail": {
-                    "resourceName": "data set",
-                    "details": "Details of dataset ",
-                    "catalogName": "Catalog Name",
-                    "creationDate": "Creation Date",
-                    "deviceType": "Device Type",
-                    "organization": "Data Set Organization",
-                    "type": "Data Set Type",
-                    "usedExtents": "Used Extents",
-                    "logicalRecordLength": "Logical Record Length",
-                    "multiVolume": "Date Set MultiVolume",
-                    "lastReferenceDate": "Last Reference Date",
-                    "recordFormat": "Record Format",
-                    "size": "Data Set Size",
-                    "spaceUnits": "Space Units",
-                    "volumeSerial": "Volume Serial",
-                    "memberButtonTitle": "List Dataset Member"
-                },
-                "member": {
-                    "resourceName": "data set member(s)",
-                    "name": "Name",
-                    "attributeDropDownPlaceholder": "View Attributes of A DataSet Member",
-                    "detailButtonTitle": "View More Details"
-                },
-                "memberDetail": {
-                    "resourceName": "data set member",
-                    "details": "Details of member ",
-                    "mod": "Modification Level",
-                    "version": "Version",
-                    "modification": "Modification",
-                    "creationTime": "Creation Time",
-                    "modificationDate": "Modification Date",
-                    "currentRecords": "Current Records",
-                    "initialRecords": "Initial Records",
-                    "changedRecords": "Changed Records",
-                    "modificationTime": "Modification Time",
-                    "user": "User",
-                    "sclm": "SCLM"
-                }
-            }
-        },
-        "file": {
-            "list": {
-                "status": {
-                    "resourceName": "USS file(s)",
-                    "name": "Name",
-                    "owner": "User",
-                    "mode": "Mode",
-                    "size": "Size",
-                    "detailDropDownPlaceholder": "View Details of a File or a Directory",
-                    "buttonTitle": "View Details"
-                },
-                "detail": {
-                    "resourceName": "USS file",
-                    "details": "Details of file ",
-                    "owner": "Owner",
-                    "mode": "Mode",
-                    "size": "Size",
-                    "modification": "Modification",
-                    "user": "User",
-                    "userId": "User ID",
-                    "group": "Group",
-                    "groupId": "Group ID"
-                },
-                "mounts": {
-                    "resourceName": "mounted filesystems",
-                    "name": "Name",
-                    "mountPoint": "Mount Point",
-                    "mode": "Mode",
-                    "detailDropDownPlaceholder": "View Details of a System File",
-                    "buttonTitle": "View Details"
-                },
-                "mountsDetail":{
-                    "resourceName": " mounted filesystem",
-                    "details": "Details of file system",
-                    "mountPoint": "Mount Point",
-                    "mode": "Mode",
-                    "type": "File System Type",
-                    "status": "Status",
-                    "blockSize": "Block Size",
-                    "blockAvailable": "Block Available",
-                    "totalBlocks": "Total Blocks",
-                    "systemName": "System Name",
-                    "readibc": "Data Blocks Read",
-                    "writeibc": "Data Blocks Written",
-                    "diribc": "Directory Blocks r/w"
-                }
-            }
-        },
-        "cmd":{
-            "issue":{
-                "console":{
-                    "cmdResponseNull":"I have issued the z/OS Console command for you. But I don't get any output, please check the system log for the command output.",
-                    "cmdResponseOutput":"I have issued the z/OS Console command for you. Please see the results below.",
-                    "cmdResponseUrl": "Please click the z/OS console command response URL and see if any more output",
-                    "truncationIndicator": "<<<TRUNCATED DUE TO THE COMMAND OUTPUT IS TOO LONG>>>"
-                }
-            }
-        },
-        "help": {
-            "list": {
-                "command": {
-                    "detailDropDownPlaceholder": "View Details of a command",
-                    "detailButtonTitle": "View Details",
-                    "here": "here"
-                },
-                "detail": {
-                    "usage": "Usage",
-                    "examples": "Examples",
-                    "here": "here"
-                }
-            }
-        }
+    "data": {
+      "foundMoreThanOne": "@{{executor}} I have found the following {{resourceName}} for you.",
+      "foundOne": "@{{executor}} Here is the detailed information of the {{resourceName}} that I found for you.",
+      "foundCommands": "@{{executor}} I have found the following Zowe Chat commands for you. Learn more details {{documentUrl}}.",
+      "foundCommandDetail": "@{{executor}} Here is the detailed information of the command that I found for you. Learn more details {{documentUrl}}.",
+      "foundZero": "@{{executor}} I haven't found any {{resourceName}} for you."
     }
+  },
+  "command": {
+    "job": {
+      "list": {
+        "status": {
+          "resourceName": "job(s)",
+          "id": "ID",
+          "name": "Name",
+          "subSystem": "Subsystem",
+          "owner": "Owner",
+          "status": "Status",
+          "type": "Type",
+          "class": "Class",
+          "returnCode": "Return Code",
+          "startedTime": "Started Time",
+          "dropDownPlaceholder": "Select a Job to View More Details",
+          "buttonTitle": "View More Details"
+        },
+        "detail": {
+          "resourceName": "job",
+          "details": "Details of job ",
+          "id": "ID",
+          "name": "Name",
+          "subSystem": "Subsystem",
+          "owner": "Owner",
+          "status": "Status",
+          "type": "Type",
+          "class": "Class",
+          "returnCode": "Return Code",
+          "Phase": "Phase",
+          "PhaseName": "Phase Name",
+          "startedTime": "Started Time",
+          "openJob": "Open Job",
+          "ExecutionSystem": "Execution System",
+          "ExecutionMember": "Execution Member",
+          "ExecutionSubmittedTime": "Execution Submitted",
+          "ExecutionEndedTime": "Execution Ended",
+          "reasonNotRunning": "Reason Not Running"
+        }
+      }
+    },
+    "dataset": {
+      "list": {
+        "status": {
+          "resourceName": "data set(s)",
+          "name": "Name",
+          "organization": "Data Set Organization",
+          "type": "Data Set Type",
+          "logicalRecordLength": "Logical Record Length",
+          "detailDropDownPlaceholder": "View Attributes of A Dataset",
+          "buttonTitle": "View Attributes",
+          "memberDropDownPlaceholder": "List Members for A Dataset",
+          "memberButtonTitle": "List Members"
+        },
+        "detail": {
+          "resourceName": "data set",
+          "details": "Details of dataset ",
+          "catalogName": "Catalog Name",
+          "creationDate": "Creation Date",
+          "deviceType": "Device Type",
+          "organization": "Data Set Organization",
+          "type": "Data Set Type",
+          "usedExtents": "Used Extents",
+          "logicalRecordLength": "Logical Record Length",
+          "multiVolume": "Date Set MultiVolume",
+          "lastReferenceDate": "Last Reference Date",
+          "recordFormat": "Record Format",
+          "size": "Data Set Size",
+          "spaceUnits": "Space Units",
+          "volumeSerial": "Volume Serial",
+          "memberButtonTitle": "List Dataset Member"
+        },
+        "member": {
+          "resourceName": "data set member(s)",
+          "name": "Name",
+          "attributeDropDownPlaceholder": "View Attributes of A DataSet Member",
+          "detailButtonTitle": "View More Details"
+        },
+        "memberDetail": {
+          "resourceName": "data set member",
+          "details": "Details of member ",
+          "mod": "Modification Level",
+          "version": "Version",
+          "modification": "Modification",
+          "creationTime": "Creation Time",
+          "modificationDate": "Modification Date",
+          "currentRecords": "Current Records",
+          "initialRecords": "Initial Records",
+          "changedRecords": "Changed Records",
+          "modificationTime": "Modification Time",
+          "user": "User",
+          "sclm": "SCLM"
+        }
+      }
+    },
+    "file": {
+      "list": {
+        "status": {
+          "resourceName": "USS file(s)",
+          "name": "Name",
+          "owner": "User",
+          "mode": "Mode",
+          "size": "Size",
+          "detailDropDownPlaceholder": "View Details of a File or a Directory",
+          "buttonTitle": "View Details"
+        },
+        "detail": {
+          "resourceName": "USS file",
+          "details": "Details of file ",
+          "owner": "Owner",
+          "mode": "Mode",
+          "size": "Size",
+          "modification": "Modification",
+          "user": "User",
+          "userId": "User ID",
+          "group": "Group",
+          "groupId": "Group ID"
+        },
+        "mounts": {
+          "resourceName": "mounted filesystems",
+          "name": "Name",
+          "mountPoint": "Mount Point",
+          "mode": "Mode",
+          "detailDropDownPlaceholder": "View Details of a System File",
+          "buttonTitle": "View Details"
+        },
+        "mountsDetail": {
+          "resourceName": " mounted filesystem",
+          "details": "Details of file system",
+          "mountPoint": "Mount Point",
+          "mode": "Mode",
+          "type": "File System Type",
+          "status": "Status",
+          "blockSize": "Block Size",
+          "blockAvailable": "Block Available",
+          "totalBlocks": "Total Blocks",
+          "systemName": "System Name",
+          "readibc": "Data Blocks Read",
+          "writeibc": "Data Blocks Written",
+          "diribc": "Directory Blocks r/w"
+        }
+      }
+    },
+    "cmd": {
+      "issue": {
+        "console": {
+          "cmdResponseNull": "I have issued the z/OS Console command for you. But I don't get any output, please check the system log for the command output.",
+          "cmdResponseOutput": "I have issued the z/OS Console command for you. Please see the results below.",
+          "cmdResponseUrl": "Please click the z/OS console command response URL and see if any more output",
+          "truncationIndicator": "<<<TRUNCATED DUE TO THE COMMAND OUTPUT IS TOO LONG>>>"
+        }
+      }
+    },
+    "help": {
+      "list": {
+        "command": {
+          "detailDropDownPlaceholder": "View Details of a command",
+          "detailButtonTitle": "View Details",
+          "here": "here"
+        },
+        "detail": {
+          "usage": "Usage",
+          "examples": "Examples",
+          "here": "here"
+        }
+      }
+    }
+  }
 }

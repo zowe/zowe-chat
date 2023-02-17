@@ -1,12 +1,12 @@
 /*
-* This program and the accompanying materials are made available under the terms of the
-* Eclipse Public License v2.0 which accompanies this distribution, and is available at
-* https://www.eclipse.org/legal/epl-v20.html
-*
-* SPDX-License-Identifier: EPL-2.0
-*
-* Copyright Contributors to the Zowe Project.
-*/
+ * This program and the accompanying materials are made available under the terms of the
+ * Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-v20.html
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Copyright Contributors to the Zowe Project.
+ */
 
 // Description:
 //   Gulp script used to clean, build, test (UT & FVT), deploy or packaging zosjob
@@ -52,7 +52,6 @@
 const gulp = require('gulp');
 const gulpClean = require('gulp-clean');
 const gulpIf = require('gulp-if');
-const gulpEslint = require('gulp-eslint');
 const childProcess = require('child_process');
 const fs = require('fs');
 const moment = require('moment');
@@ -78,7 +77,7 @@ if (releaseVersion === undefined || releaseVersion.length === 0) {
 }
 
 // Specify build time
-const buildTime = moment().format(`YYYYMMDD-HHmmss`);
+const buildTime = moment().format('YYYYMMDD-HHmmss');
 
 // Get build folder of source and destination
 const folder = {
@@ -91,25 +90,29 @@ const folder = {
         destination: '',
     },
 };
-if (nodeEnv === 'production') { // Product
+if (nodeEnv === 'production') {
+    // Product
     folder.src.source = ['src/**'];
     folder.src.destination = 'dist/';
 
     folder.test.source = 'N/A';
     folder.test.destination = 'N/A';
-} else if (nodeEnv === 'fvt') { // FVT
+} else if (nodeEnv === 'fvt') {
+    // FVT
     folder.src.source = ['src/**'];
     folder.src.destination = 'dist/src/';
 
     folder.test.source = 'test/fvt/**';
     folder.test.destination = 'dist/test/fvt/';
-} else if (nodeEnv === 'ut') { // UT
+} else if (nodeEnv === 'ut') {
+    // UT
     folder.src.source = ['src/**'];
     folder.src.destination = 'dist/src/';
 
     folder.test.source = 'test/ut/**';
     folder.test.destination = 'dist/test/ut/';
-} else { // Development
+} else {
+    // Development
     folder.src.source = ['src/**'];
     folder.src.destination = 'dist/';
 
@@ -129,12 +132,17 @@ console.log('');
 console.log(`Build folder: ${JSON.stringify(folder, null, 2)}`);
 console.log(`Build time: ${buildTime}`);
 
-if (nodeEnv === undefined || nodeEnv.length === 0
-    || releaseType === undefined || releaseType.length === 0
-    || releaseVersion === undefined || releaseVersion.length === 0) {
+if (
+    nodeEnv === undefined ||
+    nodeEnv.length === 0 ||
+    releaseType === undefined ||
+    releaseType.length === 0 ||
+    releaseVersion === undefined ||
+    releaseVersion.length === 0
+) {
     console.log('');
-    console.log(`The value of some required building system environment variables is empty!`);
-    console.log(`Check and set them first please!`);
+    console.log('The value of some required building system environment variables is empty!');
+    console.log('Check and set them first please!');
     process.exit(1);
 }
 
@@ -145,10 +153,12 @@ function cleanTask() {
 
 // Check code style
 function lintTask() {
-    return gulp.src('src/**').pipe(gulp.src('test/**'))
-            .pipe(gulpIf(isTypeScript, gulpEslint(), gulpIf(isJavaScript, gulpEslint())))
-            .pipe(gulpEslint.format())
-            .pipe(gulpEslint.failAfterError());
+    return gulp
+        .src('src/**')
+        .pipe(gulp.src('test/**'))
+        .pipe(gulpIf(isTypeScript, gulpEslint(), gulpIf(isJavaScript, gulpEslint())))
+        .pipe(gulpEslint.format())
+        .pipe(gulpEslint.failAfterError());
 }
 
 // Check whether target source is JS
@@ -171,15 +181,12 @@ function isTypeScript(file) {
 
 // Build source code task
 function buildSourceTask() {
-    return gulp.src(folder.src.source, {dot: true})
-            .pipe(gulpIf(isTypeScript, tsProject()))
-            .pipe(gulp.dest(folder.src.destination));
+    return gulp.src(folder.src.source, {dot: true}).pipe(gulpIf(isTypeScript, tsProject())).pipe(gulp.dest(folder.src.destination));
 }
 
 // Build test case task
 function buildTestCaseTask() {
-    return gulp.src(folder.test.source)
-            .pipe(gulp.dest(folder.test.destination));
+    return gulp.src(folder.test.source).pipe(gulp.dest(folder.test.destination));
 }
 
 // Create package.json file
@@ -197,7 +204,8 @@ async function createPackageJsonTask() {
     delete result.scripts.build;
     delete result.scripts.packaging;
     delete result.scripts.deploy;
-    if (nodeEnv === 'production') { // Product
+    if (nodeEnv === 'production') {
+        // Product
         delete result.scripts.build;
         delete result.scripts.packaging;
         delete result.scripts.lint;
@@ -210,35 +218,41 @@ async function createPackageJsonTask() {
         // TODO: must be updated later
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
-    } else if (nodeEnv === 'fvt') { // FVT
+    } else if (nodeEnv === 'fvt') {
+        // FVT
         result.scripts.test = result.scripts.testFunction;
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
-    } else if (nodeEnv === 'ut') { // UT
+    } else if (nodeEnv === 'ut') {
+        // UT
         result.scripts.test = result.scripts.testUnit;
         delete result.scripts.testUnit;
         delete result.scripts.testFunction;
-    } else { // Development
+    } else {
+        // Development
         delete result.scripts.build;
         delete result.scripts.packaging;
     }
 
     // Write result file
-    if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
+    if (nodeEnv === 'production') {
+        // Product: folder.src.destination = 'dist/'
         return fs.writeFileSync(`./${folder.src.destination}package.json`, JSON.stringify(result, null, 4), null);
-    } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+    } else if (nodeEnv === 'fvt') {
+        // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return fs.writeFileSync(`./${folder.src.destination}../package.json`, JSON.stringify(result, null, 4), null);
-    } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+    } else if (nodeEnv === 'ut') {
+        // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
         return fs.writeFileSync(`./${folder.src.destination}../package.json`, JSON.stringify(result, null, 4), null);
-    } else { // Development: folder.src.destination = 'dist/'
+    } else {
+        // Development: folder.src.destination = 'dist/'
         return fs.writeFileSync(`./${folder.src.destination}package.json`, JSON.stringify(result, null, 4), null);
     }
 }
 
 // Copy gulpfile task
 function copyGulpFileTask() {
-    return gulp.src('./gulpfile.js')
-            .pipe(gulp.dest('dist'));
+    return gulp.src('./gulpfile.js').pipe(gulp.dest('dist'));
 }
 
 let packagedFileName = '';
@@ -274,57 +288,87 @@ async function packagingTask() {
     packagedFileName = `zos-job-v${releaseVersion.replace(/\./g, '')}${releaseTypeSegment}${buildTypeSegment}-${buildTime}.tar.gz`;
     releasedFileName = `zos-job-v${releaseVersion.replace(/\./g, '')}.tar.gz`;
 
-    if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz `
-                + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
-                + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
-    } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz `
-                + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
-                + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
-    } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz `
-                + `&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json `
-                + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
-    } else { // Development: folder.src.destination = 'dist/'
-        return childProcess.execSync(`pwd && cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz `
-                + `&& rm -rf ./package-lock.json `
-                + `&& tar zcf ../release/${packagedFileName} * `,
-        {stdio: 'inherit'});
+    if (nodeEnv === 'production') {
+        // Product: folder.src.destination = 'dist/'
+        return childProcess.execSync(
+            `cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz ` +
+                '&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json ' +
+                `&& tar zcf ../release/${packagedFileName} * `,
+            {stdio: 'inherit'},
+        );
+    } else if (nodeEnv === 'fvt') {
+        // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(
+            `cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz ` +
+                '&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json ' +
+                `&& tar zcf ../release/${packagedFileName} * `,
+            {stdio: 'inherit'},
+        );
+    } else if (nodeEnv === 'ut') {
+        // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(
+            `cd ./${folder.src.destination}.. && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz ` +
+                '&& rm -rf ./node_modules && npm install && rm -rf ./package-lock.json ' +
+                `&& tar zcf ../release/${packagedFileName} * `,
+            {stdio: 'inherit'},
+        );
+    } else {
+        // Development: folder.src.destination = 'dist/'
+        return childProcess.execSync(
+            `pwd && cd ./${folder.src.destination} && mkdir -p ../release && rm -rf ../release/zos-job*.tar.gz ` +
+                '&& rm -rf ./package-lock.json ' +
+                `&& tar zcf ../release/${packagedFileName} * `,
+            {stdio: 'inherit'},
+        );
     }
 }
 
 // Install dependency task
 async function installDependencyTask() {
-    if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
-    } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination}.. && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
-    } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination}.. && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
-    } else { // Development: folder.src.destination = 'dist/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`,
-                {stdio: 'inherit'});
+    if (nodeEnv === 'production') {
+        // Product: folder.src.destination = 'dist/'
+        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`, {
+            stdio: 'inherit',
+        });
+    } else if (nodeEnv === 'fvt') {
+        // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(`cd ./${folder.src.destination}.. && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`, {
+            stdio: 'inherit',
+        });
+    } else if (nodeEnv === 'ut') {
+        // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(`cd ./${folder.src.destination}.. && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`, {
+            stdio: 'inherit',
+        });
+    } else {
+        // Development: folder.src.destination = 'dist/'
+        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./node_modules && npm install && rm -rf ./package-lock.json`, {
+            stdio: 'inherit',
+        });
     }
 }
 
 // Purge unused file task
 async function purgeUnusedFileTask() {
-    if (nodeEnv === 'production') { // Product: folder.src.destination = 'dist/'
+    if (nodeEnv === 'production') {
+        // Product: folder.src.destination = 'dist/'
         return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
-    } else if (nodeEnv === 'fvt') { // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf && `
-                + `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
-    } else if (nodeEnv === 'ut') { // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
-        return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf && `
-                + `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
-    } else { // Development: folder.src.destination = 'dist/'
+    } else if (nodeEnv === 'fvt') {
+        // FVT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(
+            `cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf && ` +
+                `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`,
+            {stdio: 'inherit'},
+        );
+    } else if (nodeEnv === 'ut') {
+        // UT: folder.src.destination = 'dist/src/'  folder.test.destination = 'dist/test/fvt/'
+        return childProcess.execSync(
+            `cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf && ` +
+                `cd ../../${folder.test.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`,
+            {stdio: 'inherit'},
+        );
+    } else {
+        // Development: folder.src.destination = 'dist/'
         return childProcess.execSync(`cd ./${folder.src.destination} && rm -rf ./logs/* && find . -name ".DS_*"|xargs rm -rf`, {stdio: 'inherit'});
     }
 }
@@ -358,21 +402,20 @@ async function purgeUnusedFileTask() {
 
 // Export gulp task
 exports.clean = cleanTask;
-if (nodeEnv === 'production') { // Product
-    exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, purgeUnusedFileTask);
-} else if (nodeEnv === 'fvt') { // FVT
-    exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
-} else if (nodeEnv === 'ut') { // UT
-    exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
-} else { // Development
-    exports.build = gulp.series(cleanTask, buildSourceTask,
-            createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
+if (nodeEnv === 'production') {
+    // Product
+    exports.build = gulp.series(cleanTask, buildSourceTask, createPackageJsonTask, purgeUnusedFileTask);
+} else if (nodeEnv === 'fvt') {
+    // FVT
+    exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask, createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
+} else if (nodeEnv === 'ut') {
+    // UT
+    exports.build = gulp.series(cleanTask, buildSourceTask, buildTestCaseTask, createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
+} else {
+    // Development
+    exports.build = gulp.series(cleanTask, buildSourceTask, createPackageJsonTask, copyGulpFileTask, purgeUnusedFileTask);
 }
 // exports.testUnit = testUnitTask;
 // exports.testFunction = testFunctionTask;
 exports.packaging = packagingTask;
-exports.lint = lintTask;
 exports.default = gulp.series(exports.build);

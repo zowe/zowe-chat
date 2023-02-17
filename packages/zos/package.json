@@ -1,68 +1,70 @@
 {
-    "name": "@zowe/zos",
-    "version": "1.0.0",
-    "description": "Manage z/OS jobs, datasets, USS files from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
-    "type": "commonjs",
-    "main": "index.js",
-    "types": "index.d.ts",
-    "scripts": {
-        "build": "gulp build",
-        "packaging": "gulp packaging",
-        "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
-        "lint": "gulp lint",
-        "checkDeps": "madge -c dist",
-        "updateDeps": "npx npm-check-updates -u"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@github.com/zowe/zowe-chat.git"
-    },
-    "keywords": [
-        "Zowe",
-        "Chat",
-        "z/OS",
-        "Z",
-        "job",
-        "dataset",
-        "file"
-    ],
-    "author": "Zowe",
-    "license": "EPL-2.0",
-    "bugs": {
-        "url": "https://github.com/zowe/zowe-chat/issues"
-    },
-    "homepage": "https://github.com/zowe/zowe-chat#readme",
-    "dependencies": {
-        "@zowe/core-for-zowe-sdk": "^7.2.2",
-        "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
-        "@zowe/zosmf-for-zowe-sdk": "^7.2.2",
-        "@zowe/zos-console-for-zowe-sdk": "^7.2.2"
-    },
-    "devDependencies": {
-        "@types/node": ">=18.11.3",
-        "@typescript-eslint/eslint-plugin": ">=5.40.1",
-        "@typescript-eslint/parser": ">=5.40.1",
-        "eslint": ">=8.26.0",
-        "eslint-config-google": ">=0.14.0",
-        "eslint-plugin-header": "^3.1.1",
-        "gulp": ">=4.0.2",
-        "gulp-clean": ">=0.4.0",
-        "gulp-eslint": ">=6.0.0",
-        "gulp-if": ">=3.0.0",
-        "gulp-jshint": ">=2.1.0",
-        "gulp-typescript": ">=6.0.0-alpha.1",
-        "moment": "^2.29.4",
-        "ts-node": ">=10.9.1",
-        "typescript": "^4.8.4",
-        "madge": "^5.0.1",
-        "npm-check-updates": "^16.3.15"
-    },
-    "peerDependencies": {
-        "@zowe/chat": "*",
-        "i18next": "*"
-    },
-    "bundledDependencies": [],
-    "engines": {
-        "node": ">=16.13.2"
-    }
+  "name": "@zowe/zos",
+  "version": "1.0.0",
+  "description": "Manage z/OS jobs, datasets, USS files from your most popular chat tools such as Microsoft Teams, Slack, Mattermost and so on.",
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "gulp build",
+    "packaging": "gulp packaging",
+    "test": "jest test --collectCoverage --collectCoverageFrom='./src/**/*.js' --verbose",
+    "lint": "eslint \"src/**/*.ts\" --resolve-plugins-relative-to ../../",
+    "checkDeps": "madge -c dist",
+    "updateDeps": "npx npm-check-updates -u"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/zowe/zowe-chat.git"
+  },
+  "keywords": [
+    "Zowe",
+    "Chat",
+    "z/OS",
+    "Z",
+    "job",
+    "dataset",
+    "file"
+  ],
+  "author": "Zowe",
+  "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/zowe/zowe-chat/issues"
+  },
+  "homepage": "https://github.com/zowe/zowe-chat#readme",
+  "dependencies": {
+    "@zowe/core-for-zowe-sdk": "^7.2.2",
+    "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
+    "@zowe/zosmf-for-zowe-sdk": "^7.2.2",
+    "@zowe/zos-console-for-zowe-sdk": "^7.2.2"
+  },
+  "devDependencies": {
+    "@types/node": ">=18.11.3",
+    "@typescript-eslint/eslint-plugin": ">=5.40.1",
+    "@typescript-eslint/parser": ">=5.40.1",
+    "eslint": ">=8.26.0",
+    "eslint-config-google": ">=0.14.0",
+    "eslint-plugin-header": "^3.1.1",
+    "gulp": ">=4.0.2",
+    "gulp-clean": ">=0.4.0",
+    "gulp-eslint": ">=6.0.0",
+    "gulp-if": ">=3.0.0",
+    "gulp-jshint": ">=2.1.0",
+    "gulp-typescript": ">=6.0.0-alpha.1",
+    "moment": "^2.29.4",
+    "ts-node": ">=10.9.1",
+    "typescript": "^4.8.4",
+    "madge": "^5.0.1",
+    "npm-check-updates": "^16.3.15"
+  },
+  "peerDependencies": {
+    "@zowe/chat": "*",
+    "@zowe/imperative": "*",
+    "@zowe/zos-files-for-zowe-sdk": "*",
+    "i18next": "*"
+  },
+  "bundledDependencies": [],
+  "engines": {
+    "node": ">=16.13.2"
+  }
 }

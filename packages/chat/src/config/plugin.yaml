@@ -1,8 +1,8 @@
-- package: "@zowe/zos"
+- package: '@zowe/zos'
   registry: https://registry.npmjs.org/
   version: 1.0.0
   priority: 1
-- package: "@zowe/clicmd"
+- package: '@zowe/clicmd'
   registry: https://registry.npmjs.org/
   version: 1.0.0
   priority: 1
