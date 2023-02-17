@@ -8,6 +8,8 @@ on:
     branches:
       - '**'
 
+permissions: read-all
+
 jobs:
   sonar:
     runs-on: ubuntu-latest
