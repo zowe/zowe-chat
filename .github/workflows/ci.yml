@@ -10,8 +10,7 @@ on:
     branches:
       - main
   pull_request:
-      types: [opened, synchronize]
-    
+    types: [opened, synchronize]
 
 jobs:
   build-and-test:
@@ -37,48 +36,47 @@ jobs:
       cancel-in-progress: true
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Get NPM Version
-      id: npm-version
-      run: echo "::set-output name=number::$(npm --version)"
+      - name: Get NPM Version
+        id: npm-version
+        run: echo "::set-output name=number::$(npm --version)"
 
-    - name: Use NPM v8
-      id: npm8
-      run: npm install -g npm@~8.3.2
+      - name: Use NPM v8
+        id: npm8
+        run: npm install -g npm@~8.3.2
 
-    - name: Install Dependencies
-      run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
-    - name: Build Source
-      id: build
-      run: npm run buildAll
+      - name: Build Source
+        id: build
+        run: npm run buildAll
 
-    - name: Unit Tests
-      run: npm run test:unit
+      - name: Unit Tests
+        run: npm run test:unit
 
-    - name: Integration Tests
-      run: npm run test:integration
+      - name: Integration Tests
+        run: npm run test:integration
 
-    - name: Archive Results
-      if: ${{ always() && steps.build.outcome == 'success' }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ matrix.os }}-${{ matrix.node-version }}-results
-        path: __tests__/__results__/
+      - name: Archive Results
+        if: ${{ always() && steps.build.outcome == 'success' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-${{ matrix.node-version }}-results
+          path: __tests__/__results__/
 
-    - name: Upload Results to Codecov
-      if: ${{ always() && steps.build.outcome == 'success' }}
-      uses: codecov/codecov-action@v3
-      with:
-        env_vars: OS,NODE
-
+      - name: Upload Results to Codecov
+        if: ${{ always() && steps.build.outcome == 'success' }}
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: OS,NODE
 
   call-deploy-dev:
     permissions:
@@ -86,9 +84,9 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: |
-        github.event_name == 'pull_request' &&  
-        ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
-        ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
+      github.event_name == 'pull_request' &&  
+      ( contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') 
+      ||  contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy'))
     env:
       TEST_SERVER_ONE: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-1-deploy') }}
       TEST_SERVER_TWO: ${{ contains(github.event.pull_request.labels.*.name, 'chatbot-dev-2-deploy') }}
@@ -120,9 +118,9 @@ jobs:
       actions: write
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event.name == 'push' && contains(github.ref, 'main')
+    if: github.event_name == 'push' && contains(github.ref, 'main')
     steps:
-      - name: 'Check if a valid label exists'
+      - name: Call deploy main
         uses: zowe-actions/shared-actions/workflow-remote-call-wait@main
         id: call-deploy-main-chat
         with:
@@ -130,7 +128,6 @@ jobs:
           owner: zowe
           repo: zowe-chat
           workflow-filename: deploy-test-env.yml
-          branch-name: ${{ github.head_ref }}
-          github-ref: ${{ github.ref }} 
+          branch-name: main
           poll-frequency: 3
-          inputs-json-string: '{"branch-or-ref":"${{ github.ref }}", "test-server": "main", "run-system-test": "false"}'
+          inputs-json-string: '{"branch-or-ref":"main", "test-server": "main", "run-system-test": "false"}'
