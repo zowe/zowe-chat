@@ -26,6 +26,7 @@
     "packages/webapp"
   ],
   "devDependencies": {
+    "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.2.6",
     "@typescript-eslint/eslint-plugin": ">=5.40.1",
     "@typescript-eslint/parser": ">=5.40.1",
@@ -35,8 +36,8 @@
     "@zowe/zosmf-for-zowe-sdk": "^7.7.0",
     "eslint": ">=8.26.0",
     "eslint-config-google": ">=0.14.0",
-    "eslint-plugin-header": "^3.1.1",
     "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "fs-extra": "^11.1.0",
