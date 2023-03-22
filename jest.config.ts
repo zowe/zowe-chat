@@ -30,6 +30,7 @@ const config: Config = {
   globals: {
     'ts-jest': {
       disableSourceMapSupport: true,
+      config: 'tsconfig.tests.json',
     },
   },
 

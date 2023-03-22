@@ -107,6 +107,7 @@ module.exports = {
         'object-curly-spacing': ['error', 'always'],
         'node/no-missing-import': 'off',
         'node/no-empty-function': 'off',
+        'node/no-unpublished-import': ['error', { ignorePatterns: '**/__tests__' }],
         'node/no-unsupported-features/es-syntax': 'off',
         'node/no-missing-require': 'off',
         'node/shebang': 'off',
