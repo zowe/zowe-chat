@@ -18,7 +18,7 @@ import { PluginRequireProvider } from './plugins/PluginRequireProvider';
 // // Start chat bot. Requires AppConfig and Logger.
 // logger.info("Initializing Zowe Chat Bot");
 
-PluginRequireProvider.createPluginHooks(['i18next', '@zowe/chat', '@zowe/imperative']);
+PluginRequireProvider.createPluginHooks(['i18next', '@zowe/chat', '@zowe/imperative', '@zowe/bot']);
 
 //
 chatBot.run();

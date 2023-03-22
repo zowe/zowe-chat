@@ -13,6 +13,8 @@ import * as PluginErrors from '../../../src/plugins/PluginErrors';
 import { Module } from 'module';
 
 import { generateRandomAlphaNumericString } from '../../../../../__tests__/__src__/util/TestUtilities';
+import { EnvironmentVariable } from '../../../src/settings/EnvironmentVariable';
+import path from 'path';
 
 describe('PluginRequireProvider', () => {
   /**
@@ -206,6 +208,56 @@ describe('PluginRequireProvider', () => {
           PluginRequireProvider.destroyPluginHooks();
         });
       });
+    });
+
+    describe('@zowe/chat core module resolution', () => {
+      const thisObject = 'This string gets attached as the this to require so we can track if it got called correctly';
+      const mockedRequire = getMockedRequire();
+      PluginRequireProvider.createPluginHooks(['@zowe/chat']);
+
+      try {
+        // If all went well, this should be dispatched to the mockedRequire
+        // which should abort the require due to the input being an object.
+        expect(modulePrototype.require.call(thisObject, '@zowe/chat', testRequireIndicator)).toBe(undefined);
+        // modulePrototype.require.call(thisObject, '@zowe/chat', testRequireIndicator);
+        expect(mockedRequire).toHaveBeenCalledTimes(1);
+        expect(mockedRequire).toHaveBeenCalledWith('./', testRequireIndicator);
+      } catch (e) {
+        PluginRequireProvider.destroyPluginHooks();
+
+        throw e;
+      }
+      PluginRequireProvider.destroyPluginHooks();
+    });
+
+    describe('@zowe/chat sub-module resolution', () => {
+      const testCases: string[] = ['@zowe/chat/sub/package', '@zowe/chat/security/SecurityProvider'];
+
+      for (const testMod of testCases) {
+        it(`passes with value "${testMod}"`, () => {
+          const thisObject = 'This string gets attached as the this to require so we can track if it got called correctly';
+          const mockedRequire = getMockedRequire();
+          PluginRequireProvider.createPluginHooks(['@zowe/chat']);
+
+          try {
+            // If all went well, this should be dispatched to the mockedRequire
+            // which should abort the require due to the input being an object.
+            expect(modulePrototype.require.call(thisObject, testMod, testRequireIndicator)).toBe(undefined);
+            //  modulePrototype.require.call(thisObject, testMod, testRequireIndicator);
+            expect(mockedRequire).toHaveBeenCalledTimes(1);
+            expect(mockedRequire).toHaveBeenCalledWith(
+              EnvironmentVariable.ZOWE_CHAT_HOME + path.sep + 'zoweChat' + path.sep + testMod.split('@zowe/chat')[1],
+              testRequireIndicator,
+            );
+          } catch (e) {
+            PluginRequireProvider.destroyPluginHooks();
+
+            throw e;
+          }
+
+          PluginRequireProvider.destroyPluginHooks();
+        });
+      }
     });
 
     describe('module injection', () => {

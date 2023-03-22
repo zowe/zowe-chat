@@ -151,8 +151,7 @@ export class PluginRequireProvider {
     const regex = (this.regex = new RegExp(`^(${internalModules.join('|')})(?:\\/.*)?$`, 'gm'));
     const origRequire = (this.origRequire = Module.prototype.require);
 
-    // Timerify the function if needed
-    // Gave it a name so that we can more easily track it
+    // Must be a function (no () => {} allowed), so it can be used as a constructor.
     Module.prototype.require = function PluginModuleLoader(...args: any[]) {
       // Check to see if the module should be injected
       const request: string = args[0];
@@ -165,7 +164,7 @@ export class PluginRequireProvider {
           if (request === hostPackageName) {
             args[0] = '.' + path.sep;
           } else {
-            args[0] = `${hostPackageRoot}${path.sep}${request.substr(hostPackageName.length)}`;
+            args[0] = `${hostPackageRoot}${path.sep}${request.substring(hostPackageName.length)}`;
           }
         }
 
