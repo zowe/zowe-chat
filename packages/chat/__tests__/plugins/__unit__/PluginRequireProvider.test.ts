@@ -8,11 +8,9 @@
  * Copyright Contributors to the Zowe Project.
  */
 
-// eslint-disable-next-line node/no-unpublished-import
 import { PluginRequireProvider } from '../../../src/plugins/PluginRequireProvider';
 import * as PluginErrors from '../../../src/plugins/PluginErrors';
-// @ts-ignore
-import Module = require("module");
+import { Module } from 'module';
 
 import { generateRandomAlphaNumericString } from '../../../../../__tests__/__src__/util/TestUtilities';
 
@@ -50,7 +48,6 @@ describe('PluginRequireProvider', () => {
     require: (module: string, check: typeof testRequireIndicator) => any;
   } = Module.prototype as any;
 
-
   /**
    * Stores the original require passed at the beginning of testing.
    */
@@ -83,8 +80,9 @@ describe('PluginRequireProvider', () => {
    * while test requires don't try to load anything.
    */
   const getMockedRequire = () => {
-    //@ts-ignore
-    return Module.prototype.require = jest.fn(function(...args: any[]) {
+    // @ts-ignore
+    // eslint-disable-next-line space-before-function-paren
+    return (Module.prototype.require = jest.fn(function (...args: any[]) {
       if (args[1] === testRequireIndicator) {
         // eslint-disable-next-line no-invalid-this
         return this;
@@ -92,12 +90,11 @@ describe('PluginRequireProvider', () => {
         // eslint-disable-next-line no-invalid-this
         return originalRequire.apply(this as any, args);
       }
-    });
+    }));
   };
 
   // Gets a reference to the original require before each test
   beforeEach(() => {
-
     originalRequire = Module.prototype.require;
     checkForCleanEnvironment();
   });
@@ -106,7 +103,7 @@ describe('PluginRequireProvider', () => {
   afterEach(() => {
     // Ensure that the proper module loader is set back as the prototype.
     Module.prototype.require = originalRequire;
-    mPluginRequireProvider.mInstance = undefined as any
+    mPluginRequireProvider.mInstance = undefined as any;
     checkForCleanEnvironment(true);
   });
 
@@ -331,7 +328,6 @@ describe('PluginRequireProvider', () => {
           describe('should redirect to the proper host package', () => {
             for (const module of testData.modules) {
               it(`passes with module ${module}`, () => {
-
                 const thisObject = 'This should not be returned';
                 const mockedRequire = getMockedRequire();
 
@@ -355,7 +351,6 @@ describe('PluginRequireProvider', () => {
           describe('should redirect to the proper host package submodule import', () => {
             for (const module of testData.modules) {
               it(`passes with module ${module}`, () => {
-
                 const thisObject = 'This should not be returned';
                 const mockedRequire = getMockedRequire();
                 const submoduleImport = '/some/submodule/import';
