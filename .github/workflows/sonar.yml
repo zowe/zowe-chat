@@ -35,6 +35,12 @@ jobs:
       - name: Build
         run: npm run buildAll
 
+      - name: Unit Tests
+        run: npm run test:unit
+
+      - name: Integration Tests
+        run: npm run test:integration
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
