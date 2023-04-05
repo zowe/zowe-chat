@@ -154,7 +154,7 @@ export class BotMessageListener extends BotListener {
           type: IMessageType.PLAIN_TEXT,
         },
       ]);
-      Util.dumpObject(chatContextData.context.chatTool);
+
       if (!success) {
         await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [
           {
