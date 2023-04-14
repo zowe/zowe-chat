@@ -17,4 +17,4 @@ Zowe Chat uses a few core NPM modules which can be reused by plugins without ins
 - `i18next`
   - The i18n and l10n library used by Zowe Chat. Optional peer dependency.
 
-If you declare any of these dependencies as a peer dependency, Zowe Chat will take care of dynamically linking you to the proper library at runtime. To see exactly which versions of the libraries are in use, check the [package.jso](../packages/chat/package.json).
+If you declare any of these dependencies as a peer dependency, Zowe Chat will take care of dynamically linking you to the proper library at runtime. To see exactly which versions of the libraries are in use, check the [package.json](../packages/chat/package.json).
