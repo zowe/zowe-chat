@@ -66,6 +66,7 @@ describe('PluginRequireProvider', () => {
   const checkForCleanEnvironment = (isAfterEach = false) => {
     try {
       expect(mPluginRequireProvider.mInstance).toBeUndefined();
+      expect(Module.prototype.require).toEqual(originalRequire);
     } catch (e) {
       throw new Error(
         (isAfterEach ? 'Bad environment state detected after running this test!\n\n' : '') +
@@ -105,7 +106,6 @@ describe('PluginRequireProvider', () => {
   afterEach(() => {
     // Ensure that the proper module loader is set back as the prototype.
     Module.prototype.require = originalRequire;
-    mPluginRequireProvider.mInstance = undefined as any;
     checkForCleanEnvironment(true);
   });
 
