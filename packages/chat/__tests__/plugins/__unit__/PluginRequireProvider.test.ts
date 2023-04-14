@@ -146,6 +146,7 @@ describe('PluginRequireProvider', () => {
   });
 
   describe('injection tests', () => {
+    // Note: https://github.com/npm/validate-npm-package-name#naming-rules
     const MAX_NPM_PACKAGE_NAME_LENGTH = 214;
 
     it('should properly prepare modules for injection into a regular expression', () => {
