@@ -148,12 +148,21 @@ export class BotMessageListener extends BotListener {
         this.processMessage(chatContextData);
       });
       logger.debug('Creating challenge link ' + redirect + ' for user ' + user.name);
-      await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [
+      const success = await chatContextData.context.chatting.bot.sendDirectMessage(chatContextData.extraData.contexts[0], [
         {
-          message: `Hello @${user.name}, you are not logged in to the backend system yet. Please log in through your private login link that works for you only: ${redirect}`,
+          message: `Hello @${user.name}, you are not logged in to the backend system yet. Please log in through this login link: ${redirect}`,
           type: IMessageType.PLAIN_TEXT,
         },
       ]);
+
+      if (!success) {
+        await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [
+          {
+            message: `I ran into an error trying to send you a direct message. Please ensure this bot is not blocked, or contact an administrator for more help.`,
+            type: IMessageType.PLAIN_TEXT,
+          },
+        ]);
+      }
       logger.end(this.processMessage, this);
     } else {
       try {
@@ -162,12 +171,20 @@ export class BotMessageListener extends BotListener {
           const redirect = this.webapp.generateChallenge(user, () => {
             this.processMessage(chatContextData);
           });
-          await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [
+          const success = await chatContextData.context.chatting.bot.sendDirectMessage(chatContextData.extraData.contexts[0], [
             {
               message: `Hello @${user.name}, your session has expired, please log in again through your private login link that works for you only: ${redirect}`,
               type: IMessageType.PLAIN_TEXT,
             },
           ]);
+          if (!success) {
+            await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [
+              {
+                message: `I ran into an error trying to send you a direct message. Please ensure this bot is not blocked, or contact an administrator for more help.`,
+                type: IMessageType.PLAIN_TEXT,
+              },
+            ]);
+          }
           logger.end(this.processMessage, this);
           return;
         }
@@ -206,12 +223,20 @@ export class BotMessageListener extends BotListener {
           const redirect = this.webapp.generateChallenge(user, () => {
             //
           });
-          await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [
+          const success = await chatContextData.context.chatting.bot.sendDirectMessage(chatContextData.extraData.contexts[0], [
             {
               message: `Hello @${user.name}, it looks like your login expired. Please visit ${redirect} to login again,`,
               type: IMessageType.PLAIN_TEXT,
             },
           ]);
+          if (!success) {
+            await chatContextData.context.chatting.bot.send(chatContextData.extraData.contexts[0], [
+              {
+                message: `I ran into an error trying to send you a direct message. Please ensure this bot is not blocked, or contact an administrator for more help.`,
+                type: IMessageType.PLAIN_TEXT,
+              },
+            ]);
+          }
           logger.end(this.processMessage, this);
           return;
         }
