@@ -46,7 +46,7 @@ jobs:
 
       - name: Get NPM Version
         id: npm-version
-        run: echo "::set-output name=number::$(npm --version)"
+        run: echo "number=$(npm --version)" >> $GITHUB_OUTPUT
 
       - name: Use NPM v8
         id: npm8
