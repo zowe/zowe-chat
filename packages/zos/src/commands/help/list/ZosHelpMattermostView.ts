@@ -154,7 +154,7 @@ class ZosHelpMattermostView extends ChatMattermostView {
                 documentUrl:
                   `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}]` +
                   `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/` +
-                  `${command.scope}/${commandResource}/${commandResource})` + `-article`,
+                  `${command.scope}/${commandResource}/${commandResource}-article)`,
                 ns: 'ZosMessage',
                 interpolation: { escapeValue: false },
               }),
