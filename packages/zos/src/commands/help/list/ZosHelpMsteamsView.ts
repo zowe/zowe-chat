@@ -31,7 +31,7 @@ class ZosHelpMsteamsView extends ChatMsteamsView {
           executor: executor.name,
           documentUrl:
             `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}]` +
-            `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos)`,
+            `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos-article)`,
           ns: 'ZosMessage',
           interpolation: { escapeValue: false },
         }),
@@ -57,7 +57,7 @@ class ZosHelpMsteamsView extends ChatMsteamsView {
           cardObject.body.push({
             type: 'TextBlock',
             text:
-              `**[${key}](${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${key}/${key})** ` +
+              `**[${key}](${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${key}/${key}-article)** ` +
               `${commandHelpObj[key].description}`,
             wrap: true,
           });
@@ -176,7 +176,7 @@ class ZosHelpMsteamsView extends ChatMsteamsView {
           executor: executor.name,
           documentUrl:
             `[${i18next.t('command.help.list.detail.here', { ns: 'ZosMessage' })}]` +
-            `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${commandResource}/${commandResource})`,
+            `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${commandResource}/${commandResource}-article)`,
           ns: 'ZosMessage',
           interpolation: { escapeValue: false },
         }),

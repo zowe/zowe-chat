@@ -41,7 +41,7 @@ class ZosHelpMattermostView extends ChatMattermostView {
           helpInfoText =
             helpInfoText +
             `**[${key}](${super.getDocumentationBaseURL()}/` +
-            `zowe-chat-command-reference/zos/${key}/${key})**  ` +
+            `zowe-chat-command-reference/zos/${key}/${key}-article)**  ` +
             `${commandHelpObj[key].description} \n`;
 
           // Create options for command details select menu
@@ -76,7 +76,7 @@ class ZosHelpMattermostView extends ChatMattermostView {
                 executor: executor.name,
                 documentUrl:
                   `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}]` +
-                  `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos)`,
+                  `(${super.getDocumentationBaseURL()}//zos/zos-article)`,
                 ns: 'ZosMessage',
                 interpolation: { escapeValue: false },
               }),
@@ -154,7 +154,7 @@ class ZosHelpMattermostView extends ChatMattermostView {
                 documentUrl:
                   `[${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}]` +
                   `(${super.getDocumentationBaseURL()}/zowe-chat-command-reference/` +
-                  `${command.scope}/${commandResource}/${commandResource})`,
+                  `${command.scope}/${commandResource}/${commandResource})` + `-article`,
                 ns: 'ZosMessage',
                 interpolation: { escapeValue: false },
               }),
