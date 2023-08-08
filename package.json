@@ -67,5 +67,8 @@
   },
   "engines": {
     "node": "^16.0.0"
+  },
+  "dependencies": {
+    "lint": "^0.8.19"
   }
 }
