@@ -9,7 +9,7 @@
     "updateDeps": "npx npm-check-updates -u",
     "updateDepsAll": "npm run updateDeps --workspaces",
     "lintAll": "npm run lint --workspaces",
-    "buildAll": "gulp updateLicense && npm run build --workspaces",
+    "buildAll": "npm run build --workspaces",
     "checkDepsAll": "npm run checkDeps --workspaces",
     "test:unit": "jest \"__tests__.*?__unit__.*\\.(spec|test)\\.tsx?$\" --coverage ",
     "test:integration": "jest \"__tests__.*?__integration__.*\\.(spec|test)\\.tsx?$\" --coverage false",

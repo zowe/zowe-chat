@@ -137,5 +137,12 @@ module.exports = {
         sourceType: 'module',
       },
     },
+    {
+      files: [' *.test.ts', '*.test.tsx'],
+      rules: {
+        'node/no-unpublished-import': 'off',
+        '@typescript-eslint/ban-ts-comment': 'warn',
+      },
+    },
   ],
 };
