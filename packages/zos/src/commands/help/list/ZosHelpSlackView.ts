@@ -34,7 +34,7 @@ class ZosHelpSlackView extends ChatSlackView {
               text: i18next.t('common.data.foundCommands', {
                 executor: executor.name,
                 documentUrl:
-                  `<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos|` +
+                  `<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/zos-article|` +
                   `${i18next.t('command.help.list.command.here', { ns: 'ZosMessage' })}>`,
                 ns: 'ZosMessage',
                 interpolation: { escapeValue: false },
@@ -63,7 +63,7 @@ class ZosHelpSlackView extends ChatSlackView {
             text: {
               type: 'mrkdwn',
               text:
-                `*<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${key}/${key}|${key}>*  ` +
+                `*<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${key}/${key}-article|${key}>*  ` +
                 `${commandHelpObj[key].description} \n`,
             },
           });
@@ -155,7 +155,7 @@ class ZosHelpSlackView extends ChatSlackView {
               text: i18next.t('common.data.foundCommandDetail', {
                 executor: executor.name,
                 documentUrl:
-                  `<${super.getDocumentationBaseURL()}/zowe-chat-command-reference/zos/${commandResource}/${commandResource}|` +
+                  `<${super.getDocumentationBaseURL()}//zos/${commandResource}/${commandResource}-article|` +
                   `${i18next.t('command.help.list.detail.here', { ns: 'ZosMessage' })}>`,
                 ns: 'ZosMessage',
                 interpolation: { escapeValue: false },
