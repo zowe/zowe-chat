@@ -130,12 +130,6 @@ const rInstallCommands = [
   `export PATH=$PATH:/usr/local/lib/nodejs/node-v16.19.0-linux-s390x/bin &&
      export ZOWE_CHAT_HOME=${chatHome}/zoweChat && 
      export ZOWE_CHAT_PLUGIN_HOME=${chatHome}/plugins && 
-     cd $ZOWE_CHAT_HOME/node_modules/i18next && 
-     npm link && 
-     cd  $ZOWE_CHAT_PLUGIN_HOME && 
-     npm link i18next && 
-     cd  $ZOWE_CHAT_PLUGIN_HOME &&
-     npm link $ZOWE_CHAT_HOME && 
      ${chatHome}/zoweChat/bin/chatsvr_bash start`,
 ];
 

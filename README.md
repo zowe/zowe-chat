@@ -98,17 +98,6 @@ The following information is critical to working with the code, running/writing/
      export PATH=$PATH:$ZOWE_CHAT_HOME/bin
     ```
   - Update the plugin configuration file `$ZOWE_CHAT_PLUGIN_HOME/plugin.yaml` if necessary
-  - Execute the commands below to install local dependencies
-    ```sh
-    cd $ZOWE_CHAT_HOME/node_modules/i18next
-    npm link
-    cd  $ZOWE_CHAT_PLUGIN_HOME/@zowe/clicmd
-    npm link $ZOWE_CHAT_HOME
-    npm link i18next
-    cd  $ZOWE_CHAT_PLUGIN_HOME/@zowe/zos
-    npm link $ZOWE_CHAT_HOME
-    npm link i18next
-    ```
   - Update Zowe Chat, chat tool and z/OSMF server configuration per your environment
     ```sh
     $ZOWE_CHAT_HOME/config/chatServer.yaml
