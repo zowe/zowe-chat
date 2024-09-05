@@ -120,3 +120,10 @@ The following information is critical to working with the code, running/writing/
     - `chatsvr stop` - Stop your Zowe Chat server
     - `chatsvr restart` - Restart your Zowe Chat server
   - Launch your chat tool client and chat with your bot
+
+<p>Hosting infrastructure for this project is supported by:</p>
+<p>
+  <a href="https://www.digitalocean.com/?refcode=77a4454d32a1&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge">
+    <img src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/SVG/DO_Logo_horizontal_blue.svg" width="201px">
+  </a>
+</p>
