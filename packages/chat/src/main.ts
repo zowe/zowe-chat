@@ -9,6 +9,7 @@
  */
 
 import { chatBot } from './bot/ChatBot';
+import { PluginRequireProvider } from './plugins/PluginRequireProvider';
 // import { Logger } from "./utils/Logger";
 
 // // Logger must be initialized for future class initialization. Uses AppConfig.
@@ -16,6 +17,8 @@ import { chatBot } from './bot/ChatBot';
 
 // // Start chat bot. Requires AppConfig and Logger.
 // logger.info("Initializing Zowe Chat Bot");
+
+PluginRequireProvider.createPluginHooks(['i18next', '@zowe/chat', '@zowe/imperative', '@zowe/bot']);
 
 //
 chatBot.run();
