@@ -1,3 +1,7 @@
+# Notice
+
+This repository is archived and read-only. If you are interested in this project or have a use-case you would like to discuss, open an issue in the [community repository](https://github.com/zowe/community/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen).
+
 # Zowe Chat
 
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/zowe/zowe-chat/badge)](https://api.securityscorecards.dev/projects/github.com/zowe/zowe-chat)
