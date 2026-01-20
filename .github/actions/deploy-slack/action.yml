@@ -1,0 +1,56 @@
+name: Deploy Zowe Chat to a Test system
+description: Deploys Zowe Chat to target system
+inputs:
+  host:
+    description: Target host
+    required: true
+  botName:
+    description: Bot name
+    required: false
+    default: zowe-chat-dev-1
+  botSigningSecret:
+    description: Bot Signing Secret
+    required: true
+  botSocketToken:
+    description: Bot Socket Token
+    required: true
+  botToken:
+    description: Token to connect bot to mattermost
+    required: true
+  ssh_port:
+    description: SSH Port to connect to
+    required: false
+    default: '22'
+  chat_port:
+    description: Base port Zowe Chat should run with (also uses n+1, n+2)
+    required: false
+    default: '10110'
+  ssh_key:
+    description: SSH Private Key used to connect to target system
+    required: true
+  ssh_user:
+    description: User to connect to system as
+    required: false
+    default: zowechat
+  zosmf_protocol:
+    description: z/OSMF Protocol to Use
+    required: false
+    default: 'https'
+  zosmf_host:
+    description: z/OSMF Host name
+    required: true
+  zosmf_port:
+    description: z/OSMF Port
+    required: true
+  zosmf_ru:
+    description: Reject Unauthorized (false=allow self signed certs)
+    required: false
+    default: 'true'
+
+outputs:
+  success:
+    description: return code
+
+runs:
+  using: node16
+  main: index.js

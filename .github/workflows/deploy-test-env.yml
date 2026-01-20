@@ -59,7 +59,7 @@ jobs:
         run: npm install -g npm@~8.3.2
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build Source
         id: build
@@ -92,21 +92,21 @@ jobs:
           if [[ "$TEST_SERVER_ONE" = true ]]; then
               echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N3 }}" >> $GITHUB_OUTPUT
               echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N3 }}\"" >> $GITHUB_OUTPUT
-              echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_1_BOT }}" >> $GITHUB_OUTPUT
-              echo "BOT_ID=${{ secrets.MATTERMOST_DEV_1_BOT_ID }}" >> $GITHUB_OUTPUT
-              echo "MATTERMOST_BOT_NAME=zowe-chat-dev-1" >> $GITHUB_OUTPUT
+              echo "BOT_TOKEN=${{ secrets.SLACK_TOKEN_MAIN_BOT }}" >> $GITHUB_OUTPUT
+              echo "BOT_ID=${{ secrets.SLACK_BOT_NAME_STABLE }}" >> $GITHUB_OUTPUT
+              echo "BOT_NAME=${{ secrets.SLACK_BOT_NAME_STABLE }}" >> $GITHUB_OUTPUT
           elif [[ "$TEST_SERVER_TWO" = true ]]; then
               echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
               echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
-              echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_2_BOT }}" >> $GITHUB_OUTPUT
+              echo "BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_DEV_2_BOT }}" >> $GITHUB_OUTPUT
               echo "BOT_ID=${{ secrets.MATTERMOST_DEV_2_BOT_ID }}" >> $GITHUB_OUTPUT
-              echo "MATTERMOST_BOT_NAME=zowe-chat-dev-2" >> $GITHUB_OUTPUT
+              echo "BOT_NAME=zowe-chat-dev-2" >> $GITHUB_OUTPUT
           elif [[ "$MAIN_BRANCH" = true ]]; then
               echo "SERVER_ADDRESS=${{ secrets.ZLINUX_HOST_N4 }}" >> $GITHUB_OUTPUT
               echo "SERVER_CERT=\"${{ secrets.ZLINUX_PKEY_N4 }}\"" >> $GITHUB_OUTPUT
-              echo "MATTERMOST_BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_MAIN_BOT }}" >> $GITHUB_OUTPUT
+              echo "BOT_TOKEN=${{ secrets.MATTERMOST_TOKEN_MAIN_BOT }}" >> $GITHUB_OUTPUT
               echo "BOT_ID=${{ secrets.MATTERMOST_MAIN_BOT_ID }}" >> $GITHUB_OUTPUT
-              echo "MATTERMOST_BOT_NAME=zowe-chat-stable" >> $GITHUB_OUTPUT
+              echo "BOT_NAME=zowe-chat-stable" >> $GITHUB_OUTPUT
           else 
               echo "Error: No valid test-server configuration found. If deploying to main, please ensure this is the main branch."
               exit 1
@@ -114,13 +114,15 @@ jobs:
 
       - name: Deploy Chatbot
         id: deploy-chatbot
-        uses: ./.github/actions/deploy
+        uses: ./.github/actions/deploy-slack
         with:
           host: ${{ steps.system-address.outputs.SERVER_ADDRESS }}
           ssh_key: ${{ steps.system-address.outputs.SERVER_CERT }}
           ssh_user: ${{ secrets.ZLINUX_USER }}
-          botToken: ${{ steps.system-address.outputs.MATTERMOST_BOT_TOKEN }}
-          botName: ${{ steps.system-address.outputs.MATTERMOST_BOT_NAME }}
+          botSigningSecret: ${{ secrets.SLACK_SIGNING_SECRET_MAIN_BOT }}
+          botSocketToken: ${{ secrets.SLACK_SOCKET_TOKEN_MAIN_BOT }}
+          botToken: ${{ steps.system-address.outputs.BOT_TOKEN }}
+          botName: ${{ steps.system-address.outputs.BOT_NAME }}
           zosmf_host: ${{ secrets.ZOSMF_HOST }}
           zosmf_port: ${{ secrets.ZOSMF_PORT }}
           zosmf_ru: ${{ secrets.ZOSMF_RU }}
