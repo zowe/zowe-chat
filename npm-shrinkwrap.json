@@ -32299,6 +32299,7 @@
       "dependencies": {
         "@zowe/core-for-zowe-sdk": "^7.2.2",
         "@zowe/zos-console-for-zowe-sdk": "^7.2.2",
+        "@zowe/zos-files-for-zowe-sdk": "^7.2.2",
         "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
         "@zowe/zosmf-for-zowe-sdk": "^7.2.2"
       },
@@ -32327,7 +32328,6 @@
       "peerDependencies": {
         "@zowe/chat": "*",
         "@zowe/imperative": "*",
-        "@zowe/zos-files-for-zowe-sdk": "*",
         "i18next": "*"
       }
     }
@@ -36217,6 +36217,7 @@
         "@typescript-eslint/parser": ">=5.40.1",
         "@zowe/core-for-zowe-sdk": "^7.2.2",
         "@zowe/zos-console-for-zowe-sdk": "^7.2.2",
+        "@zowe/zos-files-for-zowe-sdk": "^7.2.2",
         "@zowe/zos-jobs-for-zowe-sdk": "^7.2.2",
         "@zowe/zosmf-for-zowe-sdk": "^7.2.2",
         "eslint": ">=8.26.0",
